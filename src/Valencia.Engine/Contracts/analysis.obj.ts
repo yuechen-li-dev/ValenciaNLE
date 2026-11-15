@@ -1,0 +1,31 @@
+type CopelandProfile = "type";
+type ObsConnectRequest = { endpoint?: string; recordingRoot: string; manifest: string; };
+type AudioSettings = { thresholdDb?: number; activeDb?: number; windowMs?: number; minimumSilenceMs?: number; minimumActivityMs?: number; mergeSilenceMs?: number; leadingPaddingMs?: number; trailingPaddingMs?: number; };
+type SceneSettings = { threshold?: number; everyNthFrame?: number; };
+type TranscriptionSettings = { model?: "tiny.en" | "large-v3"; language?: string; chunkSeconds?: number; overlapSeconds?: number; threads?: number; alignment?: "native" | "dtw"; };
+type TextEditRequest = { sequenceId: string; transcriptKey: string; mode: "retain" | "remove"; wordIds: string[]; occurrenceIds?: string[]; paddingMs?: number; };
+type AnalysisRequest = { assetId: string; streamIndex: number; kind: "audio" | "scenes" | "transcript" | "loudness" | "proxy" | "index"; audio?: AudioSettings; scenes?: SceneSettings; transcription?: TranscriptionSettings; };
+type RoughCutPolicy = { minimumSegmentMs?: number; minimumRemovalMs?: number; prePaddingMs?: number; postPaddingMs?: number; mergeDistanceMs?: number; maximumRetainedGapMs?: number; targetDurationMs?: number; };
+type Timestamp = { value: string; numerator: number; denominator: number; totalSeconds?: number; };
+type Offset = { ticks: string; totalSeconds?: number; };
+type Position = { timestamp: Timestamp; offset: Offset; };
+type SourceRange = { start: Position; end: Position; epoch: number; };
+type EnergyInterval = { range: SourceRange; category: "active" | "lowActivity" | "silence"; rms: number; };
+type ChannelPeak = { minimum: number; maximum: number; rms: number; };
+type WaveBin = { start: Position; end: Position; samples: string; epoch: number; channels: ChannelPeak[]; };
+type WaveLevel = { bins: WaveBin[]; };
+type SceneChange = { timestamp: Timestamp; score: number; epoch: number; };
+type WhisperModel = { id: string; revision: string; sha256: string; bytes: string; precision: string; path: string; };
+type TranscriptWord = { id: string; text: string; range: SourceRange; nativeStartTicks: string; nativeEndTicks: string; decoderProbability?: number; timingUsable: boolean; alignedStartTicks?: string; originalRange?: SourceRange; originalText?: string; dtwBoundaryTicks?: string; };
+type TranscriptSegment = { id: string; text: string; range: SourceRange; firstWord: number; wordCount: number; };
+type TranscriptData = { model: WhisperModel; language: string; provider: string; alignment: string; preprocessing: string; segments: TranscriptSegment[]; words: TranscriptWord[]; completedChunks: number; reusedChunks: number; };
+type LoudnessData = { integratedLufs?: number; truePeakDb?: number; loudnessRange?: number; thresholdLufs?: number; algorithm: string; measurement: string; targetLufs: number; peakCeilingDb: number; safeGainDb?: number; };
+type ProxyData = { version: number; key: string; sourceIdentity: string; sourceStream: number; width: number; height: number; codec: string; clockPolicy: string; videoIdentity: string; bytes: string; };
+type SourceIndexData = { streamIndex: number; policy: string; through: Position; anchors: number; };
+type SourceMarker = { start: string; end: string; label: string; };
+type CreatorRequest = { sequenceId: string; transcriptKey: string; audioKey: string; sceneKey?: string; targetTicks?: string; minimumTicks?: string; maximumTicks?: string; shortTicks?: string; shorts?: number; width?: number; height?: number; keywords?: string[]; markers?: SourceMarker[]; sourceOrder?: boolean; noiseReductionDb?: number; musicGainDb?: number; duckDb?: number; normalize?: boolean; targetLufs?: number; peakCeilingDb?: number; duckAttackMs?: number; duckReleaseMs?: number; duckHoldMs?: number; musicStreamIndices?: number[]; };
+type TranscriptCorrection = { wordId: string; text: string; };
+type TranscriptCorrections = { key: string; edits: TranscriptCorrection[]; };
+type AnalysisArtifact = { schemaVersion: number; key: string; assetId: string; fingerprint: string; streamIndex: number; kind: "audio" | "scenes" | "transcript" | "transcriptChunk" | "loudness" | "proxy" | "index"; algorithm: string; parameters: string; decoderPolicy: string; containerStart: Timestamp; status: "complete"; sampleRate: number; channels: number; processedUnits: string; waveform: WaveLevel[]; silence: SourceRange[]; activity: EnergyInterval[]; scenes: SceneChange[]; diagnostics: string[]; transcript?: TranscriptData; loudness?: LoudnessData; proxy?: ProxyData; index?: SourceIndexData; };
+
+

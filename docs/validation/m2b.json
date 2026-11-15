@@ -1,0 +1,3468 @@
+{
+  "milestone": "M2b",
+  "outcome": "passed",
+  "recordedAt": "2026-11-15T00:31:11.4120551-08:00",
+  "environment": {
+    "cpu": "AMD Ryzen 7 7700X 8-Core Processor             ",
+    "logicalProcessors": 16,
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "driver": "610.88",
+    "os": "Microsoft Windows 11 Pro",
+    "osVersion": "10.0.26300",
+    "sdk": "10.0.401",
+    "runtime": "10.0.15",
+    "ffmpeg": "ffmpeg version 7.1.1-full_build-www.gyan.dev Copyright (c) 2000-2025 the FFmpeg developers",
+    "decoderPolicy": "avcodec=4002661;avutil=3876708;swr=328548;sws=525156/same-rate-float/native-pts/luma64x36-area/v1"
+  },
+  "build": {
+    "configuration": "Release",
+    "warnings": 0,
+    "errors": 0,
+    "log": "artifacts/local/m2b-build.log",
+    "latestProgrammingLog": "artifacts/local/m2b-tests.log",
+    "app": "artifacts/publish/win-x64/Valencia.App.exe",
+    "appDllSha256": "8266DFA53240306A18C8CEE0CD2B4CE00EFFE4464CEA2736A9FC95027E4034F7",
+    "cli": "artifacts/publish/cli-win-x64/Valencia.Cli.exe",
+    "cliDllSha256": "DD2D57229F143AAE2665C270196A1DEE3394C139A8B5EB7201C5CCCC453AC180",
+    "newProductionPackages": [],
+    "newAssembly": "Valencia.Analysis"
+  },
+  "tests": [
+    {
+      "suite": "Valencia.Core.Tests",
+      "total": 70,
+      "passed": 70,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-15T00:21:22.7199994-08:00",
+      "finished": "2026-11-15T00:21:23.2275693-08:00",
+      "trx": "artifacts/local/tests/Valencia.Core.Tests.trx",
+      "tests": [
+        "Valencia.Core.Tests.EditingTests.FailurePreservesRedoButNewCommitInvalidatesIt",
+        "Valencia.Core.Tests.EditingTests.GapAdjacencyAndMultipleIndependentTracksAreValid",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"timebase\")",
+        "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"unused-id\")",
+        "Valencia.Core.Tests.EditingTests.RippleScopeClosesGapAndPreservesDiscontinuousSourcePieces",
+        "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"missing-id\")",
+        "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"insert\")",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"missing-stream\")",
+        "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"missing-collections\")",
+        "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"no-targets\")",
+        "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"ripple\")",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"zero\")",
+        "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"reversed\")",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"state\")",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"cross-track\")",
+        "Valencia.Core.Tests.EditingTests.SplitRejectsBoundariesAndOutsideRange(at: 10)",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"null\")",
+        "Valencia.Core.Tests.EditingTests.TransactionChildRevisionsAndIdsAreValidatedAgainstStartingRevision",
+        "Valencia.Core.Tests.DeterminismTests.SeededCommandSequencesActuallyReplayThroughDispatcher(seed: 17)",
+        "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"stream-id\")",
+        "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"trim\")",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"wrong-kind\")",
+        "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"delete\")",
+        "Valencia.Core.Tests.EditingTests.ConcurrentCommitsWithSameRevisionHaveExactlyOneWinner",
+        "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"outside\")",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"split\")",
+        "Valencia.Core.Tests.TimingAndQueryTests.StandardFrameAndSampleGridsAndRoundingAreExplicit",
+        "Valencia.Core.Tests.EditingTests.SplitRejectsBoundariesAndOutsideRange(at: 0)",
+        "Valencia.Core.Tests.DeterminismTests.SeededCommandSequencesActuallyReplayThroughDispatcher(seed: 103)",
+        "Valencia.Core.Tests.DeterminismTests.SeededCommandSequencesActuallyReplayThroughDispatcher(seed: 2026)",
+        "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"frame-rate\")",
+        "Valencia.Core.Tests.TimingAndQueryTests.EvaluationHonorsMuteVisibilityEnabledAndTrackOrder",
+        "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"negative\")",
+        "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"move\")",
+        "Valencia.Core.Tests.EditingTests.TransactionRollsBackAndSuccessfulGroupIsOneUndoEntry",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"delete\")",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"source-after\")",
+        "Valencia.Core.Tests.TimingAndQueryTests.EmptySequenceDurationAndReadOnlySnapshotQueriesStayCoherent",
+        "Valencia.Core.Tests.EditingTests.RevisionSchemaIdentityNoChangeAndBoundedHistoryAreEnforced",
+        "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"duplicate-id\")",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"asset\")",
+        "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"relative-path\")",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"overflow\")",
+        "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"split\")",
+        "Valencia.Core.Tests.EditingTests.RippleHandlesClipEdges(from: 8, to: 10, start: 0, sourceIn: 0, sourceOut: 8)",
+        "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"project-id\")",
+        "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"move-in\")",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"trim\")",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"move\")",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"insert\")",
+        "Valencia.Core.Tests.TimingAndQueryTests.HugeOriginalEpochAndUnusualTimebaseDoNotLoseRationalOrigin",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"track\")",
+        "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"zero\")",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"negative-start\")",
+        "Valencia.Core.Tests.EditingTests.RippleHandlesClipEdges(from: 0, to: 2, start: 0, sourceIn: 2, sourceOut: 10)",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"ripple\")",
+        "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"duplicate-target\")",
+        "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"asset-id\")",
+        "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"sequence\")",
+        "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"track-order\")",
+        "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"unknown-target\")",
+        "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"schema\")",
+        "Valencia.Core.Tests.EditingTests.SplitRejectsBoundariesAndOutsideRange(at: 11)",
+        "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"sample-rate\")",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"duplicate-id\")",
+        "Valencia.Core.Tests.TimingAndQueryTests.SplitAtSingleSequenceTickPreservesSourceContinuityAndDuration",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"missing-asset\")",
+        "Valencia.Core.Tests.EditingTests.RippleHandlesClipEdges(from: 0, to: 10, start: 0, sourceIn: 0, sourceOut: 0)",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"source-before\")",
+        "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"overlap\")"
+      ]
+    },
+    {
+      "suite": "Valencia.Persistence.Tests",
+      "total": 21,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-15T00:21:23.8425220-08:00",
+      "finished": "2026-11-15T00:21:24.6447225-08:00",
+      "trx": "artifacts/local/tests/Valencia.Persistence.Tests.trx",
+      "tests": [
+        "Valencia.Persistence.Tests.ProjectFileTests.AtomicOverwriteProducesReopenableCurrentAndPreviousBackup",
+        "Valencia.Persistence.Tests.ProjectFileTests.RelocatedBundleResolvesRelativePathsAndMissingMediaIsReported",
+        "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"corrupt\")",
+        "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"module-schema\")",
+        "Valencia.Persistence.Tests.ProjectFileTests.ExactLargeEpochAndOneTickOffsetsSurvivePersistence",
+        "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"unknown-field\")",
+        "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"missing-field\")",
+        "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"serializer\")",
+        "Valencia.Persistence.Tests.ProjectFileTests.SeededEditsRoundTripExactSemanticContent(seed: 2026)",
+        "Valencia.Persistence.Tests.ProjectFileTests.SuccessfulReplacementAndStaleLoadHaveExplicitCommitSemantics",
+        "Valencia.Persistence.Tests.ProjectFileTests.DeliverancePartialWriteCancellationOrFailurePreservesPreviousContainer(cancel: True)",
+        "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"document-schema\")",
+        "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"invalid-reference\")",
+        "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"missing-project\")",
+        "Valencia.Persistence.Tests.ProjectFileTests.SeededEditsRoundTripExactSemanticContent(seed: 103)",
+        "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"truncate\")",
+        "Valencia.Persistence.Tests.ProjectFileTests.SeededEditsRoundTripExactSemanticContent(seed: 17)",
+        "Valencia.Persistence.Tests.ProjectFileTests.PreCancelledSaveAndInvalidSnapshotLeavePreviousSaveByteIdentical",
+        "Valencia.Persistence.Tests.ProjectFileTests.DeliverancePartialWriteCancellationOrFailurePreservesPreviousContainer(cancel: False)",
+        "Valencia.Persistence.Tests.ProjectFileTests.CreateEditUndoRedoSaveReopenEvaluateUsesRealDispatcherAndDeliverance",
+        "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"negative-revision\")"
+      ]
+    },
+    {
+      "suite": "Valencia.Tests",
+      "total": 33,
+      "passed": 33,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-15T00:21:25.2093456-08:00",
+      "finished": "2026-11-15T00:21:27.4969196-08:00",
+      "trx": "artifacts/local/tests/Valencia.Tests.trx",
+      "tests": [
+        "Valencia.Tests.TimeAndAudioTests.FractionalFrameAndSampleGridsRemainExactAtProjectBoundary",
+        "Valencia.Tests.EditorInteractionTests.CancelAndInvalidLockedDestinationDoNotCommit(locked: False)",
+        "Valencia.Tests.TimelineIntegrationTests.UnsupportedSampleRateFailsInsteadOfWaitingForAnImpossiblePrebuffer",
+        "Valencia.Tests.TimelineIntegrationTests.RealExportIsIndependentlyDecodedAndMatchesReopenedDocument",
+        "Valencia.Tests.EditorInteractionTests.DragPreviewIsTransientAndReleaseCreatesOneUndoEntry",
+        "Valencia.Tests.TimelineIntegrationTests.SeekGenerationsCancelAndBackwardPlaybackResolvesFreshSources",
+        "Valencia.Tests.MediaTests.DecodesRealContainersAndDrainsBFramesInPresentationOrder(matroska: False)",
+        "Valencia.Tests.MediaTests.IndependentAudioDecoderResamplesToStereoWithoutConsumingVideo",
+        "Valencia.Tests.EditorInteractionTests.InputManRoutesUndoRedoWithoutDuplicateUnmodifiedCommands(shift: True)",
+        "Valencia.Tests.TimelineIntegrationTests.SixHourSequenceOffsetResolvesRealMediaWithoutDecodingTheGap",
+        "Valencia.Tests.EditorInteractionTests.ViewportKeepsPrecisionAtSixHourOriginAndZoomAnchor",
+        "Valencia.Tests.MediaTests.NonzeroContainerStartIsNormalizedWithoutDiscardingSourceTimestamp",
+        "Valencia.Tests.TimeAndAudioTests.DeviceClockCountsOnlyMediaPlayedRatherThanQueuedUnderrunSilence",
+        "Valencia.Tests.MediaTests.SeekDecodesThePresentationIntervalContainingTheTarget(target: 0.81100000000000005)",
+        "Valencia.Tests.KeyboardTests.RepeatedKeyDownAndFocusResetDoNotReplayAnOldAction",
+        "Valencia.Tests.TimeAndAudioTests.InvalidTimebasesAndOverflowAreRejectedInsteadOfRoundingThroughDouble",
+        "Valencia.Tests.TimelineIntegrationTests.EvaluatorUsesActualSourcePtsCutsGapsAndLayerOrder",
+        "Valencia.Tests.TimelineIntegrationTests.AudioGapIsExactAndMixMutePoliciesAreShared",
+        "Valencia.Tests.EditorInteractionTests.TrimAndSelectionAreFrameAlignedAndSourceBounded",
+        "Valencia.Tests.AssetMetadataTests.ImportRetainsOriginalStreamClocksWithoutDependingOnPlaybackDoubles(offset: False)",
+        "Valencia.Tests.MediaTests.DecodesRealContainersAndDrainsBFramesInPresentationOrder(matroska: True)",
+        "Valencia.Tests.KeyboardTests.ACompleteKeyPressBetweenRenderFramesIsDeliveredOnce",
+        "Valencia.Tests.MediaTests.SeekDecodesThePresentationIntervalContainingTheTarget(target: 0)",
+        "Valencia.Tests.EditorInteractionTests.CancelAndInvalidLockedDestinationDoNotCommit(locked: True)",
+        "Valencia.Tests.AssetMetadataTests.ImportRetainsOriginalStreamClocksWithoutDependingOnPlaybackDoubles(offset: True)",
+        "Valencia.Tests.EditorInteractionTests.RelinkUsesDispatcherAndValidatesExistingSourceBounds",
+        "Valencia.Tests.MediaTests.CancellationReleasesWorkersBlockedOnFullQueues",
+        "Valencia.Tests.MediaTests.VideoOnlyAndInvalidInputsHaveExplicitResults",
+        "Valencia.Tests.EditorInteractionTests.FiveThousandClipsAreCulledAndHitTestedWithoutPerClipWidgets",
+        "Valencia.Tests.EditorInteractionTests.FreshProjectCannotUndoItsRequiredSequenceSetup",
+        "Valencia.Tests.MediaTests.SeekDecodesThePresentationIntervalContainingTheTarget(target: 1.95)",
+        "Valencia.Tests.TimelineIntegrationTests.CancelledExportLeavesPreviousDestinationAndNoPartialFile",
+        "Valencia.Tests.EditorInteractionTests.InputManRoutesUndoRedoWithoutDuplicateUnmodifiedCommands(shift: False)"
+      ]
+    },
+    {
+      "suite": "Valencia.Programming.Tests",
+      "total": 51,
+      "passed": 51,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-15T00:24:50.5806303-08:00",
+      "finished": "2026-11-15T00:25:07.2502904-08:00",
+      "trx": "artifacts/local/tests/Valencia.Programming.Tests.trx",
+      "tests": [
+        "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"stale\")",
+        "Valencia.Programming.Tests.AnalysisCacheTests.EvictionAndConcurrentEquivalentPublicationStayWithinDiskBudget",
+        "Valencia.Programming.Tests.HeadlessProtocolTests.WorkspaceRejectsTraversalRootedPathsAndSourceAliases",
+        "Valencia.Programming.Tests.MediaAnalysisTests.PlannerRejectsUnsafeInputsWithoutMutation(kind: \"invalidRange\")",
+        "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"rollback\")",
+        "Valencia.Programming.Tests.EngineAndScriptTests.RealCopelandCSharpRoslynCallsFacadePreservesInt64AndUsesCompilationCache",
+        "Valencia.Programming.Tests.AudioAnalysisTests.SilentActiveAndShortSources(samples: 8000, silent: True, intervals: 1)",
+        "Valencia.Programming.Tests.AudioAnalysisTests.CoordinateConversionsUseExactOffsetsAndCheckedOverflow",
+        "Valencia.Programming.Tests.SceneAnalysisTests.ActualLumaDecodeDetectsCutsAndKeepsOriginalVfrTimestamps(kind: \"cut\", count: 1)",
+        "Valencia.Programming.Tests.EngineAndScriptTests.TypedObjectAuthoringAndJsonUseOneCompilerOwnedSchema",
+        "Valencia.Programming.Tests.SceneAnalysisTests.ActualLumaDecodeDetectsCutsAndKeepsOriginalVfrTimestamps(kind: \"fade\", count: 0)",
+        "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"overflow\")",
+        "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"unknownSequence\")",
+        "Valencia.Programming.Tests.MediaAnalysisTests.PlannerRejectsUnsafeInputsWithoutMutation(kind: \"misaligned\")",
+        "Valencia.Programming.Tests.MediaAnalysisTests.PlannerRejectsUnsafeInputsWithoutMutation(kind: \"locked\")",
+        "Valencia.Programming.Tests.MediaAnalysisTests.RealDecodeSharesFeaturesCachesAndKeepsObsStreamsIndependent",
+        "Valencia.Programming.Tests.MediaProgrammingTests.ActualMcpExportCancelsCleansUpThenExportsAValidatedEditedPlan",
+        "Valencia.Programming.Tests.MediaProgrammingTests.HeadlessCopelandOpenQueryPlanUndoSaveReopenAndExportIsIndependentlyVerified",
+        "Valencia.Programming.Tests.AudioAnalysisTests.DiscontinuitiesAreKeptSeparate",
+        "Valencia.Programming.Tests.MediaAnalysisTests.StaleSourceInvalidatesArtifactsAndAlreadyGeneratedPlans",
+        "Valencia.Programming.Tests.AudioAnalysisTests.MergingShortActivityIsExplicitAndDeterministic",
+        "Valencia.Programming.Tests.EngineAndScriptTests.TypedPlanDryRunCommitAndDirectCommandsHaveIdenticalEffectsAndUndo",
+        "Valencia.Programming.Tests.MediaAnalysisTests.CopelandScriptAnalyzesAndCreatesEquivalentNativePlan",
+        "Valencia.Programming.Tests.AudioAnalysisTests.FractionalSampleWindowsPaddingAndVisibleWaveformQueries",
+        "Valencia.Programming.Tests.AudioAnalysisTests.StereoPhaseAndBoundariesPreserveSamplePositionsAndPyramidEnergy",
+        "Valencia.Programming.Tests.AudioAnalysisTests.SilentActiveAndShortSources(samples: 80, silent: True, intervals: 0)",
+        "Valencia.Programming.Tests.SceneAnalysisTests.ActualLumaDecodeDetectsCutsAndKeepsOriginalVfrTimestamps(kind: \"static\", count: 0)",
+        "Valencia.Programming.Tests.AnalysisCacheTests.QuickFingerprintDetectsSampleAndMetadataChanges",
+        "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"overlap\")",
+        "Valencia.Programming.Tests.MediaAnalysisTests.PlannerRejectsUnsafeInputsWithoutMutation(kind: \"version\")",
+        "Valencia.Programming.Tests.EngineAndScriptTests.CompilerAndRuntimeDiagnosticsAndCancellationAreStructured",
+        "Valencia.Programming.Tests.HeadlessProtocolTests.ActualStdioInitializeDiscoveryQueryDryRunCommitConflictAndPathPolicy",
+        "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"identity\")",
+        "Valencia.Programming.Tests.MediaAnalysisTests.ActualMcpAnalyzesPagesPlansCommitsExportsAndRejectsConflicts",
+        "Valencia.Programming.Tests.SceneAnalysisTests.ActualLumaDecodeDetectsCutsAndKeepsOriginalVfrTimestamps(kind: \"vfr\", count: 1)",
+        "Valencia.Programming.Tests.MediaAnalysisTests.ActualCliCopelandAnalysisPlanSaveReopenAndExportWorkflow",
+        "Valencia.Programming.Tests.MediaAnalysisTests.PlannerHandlesPaddingMinimumSegmentsEmptyFactsAndFullRemoval",
+        "Valencia.Programming.Tests.MediaAnalysisTests.Mp4AacAnalysisKeepsOriginalStreamClockAndCodecBoundaryTolerance",
+        "Valencia.Programming.Tests.AudioAnalysisTests.TypedObjectSettingsAcceptNegativeDbfsThroughTheExistingCompiler",
+        "Valencia.Programming.Tests.AudioAnalysisTests.SilentActiveAndShortSources(samples: 8000, silent: False, intervals: 0)",
+        "Valencia.Programming.Tests.MediaAnalysisTests.PlannerRejectsUnsafeInputsWithoutMutation(kind: \"partial\")",
+        "Valencia.Programming.Tests.MediaAnalysisTests.PlanIsDeterministicAtomicUndoableAndExportSelectsCorrectSourceFrames",
+        "Valencia.Programming.Tests.EngineAndScriptTests.RealScriptBuildsValidatesCommitsAndUndoesAPlan",
+        "Valencia.Programming.Tests.MediaAnalysisTests.RetentionMergeAndGapPoliciesAreExplicit",
+        "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"unknownTrack\")",
+        "Valencia.Programming.Tests.MediaAnalysisTests.SplitMovedNonzeroInClipsPreserveExistingGapsAndAlignment",
+        "Valencia.Programming.Tests.AudioAnalysisTests.TenMinuteStreamingInputDoesNotRetainPcm",
+        "Valencia.Programming.Tests.HeadlessProtocolTests.ActualCliCompilesScriptAppliesTypedPlanAndRequiresExplicitSave",
+        "Valencia.Programming.Tests.AnalysisCacheTests.CacheRoundtripCorruptionCancellationAndVersionInvalidation",
+        "Valencia.Programming.Tests.MediaAnalysisTests.EquivalentJobsDeduplicateAndCancellationPublishesNoPartialArtifact",
+        "Valencia.Programming.Tests.EngineAndScriptTests.UiScopeSharesCurrentProjectPathAndRejectsProjectReplacement"
+      ]
+    }
+  ],
+  "totalValenciaTests": 175.0,
+  "preservedM2aBaseline": 142,
+  "newValenciaCases": 33,
+  "compiler": {
+    "baseline": "6ef4e034a5f42643fc279c6d49c2e18976a897c6",
+    "tests": {
+      "suite": "Copeland affected profiles/CLR/TSON",
+      "total": 291,
+      "passed": 291,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-15T00:14:39.6413245-08:00",
+      "finished": "2026-11-15T00:14:44.3651298-08:00",
+      "trx": "artifacts/local/tests/m2b-copeland.trx",
+      "tests": [
+        "Copeland.TS.Tests.TsonTableAssetFeatureTests.Representative_corpus_is_pinned_and_recompiles_to_identical_mir",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Intrinsic_cannot_be_redefined_or_shadowed(declaration: \"enum tsonAsset { Value, }\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"const $value = 1; const $value = 2;\", expectedCode: \"COPE-TSON-0001\")",
+        "Copeland.TS.Tests.TsonTableAssetFeatureTests.Canonical_and_authoring_profiles_produce_identical_mir_and_comment_only_changes_change_dependency_hash",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"const other = 1; const $value = 1;\", expectedCode: \"COPE-TSON-0001\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Canonical_asset_uses_the_same_expansion_and_is_deterministic",
+        "Copeland.TS.Tests.TsonFeatureTests.Array_validation_preserves_exact_schema_evidence(body: \"record Item { label: string; } record Other { labe\"···, message: \"does not match\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Table_storage_is_defensive_and_columns_retain_declaration_order",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0007\", source: \"record Circle { radius: number; }\\nenum Existing {\"···)",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Invalid_table_shapes_and_cells_use_bounded_table_diagnostics(declaration: \"record table Values { x: Result = []; }\", code: \"COPE-TSON-TABLE-0002\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0003\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Executable_or_foreign_forms_never_become_tson(body: \"const $value = { ...other };\")",
+        "Copeland.TS.Tests.TypeProfileTests.InvalidSchemasHaveLocatedDiagnostics(body: \"type A = { x: string; x: boolean; };\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Payload_enum_root_expands_for_both_profiles(canonicalProfile: True)",
+        "Copeland.TS.Tests.TsonFeatureTests.Every_resource_limit_has_a_tson_diagnostic(limit: \"cases\")",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0008\", source: \"record Circle { radius: number; }\\ntype Shape = Mi\"···)",
+        "Copeland.TS.Tests.TsonFeatureTests.Executable_or_foreign_forms_never_become_tson(body: \"import value; const $value = true;\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Intrinsic_cannot_be_redefined_or_shadowed(declaration: \"function tsonAsset(): number { return 1; }\")",
+        "Copeland.TS.Tests.TsonTableAssetFeatureTests.Ordinary_expression_tsonAsset_does_not_construct_a_table",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0002\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Invalid_table_shapes_and_cells_use_bounded_table_diagnostics(declaration: \"record table Empty { }\", code: \"COPE-TSON-TABLE-0003\")",
+        "Copeland.TS.Tests.TableQuerySourceGenerationTests.Payload_enum_query_is_stable_after_row_reorder_and_canonical_tson_roundtrip",
+        "Copeland.TS.Tests.TsonFeatureTests.Semantic_constructors_defensively_copy_and_do_not_install_value_equality",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Malformed_intrinsic_use_has_stable_diagnostic(source: \"function bad(value: number): string ! TsonEncodeEr\"···, diagnosticId: \"COPE-TSON-ENCODE-0001\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Intrinsic_cannot_be_redefined_or_shadowed(declaration: \"function load(): number { const tsonAsset: number \"···)",
+        "Copeland.TS.Tests.SourceFileProfileTests.Headers_resolve_without_parsing_the_language_body(name: \"Copeland\", owner: \"tscl\")",
+        "Copeland.TS.Tests.SourceFileProfileTests.Headers_resolve_without_parsing_the_language_body(name: \"Dotnet\", owner: \"tscl\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Catalog_and_value_validation_are_deterministic(body: \"enum Role { Named(label: string), } const $value =\"···, messagePart: \"does not match\")",
+        "Copeland.TS.Tests.SourceFileProfileTests.Invalid_headers_are_primary_diagnostics(source: \"export type CopelandProfile = \\\"JavaScript\\\"; type\"···, expected: \"COPE-PROFILE-0002\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.ObjectAssetsM15Tests.Sunkill_obj_ts_executes_at_compile_time_and_lowers_deterministically",
+        "Copeland.TS.Tests.TsonFeatureTests.Catalog_and_value_validation_are_deterministic(body: \"record User { name: string; name: string; } const \"···, messagePart: \"Duplicate field\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0004\")",
+        "Copeland.TS.Tests.TypeAliasTests.Alias_collisions_share_the_compilation_unit_type_namespace(source: \"type Name = number; record Name { value: number; }\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0001\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Malformed_intrinsic_use_has_stable_diagnostic(source: \"function tsonEncode(value: Root): Root { return va\"···, diagnosticId: \"COPE-TSON-ENCODE-0001\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Malformed_intrinsic_use_has_stable_diagnostic(source: \"function bad(tsonEncode: Root): Root { return tson\"···, diagnosticId: \"COPE-TSON-ENCODE-0001\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Representative_corpus_has_pinned_exact_bytes_and_sha256",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Intrinsic_composes_in_ordinary_result_expression_positions",
+        "Copeland.TS.Tests.NominalUnionTests.Parser_reports_deliberate_diagnostics_for_malformed_pipe_declarations(source: \"type Shape = Circle || Rectangle;\", diagnosticId: \"COPE-UNION-0001\")",
+        "Copeland.TS.Tests.NominalUnionTests.Parser_rejects_inline_pipe_type_syntax_with_a_union_owned_diagnostic",
+        "Copeland.TS.Tests.TsonFeatureTests.Catalog_and_value_validation_are_deterministic(body: \"record User { name: string; } const $value: User =\"···, messagePart: \"Unknown field\")",
+        "Copeland.TS.Tests.TypeAliasTests.Long_alias_cycle_is_non_recursive_and_has_a_bounded_path",
+        "Copeland.TS.Tests.TsonFeatureTests.Executable_or_foreign_forms_never_become_tson(body: \"const $value = { [name]: 1 };\")",
+        "Copeland.TS.Tests.TypeAliasTests.Alias_cycles_report_one_deterministic_declaration_order_path(source: \"type A = B; type B = A;\", path: \"A -> B -> A\")",
+        "Copeland.TS.Tests.SourceFileProfileTests.Invalid_headers_are_primary_diagnostics(source: \"export type CopelandProfile = \\\"JavaScript\\\" | \\\"D\"···, expected: \"COPE-PROFILE-0001\")",
+        "Copeland.TS.Tests.TypeAliasTests.Canonical_mir_assembly_has_no_alias_node_or_declaration_type",
+        "Copeland.TS.Tests.TypeAliasTests.Alias_names_are_case_sensitive_and_do_not_enter_value_scope",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Nested_asset_arrays_lower_to_existing_bound_arrays_with_explicit_types",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"const $value = null;\", expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Executable_or_foreign_forms_never_become_tson(body: \"const $value = target = 1;\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Profiles_enforce_identity_and_canonicality_laws",
+        "Copeland.TS.Tests.TsonFeatureTests.Every_resource_limit_has_a_tson_diagnostic(limit: \"fields\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Array_length_boundary_is_exact_and_reports_the_array_span(length: 100000, succeeds: True)",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Array_asset_lowering_flows_to_runtime_tson_encoding_plan",
+        "Copeland.TS.Tests.TypeProfileTests.InvalidSchemasHaveLocatedDiagnostics(body: \"type A = { x: A; };\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0002\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Row_and_cell_count_boundaries_are_exact(rowCount: 100000, success: True)",
+        "Copeland.TS.Tests.TsonFeatureTests.Executable_or_foreign_forms_never_become_tson(body: \"class Value {} const $value = true;\")",
+        "Copeland.TS.Tests.TypeAliasTests.Unknown_alias_target_reports_once_and_suppresses_dependent_cascades",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Intrinsic_builds_one_deduplicated_reachable_plan_and_result_expression",
+        "Copeland.TS.Tests.TypeAliasDiagnosticInventoryTests.Every_alias_diagnostic_has_a_focused_source_test_and_meaningful_span(diagnosticId: \"COPE-TYPE-0020\", source: \"type Nothing = void; function value(input: Nothing\"···)",
+        "Copeland.TS.Tests.TypeAliasTests.Alias_collisions_share_the_compilation_unit_type_namespace(source: \"enum Name { Value, } type Name = number;\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Row_and_cell_count_boundaries_are_exact(rowCount: 99999, success: True)",
+        "Copeland.TS.Tests.TypeAliasTests.Void_alias_obeys_canonical_position_legality",
+        "Copeland.TS.Tests.SourceFileProfileTests.Invalid_headers_are_primary_diagnostics(source: \"export type CopelandProfile = \\\"Javascript\\\";\", expected: \"COPE-PROFILE-0001\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.ObjectAssetsM15Tests.Span_allocator_resolves_exact_surplus_and_underflow_without_sprite_dependencies",
+        "Copeland.TS.Tests.SourceFileProfileTests.Headers_resolve_without_parsing_the_language_body(name: \"Legacy\", owner: \"tsc\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Unsupported_reachable_types_are_compile_time_errors(source: \"record Bad { value: number ! string; } function ba\"···)",
+        "Copeland.TS.Tests.NominalUnionTests.Nominal_unions_are_distinct_and_alias_alternatives_are_rejected_with_a_canonical_recommendation",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0009\", source: \"record Circle { radius: number; }\\nrecord Rectangl\"···)",
+        "Copeland.TS.Tests.TsonFixtureTests.Fixture_topology_is_complete_and_owned",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0004\")",
+        "Copeland.TS.Tests.TypeAliasTests.Parser_recovers_malformed_and_unsupported_aliases_without_general_parse_cascades(source: \"type Selected = string extends string ? string : n\"···, diagnosticId: \"COPE-TYPE-UNIMPLEMENTED\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0004\")",
+        "Copeland.TS.Tests.TypeAliasTests.Long_alias_chain_resolves_without_recursive_graph_traversal",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Column_count_boundaries_are_exact(columnCount: 255, success: True)",
+        "Copeland.TS.Tests.TypeProfileTests.InvalidSchemasHaveLocatedDiagnostics(body: \"function run(): number { return 1; }\")",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0004\", source: \"record Circle { radius: number; }\\ntype Shape = Ci\"···)",
+        "Copeland.TS.Tests.NominalUnionTests.Nominal_union_rejects_duplicate_and_out_of_range_alternatives_before_mir",
+        "Copeland.TS.Tests.TypeAliasTests.Alias_cycles_report_one_deterministic_declaration_order_path(source: \"type A = A;\", path: \"A -> A\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-PARSE-0004\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0003\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Asset_resource_limit_failure_retains_existing_Tson_diagnostic",
+        "Copeland.TS.Tests.TsonFeatureTests.Explicitly_typed_array_root_is_rejected_by_the_root_law",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Asset_backed_table_singleton_builds_one_table_plan",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Nominal_union_root_tson_assets_stop_at_the_existing_document_boundary",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Invalid_table_shapes_and_cells_use_bounded_table_diagnostics(declaration: \"record table Values { x: number = [\\\"wrong\\\"]; }\", code: \"COPE-TSON-TABLE-0004\")",
+        "Copeland.TS.Tests.NominalUnionTests.Parser_reports_deliberate_diagnostics_for_malformed_pipe_declarations(source: \"type Shape = Circle |;\", diagnosticId: \"COPE-UNION-0001\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Both_profiles_share_parser_and_round_trip_semantics_and_bytes",
+        "Copeland.TS.Tests.TypeAliasTests.Parser_recovers_malformed_and_unsupported_aliases_without_general_parse_cascades(source: \"type Name = number\", diagnosticId: \"COPE-ALIAS-0001\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Row_and_cell_count_boundaries_are_exact(rowCount: 100001, success: False)",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0001\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Supported_nested_arrays_build_one_structural_plan",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"const $value = 1 + 2;\", expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"const $value = run();\", expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Catalog_and_value_validation_are_deterministic(body: \"record User { name: string; } const $value: User =\"···, messagePart: \"Missing field\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TsonFeatureTests.Canonical_binary64_form_preserves_complete_categories_and_normalizes_nan",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0003\")",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0010\", source: \"record Circle { radius: number; }\\nrecord Rectangl\"···)",
+        "Copeland.TS.Tests.TsonFeatureTests.Every_resource_limit_has_a_tson_diagnostic(limit: \"source\")",
+        "Copeland.TS.Tests.NominalUnionTests.Parser_reports_deliberate_diagnostics_for_malformed_pipe_declarations(source: \"type Shape = |;\", diagnosticId: \"COPE-UNION-0001\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"const $value = [1];\", expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Intrinsic_cannot_be_redefined_or_shadowed(declaration: \"record tsonAsset { value: number; }\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-PARSE-0004\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Every_resource_limit_has_a_tson_diagnostic(limit: \"declarations\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TsonFeatureTests.Catalog_and_value_validation_are_deterministic(body: \"record User { name: string; } const $value: User =\"···, messagePart: \"does not match\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Table_root_is_exact_and_nested_or_multiple_tables_are_rejected",
+        "Copeland.TS.Tests.TsonFeatureTests.Catalog_and_value_validation_are_deterministic(body: \"enum Role { Named(label: string), } const $value =\"···, messagePart: \"requires 1 payload\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"function run(): number { return 1; } const $value \"···, expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Semantic_construction_rejects_missing_reordered_and_aliased_columns_or_cells",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Array_length_boundary_is_exact_and_reports_the_array_span(length: 100001, succeeds: False)",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Program_without_intrinsic_has_no_plan_or_error_enum",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TypeAliasDiagnosticInventoryTests.Every_alias_diagnostic_has_a_focused_source_test_and_meaningful_span(diagnosticId: \"COPE-ALIAS-0004\", source: \"type Name = Missing;\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Executable_or_foreign_forms_never_become_tson(body: \"if (true) { return; } const $value = true;\")",
+        "Copeland.TS.Tests.TypeProfileTests.ProfileProducesDeterministicStructuralTsonCatalogAndValidatesTypedData",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Invalid_table_shapes_and_cells_use_bounded_table_diagnostics(declaration: \"record table Values { x: [1]; x: [2]; }\", code: \"COPE-TSON-TABLE-0003\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Authoring_table_projects_to_nominal_immutable_table_and_exact_canonical_text",
+        "Copeland.TS.Tests.TsonTableAssetFeatureTests.Filesystem_language_fixtures_have_expected_acceptance",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0003\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Closed_generic_record_results_keep_concrete_tson_identity_and_never_leak_generic_or_interface_names",
+        "Copeland.TS.Tests.NominalUnionTests.Lexer_preserves_logical_or_and_emits_a_distinct_pipe_token",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TypeAliasTests.Type_mismatch_preserves_direct_authored_alias_provenance",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0007\", source: \"record Circle { radius: number; }\\nrecord Rectangl\"···)",
+        "Copeland.TS.Tests.ClrInteropTests.AwaitUsing_Is_Parsed_And_Explicitly_Deferred",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0001\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0005\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0003\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Intrinsic_and_path_misuse_is_diagnostic(replacementFunction: \"function load(): Settings { const x: Settings = ts\"···, diagnosticId: \"COPE-TSON-ASSET-0002\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Intrinsic_and_path_misuse_is_diagnostic(replacementFunction: \"function load(): Settings { const p: string = \\\"./\"···, diagnosticId: \"COPE-TSON-ASSET-0001\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Array_depth_and_total_node_boundaries_are_bounded_without_stack_overflow",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"record table Values { items: [1]; } const $value =\"···, expectedCode: \"COPE-TSON-TABLE-0001\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.NominalUnionTests.Nominal_union_corpus_artifacts_have_stable_bytes_and_hashes",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Table_intrinsic_requires_the_declaration_owned_singleton_and_builds_one_table_plan",
+        "Copeland.TS.Tests.TsonFeatureTests.Array_validation_preserves_exact_schema_evidence(body: \"const $value = [];\", message: \"requires an authoritative\")",
+        "Copeland.TS.Tests.ObjectAssetsM15Tests.Object_asset_diagnostics_are_source_located",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"let $value = 1;\", expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.ObjectAssetsM15Tests.Span_allocator_is_generic_deterministic_and_rejects_invalid_requests",
+        "Copeland.TS.Tests.TsonFeatureTests.Ordinary_parser_diagnostics_are_retained_without_tson_translation",
+        "Copeland.TS.Tests.TsonFeatureTests.Executable_or_foreign_forms_never_become_tson(body: \"for (;;) { continue; } const $value = true;\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Every_resource_limit_has_a_tson_diagnostic(limit: \"string\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Malformed_intrinsic_use_has_stable_diagnostic(source: \"function bad(value: Root): string ! TsonEncodeErro\"···, diagnosticId: \"COPE-TSON-ENCODE-0001\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TsonTableAssetFeatureTests.Closed_array_constants_defensively_copy_element_storage",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Table_limits_are_cumulative_and_output_limit_is_incremental",
+        "Copeland.TS.Tests.TypeAliasTests.Parser_recovers_malformed_and_unsupported_aliases_without_general_parse_cascades(source: \"type = number;\", diagnosticId: \"COPE-ALIAS-0001\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"const $value = { x: 1, x: 2 };\", expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Missing_schema_is_a_compile_time_error",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Noncanonical_canonical_asset_is_rejected_by_existing_diagnostic",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.SourceFileProfileTests.Target_checks_apply_to_every_project_source_and_native_runtime",
+        "Copeland.TS.Tests.ClrInteropTests.Reports_Clr_Specific_Failures_Without_Npm_Fallback",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0011\", source: \"record Circle { radius: number; }\\nrecord Rectangl\"···)",
+        "Copeland.TS.Tests.TsonTableAssetFeatureTests.Declaration_owned_asset_projects_to_one_closed_table_definition",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-PARSE-0001\")",
+        "Copeland.TS.Tests.SourceFileProfileTests.Comments_and_strings_do_not_claim_a_profile_and_bom_shebang_remain_readable",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0003\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Record_enum_nested_array_binary64_and_unicode_cells_round_trip",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Table_intrinsic_rejects_row_column_and_cell_views(source: \"const $schema: string = \\\"copeland://tests/table-e\"···)",
+        "Copeland.TS.Tests.NominalUnionTests.Nominal_union_and_equivalent_payload_enum_lower_to_equivalent_mir",
+        "Copeland.TS.Tests.TsonTableAssetFeatureTests.Parser_preserves_contextual_asset_clause_and_source_schema_spans",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Empty_columns_retain_types_and_same_shape_tables_are_nominally_distinct",
+        "Copeland.TS.Tests.NominalUnionTests.Nominal_union_injection_uses_existing_expected_type_paths_without_generic_inference_widening",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0001\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Value_node_count_includes_table_columns_cells_and_nested_values_once",
+        "Copeland.TS.Tests.SourceFileProfileTests.Headers_resolve_without_parsing_the_language_body(name: \"JavaScript\", owner: \"tscl\")",
+        "Copeland.TS.Tests.TypeAliasTests.Alias_collisions_share_the_compilation_unit_type_namespace(source: \"record Name { value: number; } type Name = number;\")",
+        "Copeland.TS.Tests.SourceFileProfileTests.Copeland_headers_preserve_module_graph_and_source_positions",
+        "Copeland.TS.Tests.NominalUnionTests.Primitive_alternatives_are_rejected_at_the_parser_boundary_with_union_owned_syntax_diagnostics",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0002\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"const $value = value;\", expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TypeAliasTests.Parser_recovers_malformed_and_unsupported_aliases_without_general_parse_cascades(source: \"type Name number;\", diagnosticId: \"COPE-ALIAS-0001\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0004\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0003\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Same_shape_does_not_cross_nominal_boundaries(body: \"enum A { Same, } enum B { Same, } const $value: B \"···, messagePart: \"Enum 'A' does not match\")",
+        "Copeland.TS.Tests.TypeProfileTests.SignedNumericLiteralsAreDataWithoutExecutingExpressions",
+        "Copeland.TS.Tests.TsonFeatureTests.Same_shaped_nominals_have_stable_distinct_identities",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Repeated_loads_have_one_dependency_and_two_ordinary_constructions",
+        "Copeland.TS.Tests.NominalUnionTests.Nominal_union_lowers_as_a_declaration_ordered_payload_enum_with_fixed_value_payload_names",
+        "Copeland.TS.Tests.TypeAliasTests.Aliases_are_transparent_across_expected_types_functions_records_enums_arrays_results_and_equality",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0006\", source: \"record Circle { radius: number; }\\nrecord Rectangl\"···)",
+        "Copeland.TS.Tests.TypeAliasTests.Alias_collisions_share_the_compilation_unit_type_namespace(source: \"record table Name { value: [1]; } type Name = numb\"···)",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0002\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Intrinsic_and_path_misuse_is_diagnostic(replacementFunction: \"function load(): Settings { const x: Settings = ts\"···, diagnosticId: \"COPE-TSON-ASSET-0002\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0001\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Column_count_boundaries_are_exact(columnCount: 257, success: False)",
+        "Copeland.TS.Tests.TypeAliasTests.Alias_and_direct_programs_have_identical_canonical_mir_and_tson_nominal_identity",
+        "Copeland.TS.Tests.SourceFileProfileTests.Headers_resolve_without_parsing_the_language_body(name: \"Dotnet-NativeAOT\", owner: \"tscl\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Table_intrinsic_rejects_row_column_and_cell_views(source: \"const $schema: string = \\\"copeland://tests/table-e\"···)",
+        "Copeland.TS.Tests.TsonFeatureTests.Every_resource_limit_has_a_tson_diagnostic(limit: \"payloads\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Intrinsic_and_path_misuse_is_diagnostic(replacementFunction: \"function load(): Settings { const x: Settings = ts\"···, diagnosticId: \"COPE-TSON-ASSET-0002\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Array_validation_preserves_exact_schema_evidence(body: \"record Batch { rows: number[][]; } const $value: B\"···, message: \"does not match\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0003\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Malformed_intrinsic_use_has_stable_diagnostic(source: \"function TsonEncodeError(): void { return; }\", diagnosticId: \"COPE-TSON-ENCODE-0001\")",
+        "Copeland.TS.Tests.TableAuthoringTests.Tson_does_not_silently_read_host_row_authoring_as_an_empty_table",
+        "Copeland.TS.Tests.TsonFeatureTests.Unicode_surrogate_escape_pair_projects_to_one_scalar_and_prints_stably",
+        "Copeland.TS.Tests.ClrInteropTests.Parser_Distinguishes_ClrUsing_And_ResourceUsing",
+        "Copeland.TS.Tests.TypeAliasDiagnosticInventoryTests.Every_alias_diagnostic_has_a_focused_source_test_and_meaningful_span(diagnosticId: \"COPE-ALIAS-0001\", source: \"type Missing = ;\")",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0005\", source: \"record Shape { value: number; }\\nrecord Circle { r\"···)",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0001\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0003\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Canonical_table_data_is_columnar_and_has_no_row_representation",
+        "Copeland.TS.Tests.TsonFeatureTests.Arrays_are_homogeneous_contextual_and_canonical",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Intrinsic_and_path_misuse_is_diagnostic(replacementFunction: \"function load(): number { const x: number = tsonAs\"···, diagnosticId: \"COPE-TSON-ASSET-0001\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Executable_or_foreign_forms_never_become_tson(body: \"while (true) { break; } const $value = true;\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TypeAliasTests.Alias_cycles_report_one_deterministic_declaration_order_path(source: \"type A = B; type B = C; type C = A;\", path: \"A -> B -> C -> A\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Catalog_and_value_validation_are_deterministic(body: \"enum Role { Named(label: string), } const $value =\"···, messagePart: \"Unknown enum case\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Array_length_boundary_is_exact_and_reports_the_array_span(length: 99999, succeeds: True)",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0003\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Filesystem_owned_record_and_enum_profile_fixtures_compile",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Unsupported_reachable_types_are_compile_time_errors(source: \"type Operation = (value: number) => number; record\"···)",
+        "Copeland.TS.Tests.ClrInteropTests.Selects_Number_To_Double_Overload_Deterministically",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Intrinsic_and_path_misuse_is_diagnostic(replacementFunction: \"function load(): Settings { const x = tsonAsset(\\\"\"···, diagnosticId: \"COPE-TSON-ASSET-0001\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Executable_or_foreign_forms_never_become_tson(body: \"record Bad { method(): number; } const $value = tr\"···)",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0003\", source: \"record A { value: number; }\\nrecord B { value: num\"···)",
+        "Copeland.TS.Tests.TsonFeatureTests.Array_validation_preserves_exact_schema_evidence(body: \"record Batch { names: string[]; } const $value: Ba\"···, message: \"does not match\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Column_count_boundaries_are_exact(columnCount: 256, success: True)",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0004\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Payload_enum_root_expands_for_both_profiles(canonicalProfile: False)",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0002\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Executable_or_foreign_forms_never_become_tson(body: \"record Bad { get value(): number; } const $value =\"···)",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Malformed_intrinsic_use_has_stable_diagnostic(source: \"function bad(value: Root): void { tsonEncode; }\", diagnosticId: \"COPE-TSON-ENCODE-0001\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0007\", source: \"record Circle { radius: number; }\\nrecord table Sa\"···)",
+        "Copeland.TS.Tests.TsonFeatureTests.Same_shape_does_not_cross_nominal_boundaries(body: \"record A { value: number; } record B { value: numb\"···, messagePart: \"Record 'A' does not match\")",
+        "Copeland.TS.Tests.TypeAliasDiagnosticInventoryTests.Every_alias_diagnostic_has_a_focused_source_test_and_meaningful_span(diagnosticId: \"COPE-ALIAS-0006\", source: \"type Name = number; function value(): number { ret\"···)",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0002\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-PARSE-0004\")",
+        "Copeland.TS.Tests.ClrInteropTests.Emits_And_Executes_Direct_Framework_Clr_Calls",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Asset_diagnostics_retain_asset_path_and_asset_span",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Structural_object_root_is_rejected_as_an_unsupported_compiled_value",
+        "Copeland.TS.Tests.NominalUnionTests.Parser_preserves_nominal_union_declaration_tokens_and_order",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0004\")",
+        "Copeland.TS.Tests.TypeAliasTests.Parser_recovers_malformed_and_unsupported_aliases_without_general_parse_cascades(source: \"type Name = keyof number;\", diagnosticId: \"COPE-ALIAS-0001\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"const $value: number ! string = 1;\", expectedCode: \"COPE-TSON-0003\")",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.ObjectTypeScript_asset_expands_to_existing_bound_and_mir_nodes",
+        "Copeland.TS.Tests.TypeAliasDiagnosticInventoryTests.Every_alias_diagnostic_has_a_focused_source_test_and_meaningful_span(diagnosticId: \"COPE-ALIAS-0003\", source: \"type Name = number; type Name = string;\")",
+        "Copeland.TS.Tests.TypeAliasDiagnosticInventoryTests.Every_alias_diagnostic_has_a_focused_source_test_and_meaningful_span(diagnosticId: \"COPE-ALIAS-0005\", source: \"type A = B; type B = A;\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Malformed_intrinsic_use_has_stable_diagnostic(source: \"function bad(value: Root): string ! TsonEncodeErro\"···, diagnosticId: \"COPE-TSON-ENCODE-0001\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Every_resource_limit_has_a_tson_diagnostic(limit: \"nodes\")",
+        "Copeland.TS.Tests.SourceFileProfileTests.Legacy_is_rejected_by_the_copeland_frontend_without_ts_parse_cascades",
+        "Copeland.TS.Tests.TypeProfileTests.InvalidSchemasHaveLocatedDiagnostics(body: \"type A = Missing;\")",
+        "Copeland.TS.Tests.TypeAliasTests.Parser_recognizes_contextual_compilation_unit_alias_declaration",
+        "Copeland.TS.Tests.TypeProfileTests.ProfileSelectionIsExplicitAndOldSchemaAndExecutableAliasesStayCompatible",
+        "Copeland.TS.Tests.TypeAliasTests.Alias_collisions_share_the_compilation_unit_type_namespace(source: \"type Name = number; type Name = string;\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0001\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Every_resource_limit_has_a_tson_diagnostic(limit: \"nesting\")",
+        "Copeland.TS.Tests.TypeAliasTests.Parser_recovers_malformed_and_unsupported_aliases_without_general_parse_cascades(source: \"type Name = ;\", diagnosticId: \"COPE-ALIAS-0001\")",
+        "Copeland.TS.Tests.TsonFeatureTests.Restriction_pass_rejects_non_data_syntax(body: \"const $value = undefined;\", expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0003\")",
+        "Copeland.TS.Tests.NominalUnionTests.Nominal_union_reuses_enum_tson_identity_and_payload_identities",
+        "Copeland.TS.Tests.TsonFeatureTests.Catalog_and_value_validation_are_deterministic(body: \"record A { next: A; } const $value = 1;\", messagePart: \"Recursive TSON schema\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Unsupported_reachable_types_are_compile_time_errors(source: \"record table Values { value: [1]; } record Bad { v\"···)",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-TABLE-0004\")",
+        "Copeland.TS.Tests.NominalUnionTests.Nominal_union_reuses_existing_record_cycle_diagnostics_for_direct_and_indirect_containment",
+        "Copeland.TS.Tests.NominalUnionTests.Reachable_union_diagnostics_have_focused_coverage_and_nonempty_spans(diagnosticId: \"COPE-UNION-0007\", source: \"record Circle { radius: number; }\\ninterface Requi\"···)",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Table_intrinsic_rejects_row_column_and_cell_views(source: \"const $schema: string = \\\"copeland://tests/table-e\"···)",
+        "Copeland.TS.Tests.TsonEncodeFeatureTests.Malformed_intrinsic_use_has_stable_diagnostic(source: \"record TsonEncodeError { value: string; }\", diagnosticId: \"COPE-TSON-ENCODE-0001\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0004\")",
+        "Copeland.TS.Tests.TsonFixtureTests.Invalid_filesystem_fixture_has_expected_diagnostic(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···, expectedCode: \"COPE-TSON-0002\")",
+        "Copeland.TS.Tests.SourceFileProfileTests.Invalid_headers_are_primary_diagnostics(source: \"export type CopelandProfile = {};\", expected: \"COPE-PROFILE-0001\")",
+        "Copeland.TS.Tests.TsonTableFeatureTests.Invalid_table_shapes_and_cells_use_bounded_table_diagnostics(declaration: \"record table Values { x: [1, 2]; y: [3]; }\", code: \"COPE-TSON-TABLE-0003\")",
+        "Copeland.TS.Tests.TsonTableAssetFeatureTests.Asset_clause_rejects_inline_data_and_exact_schema_mismatches",
+        "Copeland.TS.Tests.TsonFixtureTests.Valid_filesystem_fixture_round_trips(path: \"C:\\\\Users\\\\yuech\\\\source\\\\repos\\\\Copeland\\\\tests\\\\\"···)",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Same_shaped_wrong_identity_is_rejected",
+        "Copeland.TS.Tests.TsonAssetFeatureTests.Schema_metadata_is_not_emitted_and_duplicate_or_malformed_forms_fail"
+      ]
+    },
+    "wholeRepositorySuiteRun": false,
+    "boundedChange": "Existing typed obj.ts data projector accepts signed finite numeric literals; no executable expression evaluation",
+    "sourceChanges": [
+      {
+        "path": "../Copeland/src/Copeland/Copeland.TS/Tson/TypeProfileCompiler.cs",
+        "sha256": "B24909F58737BF6534E848910C5A6560ACD7CFF6AB115D8E62E160EEB4B2DD1E"
+      },
+      {
+        "path": "../Copeland/tests/Copeland/Copeland.TS.Tests/TypeProfileTests.cs",
+        "sha256": "D2BD661035820C9CF0346903456DF498AA72CC52839000A98F1B6164965B1271"
+      }
+    ]
+  },
+  "schemas": [
+    "docs/validation/m2b-analysis-schema.json",
+    "docs/validation/m2b-edit-schema.json"
+  ],
+  "sourceProvenance": [
+    {
+      "path": "src/Valencia.Analysis\\AnalysisCache.cs",
+      "sha256": "C912B36C14CE1D1400A4125EBB888775D23FD3F5F4E614C61280F5897C715D94"
+    },
+    {
+      "path": "src/Valencia.Analysis\\AudioAnalyzer.cs",
+      "sha256": "4CD888792F7F7EB3A8C7848ACE708267AB6CB8F3CFAA9BE171F418C66F2ECA32"
+    },
+    {
+      "path": "src/Valencia.Analysis\\Contracts.cs",
+      "sha256": "D3DC0FD1218DE060A11BC4DA9E1FA3542164D5656814B04C63A1EC461B137F0C"
+    },
+    {
+      "path": "src/Valencia.Analysis\\MediaAnalyzer.cs",
+      "sha256": "A3140431EF78F1B86425EEDD407CD7525A9D3D799B19D1FAD8BC382F967D77D7"
+    },
+    {
+      "path": "src/Valencia.Analysis\\Valencia.Analysis.csproj",
+      "sha256": "CF5919D608ADF004493BC9B855B6CBB602466AD594EA948107FE7FB8DC935C94"
+    },
+    {
+      "path": "src/Valencia.Analysis\\WaveformIndex.cs",
+      "sha256": "EAC4E050A7845801444933CD624A55DDB09436A9E4F4F6BEE9EEB6CDEE8B57E8"
+    },
+    {
+      "path": "src/Valencia.App/Editing\\AnalysisSmoke.cs",
+      "sha256": "E909722366F3F4A80BA1CFFE04395053FDAEA600E5A827DA68EFC9951369E71C"
+    },
+    {
+      "path": "src/Valencia.App/Editing\\EditorAnalysis.cs",
+      "sha256": "2BA106460D23B57C6C6B8DC7CD9E05625240F3486D3C91D7E2E36529BD614195"
+    },
+    {
+      "path": "src/Valencia.App/Editing\\EditorDocument.cs",
+      "sha256": "F7431E964119F5CACA03F87649F36CA0E9C6F39DD1B996C4DF61DF52E7792317"
+    },
+    {
+      "path": "src/Valencia.App/Editing\\EditorKeymap.cs",
+      "sha256": "25A9200526CC372300D48E302B1FF13A62D47EC73EA8B9F0CF1BDF9FD7CC82AB"
+    },
+    {
+      "path": "src/Valencia.App/Editing\\EditorSmoke.cs",
+      "sha256": "6762F417C6402F5D8B9F7DC539367D5D4471772075156952B1A3CD4BC91F4D52"
+    },
+    {
+      "path": "src/Valencia.App/Editing\\EditorSynchronizationContext.cs",
+      "sha256": "4649D725192A09AFCDA26C8E4415FB1674FE9AC8B66962AD33C59FEAEC3B93A6"
+    },
+    {
+      "path": "src/Valencia.App/Editing\\EditorView.cs",
+      "sha256": "AFD547E2A51EEC7ED0CB4641D80C0288616EF689CE2E36F61ED12D8208F9CEB2"
+    },
+    {
+      "path": "src/Valencia.App/Editing\\EditorWindow.cs",
+      "sha256": "3FE0604FE4DBF775149244F90091FBDC505439BE959C758A9AEB0C7B5FBB1DBC"
+    },
+    {
+      "path": "src/Valencia.App/Editing\\TimelineGesture.cs",
+      "sha256": "B88BB61AA1C7B534414BE7027A331F5066DF2954C1E90648B5B6640589BE2447"
+    },
+    {
+      "path": "src/Valencia.App/Editing\\TimelineViewport.cs",
+      "sha256": "4D8EE6A05F3F056F6A0E6B381F75F58CDFB02E411A6535DE9503D6D5B28C2179"
+    },
+    {
+      "path": "src/Valencia.Cli\\Program.cs",
+      "sha256": "03E17AC95D5749ACDC78DC783679F7DB7331502A10A652E301339E22090D7594"
+    },
+    {
+      "path": "src/Valencia.Cli\\StdioMcpServer.cs",
+      "sha256": "CDCD4CF60366584B13315117227E659275DC64EE2B3CA61DA2F1DB0DAF59B6F2"
+    },
+    {
+      "path": "src/Valencia.Cli\\Valencia.Cli.csproj",
+      "sha256": "B6A87AFA9D4EAEAFDF33D2F40BD6084526AB3CE90EAE7FA173598A2E8AE4CBEE"
+    },
+    {
+      "path": "src/Valencia.Engine\\AnalysisContracts.cs",
+      "sha256": "46FAD1AD9A8288465640E12E811193DA59AFFF21F1CF28782425816882328DBC"
+    },
+    {
+      "path": "src/Valencia.Engine\\AnalysisJobs.cs",
+      "sha256": "450FD402CBC12F4A4CCD9F7F02E9A4D005058067BE6F898433640B2872D30136"
+    },
+    {
+      "path": "src/Valencia.Engine\\Contracts\\analysis.obj.ts",
+      "sha256": "8547E9F780A800DC49D17D3638C1B73D58344A5A3EEEA71463325FB1DC93C331"
+    },
+    {
+      "path": "src/Valencia.Engine\\Contracts\\edit-plan.obj.ts",
+      "sha256": "99E4C3311B4D3B650A6B4AAFA094349E0B44B105D6E258A8423FCA546078DCB7"
+    },
+    {
+      "path": "src/Valencia.Engine\\EditingEngine.cs",
+      "sha256": "CB1C87053FBE11DFA80AEA1256DD601F34739D98BC77940354890080217CB482"
+    },
+    {
+      "path": "src/Valencia.Engine\\EditPlans.cs",
+      "sha256": "BE11686FC4C795FE111DE3F1BD3B09BCC5948AB43FE8655FD1DFDBAD9F774FAA"
+    },
+    {
+      "path": "src/Valencia.Engine\\EngineJson.cs",
+      "sha256": "F186860C0A5DF2828E57000AF03E49F8E2A2F546FE9A37E27EA4D0829FC19C09"
+    },
+    {
+      "path": "src/Valencia.Engine\\ExportJobs.cs",
+      "sha256": "34114CC3ECC9BC29EB48FF261DA8E24656DFCE6B3CDCF70FA13AE3330C3A79CD"
+    },
+    {
+      "path": "src/Valencia.Engine\\InsertionCommands.cs",
+      "sha256": "366D7744BF908DEC522057A715423A28386B402E112FF387FD7B326F963E4C6E"
+    },
+    {
+      "path": "src/Valencia.Engine\\RoughCutPlanner.cs",
+      "sha256": "BB3C5550486CD6235386EEA8636D1BFBA16CD95641BFE34FF5ACEC816E5E1E10"
+    },
+    {
+      "path": "src/Valencia.Engine\\Valencia.Engine.csproj",
+      "sha256": "32311A0B4A0E6D4DAB2D8A406C03A1849ABD902269F78CA3110F490BE816806A"
+    },
+    {
+      "path": "src/Valencia.Engine\\WorkspacePolicy.cs",
+      "sha256": "70CD54E6D895BCA78C42B452BF468EB85845F65B8E346B5AEE5C081C4CC0CCC7"
+    },
+    {
+      "path": "src/Valencia.Scripting\\CopelandScriptHost.cs",
+      "sha256": "98E513CE911C69DCFFB6286F14055FC9BD4B2317DBF5A1E2ECEDD917BB5C4112"
+    },
+    {
+      "path": "src/Valencia.Scripting\\ScriptApi.cs",
+      "sha256": "BEFAF1249FFAB63A183DF73087E3DAAD3F2EA5A9A1CA3D4E9BD92798D66D073E"
+    },
+    {
+      "path": "src/Valencia.Scripting\\ScriptingContract.cs",
+      "sha256": "404DDD139860177DA33A90B0A310A929AF662EB5D60E7F91DCBEDFA899AEB2C9"
+    },
+    {
+      "path": "src/Valencia.Scripting\\Valencia.Scripting.csproj",
+      "sha256": "477CB50594F2EDC99C7EC9D3FEDF4FE4FD820490ADB51F3209FD93639484832B"
+    }
+  ],
+  "artifacts": {
+    "algorithm": "rms-peak-v1",
+    "decoderPolicy": "avcodec=4002661;avutil=3876708;swr=328548;sws=525156/same-rate-float/native-pts/luma64x36-area/v1",
+    "sourceFingerprintStrategy": "quick-v1: length + UTC mtime ticks + up to 64KiB each at beginning/middle/end; not full-content proof",
+    "maximumArtifactBytes": 67108864,
+    "completedDiskBudgetBytes": 536870912,
+    "publication": "checksum, bounded temp stream, cross-process file lease, flush, atomic rename, abandoned-temp cleanup",
+    "projectEmbedded": false
+  },
+  "performance": {
+    "sourceSeconds": 120,
+    "sampleRate": 48000,
+    "channels": 1,
+    "codec": "pcm_s16le/WAV",
+    "cliWallMs": 470.9314,
+    "realtimeMultipleIncludingCliStartup": 254.81418312730898,
+    "analysisMs": 88.1439,
+    "cacheWriteMs": 38.5128,
+    "cacheHitReadMs": 33.9141,
+    "sampledPeakWorkingSetBytes": 85950464,
+    "cancellationToTerminalMs": 2.1624,
+    "cancellationFixture": "six-second stereo PCM/MKV, 1 ms energy windows; native job cancellation",
+    "waveformArtifactBytes": 42118,
+    "waveformLevelBins": [
+      60,
+      30,
+      15,
+      8,
+      4,
+      2,
+      1
+    ],
+    "waveformFrameMedianMs": 7.895,
+    "waveformFrameP95Ms": 8.7374,
+    "waveformBenchmarkFrames": 120,
+    "measurementScope": "Observed bounded fixtures, not performance guarantees. CLI includes startup. Process working-set peak sampled at 10 ms. Native frame timings include UI preparation and GPU submission."
+  },
+  "headlessDemonstration": {
+    "outcome": "passed",
+    "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2b-demo\\recording.mkv",
+    "sourceSha256": "667C7D8BEAD91947C2E6DF5AE7421CAA7DD0F151C72B9E7C91E0368A9823C016",
+    "sourceUnchanged": true,
+    "originalProjectUnchanged": true,
+    "audioCold": {
+      "result": {
+        "job": {
+          "jobId": "80eb2285-06cd-4b66-9d16-896d8a4f3ea4",
+          "assetId": "b7cb3f9e-0655-4c4a-b385-b555b8894722",
+          "key": "F7E34D4F4041037C965BFE2FB00599BC396020AA509606C83F7A70316EE3A811",
+          "state": "completed",
+          "progress": 1,
+          "processedUnits": "288000",
+          "cacheHit": false,
+          "cacheReadMs": 1.4283,
+          "analysisMs": 30.3743,
+          "cacheWriteMs": 25.2537
+        },
+        "result": {
+          "apiVersion": 1,
+          "key": "F7E34D4F4041037C965BFE2FB00599BC396020AA509606C83F7A70316EE3A811",
+          "assetId": "b7cb3f9e-0655-4c4a-b385-b555b8894722",
+          "streamIndex": 1,
+          "artifactKind": "audio",
+          "algorithm": "rms-peak-v1",
+          "parameters": "{\"thresholdDb\":-35,\"activeDb\":-20,\"windowMs\":20,\"minimumSilenceMs\":800,\"minimumActivityMs\":0,\"mergeSilenceMs\":0,\"leadingPaddingMs\":0,\"trailingPaddingMs\":0}",
+          "fingerprint": "E889FE6A6C3C78579255C72253F689BBD372DA556F39663BE902980F1F176F11",
+          "status": "complete",
+          "sampleRate": 48000,
+          "channels": 2,
+          "processedUnits": "288000",
+          "containerStart": {
+            "value": "0",
+            "numerator": 1,
+            "denominator": 1000000
+          },
+          "levels": 7,
+          "silenceCount": 1,
+          "activityCount": 3,
+          "sceneCount": 0,
+          "kind": "silence",
+          "offset": 0,
+          "total": 1,
+          "records": [
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "508032000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1016064000000"
+                }
+              },
+              "epoch": 0
+            }
+          ],
+          "diagnostics": []
+        }
+      },
+      "elapsedMs": 387.0312,
+      "sampledPeakWorkingSetBytes": 70643712
+    },
+    "audioWarm": {
+      "result": {
+        "job": {
+          "jobId": "98c08675-c68c-4414-b5cc-9742b1ce4dc0",
+          "assetId": "b7cb3f9e-0655-4c4a-b385-b555b8894722",
+          "key": "F7E34D4F4041037C965BFE2FB00599BC396020AA509606C83F7A70316EE3A811",
+          "state": "completed",
+          "progress": 1,
+          "processedUnits": "288000",
+          "cacheHit": true,
+          "cacheReadMs": 22.2621,
+          "analysisMs": 0,
+          "cacheWriteMs": 0
+        },
+        "result": {
+          "apiVersion": 1,
+          "key": "F7E34D4F4041037C965BFE2FB00599BC396020AA509606C83F7A70316EE3A811",
+          "assetId": "b7cb3f9e-0655-4c4a-b385-b555b8894722",
+          "streamIndex": 1,
+          "artifactKind": "audio",
+          "algorithm": "rms-peak-v1",
+          "parameters": "{\"thresholdDb\":-35,\"activeDb\":-20,\"windowMs\":20,\"minimumSilenceMs\":800,\"minimumActivityMs\":0,\"mergeSilenceMs\":0,\"leadingPaddingMs\":0,\"trailingPaddingMs\":0}",
+          "fingerprint": "E889FE6A6C3C78579255C72253F689BBD372DA556F39663BE902980F1F176F11",
+          "status": "complete",
+          "sampleRate": 48000,
+          "channels": 2,
+          "processedUnits": "288000",
+          "containerStart": {
+            "value": "0",
+            "numerator": 1,
+            "denominator": 1000000
+          },
+          "levels": 7,
+          "silenceCount": 1,
+          "activityCount": 3,
+          "sceneCount": 0,
+          "kind": "waveform",
+          "offset": 0,
+          "total": 60,
+          "records": [
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "0"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "25401600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "25401600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "50803200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "50803200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "76204800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "76204800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "101606400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "101606400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "127008000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "127008000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "152409600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "152409600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "177811200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "177811200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "203212800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "203212800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "228614400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "228614400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "254016000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "254016000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "279417600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "279417600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "304819200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "304819200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "330220800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "330220800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "355622400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "355622400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "381024000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "381024000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "406425600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "406425600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "431827200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "431827200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "457228800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "457228800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "482630400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "482630400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "508032000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "508032000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "533433600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "533433600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "558835200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "558835200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "584236800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "584236800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "609638400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "609638400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "635040000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "635040000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "660441600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "660441600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "685843200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "685843200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "711244800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "711244800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "736646400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "736646400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "762048000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "762048000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "787449600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "787449600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "812851200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "812851200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "838252800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "838252800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "863654400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "863654400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "889056000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "889056000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "914457600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "914457600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "939859200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "939859200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "965260800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "965260800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "990662400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "990662400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1016064000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                },
+                {
+                  "minimum": 0,
+                  "maximum": 0,
+                  "rms": 0
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1016064000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1041465600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1041465600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1066867200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1066867200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1092268800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1092268800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1117670400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1117670400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1143072000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1143072000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1168473600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1168473600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1193875200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1193875200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1219276800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1219276800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1244678400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1244678400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1270080000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1270080000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1295481600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1295481600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1320883200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1320883200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1346284800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1346284800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1371686400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1371686400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1397088000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1397088000000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1422489600000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1422489600000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1447891200000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1447891200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1473292800000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1473292800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1498694400000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            },
+            {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1498694400000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 1000
+                },
+                "offset": {
+                  "ticks": "1524096000000"
+                }
+              },
+              "samples": "4800",
+              "epoch": 0,
+              "channels": [
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                },
+                {
+                  "minimum": -0.5,
+                  "maximum": 0.5,
+                  "rms": 0.3535529554794787
+                }
+              ]
+            }
+          ],
+          "diagnostics": []
+        }
+      },
+      "elapsedMs": 365.2482,
+      "sampledPeakWorkingSetBytes": 65257472
+    },
+    "scenes": {
+      "result": {
+        "job": {
+          "jobId": "86fa9fb9-06a2-4b81-920d-b679d5fc3d7f",
+          "assetId": "b7cb3f9e-0655-4c4a-b385-b555b8894722",
+          "key": "478E992024E217DC3C48F6557A3F51CF324A8AD0710804374D7392FB11B406CA",
+          "state": "completed",
+          "progress": 1,
+          "processedUnits": "180",
+          "cacheHit": false,
+          "cacheReadMs": 2.2834,
+          "analysisMs": 29.1033,
+          "cacheWriteMs": 23.1796
+        },
+        "result": {
+          "apiVersion": 1,
+          "key": "478E992024E217DC3C48F6557A3F51CF324A8AD0710804374D7392FB11B406CA",
+          "assetId": "b7cb3f9e-0655-4c4a-b385-b555b8894722",
+          "streamIndex": 0,
+          "artifactKind": "scenes",
+          "algorithm": "luma64-hist16-v1",
+          "parameters": "{\"threshold\":0.35,\"everyNthFrame\":1}",
+          "fingerprint": "E889FE6A6C3C78579255C72253F689BBD372DA556F39663BE902980F1F176F11",
+          "status": "complete",
+          "sampleRate": 0,
+          "channels": 0,
+          "processedUnits": "180",
+          "containerStart": {
+            "value": "0",
+            "numerator": 1,
+            "denominator": 1000000
+          },
+          "levels": 0,
+          "silenceCount": 0,
+          "activityCount": 0,
+          "sceneCount": 1,
+          "kind": "scenes",
+          "offset": 0,
+          "total": 1,
+          "records": [
+            {
+              "timestamp": {
+                "value": "3000",
+                "numerator": 1,
+                "denominator": 1000
+              },
+              "score": 0.42683312908496707,
+              "epoch": 0
+            }
+          ],
+          "diagnostics": []
+        }
+      },
+      "elapsedMs": 366.1049,
+      "sampledPeakWorkingSetBytes": 73605120
+    },
+    "planningMs": 405.3376,
+    "estimatedDuration": {
+      "ticks": "1016064000000"
+    },
+    "cacheArtifactBytes": 42118,
+    "retainedFrameEarlyMae": 1.1799768518518519,
+    "retainedFrameLateMae": 0.3559027777777778,
+    "verifiedFrameIds": {
+      "expectedSource": 135,
+      "late": 135,
+      "early": 30
+    },
+    "audioMaeAfterSourceClockAlignment": 0.0042418521869012,
+    "measuredAudioOffsetSamples": -8,
+    "measuredAudioOffsetMs": -0.16666666666666666,
+    "audioComparisonToleranceMs": 1,
+    "independentProbe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1"
+        },
+        {
+          "codec_name": "aac",
+          "sample_rate": "48000",
+          "r_frame_rate": "0/0"
+        }
+      ],
+      "format": {
+        "duration": "4.000000"
+      }
+    },
+    "copelandSucceeded": true,
+    "benchmarkMediaSeconds": 120,
+    "benchmark": {
+      "result": {
+        "job": {
+          "jobId": "67ae997d-c163-411d-a09f-9d75d4c96b57",
+          "assetId": "adfb4b25-20aa-46cb-8e28-dddf28b09fd6",
+          "key": "B34B9A5EF1BEE66DF273C3846627A49E1CC29D6AE696104E75A7BC3A8FF7D038",
+          "state": "completed",
+          "progress": 1,
+          "processedUnits": "5760000",
+          "cacheHit": false,
+          "cacheReadMs": 1.3439,
+          "analysisMs": 88.1439,
+          "cacheWriteMs": 38.5128
+        },
+        "result": {
+          "apiVersion": 1,
+          "key": "B34B9A5EF1BEE66DF273C3846627A49E1CC29D6AE696104E75A7BC3A8FF7D038",
+          "assetId": "adfb4b25-20aa-46cb-8e28-dddf28b09fd6",
+          "streamIndex": 0,
+          "artifactKind": "audio",
+          "algorithm": "rms-peak-v1",
+          "parameters": "{\"thresholdDb\":-35,\"activeDb\":-20,\"windowMs\":20,\"minimumSilenceMs\":800,\"minimumActivityMs\":0,\"mergeSilenceMs\":0,\"leadingPaddingMs\":0,\"trailingPaddingMs\":0}",
+          "fingerprint": "0CFB3BDDC6D170726D7ABE22A55C3A36A9FBB2F7990D571545B73D777C9C409D",
+          "status": "complete",
+          "sampleRate": 48000,
+          "channels": 1,
+          "processedUnits": "5760000",
+          "containerStart": {
+            "value": "0",
+            "numerator": 1,
+            "denominator": 1000000
+          },
+          "levels": 12,
+          "silenceCount": 1,
+          "activityCount": 3,
+          "sceneCount": 0,
+          "kind": "summary",
+          "offset": 0,
+          "total": 0,
+          "records": [],
+          "diagnostics": []
+        }
+      },
+      "elapsedMs": 470.9314,
+      "sampledPeakWorkingSetBytes": 85950464
+    },
+    "benchmarkWarm": {
+      "result": {
+        "job": {
+          "jobId": "79b495ff-3503-4fad-8b35-bca740076768",
+          "assetId": "adfb4b25-20aa-46cb-8e28-dddf28b09fd6",
+          "key": "B34B9A5EF1BEE66DF273C3846627A49E1CC29D6AE696104E75A7BC3A8FF7D038",
+          "state": "completed",
+          "progress": 1,
+          "processedUnits": "5760000",
+          "cacheHit": true,
+          "cacheReadMs": 33.9141,
+          "analysisMs": 0,
+          "cacheWriteMs": 0
+        },
+        "result": {
+          "apiVersion": 1,
+          "key": "B34B9A5EF1BEE66DF273C3846627A49E1CC29D6AE696104E75A7BC3A8FF7D038",
+          "assetId": "adfb4b25-20aa-46cb-8e28-dddf28b09fd6",
+          "streamIndex": 0,
+          "artifactKind": "audio",
+          "algorithm": "rms-peak-v1",
+          "parameters": "{\"thresholdDb\":-35,\"activeDb\":-20,\"windowMs\":20,\"minimumSilenceMs\":800,\"minimumActivityMs\":0,\"mergeSilenceMs\":0,\"leadingPaddingMs\":0,\"trailingPaddingMs\":0}",
+          "fingerprint": "0CFB3BDDC6D170726D7ABE22A55C3A36A9FBB2F7990D571545B73D777C9C409D",
+          "status": "complete",
+          "sampleRate": 48000,
+          "channels": 1,
+          "processedUnits": "5760000",
+          "containerStart": {
+            "value": "0",
+            "numerator": 1,
+            "denominator": 1000000
+          },
+          "levels": 12,
+          "silenceCount": 1,
+          "activityCount": 3,
+          "sceneCount": 0,
+          "kind": "summary",
+          "offset": 0,
+          "total": 0,
+          "records": [],
+          "diagnostics": []
+        }
+      },
+      "elapsedMs": 347.125,
+      "sampledPeakWorkingSetBytes": 66445312
+    },
+    "throughputIncludingCliStartup": 254.81418312730898,
+    "sourceCharacteristics": "160x90/30 H.264 numbered frames, hard visual cut at 3s, stereo anti-phase 440Hz/known silence [2,4), independent mono 880Hz; Matroska PCM 48kHz",
+    "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2b-demo\\edited.mp4"
+  },
+  "nativeWaveform": {
+    "outcome": "passed",
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "elapsedSeconds": 1.5510162,
+    "waveformStreams": 1,
+    "waveformQuads": 107,
+    "waveformFrameMedianMs": 7.895,
+    "waveformFrameP95Ms": 8.7374,
+    "outputDurationSeconds": 4.2,
+    "previewNonMutating": true,
+    "cancelNonMutating": true,
+    "undoRedo": true
+  },
+  "playerHardware": [
+    {
+      "outcome": "passed",
+      "source": {
+        "Path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\player-fixtures\\av.mp4",
+        "Container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "DurationSeconds": 6,
+        "StartSeconds": 0,
+        "Width": 640,
+        "Height": 360,
+        "NominalFrameRate": 30,
+        "VideoStreamIndex": 0,
+        "AudioStreamIndex": 1,
+        "Streams": [
+          {
+            "Index": 0,
+            "Kind": "Video",
+            "Codec": "h264",
+            "Details": "640 x 360"
+          },
+          {
+            "Index": 1,
+            "Kind": "Audio",
+            "Codec": "aac",
+            "Details": "48000 Hz / 1 ch"
+          }
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "validationAvailable": true,
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "nativeWindow": true,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "softwareDecode": true,
+      "windowResize": true,
+      "pauseClockStable": true,
+      "seekSeconds": 3.2,
+      "maximumAvSkewSeconds": 0.03262499999999946,
+      "sampledFrames": 432,
+      "presentedFrames": 483,
+      "uploadedVideoFrames": 93,
+      "finalGenerationUnderrunFrames": 0,
+      "elapsedSeconds": 3.5757582
+    },
+    {
+      "outcome": "passed",
+      "source": {
+        "Path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\player-fixtures\\av.mkv",
+        "Container": "matroska,webm",
+        "DurationSeconds": 6.021,
+        "StartSeconds": 0,
+        "Width": 640,
+        "Height": 360,
+        "NominalFrameRate": 30,
+        "VideoStreamIndex": 0,
+        "AudioStreamIndex": 1,
+        "Streams": [
+          {
+            "Index": 0,
+            "Kind": "Video",
+            "Codec": "h264",
+            "Details": "640 x 360"
+          },
+          {
+            "Index": 1,
+            "Kind": "Audio",
+            "Codec": "aac",
+            "Details": "48000 Hz / 1 ch"
+          }
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "validationAvailable": true,
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "nativeWindow": true,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "softwareDecode": true,
+      "windowResize": true,
+      "pauseClockStable": true,
+      "seekSeconds": 3.2,
+      "maximumAvSkewSeconds": 0.032937500000000064,
+      "sampledFrames": 432,
+      "presentedFrames": 482,
+      "uploadedVideoFrames": 91,
+      "finalGenerationUnderrunFrames": 0,
+      "elapsedSeconds": 3.5478429
+    }
+  ],
+  "editorHardware": {
+    "outcome": "passed",
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "runtime": "10.0.15",
+    "elapsedSeconds": 14.6902344,
+    "maximumAvSkewSeconds": 0.03358333333333352,
+    "realPlaybackSeconds": 10,
+    "seekRequests": 10,
+    "staleGenerationsRejected": 1,
+    "presentedFrames": 2020,
+    "seekLatencyMs": [
+      69.5462,
+      37.2933,
+      31.8639,
+      39.3064,
+      77.2455,
+      33.0825,
+      35.6406,
+      61.2104
+    ],
+    "uploadedFrames": 307,
+    "syntheticFrameMedianMs": 5.6954,
+    "syntheticFrameP95Ms": 11.3223,
+    "syntheticClipCount": 5000,
+    "inputProposalMs": 8.084,
+    "renderedBenchmarkFrames": 120,
+    "export": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m1b-smoke\\edited.mp4",
+    "saveReopenSemanticEquality": true,
+    "copelandScriptOnLiveSession": true
+  },
+  "editedExportRegression": {
+    "outcome": "passed",
+    "decoder": "independent FFmpeg CLI",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1"
+        },
+        {
+          "codec_name": "aac",
+          "sample_rate": "48000",
+          "r_frame_rate": "0/0"
+        }
+      ],
+      "format": {
+        "duration": "10.000000"
+      }
+    },
+    "earlySourceFrameError": 0.6464120370370371,
+    "postCutSourceFrameError": 0.6614583333333334,
+    "gapVideoMaximum": 0.0,
+    "secondSourceBlueMean": 252.0,
+    "gapAudioRms": 0.0,
+    "signalAudioRms": 0.08822027264794709
+  },
+  "programmingRegression": {
+    "outcome": "passed",
+    "decoder": "independent FFmpeg CLI",
+    "script": {
+      "success": true,
+      "returnValue": "{\"apiVersion\":1,\"valid\":true,\"committed\":false,\"expectedRevision\":\"4\",\"resultingRevision\":\"5\",\"currentRevision\":\"4\",\"canCommit\":true,\"affectedIds\":[\"201ca00c-333b-458a-a754-3b4e78335fbe\",\"5568a152-96c2-4df2-8db3-f9636e7b419d\",\"7750dd2a-ce7e-48f1-9d38-9dd9100ec494\",\"78d7a7fc-35ef-4a1a-8152-8cf7b6e25ce5\",\"8b598187-7b8e-4f9f-8b45-797bbad82c87\",\"c748633f-ec28-4d18-b3fb-0bb9bf06575a\"],\"changes\":[{\"kind\":\"created\",\"clipId\":\"201ca00c-333b-458a-a754-3b4e78335fbe\",\"afterTrack\":\"8b598187-7b8e-4f9f-8b45-797bbad82c87\",\"after\":{\"id\":\"201ca00c-333b-458a-a754-3b4e78335fbe\",\"assetId\":\"84af7bf9-33ef-4542-9012-a98131e51982\",\"streamIndex\":1,\"start\":{\"ticks\":\"762048000000\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"508032000000\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"1016064000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}}},{\"kind\":\"updated\",\"clipId\":\"7750dd2a-ce7e-48f1-9d38-9dd9100ec494\",\"beforeTrack\":\"5568a152-96c2-4df2-8db3-f9636e7b419d\",\"afterTrack\":\"5568a152-96c2-4df2-8db3-f9636e7b419d\",\"before\":{\"id\":\"7750dd2a-ce7e-48f1-9d38-9dd9100ec494\",\"assetId\":\"84af7bf9-33ef-4542-9012-a98131e51982\",\"streamIndex\":0,\"start\":{\"ticks\":\"0\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"0\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"1016064000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}},\"after\":{\"id\":\"7750dd2a-ce7e-48f1-9d38-9dd9100ec494\",\"assetId\":\"84af7bf9-33ef-4542-9012-a98131e51982\",\"streamIndex\":0,\"start\":{\"ticks\":\"0\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"0\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"508032000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}}},{\"kind\":\"updated\",\"clipId\":\"78d7a7fc-35ef-4a1a-8152-8cf7b6e25ce5\",\"beforeTrack\":\"8b598187-7b8e-4f9f-8b45-797bbad82c87\",\"afterTrack\":\"8b598187-7b8e-4f9f-8b45-797bbad82c87\",\"before\":{\"id\":\"78d7a7fc-35ef-4a1a-8152-8cf7b6e25ce5\",\"assetId\":\"84af7bf9-33ef-4542-9012-a98131e51982\",\"streamIndex\":1,\"start\":{\"ticks\":\"0\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"0\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"1016064000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}},\"after\":{\"id\":\"78d7a7fc-35ef-4a1a-8152-8cf7b6e25ce5\",\"assetId\":\"84af7bf9-33ef-4542-9012-a98131e51982\",\"streamIndex\":1,\"start\":{\"ticks\":\"0\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"0\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"508032000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}}},{\"kind\":\"created\",\"clipId\":\"c748633f-ec28-4d18-b3fb-0bb9bf06575a\",\"afterTrack\":\"5568a152-96c2-4df2-8db3-f9636e7b419d\",\"after\":{\"id\":\"c748633f-ec28-4d18-b3fb-0bb9bf06575a\",\"assetId\":\"84af7bf9-33ef-4542-9012-a98131e51982\",\"streamIndex\":0,\"start\":{\"ticks\":\"762048000000\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"508032000000\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"1016064000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}}}],\"resultingDuration\":{\"ticks\":\"1270080000000\"},\"diagnostics\":[]}",
+      "diagnostics": [],
+      "cacheHit": false,
+      "elapsedMs": 2165.1678
+    },
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264"
+        },
+        {
+          "codec_name": "aac"
+        }
+      ],
+      "format": {
+        "duration": "5.000000"
+      }
+    },
+    "gapVideoMaximum": 0.0,
+    "gapAudioRms": 0.0,
+    "postCutFrameError": 1.1209490740740742,
+    "originalProjectUnchanged": true,
+    "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2a-demo\\input.valencia.edited.valencia.mp4"
+  },
+  "protocol": {
+    "transport": "actual spawned stdio MCP",
+    "version": "2025-11-25",
+    "tools": 12,
+    "analysisTools": [
+      "start_analysis",
+      "analysis_status",
+      "analysis_result",
+      "cancel_analysis",
+      "create_roughcut"
+    ],
+    "pagedResultLimit": 128,
+    "realAnalysisPlanningCommitExportVerified": true,
+    "exportedFrameIdPaddedCut": 129,
+    "cancellationVerified": true,
+    "arbitraryScriptTool": false
+  },
+  "exactTiming": {
+    "coordinates": "native rational PTS + exact source sample offsets; half-open intervals; checked sequence conversion",
+    "rmsWindow": "ceil(rate*windowMs/1000), hop=window; final partial retained",
+    "removalRounding": "start up / end down to sequence frame",
+    "scriptInt64": "canonical decimal strings",
+    "sourceClockToleranceMs": 1,
+    "independentlyReadCliSourceFrameIds": {
+      "expectedSource": 135,
+      "late": 135,
+      "early": 30
+    },
+    "audioAlignmentMeasuredSamples": -8,
+    "audioAlignmentMeasuredMs": -0.16666666666666666
+  },
+  "knownDiagnostics": [
+    "FFmpeg 7.1 emits Matroska keyframe-index diagnostics on some existing native random seeks of the generated PCM/MKV fixture; stderr retained; independently decoded frame IDs/audio/duration/codecs pass."
+  ],
+  "limitations": [
+    "Mono/stereo analysis only; no automatic OBS stream mixing",
+    "Aligned, unlocked, ordered single-source rough cuts only; unsafe unrelated tracks/discontinuous audio rejected",
+    "Waveform base coarsens at 65536 bins; activity/scene budgets 65536 records; atomic plan budget 500 operations",
+    "Quick sampled fingerprint can miss unsampled edits with preserved size/mtime",
+    "Existing coarse-clock random seeks are not sample-exact; PCM compared within 1 ms native clock quantum",
+    "No multi-hour OBS/physical acoustic sync/heavy-4K qualification",
+    "Native smoke invokes actual handlers and GPU readback; no separate physical mouse/dialog replay",
+    "No semantic scenes/speech/highlight model or new scripting runtime"
+  ]
+}

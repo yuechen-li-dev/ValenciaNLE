@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><AllowUnsafeBlocks>true</AllowUnsafeBlocks></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Valencia.Core/Valencia.Core.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/src/Aurelian/Aurelian.Graphics/Aurelian.Graphics.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/src/Aurelian/Aurelian.Shaders/Aurelian.Shaders.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/src/Machina.UI/Machina.Pipeline/Machina.Pipeline.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/src/Machina.UI/Machina.Standard/Machina.Standard.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/src/Integrations/Aurelian.Machina.Graphics/Aurelian.Machina.Graphics.csproj" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.1" />
+    <PackageReference Include="Silk.NET.Input" Version="2.23.0" />
+    <None Include="Assets/VideoQuad.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <None Include="$(CopelandRoot)/samples/Aurelian/ForwardTexturedM3.v.ts" Link="Assets/VideoQuad.v.ts" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="$(CopelandRoot)/src/Aurelian/Aurelian.Shaders/Assets/Ui2D/*.v.ts" Link="Assets/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="Assets/MsdfText.json;Assets/AnalyticShape2D.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('Assets/MsdfText.json')" />
+    <None Include="$(CopelandRoot)/src/Aurelian/Aurelian.Assets/Defaults/Fonts/*" Link="Assets/Fonts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -55,3 +55,14 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Valencia workspace and generated media/model artifacts
+.vs/
+*.user
+artifacts/
+
+# Local configuration and credentials
+.env.*
+!.env.example
+*.local.json
+*.secrets.json

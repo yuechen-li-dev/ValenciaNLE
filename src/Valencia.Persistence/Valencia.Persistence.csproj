@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../Valencia.Core/Valencia.Core.csproj" />
+    <ProjectReference Include="$(DeliveranceRoot)/src/Deliverance.Core/Deliverance.Core.csproj" />
+  </ItemGroup>
+</Project>

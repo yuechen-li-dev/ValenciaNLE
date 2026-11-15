@@ -1,0 +1,28 @@
+{
+  "outcome": "passed",
+  "gpu": "NVIDIA GeForce RTX 3070",
+  "runtime": "10.0.15",
+  "elapsedSeconds": 13.4255984,
+  "maximumAvSkewSeconds": 0.03341666666666665,
+  "realPlaybackSeconds": 10,
+  "seekRequests": 9,
+  "staleGenerationsRejected": 1,
+  "presentedFrames": 1848,
+  "seekLatencyMs": [
+    98.3888,
+    36.0313,
+    40.4903,
+    89.8759,
+    28.0345,
+    35.4757,
+    64.7358
+  ],
+  "uploadedFrames": 306,
+  "syntheticFrameMedianMs": 5.988,
+  "syntheticFrameP95Ms": 9.7028,
+  "syntheticClipCount": 5000,
+  "inputProposalMs": 8.1469,
+  "renderedBenchmarkFrames": 120,
+  "export": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m1b-smoke\\edited.mp4",
+  "saveReopenSemanticEquality": true
+}

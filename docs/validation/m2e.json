@@ -1,0 +1,2770 @@
+{
+  "milestone": "M2e",
+  "recordedAt": "2026-11-15T13:07:32.2436578-08:00",
+  "outcome": "Controlled OBS creator PoC, native MSDF/layout correction and frontend handoff delivered; broad human-footage/editorial and multi-hour audio-scrub qualification remains incomplete",
+  "machine": {
+    "driver": "610.88",
+    "runtime": "10.0.15",
+    "os": "Microsoft Windows NT 10.0.26300.0",
+    "sdk": "10.0.401",
+    "preview": "FFmpeg software decode, RGBA CPU-to-GPU upload, Aurelian Vulkan, NAudio 3 WaveOut/device clock",
+    "export": "CPU shared evaluator/Skia + FFmpeg libx264/AAC",
+    "ffmpeg": "ffmpeg version 7.1.1-full_build-www.gyan.dev Copyright (c) 2000-2025 the FFmpeg developers",
+    "gpuMemoryMiB": 8192,
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "cpu": "AMD Ryzen 7 7700X 8-Core Processor             "
+  },
+  "tests": [
+    {
+      "suite": "Valencia.Core.Tests",
+      "total": 73,
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0,
+      "trx": "artifacts/local/tests/Valencia.Core.Tests.trx",
+      "sha256": "E9461C4EBADA17C5F4D1F11B924F712EEC3E4465526458448399434C7C01898E"
+    },
+    {
+      "suite": "Valencia.Persistence.Tests",
+      "total": 21,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "trx": "artifacts/local/tests/Valencia.Persistence.Tests.trx",
+      "sha256": "6839EA8A836C2C6DFC2B6109C0B31C90E0C133ABBAB0ED344C66121DA4BA6284"
+    },
+    {
+      "suite": "Valencia.Tests",
+      "total": 60,
+      "passed": 60,
+      "failed": 0,
+      "skipped": 0,
+      "trx": "artifacts/local/tests/Valencia.Tests.trx",
+      "sha256": "BB901142DCBCE67F4F0A427D50664C91C9525648E18E5B1D1BF372ABB9391EB5"
+    },
+    {
+      "suite": "Valencia.Programming.Tests",
+      "total": 84,
+      "passed": 84,
+      "failed": 0,
+      "skipped": 0,
+      "trx": "artifacts/local/tests/Valencia.Programming.Tests.trx",
+      "sha256": "F0D6493D6E3BD6682F8FDB12C728751CC77D07155E4D91018247AE32A32FA3EC"
+    }
+  ],
+  "testTotal": 238,
+  "headless": [
+    {
+      "id": "1080",
+      "raw": "artifacts/local/m2e/qualification-1080/headless.json",
+      "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\recordings\\2026-11-15 11-06-12.mkv",
+      "sourceCharacteristics": {
+        "id": "c3a54ee2-afc6-4d36-a9b1-f3425ea63cf4",
+        "name": "2026-11-15 11-06-12.mkv",
+        "sourcePath": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\recordings\\2026-11-15 11-06-12.mkv",
+        "container": "matroska,webm",
+        "streams": [
+          {
+            "index": 0,
+            "kind": "video",
+            "codec": "h264",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "0",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "width": 1920,
+            "height": 1080,
+            "frameRate": {
+              "numerator": 60,
+              "denominator": 1
+            }
+          },
+          {
+            "index": 1,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 2,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 3,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          }
+        ]
+      },
+      "durationSeconds": 17.984,
+      "importMs": 64.8255,
+      "firstSoftwareDecodeMs": 62.9375,
+      "videoSeekMs": {
+        "count": 40,
+        "median": 357.35429999999997,
+        "p95": 574.3011,
+        "maximum": 724.5935,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "audioSeekMs": {
+        "count": 40,
+        "median": 88.92895,
+        "p95": 179.7736,
+        "maximum": 202.0119,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "sequentialVideoMs": {
+        "count": 120,
+        "median": 2.28485,
+        "p95": 3.8688,
+        "maximum": 37.3766,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "identityProfileVideoMs": {
+        "count": 30,
+        "median": 2.4779999999999998,
+        "p95": 4.3934,
+        "maximum": 36.005,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "processPeakWorkingSetBytes": "267419648",
+      "scope": "Current source native FFmpeg and shared sequence evaluator, source-sized output; headless throughput is not a sustained GPU/device playback measurement. 40 seek samples: p99 unqualified."
+    },
+    {
+      "id": "1440",
+      "raw": "artifacts/local/m2e/qualification-1440/headless.json",
+      "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\recordings\\2026-11-15 11-57-13.mkv",
+      "sourceCharacteristics": {
+        "id": "c3b78012-04ec-42e2-b0ed-757442332c82",
+        "name": "2026-11-15 11-57-13.mkv",
+        "sourcePath": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\recordings\\2026-11-15 11-57-13.mkv",
+        "container": "matroska,webm",
+        "streams": [
+          {
+            "index": 0,
+            "kind": "video",
+            "codec": "h264",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "0",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "width": 2560,
+            "height": 1440,
+            "frameRate": {
+              "numerator": 60,
+              "denominator": 1
+            }
+          },
+          {
+            "index": 1,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 2,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 3,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          }
+        ]
+      },
+      "durationSeconds": 14.017,
+      "importMs": 80.416,
+      "firstSoftwareDecodeMs": 86.4548,
+      "videoSeekMs": {
+        "count": 40,
+        "median": 626.2565999999999,
+        "p95": 1459.3754,
+        "maximum": 1864.0912,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "audioSeekMs": {
+        "count": 40,
+        "median": 173.25475,
+        "p95": 281.3685,
+        "maximum": 369.5559,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "sequentialVideoMs": {
+        "count": 120,
+        "median": 7.7852,
+        "p95": 13.2964,
+        "maximum": 96.4221,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "identityProfileVideoMs": {
+        "count": 30,
+        "median": 7.2669,
+        "p95": 13.4007,
+        "maximum": 107.2012,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "processPeakWorkingSetBytes": "378490880",
+      "scope": "Current source native FFmpeg and shared sequence evaluator, source-sized output; headless throughput is not a sustained GPU/device playback measurement. 40 seek samples: p99 unqualified."
+    },
+    {
+      "id": "long",
+      "raw": "artifacts/local/m2e/qualification-long/headless.json",
+      "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\long-1080-repeated.mkv",
+      "sourceCharacteristics": {
+        "id": "f40d626d-fae0-4c24-bc03-198bbfd8f0c9",
+        "name": "long-1080-repeated.mkv",
+        "sourcePath": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\long-1080-repeated.mkv",
+        "container": "matroska,webm",
+        "streams": [
+          {
+            "index": 0,
+            "kind": "video",
+            "codec": "h264",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "width": 1920,
+            "height": 1080,
+            "frameRate": {
+              "numerator": 60,
+              "denominator": 1
+            }
+          },
+          {
+            "index": 1,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 2,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 3,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          }
+        ]
+      },
+      "durationSeconds": 7200.037,
+      "importMs": 63.4268,
+      "firstSoftwareDecodeMs": 62.7952,
+      "videoSeekMs": {
+        "count": 40,
+        "median": 360.71254999999996,
+        "p95": 614.4769,
+        "maximum": 687.9402,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "audioSeekMs": {
+        "count": 40,
+        "median": 3145.26455,
+        "p95": 9738.2617,
+        "maximum": 13063.996,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "sequentialVideoMs": {
+        "count": 120,
+        "median": 2.09615,
+        "p95": 3.8541,
+        "maximum": 34.9135,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "identityProfileVideoMs": {
+        "count": 30,
+        "median": 2.8996500000000003,
+        "p95": 4.5691,
+        "maximum": 34.3427,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "processPeakWorkingSetBytes": "342556672",
+      "scope": "Current source native FFmpeg and shared sequence evaluator, source-sized output; headless throughput is not a sustained GPU/device playback measurement. 40 seek samples: p99 unqualified."
+    }
+  ],
+  "native": [
+    {
+      "id": "1080",
+      "raw": "artifacts/local/m2e/native-final-1080/result.json",
+      "resources": {
+        "startedAt": "2026-11-15T12:40:40.1501638-08:00",
+        "firstProgramMonitorCaptureUpperBoundMs": 4926.1201,
+        "exitCode": 0,
+        "wallSeconds": 36.1776021,
+        "sampledProcessPeakWorkingSetBytes": 1125179392,
+        "processCpuSeconds": 92.375,
+        "sampledDedicatedGpuBytes": 69652480,
+        "sampledSharedGpuBytes": 55939072,
+        "gpuMemorySamples": 65,
+        "scope": "WDDM per-process GPU memory observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "window": {
+        "width": 1280,
+        "height": 720
+      },
+      "sourceVideo": {
+        "Width": 1920,
+        "Height": 1080,
+        "FrameRate": {
+          "Numerator": 60,
+          "Denominator": 1
+        }
+      },
+      "elapsedPlaybackSeconds": 10.002772100000001,
+      "uploadedPreviewFps": 59.183593715985985,
+      "frameMs": {
+        "count": 1161,
+        "median": 6.1808,
+        "p95": 12.4548,
+        "maximum": 59.619,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "maximumPresentationSkewSeconds": 0.022770833333333407,
+      "playbackUnderrunFrames": 0,
+      "seekLatencyMs": {
+        "count": 30,
+        "median": 521.1912,
+        "p95": 803.643,
+        "maximum": 1190.419,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "requests": 131,
+      "obsoleteCompletionsRejected": 0,
+      "latestSeekVerified": true,
+      "obs": null,
+      "backgroundProxy": {
+        "JobId": "0480783f-f0ad-4945-9bcb-6fd93fb2a173",
+        "AssetId": "466ad9b1-50e8-454a-612a-8bc1f0c12c07",
+        "Key": "7FD3DFCF3BE43F575EEC49E77B3B0DBC9C99C09B09513652DB261E3E278252DB",
+        "State": "completed",
+        "Progress": 1,
+        "ProcessedUnits": 0,
+        "CacheHit": true,
+        "Error": null,
+        "CacheReadMs": 39.1779,
+        "AnalysisMs": 0,
+        "CacheWriteMs": 0
+      },
+      "physicalPointerActionsTested": false
+    },
+    {
+      "id": "1440",
+      "raw": "artifacts/local/m2e/native-final-1440/result.json",
+      "resources": {
+        "startedAt": "2026-11-15T12:41:16.3596199-08:00",
+        "firstProgramMonitorCaptureUpperBoundMs": 4290.1284,
+        "exitCode": 0,
+        "wallSeconds": 46.6616458,
+        "sampledProcessPeakWorkingSetBytes": 1422835712,
+        "processCpuSeconds": 122.59375,
+        "sampledDedicatedGpuBytes": 76546048,
+        "sampledSharedGpuBytes": 62390272,
+        "gpuMemorySamples": 86,
+        "scope": "WDDM per-process GPU memory observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "window": {
+        "width": 1280,
+        "height": 720
+      },
+      "sourceVideo": {
+        "Width": 2560,
+        "Height": 1440,
+        "FrameRate": {
+          "Numerator": 60,
+          "Denominator": 1
+        }
+      },
+      "elapsedPlaybackSeconds": 10.000686700000001,
+      "uploadedPreviewFps": 59.79589381597165,
+      "frameMs": {
+        "count": 1276,
+        "median": 5.8607,
+        "p95": 9.7795,
+        "maximum": 21.8289,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "maximumPresentationSkewSeconds": 0.018333333333333313,
+      "playbackUnderrunFrames": 0,
+      "seekLatencyMs": {
+        "count": 30,
+        "median": 543.8596,
+        "p95": 1469.1345,
+        "maximum": 1529.1697,
+        "method": "Median averages middle pair; p95 nearest rank; p99 unqualified at this sample count"
+      },
+      "requests": 131,
+      "obsoleteCompletionsRejected": 0,
+      "latestSeekVerified": true,
+      "obs": "stopped",
+      "backgroundProxy": {
+        "JobId": "8bea13f4-d731-42e4-b744-096b6c73205a",
+        "AssetId": "308c200c-7104-e509-e455-7599a99b6afb",
+        "Key": "EE54FEB89D5A4B6F442664568205615C111C057362363483D59ACB1A9822BB3E",
+        "State": "completed",
+        "Progress": 1,
+        "ProcessedUnits": 0,
+        "CacheHit": true,
+        "Error": null,
+        "CacheReadMs": 32.4113,
+        "AnalysisMs": 0,
+        "CacheWriteMs": 0
+      },
+      "physicalPointerActionsTested": false
+    }
+  ],
+  "obs": {
+    "recordings": [
+      "artifacts/local/m2e/capture-1080-confirmed.json",
+      "artifacts/local/m2e/capture-1440-confirmed.json"
+    ],
+    "mcpActualReadOnly": {
+      "outcome": "passed",
+      "transport": "actual stdio MCP -> actual OBS 32 WebSocket; read-only",
+      "initialize": {
+        "protocolVersion": "2025-11-25",
+        "capabilities": {
+          "tools": {}
+        },
+        "serverInfo": {
+          "name": "Valencia",
+          "version": "M2e"
+        }
+      },
+      "toolCount": 25,
+      "connected": {
+        "connection": {
+          "state": "connected",
+          "retry": 0
+        },
+        "version": {
+          "obsVersionString": "32.1.2",
+          "webSocketVersion": "5.7.3",
+          "rpcVersion": 1,
+          "availableRequests": [
+            "GetHotkeyList",
+            "OpenInputInteractDialog",
+            "SaveSourceScreenshot",
+            "GetVersion",
+            "SetInputName",
+            "SetSceneName",
+            "GetStats",
+            "TriggerStudioModeTransition",
+            "SetInputAudioSyncOffset",
+            "GetSceneCollectionList",
+            "BroadcastCustomEvent",
+            "Sleep",
+            "SetSceneSceneTransitionOverride",
+            "CallVendorRequest",
+            "CreateSceneCollection",
+            "SetStudioModeEnabled",
+            "TriggerHotkeyByName",
+            "OpenVideoMixProjector",
+            "TriggerHotkeyByKeySequence",
+            "GetPersistentData",
+            "SetSceneItemIndex",
+            "SetPersistentData",
+            "SetCurrentSceneCollection",
+            "SetInputMute",
+            "SetCurrentPreviewScene",
+            "SetCurrentProgramScene",
+            "OpenSourceProjector",
+            "GetProfileList",
+            "SetCurrentProfile",
+            "RemoveProfile",
+            "CreateProfile",
+            "GetProfileParameter",
+            "SetProfileParameter",
+            "GetInputAudioBalance",
+            "GetStreamServiceSettings",
+            "GetVideoSettings",
+            "SetVideoSettings",
+            "SetInputAudioBalance",
+            "SetInputVolume",
+            "GetSceneItemSource",
+            "SetStreamServiceSettings",
+            "GetInputDefaultSettings",
+            "GetSpecialInputs",
+            "GetInputKindList",
+            "GetCanvasList",
+            "GetRecordDirectory",
+            "SetSourceFilterEnabled",
+            "SetRecordDirectory",
+            "GetInputList",
+            "GetSceneList",
+            "GetInputMute",
+            "GetCurrentPreviewScene",
+            "GetReplayBufferStatus",
+            "GetSourceActive",
+            "GetSourceScreenshot",
+            "GetSourcePrivateSettings",
+            "SetSourcePrivateSettings",
+            "GetGroupList",
+            "SetInputSettings",
+            "GetCurrentProgramScene",
+            "GetSceneItemId",
+            "RemoveScene",
+            "CreateScene",
+            "GetSceneSceneTransitionOverride",
+            "RemoveInput",
+            "CreateInput",
+            "GetSceneItemLocked",
+            "GetInputSettings",
+            "ToggleInputMute",
+            "SetCurrentSceneTransition",
+            "GetInputVolume",
+            "GetInputAudioSyncOffset",
+            "GetInputAudioMonitorType",
+            "SetInputAudioMonitorType",
+            "StartVirtualCam",
+            "GetInputAudioTracks",
+            "SetInputAudioTracks",
+            "PauseRecord",
+            "GetInputDeinterlaceMode",
+            "SetInputDeinterlaceMode",
+            "GetInputDeinterlaceFieldOrder",
+            "SetInputDeinterlaceFieldOrder",
+            "GetInputPropertiesListPropertyItems",
+            "PressInputPropertiesButton",
+            "GetTransitionKindList",
+            "GetSceneItemTransform",
+            "GetSceneTransitionList",
+            "GetVirtualCamStatus",
+            "GetCurrentSceneTransition",
+            "SetCurrentSceneTransitionDuration",
+            "SetCurrentSceneTransitionSettings",
+            "GetCurrentSceneTransitionCursor",
+            "SetTBarPosition",
+            "GetSourceFilterKindList",
+            "StopOutput",
+            "ToggleOutput",
+            "GetSourceFilterList",
+            "GetSourceFilterDefaultSettings",
+            "CreateSourceFilter",
+            "RemoveSourceFilter",
+            "SetSourceFilterName",
+            "GetSourceFilter",
+            "StopRecord",
+            "ToggleRecord",
+            "SetSourceFilterIndex",
+            "SetSourceFilterSettings",
+            "SetSceneItemTransform",
+            "GetSceneItemList",
+            "GetGroupSceneItemList",
+            "CreateSceneItem",
+            "RemoveSceneItem",
+            "DuplicateSceneItem",
+            "GetSceneItemEnabled",
+            "SetSceneItemEnabled",
+            "SetSceneItemLocked",
+            "GetSceneItemIndex",
+            "StartReplayBuffer",
+            "GetSceneItemBlendMode",
+            "SetSceneItemBlendMode",
+            "GetSceneItemPrivateSettings",
+            "SetSceneItemPrivateSettings",
+            "StopVirtualCam",
+            "ToggleVirtualCam",
+            "StopReplayBuffer",
+            "ToggleReplayBuffer",
+            "SaveReplayBuffer",
+            "GetLastReplayBufferReplay",
+            "GetOutputList",
+            "GetOutputStatus",
+            "StartOutput",
+            "GetOutputSettings",
+            "SetOutputSettings",
+            "GetStreamStatus",
+            "StopStream",
+            "ToggleStream",
+            "StartStream",
+            "SendStreamCaption",
+            "GetRecordStatus",
+            "StartRecord",
+            "ToggleRecordPause",
+            "ResumeRecord",
+            "SplitRecordFile",
+            "CreateRecordChapter",
+            "SetMediaInputCursor",
+            "GetMediaInputStatus",
+            "OffsetMediaInputCursor",
+            "TriggerMediaInputAction",
+            "GetStudioModeEnabled",
+            "OpenInputPropertiesDialog",
+            "OpenInputFiltersDialog",
+            "GetMonitorList"
+          ],
+          "supportsFileChanges": true
+        },
+        "recording": {
+          "active": false,
+          "paused": false,
+          "durationMs": 0,
+          "timecode": "00:00:00.000",
+          "bytes": "25855338"
+        },
+        "sessionId": "302af266-aec3-4934-a87a-f9160167cf0b",
+        "state": "idle",
+        "continuousObservation": false,
+        "markerCount": 0,
+        "files": [],
+        "recentEvents": [
+          {
+            "type": "Connected",
+            "receivedAt": "2026-11-15T12:50:59.3156947-08:00",
+            "connectionGeneration": "1"
+          }
+        ],
+        "controlAuthorized": false
+      },
+      "status": {
+        "connection": {
+          "state": "connected",
+          "retry": 0
+        },
+        "version": {
+          "obsVersionString": "32.1.2",
+          "webSocketVersion": "5.7.3",
+          "rpcVersion": 1,
+          "availableRequests": [
+            "GetHotkeyList",
+            "OpenInputInteractDialog",
+            "SaveSourceScreenshot",
+            "GetVersion",
+            "SetInputName",
+            "SetSceneName",
+            "GetStats",
+            "TriggerStudioModeTransition",
+            "SetInputAudioSyncOffset",
+            "GetSceneCollectionList",
+            "BroadcastCustomEvent",
+            "Sleep",
+            "SetSceneSceneTransitionOverride",
+            "CallVendorRequest",
+            "CreateSceneCollection",
+            "SetStudioModeEnabled",
+            "TriggerHotkeyByName",
+            "OpenVideoMixProjector",
+            "TriggerHotkeyByKeySequence",
+            "GetPersistentData",
+            "SetSceneItemIndex",
+            "SetPersistentData",
+            "SetCurrentSceneCollection",
+            "SetInputMute",
+            "SetCurrentPreviewScene",
+            "SetCurrentProgramScene",
+            "OpenSourceProjector",
+            "GetProfileList",
+            "SetCurrentProfile",
+            "RemoveProfile",
+            "CreateProfile",
+            "GetProfileParameter",
+            "SetProfileParameter",
+            "GetInputAudioBalance",
+            "GetStreamServiceSettings",
+            "GetVideoSettings",
+            "SetVideoSettings",
+            "SetInputAudioBalance",
+            "SetInputVolume",
+            "GetSceneItemSource",
+            "SetStreamServiceSettings",
+            "GetInputDefaultSettings",
+            "GetSpecialInputs",
+            "GetInputKindList",
+            "GetCanvasList",
+            "GetRecordDirectory",
+            "SetSourceFilterEnabled",
+            "SetRecordDirectory",
+            "GetInputList",
+            "GetSceneList",
+            "GetInputMute",
+            "GetCurrentPreviewScene",
+            "GetReplayBufferStatus",
+            "GetSourceActive",
+            "GetSourceScreenshot",
+            "GetSourcePrivateSettings",
+            "SetSourcePrivateSettings",
+            "GetGroupList",
+            "SetInputSettings",
+            "GetCurrentProgramScene",
+            "GetSceneItemId",
+            "RemoveScene",
+            "CreateScene",
+            "GetSceneSceneTransitionOverride",
+            "RemoveInput",
+            "CreateInput",
+            "GetSceneItemLocked",
+            "GetInputSettings",
+            "ToggleInputMute",
+            "SetCurrentSceneTransition",
+            "GetInputVolume",
+            "GetInputAudioSyncOffset",
+            "GetInputAudioMonitorType",
+            "SetInputAudioMonitorType",
+            "StartVirtualCam",
+            "GetInputAudioTracks",
+            "SetInputAudioTracks",
+            "PauseRecord",
+            "GetInputDeinterlaceMode",
+            "SetInputDeinterlaceMode",
+            "GetInputDeinterlaceFieldOrder",
+            "SetInputDeinterlaceFieldOrder",
+            "GetInputPropertiesListPropertyItems",
+            "PressInputPropertiesButton",
+            "GetTransitionKindList",
+            "GetSceneItemTransform",
+            "GetSceneTransitionList",
+            "GetVirtualCamStatus",
+            "GetCurrentSceneTransition",
+            "SetCurrentSceneTransitionDuration",
+            "SetCurrentSceneTransitionSettings",
+            "GetCurrentSceneTransitionCursor",
+            "SetTBarPosition",
+            "GetSourceFilterKindList",
+            "StopOutput",
+            "ToggleOutput",
+            "GetSourceFilterList",
+            "GetSourceFilterDefaultSettings",
+            "CreateSourceFilter",
+            "RemoveSourceFilter",
+            "SetSourceFilterName",
+            "GetSourceFilter",
+            "StopRecord",
+            "ToggleRecord",
+            "SetSourceFilterIndex",
+            "SetSourceFilterSettings",
+            "SetSceneItemTransform",
+            "GetSceneItemList",
+            "GetGroupSceneItemList",
+            "CreateSceneItem",
+            "RemoveSceneItem",
+            "DuplicateSceneItem",
+            "GetSceneItemEnabled",
+            "SetSceneItemEnabled",
+            "SetSceneItemLocked",
+            "GetSceneItemIndex",
+            "StartReplayBuffer",
+            "GetSceneItemBlendMode",
+            "SetSceneItemBlendMode",
+            "GetSceneItemPrivateSettings",
+            "SetSceneItemPrivateSettings",
+            "StopVirtualCam",
+            "ToggleVirtualCam",
+            "StopReplayBuffer",
+            "ToggleReplayBuffer",
+            "SaveReplayBuffer",
+            "GetLastReplayBufferReplay",
+            "GetOutputList",
+            "GetOutputStatus",
+            "StartOutput",
+            "GetOutputSettings",
+            "SetOutputSettings",
+            "GetStreamStatus",
+            "StopStream",
+            "ToggleStream",
+            "StartStream",
+            "SendStreamCaption",
+            "GetRecordStatus",
+            "StartRecord",
+            "ToggleRecordPause",
+            "ResumeRecord",
+            "SplitRecordFile",
+            "CreateRecordChapter",
+            "SetMediaInputCursor",
+            "GetMediaInputStatus",
+            "OffsetMediaInputCursor",
+            "TriggerMediaInputAction",
+            "GetStudioModeEnabled",
+            "OpenInputPropertiesDialog",
+            "OpenInputFiltersDialog",
+            "GetMonitorList"
+          ],
+          "supportsFileChanges": true
+        },
+        "recording": {
+          "active": false,
+          "paused": false,
+          "durationMs": 0,
+          "timecode": "00:00:00.000",
+          "bytes": "25855338"
+        },
+        "sessionId": "302af266-aec3-4934-a87a-f9160167cf0b",
+        "state": "idle",
+        "continuousObservation": false,
+        "markerCount": 0,
+        "files": [],
+        "recentEvents": [
+          {
+            "type": "Connected",
+            "receivedAt": "2026-11-15T12:50:59.3156947-08:00",
+            "connectionGeneration": "1"
+          }
+        ],
+        "controlAuthorized": false
+      }
+    },
+    "rpc": 1,
+    "credentials": "Ephemeral ignored server config; product client uses Windows CurrentUser DPAPI; no passwords in evidence",
+    "fixture": "scripts/PrepareObsQualification.ps1",
+    "actualVersion": "32.1.2",
+    "copelandActualReadOnly": {
+      "success": true,
+      "returnValue": "{\"version\":{\"obsVersionString\":\"32.1.2\",\"webSocketVersion\":\"5.7.3\",\"rpcVersion\":1,\"availableRequests\":[\"GetHotkeyList\",\"OpenInputInteractDialog\",\"SaveSourceScreenshot\",\"GetVersion\",\"SetInputName\",\"SetSceneName\",\"GetStats\",\"TriggerStudioModeTransition\",\"SetInputAudioSyncOffset\",\"GetSceneCollectionList\",\"BroadcastCustomEvent\",\"Sleep\",\"SetSceneSceneTransitionOverride\",\"CallVendorRequest\",\"CreateSceneCollection\",\"SetStudioModeEnabled\",\"TriggerHotkeyByName\",\"OpenVideoMixProjector\",\"TriggerHotkeyByKeySequence\",\"GetPersistentData\",\"SetSceneItemIndex\",\"SetPersistentData\",\"SetCurrentSceneCollection\",\"SetInputMute\",\"SetCurrentPreviewScene\",\"SetCurrentProgramScene\",\"OpenSourceProjector\",\"GetProfileList\",\"SetCurrentProfile\",\"RemoveProfile\",\"CreateProfile\",\"GetProfileParameter\",\"SetProfileParameter\",\"GetInputAudioBalance\",\"GetStreamServiceSettings\",\"GetVideoSettings\",\"SetVideoSettings\",\"SetInputAudioBalance\",\"SetInputVolume\",\"GetSceneItemSource\",\"SetStreamServiceSettings\",\"GetInputDefaultSettings\",\"GetSpecialInputs\",\"GetInputKindList\",\"GetCanvasList\",\"GetRecordDirectory\",\"SetSourceFilterEnabled\",\"SetRecordDirectory\",\"GetInputList\",\"GetSceneList\",\"GetInputMute\",\"GetCurrentPreviewScene\",\"GetReplayBufferStatus\",\"GetSourceActive\",\"GetSourceScreenshot\",\"GetSourcePrivateSettings\",\"SetSourcePrivateSettings\",\"GetGroupList\",\"SetInputSettings\",\"GetCurrentProgramScene\",\"GetSceneItemId\",\"RemoveScene\",\"CreateScene\",\"GetSceneSceneTransitionOverride\",\"RemoveInput\",\"CreateInput\",\"GetSceneItemLocked\",\"GetInputSettings\",\"ToggleInputMute\",\"SetCurrentSceneTransition\",\"GetInputVolume\",\"GetInputAudioSyncOffset\",\"GetInputAudioMonitorType\",\"SetInputAudioMonitorType\",\"StartVirtualCam\",\"GetInputAudioTracks\",\"SetInputAudioTracks\",\"PauseRecord\",\"GetInputDeinterlaceMode\",\"SetInputDeinterlaceMode\",\"GetInputDeinterlaceFieldOrder\",\"SetInputDeinterlaceFieldOrder\",\"GetInputPropertiesListPropertyItems\",\"PressInputPropertiesButton\",\"GetTransitionKindList\",\"GetSceneItemTransform\",\"GetSceneTransitionList\",\"GetVirtualCamStatus\",\"GetCurrentSceneTransition\",\"SetCurrentSceneTransitionDuration\",\"SetCurrentSceneTransitionSettings\",\"GetCurrentSceneTransitionCursor\",\"SetTBarPosition\",\"GetSourceFilterKindList\",\"StopOutput\",\"ToggleOutput\",\"GetSourceFilterList\",\"GetSourceFilterDefaultSettings\",\"CreateSourceFilter\",\"RemoveSourceFilter\",\"SetSourceFilterName\",\"GetSourceFilter\",\"StopRecord\",\"ToggleRecord\",\"SetSourceFilterIndex\",\"SetSourceFilterSettings\",\"SetSceneItemTransform\",\"GetSceneItemList\",\"GetGroupSceneItemList\",\"CreateSceneItem\",\"RemoveSceneItem\",\"DuplicateSceneItem\",\"GetSceneItemEnabled\",\"SetSceneItemEnabled\",\"SetSceneItemLocked\",\"GetSceneItemIndex\",\"StartReplayBuffer\",\"GetSceneItemBlendMode\",\"SetSceneItemBlendMode\",\"GetSceneItemPrivateSettings\",\"SetSceneItemPrivateSettings\",\"StopVirtualCam\",\"ToggleVirtualCam\",\"StopReplayBuffer\",\"ToggleReplayBuffer\",\"SaveReplayBuffer\",\"GetLastReplayBufferReplay\",\"GetOutputList\",\"GetOutputStatus\",\"StartOutput\",\"GetOutputSettings\",\"SetOutputSettings\",\"GetStreamStatus\",\"StopStream\",\"ToggleStream\",\"StartStream\",\"SendStreamCaption\",\"GetRecordStatus\",\"StartRecord\",\"ToggleRecordPause\",\"ResumeRecord\",\"SplitRecordFile\",\"CreateRecordChapter\",\"SetMediaInputCursor\",\"GetMediaInputStatus\",\"OffsetMediaInputCursor\",\"TriggerMediaInputAction\",\"GetStudioModeEnabled\",\"OpenInputPropertiesDialog\",\"OpenInputFiltersDialog\",\"GetMonitorList\"],\"supportsFileChanges\":true},\"recording\":{\"active\":false,\"paused\":false,\"durationMs\":0,\"timecode\":\"00:00:00.000\",\"bytes\":\"25855338\"},\"directory\":\"C:/Users/yuech/source/repos/ValenciaNLE/artifacts/local/m2e/recordings\",\"sceneCollection\":\"Valencia Qualification\",\"programScene\":\"Valencia Qualification\",\"scenes\":[\"Valencia Qualification\"],\"inputs\":[{\"name\":\"Game fixture\",\"kind\":\"ffmpeg_source\",\"audioTracks\":[2],\"routingObserved\":true},{\"name\":\"Microphone fixture\",\"kind\":\"ffmpeg_source\",\"audioTracks\":[1],\"routingObserved\":true},{\"name\":\"Communications fixture\",\"kind\":\"ffmpeg_source\",\"audioTracks\":[3],\"routingObserved\":true}],\"videoSettings\":{\"baseHeight\":1440,\"baseWidth\":2560,\"fpsDenominator\":1,\"fpsNumerator\":60,\"outputHeight\":1440,\"outputWidth\":2560},\"recordingSettings\":{\"AdvOut/RecFormat2\":\"mkv\",\"AdvOut/RecEncoder\":\"obs_nvenc_h264_tex\",\"SimpleOutput/RecFormat2\":\"hybrid_mp4\",\"SimpleOutput/RecQuality\":\"Stream\",\"AdvOut/RecTracks\":\"7\",\"SimpleOutput/RecEncoder\":\"nvenc\",\"Output/Mode\":\"Advanced\"}}",
+      "diagnostics": [],
+      "cacheHit": false,
+      "elapsedMs": 1140.3478
+    },
+    "reproDirectory": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\repro-20261115-125656-426f93b7",
+    "websocket": "5.7.3",
+    "provenance": "Real OBS NVENC recording of generated frame-numbered pattern, SAPI microphone, game tone and communications pulses. 1440 output upscales the 1080 source pattern. User OBS configuration untouched."
+  },
+  "creator": {
+    "scriptElapsedMs": 1114.0615,
+    "resourceMeasurement": {
+      "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\recordings\\2026-11-15 11-06-12.mkv",
+      "duration": {
+        "ticks": "4568223744000"
+      },
+      "measurements": [
+        {
+          "kind": "audio",
+          "elapsedMs": 212.527,
+          "status": {
+            "jobId": "bc0ea990-b153-4c15-82bb-4251c408a7e8",
+            "assetId": "e97267cd-86e3-402d-8f0b-b942484a9d2d",
+            "key": "AE43B3A804B13B465FE71911C5AA68996481C263449F64191C914EF22CDBA3A8",
+            "state": "completed",
+            "progress": 1,
+            "processedUnits": "862208",
+            "cacheHit": false,
+            "cacheReadMs": 1.2426,
+            "analysisMs": 100.2811,
+            "cacheWriteMs": 49.5804
+          },
+          "artifactBytes": "192946"
+        },
+        {
+          "kind": "transcript",
+          "elapsedMs": 941.3676,
+          "status": {
+            "jobId": "3476e3c5-3620-41b0-90bc-028d9096c6df",
+            "assetId": "e97267cd-86e3-402d-8f0b-b942484a9d2d",
+            "key": "3B46D42DB46FDF942821E07600B1AE66DBFC03BCF8066AB7EA9DC8B53D851330",
+            "state": "completed",
+            "progress": 1,
+            "processedUnits": "287403",
+            "cacheHit": false,
+            "cacheReadMs": 0.059,
+            "analysisMs": 926.1878,
+            "cacheWriteMs": 3.2938
+          },
+          "artifactBytes": "28293",
+          "transcriptWords": 36
+        },
+        {
+          "kind": "proxy",
+          "elapsedMs": 859.134,
+          "status": {
+            "jobId": "1f22aa8a-7a56-4a9d-866b-a6fc7ac4c129",
+            "assetId": "e97267cd-86e3-402d-8f0b-b942484a9d2d",
+            "key": "E7FB3F31963E6938C64B8CB4C0A6CB2F2FF870B6643C6D42A3F4E11791099CE2",
+            "state": "completed",
+            "progress": 1,
+            "processedUnits": "0",
+            "cacheHit": false,
+            "cacheReadMs": 0.0714,
+            "analysisMs": 848.7871,
+            "cacheWriteMs": 2.8201
+          },
+          "proxyBytes": "9157726",
+          "artifactBytes": "1183"
+        },
+        {
+          "kind": "audio",
+          "elapsedMs": 7.8571,
+          "status": {
+            "jobId": "4a641b57-f62a-4268-9d96-f743512318fa",
+            "assetId": "e97267cd-86e3-402d-8f0b-b942484a9d2d",
+            "key": "AE43B3A804B13B465FE71911C5AA68996481C263449F64191C914EF22CDBA3A8",
+            "state": "completed",
+            "progress": 1,
+            "processedUnits": "862208",
+            "cacheHit": true,
+            "cacheReadMs": 3.7902,
+            "analysisMs": 0,
+            "cacheWriteMs": 0
+          },
+          "artifactBytes": "192946"
+        }
+      ],
+      "peakWorkingSetBytes": "353415168",
+      "scope": "Fresh analysis identities/proxy directory; existing local model, OS file caches not flushed; source/project not mutated"
+    },
+    "raw": "artifacts/local/m2e/creator-1080.json",
+    "cacheFromActualCopeland": [
+      {
+        "jobId": "a24aa518-2b92-45de-b002-148d046c8f7b",
+        "assetId": "466ad9b1-50e8-454a-612a-8bc1f0c12c07",
+        "key": "0A117E5F6E1A5E0B6F11D76997FA22972F6B9E69233F99D019B5B20C7243463A",
+        "state": "completed",
+        "progress": 1,
+        "processedUnits": "862208",
+        "cacheHit": true,
+        "cacheReadMs": 32.0391,
+        "analysisMs": 0,
+        "cacheWriteMs": 0
+      },
+      {
+        "jobId": "b4ac8ce9-8ca9-467e-a59f-53c7dfc6b3f1",
+        "assetId": "466ad9b1-50e8-454a-612a-8bc1f0c12c07",
+        "key": "0A117E5F6E1A5E0B6F11D76997FA22972F6B9E69233F99D019B5B20C7243463A",
+        "state": "completed",
+        "progress": 1,
+        "processedUnits": "862208",
+        "cacheHit": true,
+        "cacheReadMs": 3.4261,
+        "analysisMs": 0,
+        "cacheWriteMs": 0
+      }
+    ],
+    "preview": {
+      "key": "8B938651C4946C192138234A45F4EE6387B4D15E9C482865FD9062D7FF004973",
+      "valid": true,
+      "expectedRevision": "3",
+      "canCommit": true,
+      "estimatedDuration": {
+        "ticks": "1816214400000"
+      },
+      "outputs": [
+        {
+          "id": "80910d00-6c60-2a28-c7dd-38cde407cd79",
+          "name": "long-form",
+          "width": 1920,
+          "height": 1080,
+          "frameRate": {
+            "numerator": 60,
+            "denominator": 1
+          },
+          "fit": "fit",
+          "focalX": 0.5,
+          "focalY": 0.5,
+          "captionY": 0.84,
+          "start": {
+            "ticks": "0"
+          },
+          "end": {
+            "ticks": "1816214400000"
+          }
+        },
+        {
+          "id": "252bf606-922e-777f-74d7-d31df0b0b431",
+          "name": "short-1",
+          "width": 1080,
+          "height": 1920,
+          "frameRate": {
+            "numerator": 60,
+            "denominator": 1
+          },
+          "fit": "fill",
+          "focalX": 0.5,
+          "focalY": 0.5,
+          "captionY": 0.78,
+          "start": {
+            "ticks": "0"
+          },
+          "end": {
+            "ticks": "762048000000"
+          }
+        },
+        {
+          "id": "22d1101a-cc33-7fd7-52bd-f75ff6982524",
+          "name": "short-2",
+          "width": 1080,
+          "height": 1920,
+          "frameRate": {
+            "numerator": 60,
+            "denominator": 1
+          },
+          "fit": "fill",
+          "focalX": 0.5,
+          "focalY": 0.5,
+          "captionY": 0.78,
+          "start": {
+            "ticks": "1016064000000"
+          },
+          "end": {
+            "ticks": "1778112000000"
+          }
+        }
+      ],
+      "segments": [
+        {
+          "candidateId": "46306d98-df36-8808-db84-3386476d7709",
+          "sourceStart": {
+            "ticks": "707011200000"
+          },
+          "sourceEnd": {
+            "ticks": "1723075200000"
+          },
+          "timelineStart": {
+            "ticks": "0"
+          }
+        },
+        {
+          "candidateId": "53ad525f-8ed5-6c15-fc30-fdd5fa4074ab",
+          "sourceStart": {
+            "ticks": "3767904000000"
+          },
+          "sourceEnd": {
+            "ticks": "4568054400000"
+          },
+          "timelineStart": {
+            "ticks": "1016064000000"
+          }
+        }
+      ],
+      "candidateCount": 7,
+      "candidates": [
+        {
+          "id": "46306d98-df36-8808-db84-3386476d7709",
+          "start": {
+            "ticks": "710990784000"
+          },
+          "end": {
+            "ticks": "1727054784000"
+          },
+          "score": 10.21025,
+          "evidence": [
+            "user marker: Approximate recording highlight: Important explanation",
+            "7 timed words",
+            "0 visual-change candidates",
+            "Heuristic evidence; human editorial quality unqualified"
+          ]
+        },
+        {
+          "id": "2f1cea5b-9556-fb9b-4676-dbd8d90f9f8b",
+          "start": {
+            "ticks": "1361525760000"
+          },
+          "end": {
+            "ticks": "2334407040000"
+          },
+          "score": 3.31331592689295,
+          "evidence": [
+            "transcript keyword: explanation",
+            "9 timed words",
+            "0 visual-change candidates",
+            "Heuristic evidence; human editorial quality unqualified"
+          ]
+        },
+        {
+          "id": "43196cac-7b9d-a44e-5202-f4affbab6a4d",
+          "start": {
+            "ticks": "1648563840000"
+          },
+          "end": {
+            "ticks": "2626525440000"
+          },
+          "score": 3.311688311688312,
+          "evidence": [
+            "transcript keyword: final",
+            "8 timed words",
+            "0 visual-change candidates",
+            "Heuristic evidence; human editorial quality unqualified"
+          ]
+        },
+        {
+          "id": "53ad525f-8ed5-6c15-fc30-fdd5fa4074ab",
+          "start": {
+            "ticks": "3769597440000"
+          },
+          "end": {
+            "ticks": "4568223744000"
+          },
+          "score": 3.2934690415606447,
+          "evidence": [
+            "transcript keyword: important",
+            "7 timed words",
+            "0 visual-change candidates",
+            "Heuristic evidence; human editorial quality unqualified"
+          ]
+        },
+        {
+          "id": "4dd66cb6-5734-5b44-1874-73d599e014cd",
+          "start": {
+            "ticks": "579156480000"
+          },
+          "end": {
+            "ticks": "1552037760000"
+          },
+          "score": 3.2872062663185377,
+          "evidence": [
+            "transcript keyword: important",
+            "8 timed words",
+            "0 visual-change candidates",
+            "Heuristic evidence; human editorial quality unqualified"
+          ]
+        },
+        {
+          "id": "736b5df5-bec1-742b-54cb-15c4a88293ca",
+          "start": {
+            "ticks": "162570240000"
+          },
+          "end": {
+            "ticks": "1178634240000"
+          },
+          "score": 3.22,
+          "evidence": [
+            "transcript keyword: Valencia",
+            "6 timed words",
+            "0 visual-change candidates",
+            "Heuristic evidence; human editorial quality unqualified"
+          ]
+        },
+        {
+          "id": "6caf2e51-ae03-7422-cdac-db9ee70c0080",
+          "start": {
+            "ticks": "3358091520000"
+          },
+          "end": {
+            "ticks": "4374155520000"
+          },
+          "score": 3.21,
+          "evidence": [
+            "transcript keyword: Valencia",
+            "6 timed words",
+            "0 visual-change candidates",
+            "Heuristic evidence; human editorial quality unqualified"
+          ]
+        }
+      ],
+      "operationCount": 13,
+      "diagnostics": [
+        "Target duration is best effort: insufficient nonoverlapping material or a minimum-segment remainder.",
+        "Fewer distinct retained candidates than requested Shorts.",
+        "Normalization gain is constrained by true-peak safety; the LUFS target cannot be reached by static gain alone."
+      ],
+      "loudness": {
+        "integratedLufs": -17.86,
+        "truePeakDb": -0.96,
+        "loudnessRange": 1.6,
+        "thresholdLufs": -28.66,
+        "algorithm": "FFmpeg7.1/loudnorm/BS.1770-4/EBU-R128",
+        "measurement": "Edited sequence through the shared audio evaluator; integrated gating and oversampled true-peak estimation",
+        "targetLufs": -16,
+        "peakCeilingDb": -1,
+        "safeGainDb": -0.040000000000000036
+      }
+    },
+    "independent": {
+      "outcome": "passed",
+      "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\recordings\\2026-11-15 11-06-12.mkv",
+      "profiles": 3,
+      "video": [
+        {
+          "profile": "long-form",
+          "frame": 0,
+          "timelineSeconds": 0.0,
+          "sourceTimestamp": 2.75,
+          "sourceFrame": 165,
+          "top65PercentMeanRgbError": 1.0505208333333333
+        },
+        {
+          "profile": "long-form",
+          "frame": 1,
+          "timelineSeconds": 0.016666666666666666,
+          "sourceTimestamp": 2.767,
+          "sourceFrame": 166,
+          "top65PercentMeanRgbError": 1.0485119047619047
+        },
+        {
+          "profile": "long-form",
+          "frame": 30,
+          "timelineSeconds": 0.5,
+          "sourceTimestamp": 3.25,
+          "sourceFrame": 195,
+          "top65PercentMeanRgbError": 1.0034722222222223
+        },
+        {
+          "profile": "long-form",
+          "frame": 239,
+          "timelineSeconds": 3.9833333333333334,
+          "sourceTimestamp": 6.733,
+          "sourceFrame": 404,
+          "top65PercentMeanRgbError": 1.0472222222222223
+        },
+        {
+          "profile": "long-form",
+          "frame": 240,
+          "timelineSeconds": 4.0,
+          "sourceTimestamp": 14.8,
+          "sourceFrame": 888,
+          "top65PercentMeanRgbError": 1.0705109126984127
+        },
+        {
+          "profile": "long-form",
+          "frame": 241,
+          "timelineSeconds": 4.016666666666667,
+          "sourceTimestamp": 14.817,
+          "sourceFrame": 889,
+          "top65PercentMeanRgbError": 1.0899801587301587
+        },
+        {
+          "profile": "long-form",
+          "frame": 428,
+          "timelineSeconds": 7.133333333333334,
+          "sourceTimestamp": 17.933,
+          "sourceFrame": 1076,
+          "top65PercentMeanRgbError": 0.9634424603174603
+        },
+        {
+          "profile": "short-1",
+          "frame": 0,
+          "timelineSeconds": 0.0,
+          "sourceTimestamp": 2.75,
+          "sourceFrame": 165,
+          "top65PercentMeanRgbError": 0.9045450019912386
+        },
+        {
+          "profile": "short-1",
+          "frame": 1,
+          "timelineSeconds": 0.016666666666666666,
+          "sourceTimestamp": 2.767,
+          "sourceFrame": 166,
+          "top65PercentMeanRgbError": 0.9066109119872561
+        },
+        {
+          "profile": "short-1",
+          "frame": 30,
+          "timelineSeconds": 0.5,
+          "sourceTimestamp": 3.25,
+          "sourceFrame": 195,
+          "top65PercentMeanRgbError": 0.7872361608920748
+        },
+        {
+          "profile": "short-1",
+          "frame": 179,
+          "timelineSeconds": 2.9833333333333334,
+          "sourceTimestamp": 5.733,
+          "sourceFrame": 344,
+          "top65PercentMeanRgbError": 0.9035991636798089
+        },
+        {
+          "profile": "short-2",
+          "frame": 0,
+          "timelineSeconds": 4.0,
+          "sourceTimestamp": 14.8,
+          "sourceFrame": 888,
+          "top65PercentMeanRgbError": 0.8798785344484269
+        },
+        {
+          "profile": "short-2",
+          "frame": 1,
+          "timelineSeconds": 4.016666666666667,
+          "sourceTimestamp": 14.817,
+          "sourceFrame": 889,
+          "top65PercentMeanRgbError": 0.8850806451612904
+        },
+        {
+          "profile": "short-2",
+          "frame": 30,
+          "timelineSeconds": 4.5,
+          "sourceTimestamp": 15.3,
+          "sourceFrame": 918,
+          "top65PercentMeanRgbError": 0.867184388689765
+        },
+        {
+          "profile": "short-2",
+          "frame": 179,
+          "timelineSeconds": 6.983333333333333,
+          "sourceTimestamp": 17.783,
+          "sourceFrame": 1067,
+          "top65PercentMeanRgbError": 0.7451712465153325
+        }
+      ],
+      "audio": [
+        {
+          "profile": "long-form",
+          "timelineSeconds": 0.5,
+          "meanPcmError": 4.917096187521489E-05,
+          "correlation": 0.9999910924390121,
+          "offsetSamples": 0.0
+        },
+        {
+          "profile": "long-form",
+          "timelineSeconds": 4.5,
+          "meanPcmError": 0.001147795259459296,
+          "correlation": 0.9997079938573992,
+          "offsetSamples": 0.0
+        },
+        {
+          "profile": "short-1",
+          "timelineSeconds": 0.5,
+          "meanPcmError": 4.917096187521489E-05,
+          "correlation": 0.9999910924390121,
+          "offsetSamples": 0.0
+        },
+        {
+          "profile": "short-2",
+          "timelineSeconds": 4.5,
+          "meanPcmError": 0.0012105080715446093,
+          "correlation": 0.9997448069657636,
+          "offsetSamples": 0.0
+        }
+      ],
+      "reference": "Independent FFmpeg CLI source/output decode; source frame lookup uses actual PTS, never nominal source FPS; explicit three-stream PCM gains and duck envelopes",
+      "limits": "Short controlled OBS source; selected output frames/top65% (caption area excluded), selected 200ms audio windows, not human editorial review or acoustic/display latency"
+    },
+    "elapsedSeconds": 13.7353373,
+    "scope": "Whole pipeline timing, not isolated encoder throughput; 18s controlled source, 7.15s retained, two distinct Shorts; heuristic quality unreviewed",
+    "firstHeadlessInspectionMs": 339.0107,
+    "exports": [
+      {
+        "jobId": "a4fc0b9a-5491-4426-9784-a3305d4eb32f",
+        "projectId": "30e3ccfd-c46b-4c7c-a665-66ddab969de8",
+        "revision": "7",
+        "state": "completed",
+        "frames": "429",
+        "totalFrames": "429",
+        "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\creator-1080\\long-form.mp4"
+      },
+      {
+        "jobId": "769f5ea0-34d7-4fd0-a012-8d317a70fa9e",
+        "projectId": "30e3ccfd-c46b-4c7c-a665-66ddab969de8",
+        "revision": "7",
+        "state": "completed",
+        "frames": "180",
+        "totalFrames": "180",
+        "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\creator-1080\\short-1.mp4"
+      },
+      {
+        "jobId": "09ad4d24-5920-480b-ad43-65cc8af0924e",
+        "projectId": "30e3ccfd-c46b-4c7c-a665-66ddab969de8",
+        "revision": "7",
+        "state": "completed",
+        "frames": "180",
+        "totalFrames": "180",
+        "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\creator-1080\\short-2.mp4"
+      }
+    ]
+  },
+  "ui": {
+    "unicode": "Native-pixel Skia/system-font fallback, basic scalar placement; complex shaping/bidi unqualified",
+    "raw": {
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "runtime": "10.0.15",
+      "pipeline": "Machina -> analytic widget geometry + MSDF glyphs -> native Vulkan framebuffer",
+      "layouts": [
+        {
+          "Name": "desktop",
+          "Width": 1280,
+          "Height": 720,
+          "profile": "Desktop",
+          "framebufferWidth": 1280,
+          "framebufferHeight": 720,
+          "msdfGlyphs": 376,
+          "fallbackTextRuns": 0,
+          "atlasUploads": 2,
+          "visibleTracks": 5,
+          "frameMedianMs": 5.5153,
+          "frameP95Ms": 13.3618
+        },
+        {
+          "Name": "desktop-wide",
+          "Width": 1920,
+          "Height": 1080,
+          "profile": "Desktop",
+          "framebufferWidth": 1920,
+          "framebufferHeight": 1080,
+          "msdfGlyphs": 382,
+          "fallbackTextRuns": 0,
+          "atlasUploads": 2,
+          "visibleTracks": 12,
+          "frameMedianMs": 5.4712,
+          "frameP95Ms": 23.6816
+        },
+        {
+          "Name": "vertical-tablet",
+          "Width": 768,
+          "Height": 1024,
+          "profile": "VerticalTablet",
+          "framebufferWidth": 768,
+          "framebufferHeight": 1024,
+          "msdfGlyphs": 370,
+          "fallbackTextRuns": 0,
+          "atlasUploads": 2,
+          "visibleTracks": 4,
+          "frameMedianMs": 5.5078,
+          "frameP95Ms": 18.5892
+        },
+        {
+          "Name": "vertical-phone",
+          "Width": 390,
+          "Height": 844,
+          "profile": "VerticalPhone",
+          "framebufferWidth": 390,
+          "framebufferHeight": 844,
+          "msdfGlyphs": 349,
+          "fallbackTextRuns": 0,
+          "atlasUploads": 2,
+          "visibleTracks": 2,
+          "frameMedianMs": 5.4798,
+          "frameP95Ms": 24.9751
+        },
+        {
+          "Name": "desktop-restored",
+          "Width": 1280,
+          "Height": 720,
+          "profile": "Desktop",
+          "framebufferWidth": 1280,
+          "framebufferHeight": 720,
+          "msdfGlyphs": 376,
+          "fallbackTextRuns": 0,
+          "atlasUploads": 2,
+          "visibleTracks": 5,
+          "frameMedianMs": 5.4933,
+          "frameP95Ms": 24.725
+        }
+      ],
+      "semanticDocumentPreservedByResize": true,
+      "syntheticClips": 5000,
+      "visibleClips": 7,
+      "benchmarkFrames": 120,
+      "frameMedianMs": 5.4439,
+      "frameP95Ms": 6.527,
+      "inputProposalMs": 17.6272,
+      "elapsedSeconds": 5.9710192,
+      "unicodeFallbackExercised": true,
+      "physicalPointerActionsTested": false,
+      "nonWindowsDevicesTested": false
+    },
+    "interactions": "docs/validation/m2e-interactions.json",
+    "profileLaw": "Phone <600; portrait tablet 600..1023; desktop >=1024; landscape tablet override width>=600 && width>=height",
+    "fontMeasurement": "Same NativeUiText for Machina lowering and MSDF presentation; measured shortcut wrapping; no stretched UI bitmap",
+    "screenshots": [
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\analysis-preview.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-analysis-preview.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "BD65C056A6F92606B8E44AD833B34CC7E3241D95CCFC20B0B4DBA5BC91DAD6EF",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\captioned.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-captioned.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "1DE96AFCD9F765FAE8F04F3E3C438C40502CFCD5F3A2F364E3408C4B24F09511",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\empty.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-empty.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "CDDEB0829F2086F54226B198D005D384B67E1E4621AAD3D16F703837AEB15E55",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\export.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-export.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "62ED70E5625FDC2257C3B430BE9EAD166232B6BA89F15E53AE70A4568F3FB76F",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\imported-media.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-imported-media.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "F97656F8704A77A6477903C4D21EDECB9A98F1CF44431CFB0FEC14DFCE51F7EE",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\obs-connected.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-obs-connected.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "519E078F134E0CAF0E8B514BA511DAD7B881BE07786CF82A1F34CB9413593CBB",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\obs-ingested.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-obs-ingested.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "187C99EDFCC8B868A9201F4106D395F1FA3123F111C2E1B8148A724C0D82F6B9",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\obs-recording.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-obs-recording.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "80CEE1561E69ED33AAA074C2C7E3669CE862A1CDB7A7E2E81B6AD350EFF40689",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\playback.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-playback.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "ECD7BE1D808C8A6BE01D849D61102D0B645113D68A05EDA7EF21A3EE8BF6286F",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\timeline.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-timeline.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "99EF8905D6F21A79A1E70EB9E8A5BDB903926858C8EF94D46A503A8B9BD922F7",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\transcript.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-transcript.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "7FC7521F8C7E1E0F63E09760F10C6A1784F7412407C8882FCF2FFAB6D03E5E20",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\native-final-1440\\vertical.png",
+        "path": "docs\\validation\\m2e\\screenshots\\native-final-1440-vertical.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "1A397C76067280F6257DE85F2954A40714DCBA81E303C6518AB21A596E92E749",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\layout-final\\5000-clips.png",
+        "path": "docs\\validation\\m2e\\screenshots\\layout-final-5000-clips.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "59A720268266D23642A409795B41621DDE2179E17F9355835E654C6730755B03",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\layout-final\\desktop-restored.png",
+        "path": "docs\\validation\\m2e\\screenshots\\layout-final-desktop-restored.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "8529CD07771F7D622CA87C3A90EE1E41C470B7EC2C4A1E5055413FA1A80790AA",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\layout-final\\desktop-wide.png",
+        "path": "docs\\validation\\m2e\\screenshots\\layout-final-desktop-wide.png",
+        "width": 1920,
+        "height": 1080,
+        "sha256": "229F6CBA2301C77F89801E7E08C113B02C97C2977C2C3A4A4104B8CBA5CF8825",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\layout-final\\desktop.png",
+        "path": "docs\\validation\\m2e\\screenshots\\layout-final-desktop.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "8529CD07771F7D622CA87C3A90EE1E41C470B7EC2C4A1E5055413FA1A80790AA",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\layout-final\\unicode.png",
+        "path": "docs\\validation\\m2e\\screenshots\\layout-final-unicode.png",
+        "width": 1280,
+        "height": 720,
+        "sha256": "DA70F76F12CD2AEDE2A7B9747D6D357F52BA4EF71A34D8B7F00AD6E79B8D0D26",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\layout-final\\vertical-phone.png",
+        "path": "docs\\validation\\m2e\\screenshots\\layout-final-vertical-phone.png",
+        "width": 390,
+        "height": 844,
+        "sha256": "765D73F899AB601A2DFE0A215A7FE2D46D8DF76222F5FC52BBCEAA5E0008AB71",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      },
+      {
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\layout-final\\vertical-tablet.png",
+        "path": "docs\\validation\\m2e\\screenshots\\layout-final-vertical-tablet.png",
+        "width": 768,
+        "height": 1024,
+        "sha256": "03CDF51CC1BA161865B26D03B21120F7E8C092AC1ACE632469648FFBDFC89697",
+        "kind": "Actual native GPU framebuffer readback, not a mockup"
+      }
+    ]
+  },
+  "regression": {
+    "upstream": "No Copeland/InputMan/Deliverance tracked source changes. Referenced projects built from current source. Historical upstream test totals are not added to the 238 Valencia tests.",
+    "m2dIndependentAudio": "artifacts/local/m2d/independent-audio.json",
+    "m2dIndependentVideo": "artifacts/local/m2d/independent-video.json",
+    "m0Mp4": {
+      "outcome": "passed",
+      "source": {
+        "Path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\player-fixtures\\av.mp4",
+        "Container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "DurationSeconds": 6,
+        "StartSeconds": 0,
+        "Width": 640,
+        "Height": 360,
+        "NominalFrameRate": 30,
+        "VideoStreamIndex": 0,
+        "AudioStreamIndex": 1,
+        "Streams": [
+          {
+            "Index": 0,
+            "Kind": "Video",
+            "Codec": "h264",
+            "Details": "640 x 360"
+          },
+          {
+            "Index": 1,
+            "Kind": "Audio",
+            "Codec": "aac",
+            "Details": "48000 Hz / 1 ch"
+          }
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "validationAvailable": true,
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "nativeWindow": true,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "softwareDecode": true,
+      "windowResize": true,
+      "pauseClockStable": true,
+      "seekSeconds": 3.2,
+      "maximumAvSkewSeconds": 0.03231250000000008,
+      "sampledFrames": 406,
+      "presentedFrames": 463,
+      "uploadedVideoFrames": 91,
+      "finalGenerationUnderrunFrames": 0,
+      "elapsedSeconds": 5.8960553
+    },
+    "m2d": {
+      "outcome": "pipeline passed; independent output verification is a separate required step",
+      "sourceUnchanged": true,
+      "projectUnchanged": true,
+      "workflow": {
+        "result": {
+          "committed": true,
+          "firstFrameMs": 93.8155,
+          "elapsedSeconds": 84.8252242,
+          "planFile": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2d\\outputs\\creator-plan.json",
+          "project": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2d\\outputs\\creator.valencia",
+          "preview": {
+            "key": "F6B696F9371C52AD877E1102004C931AF66A06B8A4F018F3E3F483DA0D0FB5FC",
+            "valid": true,
+            "expectedRevision": "3",
+            "canCommit": true,
+            "estimatedDuration": {
+              "ticks": "152409600000000"
+            },
+            "outputs": [
+              {
+                "id": "deb6a9d6-57cd-856f-4598-511c08344964",
+                "name": "long-form",
+                "width": 320,
+                "height": 180,
+                "frameRate": {
+                  "numerator": 30,
+                  "denominator": 1
+                },
+                "fit": "fit",
+                "focalX": 0.5,
+                "focalY": 0.5,
+                "captionY": 0.84,
+                "start": {
+                  "ticks": "0"
+                },
+                "end": {
+                  "ticks": "152409600000000"
+                }
+              },
+              {
+                "id": "9aad4f1a-2dba-e5cd-2a5a-2b54c4b9a440",
+                "name": "short-1",
+                "width": 180,
+                "height": 320,
+                "frameRate": {
+                  "numerator": 30,
+                  "denominator": 1
+                },
+                "fit": "fill",
+                "focalX": 0.5,
+                "focalY": 0.5,
+                "captionY": 0.78,
+                "start": {
+                  "ticks": "31227033600000"
+                },
+                "end": {
+                  "ticks": "34004275200000"
+                }
+              },
+              {
+                "id": "9706d620-41fa-fe3e-7750-a0c0314ff6a9",
+                "name": "short-2",
+                "width": 180,
+                "height": 320,
+                "frameRate": {
+                  "numerator": 30,
+                  "denominator": 1
+                },
+                "fit": "fill",
+                "focalX": 0.5,
+                "focalY": 0.5,
+                "captionY": 0.78,
+                "start": {
+                  "ticks": "90429696000000"
+                },
+                "end": {
+                  "ticks": "93206937600000"
+                }
+              },
+              {
+                "id": "ddf946d7-57b2-10a5-97de-e075e331fdf6",
+                "name": "short-3",
+                "width": 180,
+                "height": 320,
+                "frameRate": {
+                  "numerator": 30,
+                  "denominator": 1
+                },
+                "fit": "fill",
+                "focalX": 0.5,
+                "focalY": 0.5,
+                "captionY": 0.78,
+                "start": {
+                  "ticks": "149632358400000"
+                },
+                "end": {
+                  "ticks": "152409600000000"
+                }
+              }
+            ],
+            "segments": [
+              {
+                "candidateId": "fd2d85f0-601b-2370-35c9-0be243389e4d",
+                "sourceStart": {
+                  "ticks": "110073600000"
+                },
+                "sourceEnd": {
+                  "ticks": "8763552000000"
+                },
+                "timelineStart": {
+                  "ticks": "0"
+                }
+              },
+              {
+                "candidateId": "8e1d6b3b-0881-254c-f74c-8de062170302",
+                "sourceStart": {
+                  "ticks": "304929273600000"
+                },
+                "sourceEnd": {
+                  "ticks": "316207584000000"
+                },
+                "timelineStart": {
+                  "ticks": "8653478400000"
+                }
+              },
+              {
+                "candidateId": "8be40f31-87be-84ea-74a8-8119e3badbf7",
+                "sourceStart": {
+                  "ticks": "457321939200000"
+                },
+                "sourceEnd": {
+                  "ticks": "468617184000000"
+                },
+                "timelineStart": {
+                  "ticks": "19931788800000"
+                }
+              },
+              {
+                "candidateId": "7ddf645b-b44d-a0e6-d08b-7f487ed063cf",
+                "sourceStart": {
+                  "ticks": "469743321600000"
+                },
+                "sourceEnd": {
+                  "ticks": "472520563200000"
+                },
+                "timelineStart": {
+                  "ticks": "31227033600000"
+                }
+              },
+              {
+                "candidateId": "ca26fcb5-9556-b7ca-5d21-65a39e38f4c9",
+                "sourceStart": {
+                  "ticks": "609748473600000"
+                },
+                "sourceEnd": {
+                  "ticks": "621026784000000"
+                },
+                "timelineStart": {
+                  "ticks": "34004275200000"
+                }
+              },
+              {
+                "candidateId": "6303c0c5-3b15-0825-b980-28dc6df4eb4a",
+                "sourceStart": {
+                  "ticks": "762149606400000"
+                },
+                "sourceEnd": {
+                  "ticks": "773436384000000"
+                },
+                "timelineStart": {
+                  "ticks": "45282585600000"
+                }
+              },
+              {
+                "candidateId": "56d79f37-8f4b-80b3-a687-787c1a6cfad6",
+                "sourceStart": {
+                  "ticks": "914559206400000"
+                },
+                "sourceEnd": {
+                  "ticks": "925845984000000"
+                },
+                "timelineStart": {
+                  "ticks": "56569363200000"
+                }
+              },
+              {
+                "candidateId": "37a8827e-44aa-8e4c-ccd0-461efaa10a79",
+                "sourceStart": {
+                  "ticks": "1371796473600000"
+                },
+                "sourceEnd": {
+                  "ticks": "1383074784000000"
+                },
+                "timelineStart": {
+                  "ticks": "67856140800000"
+                }
+              },
+              {
+                "candidateId": "134e7630-6614-9867-c71c-91becc0a4dd7",
+                "sourceStart": {
+                  "ticks": "1524189139200000"
+                },
+                "sourceEnd": {
+                  "ticks": "1535484384000000"
+                },
+                "timelineStart": {
+                  "ticks": "79134451200000"
+                }
+              },
+              {
+                "candidateId": "c99810db-5eb9-d02c-67d4-6ce57c3e4956",
+                "sourceStart": {
+                  "ticks": "1536610521600000"
+                },
+                "sourceEnd": {
+                  "ticks": "1539387763200000"
+                },
+                "timelineStart": {
+                  "ticks": "90429696000000"
+                }
+              },
+              {
+                "candidateId": "5a0bab3d-f017-ff65-c5e9-55c65a2fc918",
+                "sourceStart": {
+                  "ticks": "1676615673600000"
+                },
+                "sourceEnd": {
+                  "ticks": "1687893984000000"
+                },
+                "timelineStart": {
+                  "ticks": "93206937600000"
+                }
+              },
+              {
+                "candidateId": "475d11b2-9bd9-1d09-6d03-918539afbb43",
+                "sourceStart": {
+                  "ticks": "1829016806400000"
+                },
+                "sourceEnd": {
+                  "ticks": "1840303584000000"
+                },
+                "timelineStart": {
+                  "ticks": "104485248000000"
+                }
+              },
+              {
+                "candidateId": "ff466d87-34ff-3d82-4e2b-8f308b54bdbf",
+                "sourceStart": {
+                  "ticks": "1981426406400000"
+                },
+                "sourceEnd": {
+                  "ticks": "1992713184000000"
+                },
+                "timelineStart": {
+                  "ticks": "115772025600000"
+                }
+              },
+              {
+                "candidateId": "19661570-a3c3-4cad-a6bc-5703feeef78c",
+                "sourceStart": {
+                  "ticks": "2438663673600000"
+                },
+                "sourceEnd": {
+                  "ticks": "2449941984000000"
+                },
+                "timelineStart": {
+                  "ticks": "127058803200000"
+                }
+              },
+              {
+                "candidateId": "53f253fe-fd13-d4a9-818a-9c47099da667",
+                "sourceStart": {
+                  "ticks": "2591056339200000"
+                },
+                "sourceEnd": {
+                  "ticks": "2602351584000000"
+                },
+                "timelineStart": {
+                  "ticks": "138337113600000"
+                }
+              },
+              {
+                "candidateId": "9cea351d-e5e0-a9b7-27a1-49a058118f2f",
+                "sourceStart": {
+                  "ticks": "2603477721600000"
+                },
+                "sourceEnd": {
+                  "ticks": "2606254963200000"
+                },
+                "timelineStart": {
+                  "ticks": "149632358400000"
+                }
+              }
+            ],
+            "candidateCount": 102,
+            "candidates": [
+              {
+                "id": "7ddf645b-b44d-a0e6-d08b-7f487ed063cf",
+                "start": {
+                  "ticks": "469746708480000"
+                },
+                "end": {
+                  "ticks": "472528183680000"
+                },
+                "score": 3.2611872146118723,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "22 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "c99810db-5eb9-d02c-67d4-6ce57c3e4956",
+                "start": {
+                  "ticks": "1536613908480000"
+                },
+                "end": {
+                  "ticks": "1539395383680000"
+                },
+                "score": 3.2611872146118723,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "22 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "9cea351d-e5e0-a9b7-27a1-49a058118f2f",
+                "start": {
+                  "ticks": "2603481108480000"
+                },
+                "end": {
+                  "ticks": "2606262583680000"
+                },
+                "score": 3.2611872146118723,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "22 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "ca26fcb5-9556-b7ca-5d21-65a39e38f4c9",
+                "start": {
+                  "ticks": "609755247360000"
+                },
+                "end": {
+                  "ticks": "621031017600000"
+                },
+                "score": 3.2604190132912816,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "85 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "6303c0c5-3b15-0825-b980-28dc6df4eb4a",
+                "start": {
+                  "ticks": "762154686720000"
+                },
+                "end": {
+                  "ticks": "773440617600000"
+                },
+                "score": 3.2601845599819943,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "83 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "56d79f37-8f4b-80b3-a687-787c1a6cfad6",
+                "start": {
+                  "ticks": "914564286720000"
+                },
+                "end": {
+                  "ticks": "925850217600000"
+                },
+                "score": 3.2601845599819943,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "84 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "475d11b2-9bd9-1d09-6d03-918539afbb43",
+                "start": {
+                  "ticks": "1829021886720000"
+                },
+                "end": {
+                  "ticks": "1840307817600000"
+                },
+                "score": 3.2601845599819943,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "83 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "ff466d87-34ff-3d82-4e2b-8f308b54bdbf",
+                "start": {
+                  "ticks": "1981431486720000"
+                },
+                "end": {
+                  "ticks": "1992717417600000"
+                },
+                "score": 3.2601845599819943,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "84 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "8e1d6b3b-0881-254c-f74c-8de062170302",
+                "start": {
+                  "ticks": "304936047360000"
+                },
+                "end": {
+                  "ticks": "316211817600000"
+                },
+                "score": 3.2599684613651725,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "84 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "37a8827e-44aa-8e4c-ccd0-461efaa10a79",
+                "start": {
+                  "ticks": "1371803247360000"
+                },
+                "end": {
+                  "ticks": "1383079017600000"
+                },
+                "score": 3.2599684613651725,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "84 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "5a0bab3d-f017-ff65-c5e9-55c65a2fc918",
+                "start": {
+                  "ticks": "1676622447360000"
+                },
+                "end": {
+                  "ticks": "1687898217600000"
+                },
+                "score": 3.2599684613651725,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "85 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "19661570-a3c3-4cad-a6bc-5703feeef78c",
+                "start": {
+                  "ticks": "2438670447360000"
+                },
+                "end": {
+                  "ticks": "2449946217600000"
+                },
+                "score": 3.2599684613651725,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "84 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "8be40f31-87be-84ea-74a8-8119e3badbf7",
+                "start": {
+                  "ticks": "457325326080000"
+                },
+                "end": {
+                  "ticks": "468621417600000"
+                },
+                "score": 3.2599505284461436,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "85 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "134e7630-6614-9867-c71c-91becc0a4dd7",
+                "start": {
+                  "ticks": "1524192526080000"
+                },
+                "end": {
+                  "ticks": "1535488617600000"
+                },
+                "score": 3.2599505284461436,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "85 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "53f253fe-fd13-d4a9-818a-9c47099da667",
+                "start": {
+                  "ticks": "2591059726080000"
+                },
+                "end": {
+                  "ticks": "2602355817600000"
+                },
+                "score": 3.2599505284461436,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "85 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              },
+              {
+                "id": "fd2d85f0-601b-2370-35c9-0be243389e4d",
+                "start": {
+                  "ticks": "111767040000"
+                },
+                "end": {
+                  "ticks": "11392617600000"
+                },
+                "score": 3.259851384823238,
+                "evidence": [
+                  "transcript keyword: important announcement",
+                  "87 timed words",
+                  "0 visual-change candidates",
+                  "Heuristic evidence; human editorial quality unqualified"
+                ]
+              }
+            ],
+            "operationCount": 52,
+            "diagnostics": [
+              "Normalization gain is constrained by true-peak safety; the LUFS target cannot be reached by static gain alone."
+            ],
+            "loudness": {
+              "integratedLufs": -20.6,
+              "truePeakDb": -3.17,
+              "loudnessRange": 2.4,
+              "thresholdLufs": -31.93,
+              "algorithm": "FFmpeg7.1/loudnorm/BS.1770-4/EBU-R128",
+              "measurement": "Edited sequence through the shared audio evaluator; integrated gating and oversampled true-peak estimation",
+              "targetLufs": -16,
+              "peakCeilingDb": -1,
+              "safeGainDb": 2.17
+            }
+          },
+          "stages": [
+            {
+              "apiVersion": 1,
+              "key": "6905BCFCD03F2A9846863B20753315109DBC3C6B49D427A9ECA32681303B7B2A",
+              "assetId": "0d91da65-c781-4b9d-8949-c8bcaeca2b78",
+              "streamIndex": 0,
+              "artifactKind": "index",
+              "algorithm": "media-resource-v1/index",
+              "parameters": "original-clocks",
+              "fingerprint": "960F953C73574420751EC98A09BBBBA7F820479E9574DC8EE2EFB5B06F49DF0C",
+              "status": "complete",
+              "sampleRate": 0,
+              "channels": 0,
+              "processedUnits": "0",
+              "containerStart": {
+                "value": "-21000",
+                "numerator": 1,
+                "denominator": 1000000
+              },
+              "levels": 0,
+              "silenceCount": 0,
+              "activityCount": 0,
+              "sceneCount": 0,
+              "index": {
+                "streamIndex": 0,
+                "policy": "FFmpeg demuxer keyframe/cue index + preceding-keyframe decode-forward, actual presentation PTS",
+                "through": {
+                  "timestamp": {
+                    "value": "-21000",
+                    "numerator": 1,
+                    "denominator": 1000000
+                  },
+                  "offset": {
+                    "ticks": "2743378134336000"
+                  }
+                },
+                "anchors": 0
+              },
+              "kind": "summary",
+              "offset": 0,
+              "total": 0,
+              "records": [],
+              "diagnostics": []
+            },
+            {
+              "apiVersion": 1,
+              "key": "B8258D0795B0D23E261AF869F6FBE7396FAABF6392D67E7857C2373F29BBC888",
+              "assetId": "0d91da65-c781-4b9d-8949-c8bcaeca2b78",
+              "streamIndex": 1,
+              "artifactKind": "index",
+              "algorithm": "media-resource-v1/index",
+              "parameters": "original-clocks",
+              "fingerprint": "960F953C73574420751EC98A09BBBBA7F820479E9574DC8EE2EFB5B06F49DF0C",
+              "status": "complete",
+              "sampleRate": 0,
+              "channels": 0,
+              "processedUnits": "0",
+              "containerStart": {
+                "value": "-21000",
+                "numerator": 1,
+                "denominator": 1000000
+              },
+              "levels": 0,
+              "silenceCount": 0,
+              "activityCount": 0,
+              "sceneCount": 0,
+              "index": {
+                "streamIndex": 1,
+                "policy": "Progressive original decoded sample-count anchors at two-second intervals; process cache; forward epochs preserved",
+                "through": {
+                  "timestamp": {
+                    "value": "-21",
+                    "numerator": 1,
+                    "denominator": 1000
+                  },
+                  "offset": {
+                    "ticks": "2743372800000000"
+                  }
+                },
+                "anchors": 5386
+              },
+              "kind": "summary",
+              "offset": 0,
+              "total": 0,
+              "records": [],
+              "diagnostics": []
+            },
+            {
+              "apiVersion": 1,
+              "key": "00BB58E26C9B97AFB625F8315484417064812B843E8056FC1577D03D1AE320A1",
+              "assetId": "0d91da65-c781-4b9d-8949-c8bcaeca2b78",
+              "streamIndex": 2,
+              "artifactKind": "index",
+              "algorithm": "media-resource-v1/index",
+              "parameters": "original-clocks",
+              "fingerprint": "960F953C73574420751EC98A09BBBBA7F820479E9574DC8EE2EFB5B06F49DF0C",
+              "status": "complete",
+              "sampleRate": 0,
+              "channels": 0,
+              "processedUnits": "0",
+              "containerStart": {
+                "value": "-21000",
+                "numerator": 1,
+                "denominator": 1000000
+              },
+              "levels": 0,
+              "silenceCount": 0,
+              "activityCount": 0,
+              "sceneCount": 0,
+              "index": {
+                "streamIndex": 2,
+                "policy": "Progressive original decoded sample-count anchors at two-second intervals; process cache; forward epochs preserved",
+                "through": {
+                  "timestamp": {
+                    "value": "-21",
+                    "numerator": 1,
+                    "denominator": 1000
+                  },
+                  "offset": {
+                    "ticks": "2743372800000000"
+                  }
+                },
+                "anchors": 5386
+              },
+              "kind": "summary",
+              "offset": 0,
+              "total": 0,
+              "records": [],
+              "diagnostics": []
+            },
+            {
+              "apiVersion": 1,
+              "key": "F273084D37D28387C31952503EA62B05E39902E21C1F1FFAB7E138215CEC52CB",
+              "assetId": "0d91da65-c781-4b9d-8949-c8bcaeca2b78",
+              "streamIndex": 1,
+              "artifactKind": "audio",
+              "algorithm": "rms-peak-v1",
+              "parameters": "{\"thresholdDb\":-35,\"activeDb\":-20,\"windowMs\":20,\"minimumSilenceMs\":800,\"minimumActivityMs\":0,\"mergeSilenceMs\":0,\"leadingPaddingMs\":0,\"trailingPaddingMs\":0}",
+              "fingerprint": "960F953C73574420751EC98A09BBBBA7F820479E9574DC8EE2EFB5B06F49DF0C",
+              "status": "complete",
+              "sampleRate": 48000,
+              "channels": 1,
+              "processedUnits": "518401024",
+              "containerStart": {
+                "value": "-21000",
+                "numerator": 1,
+                "denominator": 1000000
+              },
+              "levels": 17,
+              "silenceCount": 468,
+              "activityCount": 11263,
+              "sceneCount": 0,
+              "kind": "summary",
+              "offset": 0,
+              "total": 0,
+              "records": [],
+              "diagnostics": []
+            },
+            {
+              "apiVersion": 1,
+              "key": "BE1BFE895B08805C03FD09E50EFF1F35DC11201B9CB72B7DA4C58A4A44BA6CAB",
+              "assetId": "0d91da65-c781-4b9d-8949-c8bcaeca2b78",
+              "streamIndex": 1,
+              "artifactKind": "transcript",
+              "algorithm": "whisper.net-1.9.1/token-times-v3-dtw/5359861c739e955e79d9a303bcbc70fb988958b1",
+              "parameters": "{\"model\":\"tiny.en\",\"language\":\"en\",\"chunkSeconds\":30,\"overlapSeconds\":2,\"threads\":4,\"alignment\":\"dtw\"}",
+              "fingerprint": "960F953C73574420751EC98A09BBBBA7F820479E9574DC8EE2EFB5B06F49DF0C",
+              "status": "complete",
+              "sampleRate": 16000,
+              "channels": 1,
+              "processedUnits": "172800341",
+              "containerStart": {
+                "value": "-21000",
+                "numerator": 1,
+                "denominator": 1000000
+              },
+              "levels": 0,
+              "silenceCount": 0,
+              "activityCount": 0,
+              "sceneCount": 0,
+              "transcript": {
+                "model": {
+                  "id": "tiny.en",
+                  "revision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+                  "sha256": "921E4CF8686FDD993DCD081A5DA5B6C365BFDE1162E72B08D75AC75289920B1F",
+                  "bytes": "77704715",
+                  "precision": "GGML mixed F16/F32",
+                  "path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2c\\models\\ggml-tiny.en.bin"
+                },
+                "language": "en",
+                "provider": "Whisper.net 1.9.1 / whisper.cpp CPU reference",
+                "alignment": "whisper.cpp selected-head cross-attention DTW + PCM trailing-silence refinement/v1; not calibrated confidence",
+                "preprocessing": "ffmpeg-swr/mono16k-float/no-peak-normalization/v1",
+                "wordCount": 2168,
+                "segmentCount": 181,
+                "completedChunks": 386,
+                "reusedChunks": 0
+              },
+              "kind": "summary",
+              "offset": 0,
+              "total": 0,
+              "records": [],
+              "diagnostics": [
+                "Native boundary unsupported or outside chunk; retained as untimed text: Keep",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Keep",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Keep",
+                "Native boundary unsupported or outside chunk; retained as untimed text: listening.",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Valencia.",
+                "Native boundary unsupported or outside chunk; retained as untimed text: begins",
+                "Native boundary unsupported or outside chunk; retained as untimed text: final",
+                "Native boundary unsupported or outside chunk; retained as untimed text: you",
+                "Native boundary unsupported or outside chunk; retained as untimed text: sentence",
+                "Native boundary unsupported or outside chunk; retained as untimed text: you",
+                "Native boundary unsupported or outside chunk; retained as untimed text: you",
+                "Native boundary unsupported or outside chunk; retained as untimed text: for",
+                "Native boundary unsupported or outside chunk; retained as untimed text: for",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Thank",
+                "Native boundary unsupported or outside chunk; retained as untimed text: The",
+                "Native boundary unsupported or outside chunk; retained as untimed text: ]",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Keep",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Keep",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Keep",
+                "Native boundary unsupported or outside chunk; retained as untimed text: announcement",
+                "Native boundary unsupported or outside chunk; retained as untimed text: listening.",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Valencia.",
+                "Native boundary unsupported or outside chunk; retained as untimed text: begins",
+                "Native boundary unsupported or outside chunk; retained as untimed text: final",
+                "Native boundary unsupported or outside chunk; retained as untimed text: you",
+                "Native boundary unsupported or outside chunk; retained as untimed text: sentence",
+                "Native boundary unsupported or outside chunk; retained as untimed text: you",
+                "Native boundary unsupported or outside chunk; retained as untimed text: you",
+                "Native boundary unsupported or outside chunk; retained as untimed text: for",
+                "Native boundary unsupported or outside chunk; retained as untimed text: for",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Thank",
+                "Native boundary unsupported or outside chunk; retained as untimed text: The",
+                "Native boundary unsupported or outside chunk; retained as untimed text: ]",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Keep",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Keep",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Keep",
+                "Native boundary unsupported or outside chunk; retained as untimed text: announcement",
+                "Native boundary unsupported or outside chunk; retained as untimed text: listening.",
+                "Native boundary unsupported or outside chunk; retained as untimed text: Valencia.",
+                "Native boundary unsupported or outside chunk; retained as untimed text: begins",
+                "Native boundary unsupported or outside chunk; retained as untimed text: final",
+                "Native boundary unsupported or outside chunk; retained as untimed text: you",
+                "Native boundary unsupported or outside chunk; retained as untimed text: sentence",
+                "Native boundary unsupported or outside chunk; retained as untimed text: you",
+                "Native boundary unsupported or outside chunk; retained as untimed text: you"
+              ]
+            },
+            {
+              "apiVersion": 1,
+              "key": "6EE5A7D2CBFF85EEBB0BC12C8394D12BC3A3C91B7BF9B4165D4831F01975CBB0",
+              "assetId": "0d91da65-c781-4b9d-8949-c8bcaeca2b78",
+              "streamIndex": 1,
+              "artifactKind": "loudness",
+              "algorithm": "FFmpeg7.1/loudnorm/BS.1770-4/EBU-R128",
+              "parameters": "target=-16;peak=-1;LRA=11",
+              "fingerprint": "960F953C73574420751EC98A09BBBBA7F820479E9574DC8EE2EFB5B06F49DF0C",
+              "status": "complete",
+              "sampleRate": 0,
+              "channels": 0,
+              "processedUnits": "0",
+              "containerStart": {
+                "value": "-21000",
+                "numerator": 1,
+                "denominator": 1000000
+              },
+              "levels": 0,
+              "silenceCount": 0,
+              "activityCount": 0,
+              "sceneCount": 0,
+              "loudness": {
+                "integratedLufs": -20.52,
+                "truePeakDb": -0.15,
+                "loudnessRange": 3.3,
+                "thresholdLufs": -31,
+                "algorithm": "FFmpeg7.1/loudnorm/BS.1770-4/EBU-R128",
+                "measurement": "Source-stream integrated gating and oversampled true-peak estimation; not peak normalization",
+                "targetLufs": -16,
+                "peakCeilingDb": -1,
+                "safeGainDb": -0.85
+              },
+              "kind": "summary",
+              "offset": 0,
+              "total": 0,
+              "records": [],
+              "diagnostics": []
+            },
+            {
+              "apiVersion": 1,
+              "key": "65F2086C26EB1082F0C017F7078E678FA9D91BEE244843D42F2299AF96595039",
+              "assetId": "0d91da65-c781-4b9d-8949-c8bcaeca2b78",
+              "streamIndex": 0,
+              "artifactKind": "scenes",
+              "algorithm": "luma64-hist16-v1",
+              "parameters": "{\"threshold\":0.35,\"everyNthFrame\":150}",
+              "fingerprint": "960F953C73574420751EC98A09BBBBA7F820479E9574DC8EE2EFB5B06F49DF0C",
+              "status": "complete",
+              "sampleRate": 0,
+              "channels": 0,
+              "processedUnits": "2160",
+              "containerStart": {
+                "value": "-21000",
+                "numerator": 1,
+                "denominator": 1000000
+              },
+              "levels": 0,
+              "silenceCount": 0,
+              "activityCount": 0,
+              "sceneCount": 0,
+              "kind": "summary",
+              "offset": 0,
+              "total": 0,
+              "records": [],
+              "diagnostics": []
+            }
+          ],
+          "exports": [
+            {
+              "jobId": "304c77d5-50f4-4d76-9751-4c881051c856",
+              "projectId": "fffbf987-88cc-437a-ba1a-acdd7c2b98e3",
+              "revision": "7",
+              "state": "completed",
+              "frames": "18000",
+              "totalFrames": "18000",
+              "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2d\\outputs\\long-form.mp4"
+            },
+            {
+              "jobId": "f1d0f09c-58db-4adc-972e-5803fa6b5d2f",
+              "projectId": "fffbf987-88cc-437a-ba1a-acdd7c2b98e3",
+              "revision": "7",
+              "state": "completed",
+              "frames": "328",
+              "totalFrames": "328",
+              "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2d\\outputs\\short-1.mp4"
+            },
+            {
+              "jobId": "2e14d825-5f5f-4848-89c9-b4a8d4e56e5c",
+              "projectId": "fffbf987-88cc-437a-ba1a-acdd7c2b98e3",
+              "revision": "7",
+              "state": "completed",
+              "frames": "328",
+              "totalFrames": "328",
+              "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2d\\outputs\\short-2.mp4"
+            },
+            {
+              "jobId": "56b85f44-67fd-4c81-a3c1-6a572e054d21",
+              "projectId": "fffbf987-88cc-437a-ba1a-acdd7c2b98e3",
+              "revision": "7",
+              "state": "completed",
+              "frames": "328",
+              "totalFrames": "328",
+              "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2d\\outputs\\short-3.mp4"
+            }
+          ]
+        },
+        "wallSeconds": 85.112652,
+        "sampledPeakWorkingSetBytes": 217329664,
+        "cpuSeconds": 91.390625
+      },
+      "fixture": {
+        "provenance": "Generated synthetic qualification fixture; no real OBS footage or editorial-quality claim",
+        "durationSeconds": 10800,
+        "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2d\\three-hour.mkv",
+        "sourceSha256": "5EE7C20DA53EB533426ADE9EEB1E9804C2C2E316D964ED48A2DE9272D8AD7EF7",
+        "voice": "Microsoft David Desktop - English (United States)",
+        "video": "H.264 160x90/30, long 300-frame GOP, B-frames, visible frame number and 16-bit frame-ID stripe",
+        "audio": "Two independent mono 48kHz AAC streams: sixty seconds repeated speech every ten minutes, and continuous 330Hz game/music signal",
+        "generationSeconds": 117.5908506
+      }
+    },
+    "m0Mkv": {
+      "outcome": "passed",
+      "source": {
+        "Path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\player-fixtures\\av.mkv",
+        "Container": "matroska,webm",
+        "DurationSeconds": 6.021,
+        "StartSeconds": 0,
+        "Width": 640,
+        "Height": 360,
+        "NominalFrameRate": 30,
+        "VideoStreamIndex": 0,
+        "AudioStreamIndex": 1,
+        "Streams": [
+          {
+            "Index": 0,
+            "Kind": "Video",
+            "Codec": "h264",
+            "Details": "640 x 360"
+          },
+          {
+            "Index": 1,
+            "Kind": "Audio",
+            "Codec": "aac",
+            "Details": "48000 Hz / 1 ch"
+          }
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "validationAvailable": true,
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "nativeWindow": true,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "softwareDecode": true,
+      "windowResize": true,
+      "pauseClockStable": true,
+      "seekSeconds": 3.2,
+      "maximumAvSkewSeconds": 0.032583333333333186,
+      "sampledFrames": 413,
+      "presentedFrames": 468,
+      "uploadedVideoFrames": 90,
+      "finalGenerationUnderrunFrames": 0,
+      "elapsedSeconds": 5.9447196
+    },
+    "m1b": {
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "runtime": "10.0.15",
+      "elapsedSeconds": 17.6147972,
+      "maximumAvSkewSeconds": 0.033375000000000044,
+      "realPlaybackSeconds": 10,
+      "seekRequests": 10,
+      "staleGenerationsRejected": 1,
+      "presentedFrames": 2107,
+      "seekLatencyMs": [
+        79.6123,
+        44.0347,
+        44.1611,
+        46.7967,
+        89.6725,
+        32.8297,
+        37.2122,
+        67.5455
+      ],
+      "uploadedFrames": 307,
+      "syntheticFrameMedianMs": 5.5233,
+      "syntheticFrameP95Ms": 8.7069,
+      "syntheticClipCount": 5000,
+      "inputProposalMs": 8.6499,
+      "renderedBenchmarkFrames": 120,
+      "export": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m1b-smoke\\edited.mp4",
+      "saveReopenSemanticEquality": true,
+      "copelandScriptOnLiveSession": true
+    }
+  },
+  "limitations": [
+    "No substantial human multi-hour recording available; long high-resolution fixture repeats controlled OBS video with continuous reencoded AAC",
+    "Ten seconds actual playback per high-resolution native smoke, not two-hour sustained playback",
+    "Audio seeks on the two-hour three-stream source remain seconds long; decoded sample-count anchors are progressive/process-local, not persisted",
+    "p99 seek latency unqualified at 40 samples",
+    "Presentation skew is device-clock vs displayed timeline-frame sampling, not acoustic/display measurement",
+    "First visible metric is a successful captured-monitor upper bound including startup/test setup, not first-photon instrumentation",
+    "Varied DPI, touch, accessibility, complex text shaping and tiny-window UX remain incomplete",
+    "Markers are approximate until refined; automatic multi-file split assembly and replay marker alignment are not implemented",
+    "Human editorial quality and broad speech accuracy remain unreviewed",
+    "Scalar nondefault color processing is not realtime qualified at full resolution"
+  ],
+  "sourceInventory": "docs/validation/m2e-source-sha256.json",
+  "workspaceGit": "Valencia directory has no Git metadata; no clean-worktree/commit claim",
+  "officialObsProtocol": "https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md"
+}

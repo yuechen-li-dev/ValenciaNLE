@@ -1,0 +1,48 @@
+<Solution>
+  <Folder Name="/Infrastructure/">
+    <Project Path="../Copeland/src/Aurelian/Aurelian.Diagnostics/Aurelian.Diagnostics.csproj" />
+    <Project Path="../Copeland/src/Aurelian/Aurelian.Graphics/Aurelian.Graphics.csproj" />
+    <Project Path="../Copeland/src/Aurelian/Aurelian.Rendering.Contracts/Aurelian.Rendering.Contracts.csproj" />
+    <Project Path="../Copeland/src/Aurelian/Aurelian.Rendering.Raster/Aurelian.Rendering.Raster.csproj" />
+    <Project Path="../Copeland/src/Aurelian/Aurelian.Shaders/Aurelian.Shaders.csproj" />
+    <Project Path="../Copeland/src/Copeland/Copeland.Markdown/Copeland.Markdown.csproj" />
+    <Project Path="../Copeland/src/Copeland/Copeland.Profile/Copeland.Profile.csproj" />
+    <Project Path="../Copeland/src/Copeland/Copeland.SpanAllocation/Copeland.SpanAllocation.csproj" />
+    <Project Path="../Copeland/src/Copeland/Copeland.TS.Backend.CSharp/Copeland.TS.Backend.CSharp.csproj" />
+    <Project Path="../Copeland/src/Copeland/Copeland.TS.Mir/Copeland.TS.Mir.csproj" />
+    <Project Path="../Copeland/src/Copeland/Copeland.TS.Workspace/Copeland.TS.Workspace.csproj" />
+    <Project Path="../Copeland/src/Copeland/Copeland.TS/Copeland.TS.csproj" />
+    <Project Path="../Copeland/src/Machina.UI/Machina.Core/Machina.Core.csproj" />
+    <Project Path="../Copeland/src/Machina.UI/Machina.Fonts/Machina.Fonts.csproj" />
+    <Project Path="../Copeland/src/Machina.UI/Machina.Layout/Machina.Layout.csproj" />
+    <Project Path="../Copeland/src/Machina.UI/Machina.Pipeline/Machina.Pipeline.csproj" />
+    <Project Path="../Copeland/src/Machina.UI/Machina.Presentation/Machina.Presentation.csproj" />
+    <Project Path="../Copeland/src/Machina.UI/Machina.Runtime/Machina.Runtime.csproj" />
+    <Project Path="../Copeland/src/Machina.UI/Machina.Standard/Machina.Standard.csproj" />
+    <Project Path="../Copeland/src/ThirdParty/Machina.Typography.OpenFont/Machina.Typography.OpenFont.csproj" />
+    <Project Path="../Deliverance/src/Deliverance.Core/Deliverance.Core.csproj" />
+    <Project Path="../InputMan/src/InputMan.Core/InputMan.Core.csproj" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="samples/Valencia.Headless/Valencia.Headless.csproj" />
+    <Project Path="samples/Valencia.Qualification/Valencia.Qualification.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Valencia.App/Valencia.App.csproj" />
+    <Project Path="src/Valencia.Analysis/Valencia.Analysis.csproj" />
+    <Project Path="src/Valencia.Cli/Valencia.Cli.csproj" />
+    <Project Path="src/Valencia.Core/Valencia.Core.csproj" />
+    <Project Path="src/Valencia.Engine/Valencia.Engine.csproj" />
+    <Project Path="src/Valencia.Media/Valencia.Media.csproj" />
+    <Project Path="src/Valencia.Obs/Valencia.Obs.csproj" />
+    <Project Path="src/Valencia.Persistence/Valencia.Persistence.csproj" />
+    <Project Path="src/Valencia.Rendering/Valencia.Rendering.csproj" />
+    <Project Path="src/Valencia.Scripting/Valencia.Scripting.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Valencia.Core.Tests/Valencia.Core.Tests.csproj" />
+    <Project Path="tests/Valencia.Persistence.Tests/Valencia.Persistence.Tests.csproj" />
+    <Project Path="tests/Valencia.Programming.Tests/Valencia.Programming.Tests.csproj" />
+    <Project Path="tests/Valencia.Tests/Valencia.Tests.csproj" />
+  </Folder>
+</Solution>

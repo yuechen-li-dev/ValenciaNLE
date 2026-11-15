@@ -1,0 +1,207 @@
+{
+  "milestone": "M1b",
+  "recordedAt": "2026-11-14T22:13:43.9003166-08:00",
+  "outcome": "passed",
+  "build": {
+    "configuration": "Release",
+    "warnings": 0,
+    "errors": 0,
+    "log": "artifacts/local/m1b-build.log",
+    "publish": "artifacts/publish/win-x64",
+    "appSha256": "2D94175B4D80852AB29CE610BFCC469A0E42B355C84360D8C2511809598EEFF2"
+  },
+  "tests": [
+    {
+      "suite": "Valencia.Core.Tests",
+      "total": 70,
+      "passed": 70,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-14T22:07:25.1955668-08:00",
+      "finished": "2026-11-14T22:07:25.7444421-08:00"
+    },
+    {
+      "suite": "Valencia.Persistence.Tests",
+      "total": 21,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-14T22:07:26.5660649-08:00",
+      "finished": "2026-11-14T22:07:27.3486332-08:00"
+    },
+    {
+      "suite": "Valencia.Tests",
+      "total": 33,
+      "passed": 33,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-14T22:07:27.9334768-08:00",
+      "finished": "2026-11-14T22:07:30.5848609-08:00"
+    }
+  ],
+  "totalPassed": 124,
+  "packagesAdded": [],
+  "ffmpegVersion": "7.1.1-full_build-www.gyan.dev",
+  "ffmpegConfiguration": "shared, GPL/version3, libx264, native AAC",
+  "editorSmoke": {
+    "outcome": "passed",
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "runtime": "10.0.15",
+    "elapsedSeconds": 13.4255984,
+    "maximumAvSkewSeconds": 0.03341666666666665,
+    "realPlaybackSeconds": 10,
+    "seekRequests": 9,
+    "staleGenerationsRejected": 1,
+    "presentedFrames": 1848,
+    "seekLatencyMs": [
+      98.3888,
+      36.0313,
+      40.4903,
+      89.8759,
+      28.0345,
+      35.4757,
+      64.7358
+    ],
+    "uploadedFrames": 306,
+    "syntheticFrameMedianMs": 5.988,
+    "syntheticFrameP95Ms": 9.7028,
+    "syntheticClipCount": 5000,
+    "inputProposalMs": 8.1469,
+    "renderedBenchmarkFrames": 120,
+    "export": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m1b-smoke\\edited.mp4",
+    "saveReopenSemanticEquality": true
+  },
+  "independentDesktopExport": {
+    "outcome": "passed",
+    "decoder": "independent FFmpeg CLI",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1"
+        },
+        {
+          "codec_name": "aac",
+          "sample_rate": "48000",
+          "r_frame_rate": "0/0"
+        }
+      ],
+      "format": {
+        "duration": "10.000000"
+      }
+    },
+    "earlySourceFrameError": 0.6464120370370371,
+    "postCutSourceFrameError": 0.6614583333333334,
+    "gapVideoMaximum": 0.0,
+    "secondSourceBlueMean": 252.0,
+    "gapAudioRms": 0.0,
+    "signalAudioRms": 0.08822027264794709
+  },
+  "m0HardwareSmokes": [
+    {
+      "outcome": "passed",
+      "source": {
+        "Path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\fixtures\\av.mp4",
+        "Container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "DurationSeconds": 6,
+        "StartSeconds": 0,
+        "Width": 640,
+        "Height": 360,
+        "NominalFrameRate": 30,
+        "VideoStreamIndex": 0,
+        "AudioStreamIndex": 1,
+        "Streams": [
+          {
+            "Index": 0,
+            "Kind": "Video",
+            "Codec": "h264",
+            "Details": "640 x 360"
+          },
+          {
+            "Index": 1,
+            "Kind": "Audio",
+            "Codec": "aac",
+            "Details": "48000 Hz / 1 ch"
+          }
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "validationAvailable": true,
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "nativeWindow": true,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "softwareDecode": true,
+      "windowResize": true,
+      "pauseClockStable": true,
+      "seekSeconds": 3.2,
+      "maximumAvSkewSeconds": 0.03231250000000002,
+      "sampledFrames": 424,
+      "presentedFrames": 475,
+      "uploadedVideoFrames": 93,
+      "finalGenerationUnderrunFrames": 0,
+      "elapsedSeconds": 3.5604667
+    },
+    {
+      "outcome": "passed",
+      "source": {
+        "Path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\fixtures\\av.mkv",
+        "Container": "matroska,webm",
+        "DurationSeconds": 6.021,
+        "StartSeconds": 0,
+        "Width": 640,
+        "Height": 360,
+        "NominalFrameRate": 30,
+        "VideoStreamIndex": 0,
+        "AudioStreamIndex": 1,
+        "Streams": [
+          {
+            "Index": 0,
+            "Kind": "Video",
+            "Codec": "h264",
+            "Details": "640 x 360"
+          },
+          {
+            "Index": 1,
+            "Kind": "Audio",
+            "Codec": "aac",
+            "Details": "48000 Hz / 1 ch"
+          }
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "validationAvailable": true,
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "nativeWindow": true,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "softwareDecode": true,
+      "windowResize": true,
+      "pauseClockStable": true,
+      "seekSeconds": 3.2,
+      "maximumAvSkewSeconds": 0.032812500000000355,
+      "sampledFrames": 422,
+      "presentedFrames": 471,
+      "uploadedVideoFrames": 92,
+      "finalGenerationUnderrunFrames": 0,
+      "elapsedSeconds": 3.5533494
+    }
+  ],
+  "nativeInputVerification": [
+    "Ctrl+O native project dialog and reopen",
+    "clip body drag committed at a new frame-aligned position",
+    "right-edge trim committed",
+    "Ctrl+Z and Ctrl+Shift+Z restored document and dirty indicator",
+    "returned to saved state and closed"
+  ],
+  "acceleratedTimeVerification": "actual source decoding/audio gap evaluation at six-hour sequence offset; not a six-hour realtime soak",
+  "remainingManual": [
+    "multi-hour OBS playback and random-seek soak",
+    "perceptual audio quality and acoustic sync",
+    "heavy 4K/layer throughput",
+    "device hot swap and arbitrary source timestamp discontinuities",
+    "all DPI and keyboard layouts"
+  ]
+}

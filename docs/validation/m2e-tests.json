@@ -1,0 +1,1430 @@
+[
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.RevisionSchemaIdentityNoChangeAndBoundedHistoryAreEnforced",
+    "outcome": "Passed",
+    "duration": "00:00:00.0242635"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"missing-asset\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001061"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"relative-path\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001056"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.EmptySequenceDurationAndReadOnlySnapshotQueriesStayCoherent",
+    "outcome": "Passed",
+    "duration": "00:00:00.0006162"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.StandardFrameAndSampleGridsAndRoundingAreExplicit",
+    "outcome": "Passed",
+    "duration": "00:00:00.0010767"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"stream-id\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000522"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"state\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0003237"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"duplicate-id\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0006229"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.EvaluationHonorsMuteVisibilityEnabledAndTrackOrder",
+    "outcome": "Passed",
+    "duration": "00:00:00.0095357"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"unused-id\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000451"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"negative\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000883"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.DeterminismTests.SeededCommandSequencesActuallyReplayThroughDispatcher(seed: 103)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0353964"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"negative-start\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000438"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.TransactionRollsBackAndSuccessfulGroupIsOneUndoEntry",
+    "outcome": "Passed",
+    "duration": "00:00:00.0017578"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.RippleHandlesClipEdges(from: 0, to: 2, start: 0, sourceIn: 2, sourceOut: 10)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0015658"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"null\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0005257"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.SplitAtSingleSequenceTickPreservesSourceContinuityAndDuration",
+    "outcome": "Passed",
+    "duration": "00:00:00.0095353"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"source-after\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000416"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"duplicate-id\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000499"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"schema\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001126"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.RippleHandlesClipEdges(from: 8, to: 10, start: 0, sourceIn: 0, sourceOut: 8)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000842"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"zero\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000426"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.RippleScopeClosesGapAndPreservesDiscontinuousSourcePieces",
+    "outcome": "Passed",
+    "duration": "00:00:00.0022729"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"wrong-kind\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000402"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"move\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000466"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"delete\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000757"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.CreatorTests.GainAutomationAndFadesHaveExactEndpointPolicies",
+    "outcome": "Passed",
+    "duration": "00:00:00.0023546"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.CreatorTests.CreatorAndEffectEditsUndoRedoAndRejectMalformedStateAtomically",
+    "outcome": "Passed",
+    "duration": "00:00:00.0013565"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"zero\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000361"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.CreatorTests.CaptionWordBoundariesAreHalfOpenAndFollowMovedAndSplitSource",
+    "outcome": "Passed",
+    "duration": "00:00:00.0373494"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"track-order\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000440"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"insert\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0004261"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.RippleHandlesClipEdges(from: 0, to: 10, start: 0, sourceIn: 0, sourceOut: 0)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0003314"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"asset\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001082"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"sample-rate\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0214526"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"trim\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000788"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"cross-track\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000571"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.SplitRejectsBoundariesAndOutsideRange(at: 11)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001734"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"missing-collections\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000457"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"overflow\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000981"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.HugeOriginalEpochAndUnusualTimebaseDoNotLoseRationalOrigin",
+    "outcome": "Passed",
+    "duration": "00:00:00.0004526"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.ConcurrentCommitsWithSameRevisionHaveExactlyOneWinner",
+    "outcome": "Passed",
+    "duration": "00:00:00.0036710"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"move\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000702"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"delete\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0006388"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.SplitRejectsBoundariesAndOutsideRange(at: 10)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000381"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"sequence\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000512"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"source-before\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000472"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"split\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001120"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"ripple\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0002718"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.GapAdjacencyAndMultipleIndependentTracksAreValid",
+    "outcome": "Passed",
+    "duration": "00:00:00.0016496"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.DeterminismTests.SeededCommandSequencesActuallyReplayThroughDispatcher(seed: 17)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0070652"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"overlap\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000397"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"project-id\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001176"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"track\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000501"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.SplitRejectsBoundariesAndOutsideRange(at: 0)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001652"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"no-targets\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0002368"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"missing-stream\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001671"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.DeterminismTests.SeededCommandSequencesActuallyReplayThroughDispatcher(seed: 2026)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0080844"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"trim\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000483"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"unknown-target\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000513"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"reversed\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000366"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"split\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000727"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.FailurePreservesRedoButNewCommitInvalidatesIt",
+    "outcome": "Passed",
+    "duration": "00:00:00.0002464"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidInsertLeavesSnapshotAndHistoryUnchanged(kind: \"timebase\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000607"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"asset-id\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0002063"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"outside\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000977"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.LockedTracksRejectAllClipEdits(kind: \"move-in\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000738"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"missing-id\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001232"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.TransactionChildRevisionsAndIdsAreValidatedAgainstStartingRevision",
+    "outcome": "Passed",
+    "duration": "00:00:00.0004913"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.InvalidRippleIsAtomic(kind: \"duplicate-target\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000531"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"insert\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0035628"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.TimingAndQueryTests.MalformedDocumentsAreRejected(kind: \"frame-rate\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000646"
+  },
+  {
+    "suite": "Valencia.Core.Tests",
+    "test": "Valencia.Core.Tests.EditingTests.EveryOperationUndoesAndRedoesExactSemanticState(kind: \"ripple\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0063662"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"truncate\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0040187"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.SuccessfulReplacementAndStaleLoadHaveExplicitCommitSemantics",
+    "outcome": "Passed",
+    "duration": "00:00:00.0056242"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.DeliverancePartialWriteCancellationOrFailurePreservesPreviousContainer(cancel: True)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0050013"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.CreateEditUndoRedoSaveReopenEvaluateUsesRealDispatcherAndDeliverance",
+    "outcome": "Passed",
+    "duration": "00:00:00.0127623"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"missing-field\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0110583"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"document-schema\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0094798"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"negative-revision\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0105588"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.DeliverancePartialWriteCancellationOrFailurePreservesPreviousContainer(cancel: False)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0095327"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"module-schema\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0097490"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"missing-project\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0034144"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"invalid-reference\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.1476782"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.SeededEditsRoundTripExactSemanticContent(seed: 103)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0149990"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.RelocatedBundleResolvesRelativePathsAndMissingMediaIsReported",
+    "outcome": "Passed",
+    "duration": "00:00:00.0064922"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.SeededEditsRoundTripExactSemanticContent(seed: 2026)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0050662"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.ExactLargeEpochAndOneTickOffsetsSurvivePersistence",
+    "outcome": "Passed",
+    "duration": "00:00:00.0124285"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"corrupt\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0052680"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.PreCancelledSaveAndInvalidSnapshotLeavePreviousSaveByteIdentical",
+    "outcome": "Passed",
+    "duration": "00:00:00.0082925"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.AtomicOverwriteProducesReopenableCurrentAndPreviousBackup",
+    "outcome": "Passed",
+    "duration": "00:00:00.0082704"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"serializer\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0102269"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.FailedLoadNeverReplacesCurrentSession(fault: \"unknown-field\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0183400"
+  },
+  {
+    "suite": "Valencia.Persistence.Tests",
+    "test": "Valencia.Persistence.Tests.ProjectFileTests.SeededEditsRoundTripExactSemanticContent(seed: 17)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0052669"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.TrimAndSelectionAreFrameAlignedAndSourceBounded",
+    "outcome": "Passed",
+    "duration": "00:00:00.0020558"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.MediaTests.SeekDecodesThePresentationIntervalContainingTheTarget(target: 0)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0170905"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.CoarseMatroskaAudioSeekPreservesExactSamplePhase(sample: 300001)",
+    "outcome": "Passed",
+    "duration": "00:00:00.1009062"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.MediaTests.CancellationReleasesWorkersBlockedOnFullQueues",
+    "outcome": "Passed",
+    "duration": "00:00:00.2117619"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.CaptionsHighlightTheCorrectWordAndSurviveIndependentMp4Decode",
+    "outcome": "Passed",
+    "duration": "00:00:00.2395687"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ExplicitProfileLawDrivesViewportAndNativeHitTesting(width: 1920, height: 1080, expected: Desktop)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0064932"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.TimeAndAudioTests.FractionalFrameAndSampleGridsRemainExactAtProjectBoundary",
+    "outcome": "Passed",
+    "duration": "00:00:00.0063754"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ExplicitProfileLawDrivesViewportAndNativeHitTesting(width: 390, height: 844, expected: VerticalPhone)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0055134"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.InputManRoutesUndoRedoWithoutDuplicateUnmodifiedCommands(shift: False)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0070873"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.NoiseCleanupPreservesImpulseSampleAndBackwardAudioReads(rate: 16000)",
+    "outcome": "Passed",
+    "duration": "00:00:00.1798619"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.NativePcmGainFadeAndAutomationMatchIndependentSampleFormula",
+    "outcome": "Passed",
+    "duration": "00:00:00.0576932"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.ForwardAudioTimestampGapProducesSilenceAndKeepsFollowingSamples",
+    "outcome": "Passed",
+    "duration": "00:00:00.0539077"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ExplicitProfileLawDrivesViewportAndNativeHitTesting(width: 768, height: 720, expected: Desktop)",
+    "outcome": "Passed",
+    "duration": "00:00:03.4433592"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.NoiseCleanupPreservesImpulseSampleAndBackwardAudioReads(rate: 48000)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0847401"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.MediaTests.IndependentAudioDecoderResamplesToStereoWithoutConsumingVideo",
+    "outcome": "Passed",
+    "duration": "00:00:00.6681937"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.MediaTests.DecodesRealContainersAndDrainsBFramesInPresentationOrder(matroska: True)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0175157"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.CancelAndInvalidLockedDestinationDoNotCommit(locked: False)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0009884"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.KeyboardTests.RepeatedKeyDownAndFocusResetDoNotReplayAnOldAction",
+    "outcome": "Passed",
+    "duration": "00:00:00.0009732"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ProfileAwareDragUsesOneCommitAndKeepsExactLargeOrigin(width: 768, height: 1024)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0523353"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.NoiseCleanupPreservesImpulseSampleAndBackwardAudioReads(rate: 44100)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0668742"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.AssetMetadataTests.ImportRetainsOriginalStreamClocksWithoutDependingOnPlaybackDoubles(offset: True)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0075806"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.MediaTests.NonzeroContainerStartIsNormalizedWithoutDiscardingSourceTimestamp",
+    "outcome": "Passed",
+    "duration": "00:00:00.0062921"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.WidelySeparatedVideoQueriesSeekInsteadOfDecodingTheInterveningMinutes",
+    "outcome": "Passed",
+    "duration": "00:00:00.4478109"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.NativeTextMetricsAndWrappingPreventBitmapSizedLabelClipping",
+    "outcome": "Passed",
+    "duration": "00:00:00.0124841"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.TimeAndAudioTests.InvalidTimebasesAndOverflowAreRejectedInsteadOfRoundingThroughDouble",
+    "outcome": "Passed",
+    "duration": "00:00:00.0010382"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ExplicitProfileLawDrivesViewportAndNativeHitTesting(width: 960, height: 600, expected: Desktop)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0056579"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ExplicitProfileLawDrivesViewportAndNativeHitTesting(width: 600, height: 1024, expected: VerticalTablet)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0044646"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.TimelineIntegrationTests.EvaluatorUsesActualSourcePtsCutsGapsAndLayerOrder",
+    "outcome": "Passed",
+    "duration": "00:00:00.3623570"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.ProxyPreservesVfrClockAndPreviewCanFallBackToOriginal",
+    "outcome": "Passed",
+    "duration": "00:00:00.1833507"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.TimelineIntegrationTests.SeekGenerationsCancelAndBackwardPlaybackResolvesFreshSources",
+    "outcome": "Passed",
+    "duration": "00:00:00.2838892"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.FreshProjectCannotUndoItsRequiredSequenceSetup",
+    "outcome": "Passed",
+    "duration": "00:00:00.0018062"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.TimeAndAudioTests.DeviceClockCountsOnlyMediaPlayedRatherThanQueuedUnderrunSilence",
+    "outcome": "Passed",
+    "duration": "00:00:00.0755483"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.MediaTests.SeekDecodesThePresentationIntervalContainingTheTarget(target: 1.95)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0070815"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.MediaTests.DecodesRealContainersAndDrainsBFramesInPresentationOrder(matroska: False)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0084930"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ExplicitProfileLawDrivesViewportAndNativeHitTesting(width: 1023, height: 1280, expected: VerticalTablet)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0067677"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ProfileAwareDragUsesOneCommitAndKeepsExactLargeOrigin(width: 390, height: 844)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0392210"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.DragPreviewIsTransientAndReleaseCreatesOneUndoEntry",
+    "outcome": "Passed",
+    "duration": "00:00:00.0003614"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.AvailableHevcAndAv1AreActuallyDecoded(encoder: \"libx265\", codec: \"hevc\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0700823"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ViewportKeepsPrecisionAtSixHourOriginAndZoomAnchor",
+    "outcome": "Passed",
+    "duration": "00:00:00.0077610"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.AvailableHevcAndAv1AreActuallyDecoded(encoder: \"libaom-av1\", codec: \"av1\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.3307224"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.CoarseMatroskaAudioSeekPreservesExactSamplePhase(sample: 47201)",
+    "outcome": "Passed",
+    "duration": "00:00:00.1014493"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.AssetMetadataTests.ImportRetainsOriginalStreamClocksWithoutDependingOnPlaybackDoubles(offset: False)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0020006"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.InputManRoutesUndoRedoWithoutDuplicateUnmodifiedCommands(shift: True)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0003675"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.MediaTests.SeekDecodesThePresentationIntervalContainingTheTarget(target: 0.81100000000000005)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0079477"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.FiveThousandClipsAreCulledAndHitTestedWithoutPerClipWidgets",
+    "outcome": "Passed",
+    "duration": "00:00:00.0234581"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.RelinkUsesDispatcherAndValidatesExistingSourceBounds",
+    "outcome": "Passed",
+    "duration": "00:00:00.0006284"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ExplicitProfileLawDrivesViewportAndNativeHitTesting(width: 1024, height: 768, expected: Desktop)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0080051"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ExplicitProfileLawDrivesViewportAndNativeHitTesting(width: 599, height: 1000, expected: VerticalPhone)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0046589"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.TimelineIntegrationTests.CancelledExportLeavesPreviousDestinationAndNoPartialFile",
+    "outcome": "Passed",
+    "duration": "00:00:00.1148592"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.FftNoiseSuppressionActuallyProcessesBoundedAudio",
+    "outcome": "Passed",
+    "duration": "00:00:00.1279473"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.VfrBFramesLongGopOffsetAndBackwardRequestsMatchIndependentFrames",
+    "outcome": "Passed",
+    "duration": "00:00:01.8101058"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.TimelineIntegrationTests.AudioGapIsExactAndMixMutePoliciesAreShared",
+    "outcome": "Passed",
+    "duration": "00:00:00.0628751"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.ProfileAwareDragUsesOneCommitAndKeepsExactLargeOrigin(width: 1920, height: 1080)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0386330"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.CreatorMediaTests.CoarseMatroskaAudioSeekPreservesExactSamplePhase(sample: 100007)",
+    "outcome": "Passed",
+    "duration": "00:00:00.1036508"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.TimelineIntegrationTests.RealExportIsIndependentlyDecodedAndMatchesReopenedDocument",
+    "outcome": "Passed",
+    "duration": "00:00:00.9484481"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.TimelineIntegrationTests.SixHourSequenceOffsetResolvesRealMediaWithoutDecodingTheGap",
+    "outcome": "Passed",
+    "duration": "00:00:00.0255486"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.MediaTests.VideoOnlyAndInvalidInputsHaveExplicitResults",
+    "outcome": "Passed",
+    "duration": "00:00:00.0039080"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.EditorInteractionTests.CancelAndInvalidLockedDestinationDoNotCommit(locked: True)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0019618"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.KeyboardTests.ACompleteKeyPressBetweenRenderFramesIsDeliveredOnce",
+    "outcome": "Passed",
+    "duration": "00:00:00.0510619"
+  },
+  {
+    "suite": "Valencia.Tests",
+    "test": "Valencia.Tests.TimelineIntegrationTests.UnsupportedSampleRateFailsInsteadOfWaitingForAnImpossiblePrebuffer",
+    "outcome": "Passed",
+    "duration": "00:00:00.0033714"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.ActualCopelandCreatorJobsAndCorrectionsUseTheSameEngine",
+    "outcome": "Passed",
+    "duration": "00:00:01.6138462"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaProgrammingTests.ActualMcpExportCancelsCleansUpThenExportsAValidatedEditedPlan",
+    "outcome": "Passed",
+    "duration": "00:00:02.7842372"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.StoppedEventHandoffWaitsForLaggingFrontendStatusBeforeImport",
+    "outcome": "Passed",
+    "duration": "00:00:00.9338722"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.PlannerHandlesPaddingMinimumSegmentsEmptyFactsAndFullRemoval",
+    "outcome": "Passed",
+    "duration": "00:00:00.0367361"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.SearchToRetainPlanUndoSaveReopenAndIndependentExport",
+    "outcome": "Passed",
+    "duration": "00:00:00.8551490"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"overflow\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.1114723"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AudioAnalysisTests.DiscontinuitiesAreKeptSeparate",
+    "outcome": "Passed",
+    "duration": "00:00:00.0003707"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.PreprocessingPreservesExactSampleClockAndDownmixes(rate: 44100, channels: 2)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0654113"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsAccessTests.ActualCopelandRecordingControlAndIngestionRetainMetadataAfterDisposal",
+    "outcome": "Passed",
+    "duration": "00:00:00.7615210"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"unknownTrack\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0005130"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AudioAnalysisTests.TenMinuteStreamingInputDoesNotRetainPcm",
+    "outcome": "Passed",
+    "duration": "00:00:03.0352609"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.RecordingIngestionIsAtomicStableIdempotentAndRejectsUnsafeFiles",
+    "outcome": "Passed",
+    "duration": "00:00:01.6965875"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AudioAnalysisTests.MergingShortActivityIsExplicitAndDeterministic",
+    "outcome": "Passed",
+    "duration": "00:00:00.0011677"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.CompilerAndRuntimeDiagnosticsAndCancellationAreStructured",
+    "outcome": "Passed",
+    "duration": "00:00:00.2980427"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.TypedPlanDryRunCommitAndDirectCommandsHaveIdenticalEffectsAndUndo",
+    "outcome": "Passed",
+    "duration": "00:00:00.0467465"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.ReconnectDoesNotReplayARecordingMutationAndLosesMarkerContinuity",
+    "outcome": "Passed",
+    "duration": "00:00:00.3198229"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.UnsupportedRequestsRemoteEndpointsTimeoutAndCancellationAreExplicit",
+    "outcome": "Passed",
+    "duration": "00:00:01.0836901"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.SceneAnalysisTests.ActualLumaDecodeDetectsCutsAndKeepsOriginalVfrTimestamps(kind: \"fade\", count: 0)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0851699"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.DtwRefinementUsesActualAttentionAndPreservesOriginalTimings",
+    "outcome": "Passed",
+    "duration": "00:00:00.9531346"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.StaleSourceInvalidatesArtifactsAndAlreadyGeneratedPlans",
+    "outcome": "Passed",
+    "duration": "00:00:00.0409212"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.SilentTranscriptCompletesEmptyAndInvalidTextPlansCannotMutate",
+    "outcome": "Passed",
+    "duration": "00:00:00.4358248"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.WrongPasswordIsExplicitAndNotRetried",
+    "outcome": "Passed",
+    "duration": "00:00:00.0046308"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AudioAnalysisTests.SilentActiveAndShortSources(samples: 80, silent: True, intervals: 0)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0000616"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.RealLocalTranscriptionIsSourceAlignedCachedAndTyped",
+    "outcome": "Passed",
+    "duration": "00:00:00.4095084"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsAccessTests.ActualMcpObsProtocolHonorsLocalControlAuthorizationAndImports(authorize: True)",
+    "outcome": "Passed",
+    "duration": "00:00:01.6649868"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.SplitAndTrimmedMappingsRemainSourceAlignedAndCancellationDoesNotPublish",
+    "outcome": "Passed",
+    "duration": "00:00:00.4087506"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaProgrammingTests.HeadlessCopelandOpenQueryPlanUndoSaveReopenAndExportIsIndependentlyVerified",
+    "outcome": "Passed",
+    "duration": "00:00:04.9465800"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.PlannerRejectsUnsafeInputsWithoutMutation(kind: \"locked\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0358551"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.SplitMovedNonzeroInClipsPreserveExistingGapsAndAlignment",
+    "outcome": "Passed",
+    "duration": "00:00:00.0501974"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AudioAnalysisTests.StereoPhaseAndBoundariesPreserveSamplePositionsAndPyramidEnergy",
+    "outcome": "Passed",
+    "duration": "00:00:00.0033366"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.CreatorJobsRejectStaleRevisionsAndCancelWithoutCommitting",
+    "outcome": "Passed",
+    "duration": "00:00:00.3979631"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"stale\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0001967"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.SceneAnalysisTests.ActualLumaDecodeDetectsCutsAndKeepsOriginalVfrTimestamps(kind: \"cut\", count: 1)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0892080"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.RetentionMergeAndGapPoliciesAreExplicit",
+    "outcome": "Passed",
+    "duration": "00:00:00.0220964"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AnalysisCacheTests.CacheRoundtripCorruptionCancellationAndVersionInvalidation",
+    "outcome": "Passed",
+    "duration": "00:00:00.0241749"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.ActualMcpAnalyzesPagesPlansCommitsExportsAndRejectsConflicts",
+    "outcome": "Passed",
+    "duration": "00:00:02.2386711"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"rollback\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0034957"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.HeadlessProtocolTests.WorkspaceRejectsTraversalRootedPathsAndSourceAliases",
+    "outcome": "Passed",
+    "duration": "00:00:00.0006004"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.PlannerRejectsUnsafeInputsWithoutMutation(kind: \"misaligned\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0311209"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.StopAcknowledgementDoesNotFinalizeWhileEncoderDrains",
+    "outcome": "Passed",
+    "duration": "00:00:00.3650354"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.RealDecodeSharesFeaturesCachesAndKeepsObsStreamsIndependent",
+    "outcome": "Passed",
+    "duration": "00:00:00.0544356"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.PreprocessingPreservesExactSampleClockAndDownmixes(rate: 16000, channels: 2)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0502911"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.RealWebSocketAuthenticationDiscoveryControlsMarkersSplitsAndNoStopOnDispose",
+    "outcome": "Passed",
+    "duration": "00:00:00.1376588"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.HeadlessProtocolTests.ActualCliCompilesScriptAppliesTypedPlanAndRequiresExplicitSave",
+    "outcome": "Passed",
+    "duration": "00:00:03.0842922"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.PlannerRejectsUnsafeInputsWithoutMutation(kind: \"invalidRange\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0462059"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AudioAnalysisTests.CoordinateConversionsUseExactOffsetsAndCheckedOverflow",
+    "outcome": "Passed",
+    "duration": "00:00:00.0074441"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.Mp4AacAnalysisKeepsOriginalStreamClockAndCodecBoundaryTolerance",
+    "outcome": "Passed",
+    "duration": "00:00:00.3001317"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.TypedObjectAuthoringAndJsonUseOneCompilerOwnedSchema",
+    "outcome": "Passed",
+    "duration": "00:00:00.0059340"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AudioAnalysisTests.FractionalSampleWindowsPaddingAndVisibleWaveformQueries",
+    "outcome": "Passed",
+    "duration": "00:00:00.0051758"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.HeadlessProtocolTests.ActualStdioInitializeDiscoveryQueryDryRunCommitConflictAndPathPolicy",
+    "outcome": "Passed",
+    "duration": "00:00:00.5364978"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AnalysisCacheTests.EvictionAndConcurrentEquivalentPublicationStayWithinDiskBudget",
+    "outcome": "Passed",
+    "duration": "00:00:00.3078567"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.ActualMcpCreatorPlanningCommitRevisionAndProfileExport",
+    "outcome": "Passed",
+    "duration": "00:00:01.2139992"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.ActualStdioTranscriptionSearchTextPlanAndExport",
+    "outcome": "Passed",
+    "duration": "00:00:01.3654250"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.CopelandScriptAnalyzesAndCreatesEquivalentNativePlan",
+    "outcome": "Passed",
+    "duration": "00:00:00.1493802"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.PlannerRejectsUnsafeInputsWithoutMutation(kind: \"partial\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0245459"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"identity\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0002359"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AnalysisCacheTests.QuickFingerprintDetectsSampleAndMetadataChanges",
+    "outcome": "Passed",
+    "duration": "00:00:00.0165669"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.FailedMultiFileProbeDoesNotCommitEarlierAssetsAndMarkersRequireApproximatePolicy",
+    "outcome": "Passed",
+    "duration": "00:00:01.1109790"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"overlap\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0003230"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.NonzeroStreamOriginAndTwoHourSparseSpeechUseBoundedChunks",
+    "outcome": "Passed",
+    "duration": "00:00:03.6151029"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.ExternalSecondTakeGetsNewIdentityWithoutErasingTheArchivedFirstTake",
+    "outcome": "Passed",
+    "duration": "00:00:00.0571852"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.CompletedChunkCacheResumesAndCopelandUsesSamePlan",
+    "outcome": "Passed",
+    "duration": "00:00:01.1040399"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.RepeatedContinuousSpeechUsesOverlapOwnershipAndNativeCancellation",
+    "outcome": "Passed",
+    "duration": "00:00:03.3213047"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.TextRetentionPaddingAddsContextWithoutMutatingTheProject",
+    "outcome": "Passed",
+    "duration": "00:00:00.5124830"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.PreprocessingPreservesExactSampleClockAndDownmixes(rate: 48000, channels: 1)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0594627"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.RealScriptBuildsValidatesCommitsAndUndoesAPlan",
+    "outcome": "Passed",
+    "duration": "00:00:01.5080757"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.RoughCutsAcceptRealAacVideoOffsetsWithoutLosingAlignment",
+    "outcome": "Passed",
+    "duration": "00:00:00.1980638"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsTests.DpapiCredentialsAndCancelledAtomicMetadataPreserveExistingFiles",
+    "outcome": "Passed",
+    "duration": "00:00:00.1011650"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.ObsAccessTests.ActualMcpObsProtocolHonorsLocalControlAuthorizationAndImports(authorize: False)",
+    "outcome": "Passed",
+    "duration": "00:00:00.4300580"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AudioAnalysisTests.SilentActiveAndShortSources(samples: 8000, silent: False, intervals: 0)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0149122"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.RepeatedOccurrencesRequireExplicitIdentityAndUntimedWordsCannotEdit",
+    "outcome": "Passed",
+    "duration": "00:00:00.4236452"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.CreatorPlanIsAtomicReproducibleUndoablePersistedAndExportsFourRealOutputs",
+    "outcome": "Passed",
+    "duration": "00:00:02.4508381"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.PlannerRejectsUnsafeInputsWithoutMutation(kind: \"version\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0272187"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.EquivalentJobsDeduplicateAndCancellationPublishesNoPartialArtifact",
+    "outcome": "Passed",
+    "duration": "00:00:00.0521831"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.TranscriptionTests.ThreeAudioStreamsRequireExplicitMusicRoleAndLeaveCommunicationsUnducked",
+    "outcome": "Passed",
+    "duration": "00:00:00.8118343"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.RejectedPlansDoNotMutateOrConsumeHistory(kind: \"unknownSequence\")",
+    "outcome": "Passed",
+    "duration": "00:00:00.0033773"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AudioAnalysisTests.TypedObjectSettingsAcceptNegativeDbfsThroughTheExistingCompiler",
+    "outcome": "Passed",
+    "duration": "00:00:00.0893629"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.SceneAnalysisTests.ActualLumaDecodeDetectsCutsAndKeepsOriginalVfrTimestamps(kind: \"vfr\", count: 1)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0818624"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.SceneAnalysisTests.ActualLumaDecodeDetectsCutsAndKeepsOriginalVfrTimestamps(kind: \"static\", count: 0)",
+    "outcome": "Passed",
+    "duration": "00:00:00.1652831"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.RealCopelandCSharpRoslynCallsFacadePreservesInt64AndUsesCompilationCache",
+    "outcome": "Passed",
+    "duration": "00:00:00.1788148"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.EngineAndScriptTests.UiScopeSharesCurrentProjectPathAndRejectsProjectReplacement",
+    "outcome": "Passed",
+    "duration": "00:00:00.3124812"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.PlanIsDeterministicAtomicUndoableAndExportSelectsCorrectSourceFrames",
+    "outcome": "Passed",
+    "duration": "00:00:01.4257974"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.MediaAnalysisTests.ActualCliCopelandAnalysisPlanSaveReopenAndExportWorkflow",
+    "outcome": "Passed",
+    "duration": "00:00:03.9738282"
+  },
+  {
+    "suite": "Valencia.Programming.Tests",
+    "test": "Valencia.Programming.Tests.AudioAnalysisTests.SilentActiveAndShortSources(samples: 8000, silent: True, intervals: 1)",
+    "outcome": "Passed",
+    "duration": "00:00:00.0010843"
+  }
+]

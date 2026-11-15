@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/Valencia.Analysis/Valencia.Analysis.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/src/Aurelian/Aurelian.Inference/Aurelian.Inference.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/src/Integrations/Aurelian.Inference.Dominatus/Aurelian.Inference.Dominatus.csproj" />
+    <PackageReference Include="MathNet.Numerics" Version="5.0.0" />
+  </ItemGroup>
+</Project>

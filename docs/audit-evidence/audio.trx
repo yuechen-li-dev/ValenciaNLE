@@ -1,0 +1,130 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="68199bc6-854e-4aee-9841-eb17f6ad1924" name="yuech@DESKTOP-AKFI9N2 2026-11-07 16:36:36" runUser="DESKTOP-AKFI9N2\yuech" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-07T16:36:36.3960878-08:00" queuing="2026-11-07T16:36:36.3960880-08:00" start="2026-11-07T16:36:35.0328729-08:00" finish="2026-11-07T16:36:36.6402993-08:00" />
+  <TestSettings name="default" id="cd4669b5-502e-49ba-92be-2194a51463cf">
+    <Deployment runDeploymentRoot="yuech_DESKTOP-AKFI9N2_2026-11-07_16_36_36" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="a913764c-832d-48ec-b042-6e512a62ff50" testId="f493f6cc-70c4-758a-5dff-fcadee093eb7" testName="Aurelian.Audio.Tests.Mp3DecoderTests.DecodesStereoMp3IntoAResidentClipWithTheSourcePitch" computerName="DESKTOP-AKFI9N2" duration="00:00:00.2167202" startTime="2026-11-07T16:36:36.0219771-08:00" endTime="2026-11-07T16:36:36.2415548-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a913764c-832d-48ec-b042-6e512a62ff50" />
+    <UnitTestResult executionId="ad6e0c33-d758-43ba-8564-543e9d8ef63b" testId="48c73a70-ce6f-9ccd-54b7-046655eb7a67" testName="Aurelian.Audio.Tests.GameAudioM4Tests.UnknownAssetInvalidGainAndDisposal_AreExplicit" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0029405" startTime="2026-11-07T16:36:36.3415797-08:00" endTime="2026-11-07T16:36:36.3443796-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ad6e0c33-d758-43ba-8564-543e9d8ef63b" />
+    <UnitTestResult executionId="a1ef692d-e961-4d9a-8e61-485bd57194f4" testId="cfc159b7-bc3b-6561-a805-41ec6d3496aa" testName="Aurelian.Audio.Tests.GameAudioM4Tests.RejectNewestPolicy_DropsWithoutBackendDependentChoice" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0005928" startTime="2026-11-07T16:36:36.3445203-08:00" endTime="2026-11-07T16:36:36.3450164-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a1ef692d-e961-4d9a-8e61-485bd57194f4" />
+    <UnitTestResult executionId="67f92f50-a7a6-46cb-9180-4dc85c78bdbf" testId="bc4f0ac3-5b95-e238-f6a4-bc0e75407669" testName="Aurelian.Audio.Tests.GameAudioM4Tests.EventDeduplication_RealizesSameEventOnceAndDistinctEventsTwice" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0004912" startTime="2026-11-07T16:36:36.5834339-08:00" endTime="2026-11-07T16:36:36.5838380-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="67f92f50-a7a6-46cb-9180-4dc85c78bdbf" />
+    <UnitTestResult executionId="6c78b5b7-00fd-4ffe-bbd0-3a6972594456" testId="3c3403d1-19ad-b106-4893-cd337dca1fca" testName="Aurelian.Audio.Tests.GameAudioM4Tests.DominatusGeneratedArtifact_LoadsWithoutGenerationPlaybackConflation" computerName="DESKTOP-AKFI9N2" duration="00:00:00.1828213" startTime="2026-11-07T16:36:36.1519680-08:00" endTime="2026-11-07T16:36:36.3271485-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6c78b5b7-00fd-4ffe-bbd0-3a6972594456" />
+    <UnitTestResult executionId="298a86ea-90ba-4e40-9154-d023811f8eb2" testId="145de15d-5c1d-db03-775a-d60827a1dca7" testName="Aurelian.Audio.Tests.GameAudioM4Tests.BusMasterAndMute_UseCanonicalMultiplicationWithoutCorruptingVoices" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0063939" startTime="2026-11-07T16:36:36.5758827-08:00" endTime="2026-11-07T16:36:36.5822119-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="298a86ea-90ba-4e40-9154-d023811f8eb2" />
+    <UnitTestResult executionId="3591113c-9175-4f8b-bc85-b3e86bf0221a" testId="27ff8c59-e353-3b09-7a61-c01a6e962880" testName="Aurelian.Audio.Tests.GameAudioM4Tests.ThousandOneShots_ReleaseWithStableVoiceCount" computerName="DESKTOP-AKFI9N2" duration="00:00:00.1147712" startTime="2026-11-07T16:36:36.0209722-08:00" endTime="2026-11-07T16:36:36.1418299-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="3591113c-9175-4f8b-bc85-b3e86bf0221a" />
+    <UnitTestResult executionId="58b0a3fc-255d-40a1-886d-cd0ed2a47eed" testId="a65eb9fd-f7c2-0bca-582d-ab800bc2bda4" testName="Aurelian.Audio.Tests.GameAudioM4Tests.FadeAndCrossfade_AreDrivenByExplicitElapsedTime" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0385552" startTime="2026-11-07T16:36:36.3690623-08:00" endTime="2026-11-07T16:36:36.3898703-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="58b0a3fc-255d-40a1-886d-cd0ed2a47eed" />
+    <UnitTestResult executionId="4b54eed2-2edc-490f-a22a-763f0290c740" testId="7bf570d0-0302-a4d0-ded6-ffcc8e5105f0" testName="Aurelian.Audio.Tests.GameAudioM4Tests.WindowsBackend_OpensAndSubmitsWhenDeviceIsAvailable" computerName="DESKTOP-AKFI9N2" duration="00:00:00.1851269" startTime="2026-11-07T16:36:36.3900714-08:00" endTime="2026-11-07T16:36:36.5751085-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4b54eed2-2edc-490f-a22a-763f0290c740" />
+    <UnitTestResult executionId="4b0b122d-e9a1-4229-9421-6d7ae4a2ad6c" testId="f5dd1403-57ab-7723-605c-c85e6824dee4" testName="Aurelian.Audio.Tests.GameAudioM4Tests.DeviceLossBecomesDiagnosticAndDoesNotEscapeIntoGameplay" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0005444" startTime="2026-11-07T16:36:36.5753067-08:00" endTime="2026-11-07T16:36:36.5757346-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4b0b122d-e9a1-4229-9421-6d7ae4a2ad6c" />
+    <UnitTestResult executionId="332b8293-efa4-4bcb-bf67-832f8ef1ba2a" testId="c5b37f8c-a175-12d1-4988-2b1225ba2dfb" testName="Aurelian.Audio.Tests.GameAudioM4Tests.VoiceCapacity_StealsLowestPriorityOldestDeterministically" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0052450" startTime="2026-11-07T16:36:36.3684086-08:00" endTime="2026-11-07T16:36:36.3684906-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="332b8293-efa4-4bcb-bf67-832f8ef1ba2a" />
+    <UnitTestResult executionId="18911d63-7d1d-4c77-8aec-b8bb904d2350" testId="eee9b764-d0d4-665c-d795-ff28d0cd27c4" testName="Aurelian.Audio.Tests.Mp3DecoderTests.RejectsBytesThatAreNotMp3" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0007434" startTime="2026-11-07T16:36:36.2417700-08:00" endTime="2026-11-07T16:36:36.2423360-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="18911d63-7d1d-4c77-8aec-b8bb904d2350" />
+    <UnitTestResult executionId="6c246493-bcd1-401d-9901-3d556628d202" testId="19193a3b-d7e8-423d-bc6d-e999e35044ff" testName="Aurelian.Audio.Tests.GameAudioM4Tests.OneShotCompletesAndLoopStopsExplicitly" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0008268" startTime="2026-11-07T16:36:36.3688782-08:00" endTime="2026-11-07T16:36:36.3689281-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="6c246493-bcd1-401d-9901-3d556628d202" />
+    <UnitTestResult executionId="e2fa731c-ea7e-4f8c-9026-3d709a60a928" testId="7ab4a44d-f01d-1cf8-15ad-71144a7ec303" testName="Aurelian.Audio.Tests.GameAudioM4Tests.SpatialPanAndAttenuation_AreBoundedAndDeterministic" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0020574" startTime="2026-11-07T16:36:36.1513165-08:00" endTime="2026-11-07T16:36:36.1513963-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e2fa731c-ea7e-4f8c-9026-3d709a60a928" />
+    <UnitTestResult executionId="8f9a71b8-5dc3-4aaa-94fe-61a6b15b7955" testId="931d8369-0fbd-c8da-c0d0-750d521e8b87" testName="Aurelian.Audio.Tests.GameAudioM4Tests.PauseAndFocusPolicy_AffectProjectionOnly" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0010860" startTime="2026-11-07T16:36:36.5823904-08:00" endTime="2026-11-07T16:36:36.5833172-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="8f9a71b8-5dc3-4aaa-94fe-61a6b15b7955" />
+    <UnitTestResult executionId="ad05e6c9-dd86-44a1-a76a-c1937aa07897" testId="0f030613-1407-03a8-499b-ca7946756fa5" testName="Aurelian.Audio.Tests.GameAudioM4Tests.PcmWavLoad_DecodesAuthoredMono16AndRejectsUnsupportedData" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0087410" startTime="2026-11-07T16:36:36.3326542-08:00" endTime="2026-11-07T16:36:36.3413836-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ad05e6c9-dd86-44a1-a76a-c1937aa07897" />
+    <UnitTestResult executionId="5896b48e-00a2-4e84-a7a9-17fe74285db1" testId="55d1f776-98c9-1395-34d4-d19e5d0fc762" testName="Aurelian.Audio.Tests.GameAudioM4Tests.AssetIdentityAndResourceMetadata_AreTypedAndValidated" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0052632" startTime="2026-11-07T16:36:36.3274608-08:00" endTime="2026-11-07T16:36:36.3325059-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="5896b48e-00a2-4e84-a7a9-17fe74285db1" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.AssetIdentityAndResourceMetadata_AreTypedAndValidated" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="55d1f776-98c9-1395-34d4-d19e5d0fc762">
+      <Execution id="5896b48e-00a2-4e84-a7a9-17fe74285db1" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="AssetIdentityAndResourceMetadata_AreTypedAndValidated" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.RejectNewestPolicy_DropsWithoutBackendDependentChoice" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="cfc159b7-bc3b-6561-a805-41ec6d3496aa">
+      <Execution id="a1ef692d-e961-4d9a-8e61-485bd57194f4" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="RejectNewestPolicy_DropsWithoutBackendDependentChoice" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.BusMasterAndMute_UseCanonicalMultiplicationWithoutCorruptingVoices" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="145de15d-5c1d-db03-775a-d60827a1dca7">
+      <Execution id="298a86ea-90ba-4e40-9154-d023811f8eb2" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="BusMasterAndMute_UseCanonicalMultiplicationWithoutCorruptingVoices" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.FadeAndCrossfade_AreDrivenByExplicitElapsedTime" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="a65eb9fd-f7c2-0bca-582d-ab800bc2bda4">
+      <Execution id="58b0a3fc-255d-40a1-886d-cd0ed2a47eed" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="FadeAndCrossfade_AreDrivenByExplicitElapsedTime" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.VoiceCapacity_StealsLowestPriorityOldestDeterministically" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="c5b37f8c-a175-12d1-4988-2b1225ba2dfb">
+      <Execution id="332b8293-efa4-4bcb-bf67-832f8ef1ba2a" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="VoiceCapacity_StealsLowestPriorityOldestDeterministically" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.DominatusGeneratedArtifact_LoadsWithoutGenerationPlaybackConflation" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="3c3403d1-19ad-b106-4893-cd337dca1fca">
+      <Execution id="6c78b5b7-00fd-4ffe-bbd0-3a6972594456" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="DominatusGeneratedArtifact_LoadsWithoutGenerationPlaybackConflation" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.ThousandOneShots_ReleaseWithStableVoiceCount" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="27ff8c59-e353-3b09-7a61-c01a6e962880">
+      <Execution id="3591113c-9175-4f8b-bc85-b3e86bf0221a" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="ThousandOneShots_ReleaseWithStableVoiceCount" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.DeviceLossBecomesDiagnosticAndDoesNotEscapeIntoGameplay" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="f5dd1403-57ab-7723-605c-c85e6824dee4">
+      <Execution id="4b0b122d-e9a1-4229-9421-6d7ae4a2ad6c" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="DeviceLossBecomesDiagnosticAndDoesNotEscapeIntoGameplay" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.PauseAndFocusPolicy_AffectProjectionOnly" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="931d8369-0fbd-c8da-c0d0-750d521e8b87">
+      <Execution id="8f9a71b8-5dc3-4aaa-94fe-61a6b15b7955" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="PauseAndFocusPolicy_AffectProjectionOnly" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.EventDeduplication_RealizesSameEventOnceAndDistinctEventsTwice" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="bc4f0ac3-5b95-e238-f6a4-bc0e75407669">
+      <Execution id="67f92f50-a7a6-46cb-9180-4dc85c78bdbf" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="EventDeduplication_RealizesSameEventOnceAndDistinctEventsTwice" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.PcmWavLoad_DecodesAuthoredMono16AndRejectsUnsupportedData" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="0f030613-1407-03a8-499b-ca7946756fa5">
+      <Execution id="ad05e6c9-dd86-44a1-a76a-c1937aa07897" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="PcmWavLoad_DecodesAuthoredMono16AndRejectsUnsupportedData" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.WindowsBackend_OpensAndSubmitsWhenDeviceIsAvailable" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="7bf570d0-0302-a4d0-ded6-ffcc8e5105f0">
+      <Execution id="4b54eed2-2edc-490f-a22a-763f0290c740" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="WindowsBackend_OpensAndSubmitsWhenDeviceIsAvailable" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.UnknownAssetInvalidGainAndDisposal_AreExplicit" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="48c73a70-ce6f-9ccd-54b7-046655eb7a67">
+      <Execution id="ad6e0c33-d758-43ba-8564-543e9d8ef63b" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="UnknownAssetInvalidGainAndDisposal_AreExplicit" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.OneShotCompletesAndLoopStopsExplicitly" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="19193a3b-d7e8-423d-bc6d-e999e35044ff">
+      <Execution id="6c246493-bcd1-401d-9901-3d556628d202" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="OneShotCompletesAndLoopStopsExplicitly" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.GameAudioM4Tests.SpatialPanAndAttenuation_AreBoundedAndDeterministic" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="7ab4a44d-f01d-1cf8-15ad-71144a7ec303">
+      <Execution id="e2fa731c-ea7e-4f8c-9026-3d709a60a928" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.GameAudioM4Tests" name="SpatialPanAndAttenuation_AreBoundedAndDeterministic" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.Mp3DecoderTests.RejectsBytesThatAreNotMp3" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="eee9b764-d0d4-665c-d795-ff28d0cd27c4">
+      <Execution id="18911d63-7d1d-4c77-8aec-b8bb904d2350" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.Mp3DecoderTests" name="RejectsBytesThatAreNotMp3" />
+    </UnitTest>
+    <UnitTest name="Aurelian.Audio.Tests.Mp3DecoderTests.DecodesStereoMp3IntoAResidentClipWithTheSourcePitch" storage="c:\users\yuech\source\repos\copeland\tests\aurelian\aurelian.audio.tests\bin\release\net10.0\aurelian.audio.tests.dll" id="f493f6cc-70c4-758a-5dff-fcadee093eb7">
+      <Execution id="a913764c-832d-48ec-b042-6e512a62ff50" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Copeland\tests\Aurelian\Aurelian.Audio.Tests\bin\Release\net10.0\Aurelian.Audio.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner3/netcore/" className="Aurelian.Audio.Tests.Mp3DecoderTests" name="DecodesStereoMp3IntoAResidentClipWithTheSourcePitch" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="f493f6cc-70c4-758a-5dff-fcadee093eb7" executionId="a913764c-832d-48ec-b042-6e512a62ff50" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="48c73a70-ce6f-9ccd-54b7-046655eb7a67" executionId="ad6e0c33-d758-43ba-8564-543e9d8ef63b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="cfc159b7-bc3b-6561-a805-41ec6d3496aa" executionId="a1ef692d-e961-4d9a-8e61-485bd57194f4" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="bc4f0ac3-5b95-e238-f6a4-bc0e75407669" executionId="67f92f50-a7a6-46cb-9180-4dc85c78bdbf" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="3c3403d1-19ad-b106-4893-cd337dca1fca" executionId="6c78b5b7-00fd-4ffe-bbd0-3a6972594456" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="145de15d-5c1d-db03-775a-d60827a1dca7" executionId="298a86ea-90ba-4e40-9154-d023811f8eb2" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="27ff8c59-e353-3b09-7a61-c01a6e962880" executionId="3591113c-9175-4f8b-bc85-b3e86bf0221a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a65eb9fd-f7c2-0bca-582d-ab800bc2bda4" executionId="58b0a3fc-255d-40a1-886d-cd0ed2a47eed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7bf570d0-0302-a4d0-ded6-ffcc8e5105f0" executionId="4b54eed2-2edc-490f-a22a-763f0290c740" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f5dd1403-57ab-7723-605c-c85e6824dee4" executionId="4b0b122d-e9a1-4229-9421-6d7ae4a2ad6c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c5b37f8c-a175-12d1-4988-2b1225ba2dfb" executionId="332b8293-efa4-4bcb-bf67-832f8ef1ba2a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="eee9b764-d0d4-665c-d795-ff28d0cd27c4" executionId="18911d63-7d1d-4c77-8aec-b8bb904d2350" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="19193a3b-d7e8-423d-bc6d-e999e35044ff" executionId="6c246493-bcd1-401d-9901-3d556628d202" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="7ab4a44d-f01d-1cf8-15ad-71144a7ec303" executionId="e2fa731c-ea7e-4f8c-9026-3d709a60a928" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="931d8369-0fbd-c8da-c0d0-750d521e8b87" executionId="8f9a71b8-5dc3-4aaa-94fe-61a6b15b7955" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0f030613-1407-03a8-499b-ca7946756fa5" executionId="ad05e6c9-dd86-44a1-a76a-c1937aa07897" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="55d1f776-98c9-1395-34d4-d19e5d0fc762" executionId="5896b48e-00a2-4e84-a7a9-17fe74285db1" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="17" executed="17" passed="17" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v3.1.5+1b188a7b0a (64-bit .NET 10.0.14)&#xD;
+[xUnit.net 00:00:00.37]   Discovering: Aurelian.Audio.Tests&#xD;
+[xUnit.net 00:00:00.41]   Discovered:  Aurelian.Audio.Tests&#xD;
+[xUnit.net 00:00:00.43]   Starting:    Aurelian.Audio.Tests&#xD;
+[xUnit.net 00:00:01.01]   Finished:    Aurelian.Audio.Tests&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

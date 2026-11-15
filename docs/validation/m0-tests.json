@@ -1,0 +1,67 @@
+{
+  "recordedAt": "2026-11-14T20:51:53.5069669-08:00",
+  "configuration": "Release",
+  "framework": "net10.0-windows",
+  "total": 14,
+  "passed": 14,
+  "failed": 0,
+  "skipped": 0,
+  "tests": [
+    {
+      "name": "Valencia.Tests.MediaTests.SeekDecodesThePresentationIntervalContainingTheTarget(target: 0.81100000000000005)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.KeyboardTests.ACompleteKeyPressBetweenRenderFramesIsDeliveredOnce",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.TimeAndAudioTests.InvalidTimebasesAndOverflowAreRejectedInsteadOfRoundingThroughDouble",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.KeyboardTests.RepeatedKeyDownAndFocusResetDoNotReplayAnOldAction",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.MediaTests.NonzeroContainerStartIsNormalizedWithoutDiscardingSourceTimestamp",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.MediaTests.IndependentAudioDecoderResamplesToStereoWithoutConsumingVideo",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.MediaTests.CancellationReleasesWorkersBlockedOnFullQueues",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.MediaTests.DecodesRealContainersAndDrainsBFramesInPresentationOrder(matroska: False)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.MediaTests.VideoOnlyAndInvalidInputsHaveExplicitResults",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.MediaTests.SeekDecodesThePresentationIntervalContainingTheTarget(target: 0)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.MediaTests.DecodesRealContainersAndDrainsBFramesInPresentationOrder(matroska: True)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.TimeAndAudioTests.DeviceClockCountsOnlyMediaPlayedRatherThanQueuedUnderrunSilence",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.MediaTests.SeekDecodesThePresentationIntervalContainingTheTarget(target: 1.95)",
+      "outcome": "Passed"
+    },
+    {
+      "name": "Valencia.Tests.TimeAndAudioTests.FractionalFrameAndSampleGridsRemainExactAtProjectBoundary",
+      "outcome": "Passed"
+    }
+  ]
+}

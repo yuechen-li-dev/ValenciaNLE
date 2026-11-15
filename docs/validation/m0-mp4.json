@@ -1,0 +1,43 @@
+{
+  "outcome": "passed",
+  "source": {
+    "Path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\fixtures\\av.mp4",
+    "Container": "mov,mp4,m4a,3gp,3g2,mj2",
+    "DurationSeconds": 6,
+    "StartSeconds": 0,
+    "Width": 640,
+    "Height": 360,
+    "NominalFrameRate": 30,
+    "VideoStreamIndex": 0,
+    "AudioStreamIndex": 1,
+    "Streams": [
+      {
+        "Index": 0,
+        "Kind": "Video",
+        "Codec": "h264",
+        "Details": "640 x 360"
+      },
+      {
+        "Index": 1,
+        "Kind": "Audio",
+        "Codec": "aac",
+        "Details": "48000 Hz / 1 ch"
+      }
+    ]
+  },
+  "gpu": "NVIDIA GeForce RTX 3070",
+  "validationAvailable": true,
+  "audioBackend": "NAudio 3 / WaveOut / device clock",
+  "nativeWindow": true,
+  "gpuReadbackMatchesDecodedPixels": true,
+  "softwareDecode": true,
+  "windowResize": true,
+  "pauseClockStable": true,
+  "seekSeconds": 3.2,
+  "maximumAvSkewSeconds": 0.032312499999999966,
+  "sampledFrames": 422,
+  "presentedFrames": 472,
+  "uploadedVideoFrames": 93,
+  "finalGenerationUnderrunFrames": 0,
+  "elapsedSeconds": 3.5765722
+}

@@ -1,0 +1,118 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TestRun id="fe22b3b5-8d70-4dcb-9f83-e88a1d21b543" name="yuech@DESKTOP-AKFI9N2 2026-11-07 16:37:53" runUser="DESKTOP-AKFI9N2\yuech" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010">
+  <Times creation="2026-11-07T16:37:53.5525958-08:00" queuing="2026-11-07T16:37:53.5525958-08:00" start="2026-11-07T16:37:52.1778960-08:00" finish="2026-11-07T16:37:53.5723464-08:00" />
+  <TestSettings name="default" id="980920c6-6dc0-4d56-ac1e-85f7124be48c">
+    <Deployment runDeploymentRoot="yuech_DESKTOP-AKFI9N2_2026-11-07_16_37_53" />
+  </TestSettings>
+  <Results>
+    <UnitTestResult executionId="e81e68f4-f8bc-456b-a562-5df0eb3a1907" testId="59b87bac-0bd2-6f5b-e31b-a433d6a405a5" testName="Deliverance.Core.Tests.FileSaveStoreVNextTests.ConcurrentWritesRemainWhole_AndCancelledWritePreservesPrimary" computerName="DESKTOP-AKFI9N2" duration="00:00:00.1526962" startTime="2026-11-07T16:37:53.5162831-08:00" endTime="2026-11-07T16:37:53.5162834-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="e81e68f4-f8bc-456b-a562-5df0eb3a1907" />
+    <UnitTestResult executionId="cba402af-64e5-4521-8ac9-c573f2cde1a9" testId="86f5cd3c-7360-4b9a-957e-d0565c1f3e00" testName="Deliverance.Core.Tests.VNextContainerTests.CompatibilityMismatch_HasTypedDiagnostic(definitionHash: null, cadenceHash: &quot;cadence-other&quot;, expectedCode: CadenceMismatch)" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0001963" startTime="2026-11-07T16:37:53.5352214-08:00" endTime="2026-11-07T16:37:53.5352214-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="cba402af-64e5-4521-8ac9-c573f2cde1a9" />
+    <UnitTestResult executionId="ae5a5b26-1aa1-4494-9afc-e59c007e3cb5" testId="181552ea-ccf9-66d2-1aba-014d339d009e" testName="Deliverance.Core.Tests.VNextContainerTests.ContainerRejectsBadMagicUnsupportedVersionAndPayloadCorruption" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0029670" startTime="2026-11-07T16:37:53.5351740-08:00" endTime="2026-11-07T16:37:53.5351741-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="ae5a5b26-1aa1-4494-9afc-e59c007e3cb5" />
+    <UnitTestResult executionId="89aa8b29-3883-4523-85e3-9603910aec28" testId="b27d2825-59f9-514d-006e-9e7f109f03a2" testName="Deliverance.Core.Tests.VNextContainerTests.ExplicitSnapshot_RoundTripsAsCandidate_WithSeparatedMetadata" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0053805" startTime="2026-11-07T16:37:53.5350592-08:00" endTime="2026-11-07T16:37:53.5350593-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="89aa8b29-3883-4523-85e3-9603910aec28" />
+    <UnitTestResult executionId="735170cb-d502-443f-92e6-ed567208346a" testId="0281614e-95fd-0ce8-9463-5b52eba578b5" testName="Deliverance.Core.Tests.DeliveranceRoundTripTests.SaveLoad_RoundTrips_Modules_And_KV" computerName="DESKTOP-AKFI9N2" duration="00:00:00.1668645" startTime="2026-11-07T16:37:53.5352380-08:00" endTime="2026-11-07T16:37:53.5352381-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="735170cb-d502-443f-92e6-ed567208346a" />
+    <UnitTestResult executionId="016970d7-e202-42e1-93e6-f2bf4791d848" testId="09ae1002-efcc-73dd-7530-dc2ba2eb26ac" testName="Deliverance.Core.Tests.VNextContainerTests.CompatibilityMismatch_HasTypedDiagnostic(definitionHash: &quot;definitions-other&quot;, cadenceHash: null, expectedCode: DefinitionMismatch)" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0006294" startTime="2026-11-07T16:37:53.5352056-08:00" endTime="2026-11-07T16:37:53.5352056-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="016970d7-e202-42e1-93e6-f2bf4791d848" />
+    <UnitTestResult executionId="0b0b4b9d-dd52-4397-8e6f-11ae8f199781" testId="5b887dcf-7600-041a-fbab-c030f0a94048" testName="Deliverance.Core.Tests.VNextContainerTests.ModuleOwnedMigration_AdvancesV1ThroughV2ToV3" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0030504" startTime="2026-11-07T16:37:53.5205249-08:00" endTime="2026-11-07T16:37:53.5205250-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="0b0b4b9d-dd52-4397-8e6f-11ae8f199781" />
+    <UnitTestResult executionId="7129c7cd-6102-48c4-b0b5-0d6516922547" testId="98bdb1a9-cbf1-3252-d5f4-bc11b84fcd65" testName="Deliverance.Core.Tests.DeliveranceRoundTripTests.ListSlots_And_SlotExists_Work" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0011421" startTime="2026-11-07T16:37:53.5352643-08:00" endTime="2026-11-07T16:37:53.5352643-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="7129c7cd-6102-48c4-b0b5-0d6516922547" />
+    <UnitTestResult executionId="a2802c9d-0f6e-46c8-b0e6-bda42c9603b6" testId="c86a109e-943c-3687-3b4f-aee7f76b6795" testName="Deliverance.Core.Tests.VNextContainerTests.UnencryptedSave_IsByteDeterministic_WhenProvenanceIsStable" computerName="DESKTOP-AKFI9N2" duration="00:00:00.1538865" startTime="2026-11-07T16:37:53.5174260-08:00" endTime="2026-11-07T16:37:53.5174261-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a2802c9d-0f6e-46c8-b0e6-bda42c9603b6" />
+    <UnitTestResult executionId="a144b8b9-a92c-4ce6-83e2-535e2e4f954b" testId="a8d0ed8e-2a1c-0fb9-8a1a-a0f8a1178a6e" testName="Deliverance.Core.Tests.FileSaveStoreVNextTests.DefaultExtension_SafeSlotEnumerationDeleteAndBackupRotationWork" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0201265" startTime="2026-11-07T16:37:53.5364962-08:00" endTime="2026-11-07T16:37:53.5364964-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="a144b8b9-a92c-4ce6-83e2-535e2e4f954b" />
+    <UnitTestResult executionId="4deb9a47-ae04-41f8-9b03-d5a93ad0f951" testId="00e4891f-721e-6e1e-630c-8183db6e0f3b" testName="Deliverance.Core.Tests.EncryptionTests.AesGcm_RoundTrips_AndUsesUniqueNonce" computerName="DESKTOP-AKFI9N2" duration="00:00:00.1478658" startTime="2026-11-07T16:37:53.5115872-08:00" endTime="2026-11-07T16:37:53.5115873-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="4deb9a47-ae04-41f8-9b03-d5a93ad0f951" />
+    <UnitTestResult executionId="18e4d2c5-a5c0-4501-b509-81905bb4635c" testId="2156e914-c041-28c2-3b4c-7217bccbfdd7" testName="Deliverance.Core.Tests.VNextContainerTests.RequiredOptionalAndNewerSchemaLawsAreExplicit" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0010015" startTime="2026-11-07T16:37:53.5352521-08:00" endTime="2026-11-07T16:37:53.5352521-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="18e4d2c5-a5c0-4501-b509-81905bb4635c" />
+    <UnitTestResult executionId="409f196a-c764-4032-9ab5-8d0646bc2eec" testId="c5fa044f-d48f-7636-5f9f-3f31de2181b4" testName="Deliverance.Core.Tests.CompressionCodecRegistryTests.SaveLoad_WithGzipCodec_RoundTrips" computerName="DESKTOP-AKFI9N2" duration="00:00:00.1654002" startTime="2026-11-07T16:37:53.5351815-08:00" endTime="2026-11-07T16:37:53.5351816-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="409f196a-c764-4032-9ab5-8d0646bc2eec" />
+    <UnitTestResult executionId="948bd8fb-f9ef-4546-8d62-06357948aaec" testId="f8bafe36-d19b-45a4-67eb-a2ea2caa8916" testName="Deliverance.Core.Tests.FileSaveStoreMetadataTests.FileSaveStore_ListSlotInfos_ReturnsSizeAndModified" computerName="DESKTOP-AKFI9N2" duration="00:00:00.0971081" startTime="2026-11-07T16:37:53.4634536-08:00" endTime="2026-11-07T16:37:53.4634627-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="948bd8fb-f9ef-4546-8d62-06357948aaec" />
+    <UnitTestResult executionId="c4482d67-8e1c-497d-8cd0-d0e09cd5ddfd" testId="8a7bb37d-2c68-0123-b0a6-b4f2dd062e53" testName="Deliverance.Core.Tests.DtoMigrationTests.MigratableModule_Upgrades_V1_To_V2_OnLoad" computerName="DESKTOP-AKFI9N2" duration="00:00:00.1707386" startTime="2026-11-07T16:37:53.5352813-08:00" endTime="2026-11-07T16:37:53.5352814-08:00" testType="13cdc9d9-ddb5-4fa4-a97d-d965ccfc6d4b" outcome="Passed" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" relativeResultsDirectory="c4482d67-8e1c-497d-8cd0-d0e09cd5ddfd" />
+  </Results>
+  <TestDefinitions>
+    <UnitTest name="Deliverance.Core.Tests.FileSaveStoreVNextTests.ConcurrentWritesRemainWhole_AndCancelledWritePreservesPrimary" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="59b87bac-0bd2-6f5b-e31b-a433d6a405a5">
+      <Execution id="e81e68f4-f8bc-456b-a562-5df0eb3a1907" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.FileSaveStoreVNextTests" name="ConcurrentWritesRemainWhole_AndCancelledWritePreservesPrimary" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.DeliveranceRoundTripTests.SaveLoad_RoundTrips_Modules_And_KV" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="0281614e-95fd-0ce8-9463-5b52eba578b5">
+      <Execution id="735170cb-d502-443f-92e6-ed567208346a" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.DeliveranceRoundTripTests" name="SaveLoad_RoundTrips_Modules_And_KV" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.DtoMigrationTests.MigratableModule_Upgrades_V1_To_V2_OnLoad" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="8a7bb37d-2c68-0123-b0a6-b4f2dd062e53">
+      <Execution id="c4482d67-8e1c-497d-8cd0-d0e09cd5ddfd" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.DtoMigrationTests" name="MigratableModule_Upgrades_V1_To_V2_OnLoad" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.VNextContainerTests.ModuleOwnedMigration_AdvancesV1ThroughV2ToV3" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="5b887dcf-7600-041a-fbab-c030f0a94048">
+      <Execution id="0b0b4b9d-dd52-4397-8e6f-11ae8f199781" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.VNextContainerTests" name="ModuleOwnedMigration_AdvancesV1ThroughV2ToV3" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.FileSaveStoreVNextTests.DefaultExtension_SafeSlotEnumerationDeleteAndBackupRotationWork" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="a8d0ed8e-2a1c-0fb9-8a1a-a0f8a1178a6e">
+      <Execution id="a144b8b9-a92c-4ce6-83e2-535e2e4f954b" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.FileSaveStoreVNextTests" name="DefaultExtension_SafeSlotEnumerationDeleteAndBackupRotationWork" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.VNextContainerTests.ExplicitSnapshot_RoundTripsAsCandidate_WithSeparatedMetadata" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="b27d2825-59f9-514d-006e-9e7f109f03a2">
+      <Execution id="89aa8b29-3883-4523-85e3-9603910aec28" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.VNextContainerTests" name="ExplicitSnapshot_RoundTripsAsCandidate_WithSeparatedMetadata" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.VNextContainerTests.CompatibilityMismatch_HasTypedDiagnostic(definitionHash: &quot;definitions-other&quot;, cadenceHash: null, expectedCode: DefinitionMismatch)" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="09ae1002-efcc-73dd-7530-dc2ba2eb26ac">
+      <Execution id="016970d7-e202-42e1-93e6-f2bf4791d848" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.VNextContainerTests" name="CompatibilityMismatch_HasTypedDiagnostic" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.VNextContainerTests.CompatibilityMismatch_HasTypedDiagnostic(definitionHash: null, cadenceHash: &quot;cadence-other&quot;, expectedCode: CadenceMismatch)" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="86f5cd3c-7360-4b9a-957e-d0565c1f3e00">
+      <Execution id="cba402af-64e5-4521-8ac9-c573f2cde1a9" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.VNextContainerTests" name="CompatibilityMismatch_HasTypedDiagnostic" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.EncryptionTests.AesGcm_RoundTrips_AndUsesUniqueNonce" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="00e4891f-721e-6e1e-630c-8183db6e0f3b">
+      <Execution id="4deb9a47-ae04-41f8-9b03-d5a93ad0f951" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.EncryptionTests" name="AesGcm_RoundTrips_AndUsesUniqueNonce" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.DeliveranceRoundTripTests.ListSlots_And_SlotExists_Work" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="98bdb1a9-cbf1-3252-d5f4-bc11b84fcd65">
+      <Execution id="7129c7cd-6102-48c4-b0b5-0d6516922547" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.DeliveranceRoundTripTests" name="ListSlots_And_SlotExists_Work" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.CompressionCodecRegistryTests.SaveLoad_WithGzipCodec_RoundTrips" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="c5fa044f-d48f-7636-5f9f-3f31de2181b4">
+      <Execution id="409f196a-c764-4032-9ab5-8d0646bc2eec" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.CompressionCodecRegistryTests" name="SaveLoad_WithGzipCodec_RoundTrips" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.VNextContainerTests.RequiredOptionalAndNewerSchemaLawsAreExplicit" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="2156e914-c041-28c2-3b4c-7217bccbfdd7">
+      <Execution id="18e4d2c5-a5c0-4501-b509-81905bb4635c" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.VNextContainerTests" name="RequiredOptionalAndNewerSchemaLawsAreExplicit" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.VNextContainerTests.UnencryptedSave_IsByteDeterministic_WhenProvenanceIsStable" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="c86a109e-943c-3687-3b4f-aee7f76b6795">
+      <Execution id="a2802c9d-0f6e-46c8-b0e6-bda42c9603b6" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.VNextContainerTests" name="UnencryptedSave_IsByteDeterministic_WhenProvenanceIsStable" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.VNextContainerTests.ContainerRejectsBadMagicUnsupportedVersionAndPayloadCorruption" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="181552ea-ccf9-66d2-1aba-014d339d009e">
+      <Execution id="ae5a5b26-1aa1-4494-9afc-e59c007e3cb5" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.VNextContainerTests" name="ContainerRejectsBadMagicUnsupportedVersionAndPayloadCorruption" />
+    </UnitTest>
+    <UnitTest name="Deliverance.Core.Tests.FileSaveStoreMetadataTests.FileSaveStore_ListSlotInfos_ReturnsSizeAndModified" storage="c:\users\yuech\source\repos\deliverance\test\deliverance.core.tests\bin\debug\net8.0\deliverance.core.tests.dll" id="f8bafe36-d19b-45a4-67eb-a2ea2caa8916">
+      <Execution id="948bd8fb-f9ef-4546-8d62-06357948aaec" />
+      <TestMethod codeBase="C:\Users\yuech\source\repos\Deliverance\test\Deliverance.Core.Tests\bin\Debug\net8.0\Deliverance.Core.Tests.dll" adapterTypeName="executor://xunit/VsTestRunner2/netcoreapp" className="Deliverance.Core.Tests.FileSaveStoreMetadataTests" name="FileSaveStore_ListSlotInfos_ReturnsSizeAndModified" />
+    </UnitTest>
+  </TestDefinitions>
+  <TestEntries>
+    <TestEntry testId="59b87bac-0bd2-6f5b-e31b-a433d6a405a5" executionId="e81e68f4-f8bc-456b-a562-5df0eb3a1907" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="86f5cd3c-7360-4b9a-957e-d0565c1f3e00" executionId="cba402af-64e5-4521-8ac9-c573f2cde1a9" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="181552ea-ccf9-66d2-1aba-014d339d009e" executionId="ae5a5b26-1aa1-4494-9afc-e59c007e3cb5" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="b27d2825-59f9-514d-006e-9e7f109f03a2" executionId="89aa8b29-3883-4523-85e3-9603910aec28" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="0281614e-95fd-0ce8-9463-5b52eba578b5" executionId="735170cb-d502-443f-92e6-ed567208346a" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="09ae1002-efcc-73dd-7530-dc2ba2eb26ac" executionId="016970d7-e202-42e1-93e6-f2bf4791d848" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="5b887dcf-7600-041a-fbab-c030f0a94048" executionId="0b0b4b9d-dd52-4397-8e6f-11ae8f199781" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="98bdb1a9-cbf1-3252-d5f4-bc11b84fcd65" executionId="7129c7cd-6102-48c4-b0b5-0d6516922547" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c86a109e-943c-3687-3b4f-aee7f76b6795" executionId="a2802c9d-0f6e-46c8-b0e6-bda42c9603b6" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="a8d0ed8e-2a1c-0fb9-8a1a-a0f8a1178a6e" executionId="a144b8b9-a92c-4ce6-83e2-535e2e4f954b" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="00e4891f-721e-6e1e-630c-8183db6e0f3b" executionId="4deb9a47-ae04-41f8-9b03-d5a93ad0f951" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="2156e914-c041-28c2-3b4c-7217bccbfdd7" executionId="18e4d2c5-a5c0-4501-b509-81905bb4635c" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="c5fa044f-d48f-7636-5f9f-3f31de2181b4" executionId="409f196a-c764-4032-9ab5-8d0646bc2eec" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="f8bafe36-d19b-45a4-67eb-a2ea2caa8916" executionId="948bd8fb-f9ef-4546-8d62-06357948aaec" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestEntry testId="8a7bb37d-2c68-0123-b0a6-b4f2dd062e53" executionId="c4482d67-8e1c-497d-8cd0-d0e09cd5ddfd" testListId="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+  </TestEntries>
+  <TestLists>
+    <TestList name="Results Not in a List" id="8c84fa94-04c1-424b-9868-57a2d4851a1d" />
+    <TestList name="All Loaded Results" id="19431567-8539-422a-85d7-44ee4e166bda" />
+  </TestLists>
+  <ResultSummary outcome="Completed">
+    <Counters total="15" executed="15" passed="15" failed="0" error="0" timeout="0" aborted="0" inconclusive="0" passedButRunAborted="0" notRunnable="0" notExecuted="0" disconnected="0" warning="0" completed="0" inProgress="0" pending="0" />
+    <Output>
+      <StdOut>[xUnit.net 00:00:00.00] xUnit.net VSTest Adapter v2.5.3.1+6b60a9e56a (64-bit .NET 8.0.33)&#xD;
+[xUnit.net 00:00:00.40]   Discovering: Deliverance.Core.Tests&#xD;
+[xUnit.net 00:00:00.48]   Discovered:  Deliverance.Core.Tests&#xD;
+[xUnit.net 00:00:00.48]   Starting:    Deliverance.Core.Tests&#xD;
+[xUnit.net 00:00:00.68]   Finished:    Deliverance.Core.Tests&#xD;
+</StdOut>
+    </Output>
+  </ResultSummary>
+</TestRun>

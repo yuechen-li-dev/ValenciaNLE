@@ -1,0 +1,1932 @@
+{
+  "note": "Existing build outputs; no fresh builds/restores. GPU tests can return success when unavailable. Commands reconstructed exactly in semantics with absolute binary paths.",
+  "runs": [
+    {
+      "id": "compiler",
+      "command": "dotnet vstest \"C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Copeland\\Copeland.TS.Tests\\bin\\Release\\net10.0\\Copeland.TS.Tests.dll\" \"--TestCaseFilter:FullyQualifiedName~ClrInteropTests|FullyQualifiedName~InlineCSharpBlockTests|FullyQualifiedName~ModuleGraphTests\" \"--Logger:trx;LogFileName=compiler.trx\" \"--ResultsDirectory:C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\docs\\audit-evidence\"",
+      "binary": "C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Copeland\\Copeland.TS.Tests\\bin\\Release\\net10.0\\Copeland.TS.Tests.dll",
+      "binary_modified_utc": "2026-11-05T00:34:07.877156+00:00",
+      "binary_sha256": "7ce28955a128e974c5fa9fb642daa0d182412558f073ff8fa5d6091053f8b9d9",
+      "trx": "compiler.trx",
+      "counters": {
+        "total": "26",
+        "executed": "26",
+        "passed": "26",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "tests": [
+        {
+          "name": "Copeland.TS.Tests.InlineCSharpBlockTests.Parser_Preserves_Braces_In_Comments_And_Raw_CSharp_Strings",
+          "outcome": "Passed",
+          "duration": "00:00:00.0007124"
+        },
+        {
+          "name": "Copeland.TS.Tests.InlineCSharpBlockTests.Inline_CSharp_Uses_Typed_Captures_And_Emits_Direct_Code",
+          "outcome": "Passed",
+          "duration": "00:00:01.8482882"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Local_and_npm_imports_remain_in_their_separate_resolution_domains",
+          "outcome": "Passed",
+          "duration": "00:00:00.7392339"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Broken_module_does_not_poison_an_independent_enum_importer",
+          "outcome": "Passed",
+          "duration": "00:00:00.0047221"
+        },
+        {
+          "name": "Copeland.TS.Tests.InlineCSharpBlockTests.Inline_CSharp_Is_Unavailable_To_JavaScript",
+          "outcome": "Passed",
+          "duration": "00:00:00.0011662"
+        },
+        {
+          "name": "Copeland.TS.Tests.ClrInteropTests.AwaitUsing_Is_Parsed_And_Explicitly_Deferred",
+          "outcome": "Passed",
+          "duration": "00:00:00.0075499"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Non_exported_declarations_cannot_be_imported",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004318"
+        },
+        {
+          "name": "Copeland.TS.Tests.ClrInteropTests.Emits_And_Executes_Direct_Framework_Clr_Calls",
+          "outcome": "Passed",
+          "duration": "00:00:01.8805329"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Local_module_cycles_report_the_full_cycle_path",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004691"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Foreign_functions_require_an_explicit_named_import",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005964"
+        },
+        {
+          "name": "Copeland.TS.Tests.ClrInteropTests.Selects_Number_To_Double_Overload_Deterministically",
+          "outcome": "Passed",
+          "duration": "00:00:00.0052280"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Relative_named_imports_preserve_the_exported_function_and_type_identity",
+          "outcome": "Passed",
+          "duration": "00:00:00.0014765"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.JavaScript_project_emission_is_a_real_node_esm_graph_with_local_and_npm_imports",
+          "outcome": "Passed",
+          "duration": "00:00:00.0699644"
+        },
+        {
+          "name": "Copeland.TS.Tests.InlineCSharpBlockTests.Inline_CSharp_Rejects_Captured_Assignment_And_Async",
+          "outcome": "Passed",
+          "duration": "00:00:00.0007054"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Foreign_private_types_require_an_explicit_named_import",
+          "outcome": "Passed",
+          "duration": "00:00:00.0012640"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Same_named_records_and_enums_have_module_owned_clr_and_esm_identities",
+          "outcome": "Passed",
+          "duration": "00:00:00.9793089"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Flow_imports_are_explicitly_deferred_until_flow_values_are_designed",
+          "outcome": "Passed",
+          "duration": "00:00:00.0125745"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Same_named_module_functions_remain_distinct_symbols_and_execute_through_local_aliases",
+          "outcome": "Passed",
+          "duration": "00:00:00.1703872"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Explicit_tsx_import_is_resolved_from_the_project_source_set",
+          "outcome": "Passed",
+          "duration": "00:00:00.0008195"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Array_index_diagnostics_teach_the_supported_integer_and_bounds_law(source: \"function Read(values: int[]): int { return values[\"\u00b7\u00b7\u00b7, diagnosticId: \"COPE-ARRAY-0002\")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004576"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Cross_module_records_enums_requirements_generics_and_generators_share_one_mir_graph",
+          "outcome": "Passed",
+          "duration": "00:00:00.0347468"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Missing_project_owned_module_does_not_fall_back_to_npm",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004003"
+        },
+        {
+          "name": "Copeland.TS.Tests.ClrInteropTests.Reports_Clr_Specific_Failures_Without_Npm_Fallback",
+          "outcome": "Passed",
+          "duration": "00:00:00.0257291"
+        },
+        {
+          "name": "Copeland.TS.Tests.ClrInteropTests.Parser_Distinguishes_ClrUsing_And_ResourceUsing",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004078"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Array_index_diagnostics_teach_the_supported_integer_and_bounds_law(source: \"function Read(values: int[]): int { return values[\"\u00b7\u00b7\u00b7, diagnosticId: \"COPE-ARRAY-0003\")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0024830"
+        },
+        {
+          "name": "Copeland.TS.Tests.ModuleGraphTests.Arrays_cross_module_boundaries_support_length_indexing_and_for_of",
+          "outcome": "Passed",
+          "duration": "00:00:00.0044642"
+        }
+      ]
+    },
+    {
+      "id": "ui-runtime",
+      "command": "dotnet vstest \"C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Machina.UI\\Machina.Runtime.Tests\\bin\\Release\\net10.0\\Machina.Runtime.Tests.dll\" \"--Logger:trx;LogFileName=ui-runtime.trx\" \"--ResultsDirectory:C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\docs\\audit-evidence\"",
+      "binary": "C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Machina.UI\\Machina.Runtime.Tests\\bin\\Release\\net10.0\\Machina.Runtime.Tests.dll",
+      "binary_modified_utc": "2026-10-08T17:41:38.133395+00:00",
+      "binary_sha256": "e23fe030d08cadf98604181b19ab4e217a9584cf9b121a6edd86881be23eb7b5",
+      "trx": "ui-runtime.trx",
+      "counters": {
+        "total": "60",
+        "executed": "60",
+        "passed": "60",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "tests": [
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Create_NullTransitionList_IsRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001341"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.InvalidDimensions_Throw(sourceWidth: 100, sourceHeight: 50, destinationX: 0, destinationY: 0, destinationWidth: 100, destinationHeight: -\u221e)",
+          "outcome": "Passed",
+          "duration": "00:00:00.1372417"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.None_OutsideBounds_ReturnsNull(x: 15, y: 70)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000048"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Append_IsImmutable",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002257"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.InvalidTransitionEvent_IsRejected(invalidEventName: null)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001710"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.InvalidDispatchEvent_IsRejected(invalidEventName: \"   \")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0714740"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.UiInputContractsTests.Batch_PreservesCallerEventOrderAndIsImmutable",
+          "outcome": "Passed",
+          "duration": "00:00:00.0039542"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Increment_UpdatesCount",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002788"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.UiInputContractsTests.Batch_RejectsNonFinitePointerCoordinates(coordinate: NaN)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002818"
+        },
+        {
+          "name": "Machina.Runtime.Tests.UiHitTestIndexTests.LaterActionableNode_WinsWhenOverlapping",
+          "outcome": "Passed",
+          "duration": "00:00:00.0019910"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.UiInputContractsTests.TextAndKeyRemainDistinct",
+          "outcome": "Passed",
+          "duration": "00:00:00.1372014"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.InvalidDimensions_Throw(sourceWidth: NaN, sourceHeight: 50, destinationX: 0, destinationY: 0, destinationWidth: 100, destinationHeight: 50)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000136"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.InvalidDispatchEvent_IsRejected(invalidEventName: \"\")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001887"
+        },
+        {
+          "name": "Machina.Runtime.Tests.UiHitTestIndexTests.OutsidePoint_ReturnsNull",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002130"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.Uniform_OutsideLetterbox_ReturnsNull(x: 100, y: 175)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001748"
+        },
+        {
+          "name": "Machina.Runtime.Tests.ScrollbarInteractionTests.Thumb_drag_has_explicit_capture_and_release_lifecycle",
+          "outcome": "Passed",
+          "duration": "00:00:00.2185533"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.InvalidDispatchEvent_IsRejected(invalidEventName: null)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000134"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.InvalidDimensions_Throw(sourceWidth: 0, sourceHeight: 50, destinationX: 0, destinationY: 0, destinationWidth: 100, destinationHeight: 50)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000097"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.NullGetter_IsRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002563"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.None_OutsideBounds_ReturnsNull(x: 110, y: 25)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005967"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.Uniform_OutsideLetterbox_ReturnsNull(x: 100, y: 25)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002744"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.None_MapsDirectCoordinates",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001279"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.HalfOpenBounds_RightBottomEdges_ReturnNull(mode: Fill, x: 200, y: 100)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001732"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Create_FirstMatchWins_WhenEventsDuplicate",
+          "outcome": "Passed",
+          "duration": "00:00:00.0009290"
+        },
+        {
+          "name": "Machina.Runtime.Tests.UiHitTestIndexTests.ZeroSizeNode_DoesNotHit",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001522"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.InvalidTransitionEvent_IsRejected(invalidEventName: \"\")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000139"
+        },
+        {
+          "name": "Machina.Runtime.Tests.UiHitTestIndexTests.RepeatedBuild_IsDeterministic",
+          "outcome": "Passed",
+          "duration": "00:00:00.2903478"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.NullSetter_IsRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001989"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.DispatchChain_ProducesExpectedState",
+          "outcome": "Passed",
+          "duration": "00:00:00.0006357"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Increment_UnknownEvent_ReturnsSameReference",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001388"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Toggle_FlipsBoolean",
+          "outcome": "Passed",
+          "duration": "00:00:00.1372022"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.InvalidDimensions_Throw(sourceWidth: 100, sourceHeight: 50, destinationX: 0, destinationY: 0, destinationWidth: 0, destinationHeight: 50)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000088"
+        },
+        {
+          "name": "Machina.Runtime.Tests.UiHitTestIndexTests.HalfOpenBounds_AreApplied",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004350"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.FirstMatchWins_WhenEventsDuplicate",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002709"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Increment_ByZero_ReturnsSameReference",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003183"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.HalfOpenBounds_RightBottomEdges_ReturnNull(mode: Uniform, x: 200, y: 150)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000883"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Set_UpdatesValue",
+          "outcome": "Passed",
+          "duration": "00:00:00.0009714"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.InvalidDimensions_Throw(sourceWidth: 100, sourceHeight: 50, destinationX: 0, destinationY: 0, destinationWidth: 100, destinationHeight: 0)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000097"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.InvalidDimensions_Throw(sourceWidth: 100, sourceHeight: 50, destinationX: 0, destinationY: 0, destinationWidth: NaN, destinationHeight: 50)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000160"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Create_NullTransitionEntry_IsRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002105"
+        },
+        {
+          "name": "Machina.Runtime.Tests.ScrollbarInteractionTests.Wheel_requests_offset_without_assigning_product_semantics",
+          "outcome": "Passed",
+          "duration": "00:00:00.0020358"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.Uniform_MapsLetterboxedCoordinates",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001077"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.InvalidDimensions_Throw(sourceWidth: 100, sourceHeight: 0, destinationX: 0, destinationY: 0, destinationWidth: 100, destinationHeight: 50)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004055"
+        },
+        {
+          "name": "Machina.Runtime.Tests.UiHitTestIndexTests.StandardFormSample_HitsExpectedActions",
+          "outcome": "Passed",
+          "duration": "00:00:00.0103062"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.UiInputContractsTests.EmptyBatch_HasNoEvents",
+          "outcome": "Passed",
+          "duration": "00:00:00.0027270"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Increment_WithCustomAmount_UpdatesCount",
+          "outcome": "Passed",
+          "duration": "00:00:00.0037488"
+        },
+        {
+          "name": "Machina.Runtime.Tests.UiHitTestIndexTests.DisabledButton_DoesNotHit",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004988"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Create_WithCollectionExpression_UpdatesState",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002932"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Set_SameValue_ReturnsSameReference",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002071"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.Fill_MapsNonUniformScale",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001263"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.InvalidTransitionEvent_IsRejected(invalidEventName: \"   \")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002482"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.UiInputContractsTests.Batch_RejectsNonFinitePointerCoordinates(coordinate: \u221e)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0011665"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.InvalidDimensions_Throw(sourceWidth: 100, sourceHeight: \u221e, destinationX: 0, destinationY: 0, destinationWidth: 100, destinationHeight: 50)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000080"
+        },
+        {
+          "name": "Machina.Runtime.Tests.UiHitTestIndexTests.ChildAction_BeatsParentAction",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001485"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.Dispatch_WithTypedActionId_UpdatesState",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001676"
+        },
+        {
+          "name": "Machina.Runtime.Tests.UiHitTestIndexTests.ButtonHit_ReturnsAction",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002421"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.NullState_IsRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002374"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Dispatch.DispatchTableTests.IncrementOverflow_IsRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003405"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.Fill_MapsScaledCoordinates",
+          "outcome": "Passed",
+          "duration": "00:00:00.0026069"
+        },
+        {
+          "name": "Machina.Runtime.Tests.Input.PresentedImageMapperTests.None_OutsideBounds_ReturnsNull(x: 9, y: 25)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002343"
+        }
+      ]
+    },
+    {
+      "id": "ui-layout",
+      "command": "dotnet vstest \"C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Machina.UI\\Machina.Layout.Tests\\bin\\Release\\net10.0\\Machina.Layout.Tests.dll\" \"--Logger:trx;LogFileName=ui-layout.trx\" \"--ResultsDirectory:C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\docs\\audit-evidence\"",
+      "binary": "C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Machina.UI\\Machina.Layout.Tests\\bin\\Release\\net10.0\\Machina.Layout.Tests.dll",
+      "binary_modified_utc": "2026-10-08T17:41:37.617819+00:00",
+      "binary_sha256": "3062743186a80f2b80071825c64c78ab8c8cef3b139fb92c97770fa910cfdad0",
+      "trx": "ui-layout.trx",
+      "counters": {
+        "total": "88",
+        "executed": "88",
+        "passed": "88",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "tests": [
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveFrame_RejectsInvalidHorizontalConstraintCount(left: True, right: False, width: False)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002557"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_RejectsUnknownParent",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003771"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_IgnoresRootFrameGeometry",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001627"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.AbsoluteInsideGridRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002518"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_RejectsUnreachableNode",
+          "outcome": "Passed",
+          "duration": "00:00:00.0010422"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveAnchorFrame_RightWidth_BottomHeight_ResolvesExpectedRect",
+          "outcome": "Passed",
+          "duration": "00:00:00.1790024"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveAnchorFrame_LeftWidth_TopHeight_ResolvesExpectedRect",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002094"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveAnchorFrame_AllowsNegativePositionalAnchors",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001970"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_RejectsInvalidNodeId(value: \" \")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001730"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveAbsoluteFrame_ResolvesExpectedRect",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001031"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_ResolvesAbsoluteChildInRootSpace",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002654"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.ToResolvedTree_RejectsUnreachableNode",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003646"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_PreservesMetadata",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001722"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveFrame_RejectsInvalidVerticalConstraintCount(top: True, bottom: False, height: False)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002313"
+        },
+        {
+          "name": "Machina.Layout.Tests.StackArrangeTests.InvalidWeight",
+          "outcome": "Passed",
+          "duration": "00:00:00.1788343"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_PreservesNodeMetadata",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002046"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.EmptyColumnsRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005616"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.NegativeRemainingRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0006133"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.OrderPreservedPlacementByCell",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003627"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.CellDirectResolveRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004548"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.ToResolvedTree_RejectsCycle",
+          "outcome": "Passed",
+          "duration": "00:00:00.1783842"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_RejectsSelfCycle",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002418"
+        },
+        {
+          "name": "Machina.Layout.Tests.StackArrangeTests.NegativeContent",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005879"
+        },
+        {
+          "name": "Machina.Layout.Tests.StackArrangeTests.InvalidFixedSize",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002951"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_RejectsMultiNodeCycle",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003172"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.ToResolvedTree_BuildsSingleRootTree",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001296"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.CellSpansBothAxes",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002222"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_CompilesParentChildGraph",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002225"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.EmptyRowsRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002903"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.ToResolvedTree_RejectsMissingChildrenEntry",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002409"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.FillRows",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003095"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_RejectsUnknownChildNode",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005560"
+        },
+        {
+          "name": "Machina.Layout.Tests.StackArrangeTests.NegativeRemaining",
+          "outcome": "Passed",
+          "duration": "00:00:00.0057672"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_RejectsNonRootRootFrame",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003654"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.ToResolvedTree_RejectsMissingRootNode",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002793"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_PropagatesFrameResolverErrors",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003772"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_RejectsMissingRoot",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003182"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_CompilesMinimalRootDocument",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001989"
+        },
+        {
+          "name": "Machina.Layout.Tests.StackArrangeTests.DirectFillRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002635"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.ToResolvedTree_PreservesMetadata",
+          "outcome": "Passed",
+          "duration": "00:00:00.0022050"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveFrame_RejectsExplicitNegativeSize",
+          "outcome": "Passed",
+          "duration": "00:00:00.0006162"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.InvalidFillTrackWeightRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005931"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveFrame_RejectsDerivedNegativeSize",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003461"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.ToResolvedTree_PreservesDeterministicChildOrder",
+          "outcome": "Passed",
+          "duration": "00:00:00.0012398"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveFrame_RejectsInvalidHorizontalConstraintCount(left: True, right: True, width: True)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004344"
+        },
+        {
+          "name": "Machina.Layout.Tests.StackArrangeTests.DirectFixedRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001642"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_RejectsMissingRootNode",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002475"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_RejectsDuplicateNodeId",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002497"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveFrame_RejectsInvalidParentRect",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003707"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_RejectsMissingFrame",
+          "outcome": "Passed",
+          "duration": "00:00:00.1779250"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.FixedGridPadding",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002490"
+        },
+        {
+          "name": "Machina.Layout.Tests.StackArrangeTests.VerticalFixed",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002092"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.InvalidFixedTrackSizeRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002667"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.InvalidGapRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002873"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.InvalidCellFrameRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002633"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.FillColumns",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003339"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_RootRectComesFromCaller",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001477"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.FixedGridSingleCell",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001806"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.CellColumnSpan",
+          "outcome": "Passed",
+          "duration": "00:00:00.1789751"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveFrame_RejectsInvalidHorizontalConstraintCount(left: False, right: False, width: False)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000108"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveFrame_RejectsInvalidVerticalConstraintCount(top: True, bottom: True, height: True)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000116"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_OrdersChildrenByOrderThenSourceIndex",
+          "outcome": "Passed",
+          "duration": "00:00:00.0088855"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveFrame_RejectsRootFrameWithoutRootContext",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001619"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveFrame_RejectsInvalidVerticalConstraintCount(top: False, bottom: False, height: False)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004036"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.ToResolvedTree_RejectsUnknownChildNode",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001702"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_RejectsMultipleRoots",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002349"
+        },
+        {
+          "name": "Machina.Layout.Tests.StackArrangeTests.HorizontalFixedStart",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003062"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_RejectsMissingChildrenEntry",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002982"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_ResolvesAnchorChildInRootSpace",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002782"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.CellOutsideGridRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001752"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.ToResolvedTree_BuildsParentChildTree",
+          "outcome": "Passed",
+          "duration": "00:00:00.0013073"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutCompilerTests.CompileLayoutRows_RejectsInvalidNodeId(value: \"\")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003609"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_PreservesChildrenMapOrdering",
+          "outcome": "Passed",
+          "duration": "00:00:00.0095885"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.FixedInsideGridRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003950"
+        },
+        {
+          "name": "Machina.Layout.Tests.SmokeTests.TestHarness_IsAlive",
+          "outcome": "Passed",
+          "duration": "00:00:00.1775417"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.ToResolvedTree_PreservesNestedHierarchy",
+          "outcome": "Passed",
+          "duration": "00:00:00.0064675"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.CellOutOfRangeRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003290"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.GapsReduceFill",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005636"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveAnchorFrame_UsesUiLengthAgainstAxisSize",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001984"
+        },
+        {
+          "name": "Machina.Layout.Tests.FrameResolverTests.ResolveAnchorFrame_LeftRight_TopBottom_ResolvesExpectedRect",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002164"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.NegativeContentRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003448"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.FixedGridGaps",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003417"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_ResolvesGrandchildAgainstResolvedParent",
+          "outcome": "Passed",
+          "duration": "00:00:00.1789942"
+        },
+        {
+          "name": "Machina.Layout.Tests.StackArrangeTests.InvalidStackChild",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003042"
+        },
+        {
+          "name": "Machina.Layout.Tests.GridArrangeTests.CellRowSpan",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002107"
+        },
+        {
+          "name": "Machina.Layout.Tests.ResolvedLayoutTreeBuilderTests.FlattenResolvedTree_ReturnsPreOrderTraversal",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005197"
+        },
+        {
+          "name": "Machina.Layout.Tests.LayoutDocumentResolverTests.ResolveLayoutDocument_RejectsInvalidRootRect",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003060"
+        },
+        {
+          "name": "Machina.Layout.Tests.StackArrangeTests.HorizontalFill",
+          "outcome": "Passed",
+          "duration": "00:00:00.0007592"
+        }
+      ]
+    },
+    {
+      "id": "ui-presentation",
+      "command": "dotnet vstest \"C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Machina.UI\\Machina.Presentation.Tests\\bin\\Release\\net10.0\\Machina.Presentation.Tests.dll\" \"--Logger:trx;LogFileName=ui-presentation.trx\" \"--ResultsDirectory:C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\docs\\audit-evidence\"",
+      "binary": "C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Machina.UI\\Machina.Presentation.Tests\\bin\\Release\\net10.0\\Machina.Presentation.Tests.dll",
+      "binary_modified_utc": "2026-10-08T17:41:38.008654+00:00",
+      "binary_sha256": "f6a6aa14ce23db2d60b49225156b921a9e1ae85b04dcc1aa2d885727cc140fa0",
+      "trx": "ui-presentation.trx",
+      "counters": {
+        "total": "43",
+        "executed": "43",
+        "passed": "43",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "tests": [
+        {
+          "name": "Machina.Presentation.Tests.MachinaProgrammablePanelTests.NineSliceIsAPrebuiltOverFourThreeSliceEdgePrograms",
+          "outcome": "Passed",
+          "duration": "00:00:00.0064187"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.SameLayerScreens_PreserveInsertionOrder",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005597"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.Operations_RejectInvalidGeometryStrokeAndText",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004759"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaNineSliceTests.TilingCropsFinalHorizontalAndVerticalTilesWithoutGaps",
+          "outcome": "Passed",
+          "duration": "00:00:00.2831869"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.DuplicateScreenIdentity_IsRejectedCaseInsensitively",
+          "outcome": "Passed",
+          "duration": "00:00:00.2232770"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.RepeatedComposition_IsDeterministic",
+          "outcome": "Passed",
+          "duration": "00:00:00.0144451"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaProgrammablePanelTests.EdgeAllocationResolvesExactAndWeightedSurplus(width: 80, expectedStatus: SurplusDistributed, fixedLength: 10, firstFlexLength: 20, secondFlexLength: 30)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003707"
+        },
+        {
+          "name": "Machina.Presentation.Tests.Input.MachinaFrontendInputRouterTests.EmptyBatch_ProducesNoLifecycleOutput",
+          "outcome": "Passed",
+          "duration": "00:00:00.2705184"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.OneVisibleScreen_IsReturned",
+          "outcome": "Passed",
+          "duration": "00:00:00.0008423"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaTextPresentationM3Tests.SameGlyphRunCanSelectEitherRealizationWithoutChangingGeometry",
+          "outcome": "Passed",
+          "duration": "00:00:00.0023749"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.Viewport_RejectsNonPositiveDimensions(width: -1, height: 1)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000098"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.EqualLayerOrders_UseDeterministicKeyOrdering",
+          "outcome": "Passed",
+          "duration": "00:00:00.1455403"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.UndeclaredLayer_IsRejected",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002877"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.Builder_ProducesOrderedFillStrokePositionedTextAndNestedClips",
+          "outcome": "Passed",
+          "duration": "00:00:00.2128540"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.AnalyticShapes_ClampRadius_DerivePill_AndRejectInvalidInputs",
+          "outcome": "Passed",
+          "duration": "00:00:00.0009062"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaNineSliceTests.StretchCoversExactWideTallAndCollapsedCenterPanels(width: 10, height: 10, expectedQuadCount: 4)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004407"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.Viewport_RejectsNonPositiveDimensions(width: 1, height: 0)",
+          "outcome": "Passed",
+          "duration": "00:00:00.2143597"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaVectorIconPresentationM5Tests.Primitive_UsesDestinationRectangleWithoutTextBaselineSemantics",
+          "outcome": "Passed",
+          "duration": "00:00:00.1932915"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaTextPresentationM3Tests.PresentationModePatchPreservesViewportOrderingRectsAndText",
+          "outcome": "Passed",
+          "duration": "00:00:00.1206642"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaProgrammablePanelTests.UnderflowIsExplicitAndProducesOnlyNonnegativeContiguousGeometry",
+          "outcome": "Passed",
+          "duration": "00:00:00.0013089"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.EmptyFrame_PreservesViewportAndHasNoOperations",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002323"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaNineSliceTests.BorderScaleShrinksDestinationWithoutRecuttingSourceCorner",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002671"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.MultipleDeclaredLayers_ComposeByConfiguredOrder",
+          "outcome": "Passed",
+          "duration": "00:00:00.0009590"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.Frame_DefensivelyCopiesOperationStorage",
+          "outcome": "Passed",
+          "duration": "00:00:00.0006292"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaProgrammablePanelTests.EdgeAllocationResolvesExactAndWeightedSurplus(width: 50, expectedStatus: Exact, fixedLength: 10, firstFlexLength: 10, secondFlexLength: 10)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0041677"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.Builder_PreservesRichTextRunOrderAndResolvedColors",
+          "outcome": "Passed",
+          "duration": "00:00:00.0144948"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.HiddenScreen_IsExcluded",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002209"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaProgrammablePanelTests.CropUsesOnlyTheSourcePixelsNeededAtBorderScale",
+          "outcome": "Passed",
+          "duration": "00:00:00.2822393"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaNineSliceTests.StretchCoversExactWideTallAndCollapsedCenterPanels(width: 40, height: 240, expectedQuadCount: 9)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000278"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.PresentationAssembly_HasNoAurelianReferences",
+          "outcome": "Passed",
+          "duration": "00:00:00.0008474"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.LayerKeysAndScreenIdentities_NormalizeAndRejectBlankValues",
+          "outcome": "Passed",
+          "duration": "00:00:00.0048600"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaNineSliceTests.StretchCoversExactWideTallAndCollapsedCenterPanels(width: 40, height: 40, expectedQuadCount: 9)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000408"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.Viewport_RejectsNonPositiveDimensions(width: 0, height: 1)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001968"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaVectorIconPresentationM5Tests.UiIcon_LowersSemanticIdentityThroughOrdinaryLayout",
+          "outcome": "Passed",
+          "duration": "00:00:00.7382303"
+        },
+        {
+          "name": "Machina.Presentation.Tests.PresenterScreenStackTests.EmptyStack_HasNoVisibleScreens",
+          "outcome": "Passed",
+          "duration": "00:00:00.0024639"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaTextPresentationM3Tests.PrimitiveRejectsGlyphRunForDifferentSemanticText",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002125"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaNineSliceTests.StretchCoversExactWideTallAndCollapsedCenterPanels(width: 240, height: 40, expectedQuadCount: 9)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002824"
+        },
+        {
+          "name": "Machina.Presentation.Tests.Input.MachinaFrontendInputRouterTests.OrderedMixedBatch_PreservesEveryResizeAndEmitsCloseMessagesInEventOrder",
+          "outcome": "Passed",
+          "duration": "00:00:00.0041813"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaNineSliceTests.InvalidMarginsAndBorderScaleFailClosed",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004194"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.PresentationAssembly_HasNoLegacyOrBackendDependencies",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003669"
+        },
+        {
+          "name": "Machina.Presentation.Tests.Input.MachinaFrontendInputRouterTests.EventsAfterClose_AreStillObservedInTheSameBatch",
+          "outcome": "Passed",
+          "duration": "00:00:00.0009623"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaPresentationFrameTests.Frame_RejectsUnbalancedClipOperations",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003190"
+        },
+        {
+          "name": "Machina.Presentation.Tests.MachinaTextPresentationM3Tests.ExistingTextDefaultsToRasterPixel",
+          "outcome": "Passed",
+          "duration": "00:00:00.2694840"
+        }
+      ]
+    },
+    {
+      "id": "ui-widgets",
+      "command": "dotnet vstest \"C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Machina.UI\\Machina.Standard.Tests\\bin\\Release\\net10.0\\Machina.Standard.Tests.dll\" \"--TestCaseFilter:FullyQualifiedName~StandardButtonTests|FullyQualifiedName~StandardFormTests|FullyQualifiedName~StandardViewFlatTests|FullyQualifiedName~StandardTextBlockTests\" \"--Logger:trx;LogFileName=ui-widgets.trx\" \"--ResultsDirectory:C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\docs\\audit-evidence\"",
+      "binary": "C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Machina.UI\\Machina.Standard.Tests\\bin\\Release\\net10.0\\Machina.Standard.Tests.dll",
+      "binary_modified_utc": "2026-10-08T17:41:38.286391+00:00",
+      "binary_sha256": "688075c8f5fe4d4f9a07e85c38edc7c6425b03a2c5feba4b0be52b1d5cf31e63",
+      "trx": "ui-widgets.trx",
+      "counters": {
+        "total": "29",
+        "executed": "29",
+        "passed": "29",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "tests": [
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.SwitchOnAndOffSnapshotsDifferDeterministically",
+          "outcome": "Passed",
+          "duration": "00:00:00.2681582"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardViewFlatTests.StandardView_ButtonAndBadge_TextIsCenterAligned",
+          "outcome": "Passed",
+          "duration": "00:00:00.0029263"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.InputShellDisplaysPlaceholderWithMutedStyleWhenValueEmpty",
+          "outcome": "Passed",
+          "duration": "00:00:00.0007568"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.StandardFormSampleLowersDeterministicallyAndCompilesThroughLayout",
+          "outcome": "Passed",
+          "duration": "00:00:00.0034607"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.FieldComposesLabelControlDescriptionAndErrorDeterministically",
+          "outcome": "Passed",
+          "duration": "00:00:00.0010825"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.LabelLowersDeterministically",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002872"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardViewFlatTests.StandardView_SwitchThumb_MetadataIsStableAcrossState",
+          "outcome": "Passed",
+          "duration": "00:00:00.0029992"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardTextBlockTests.TextBlock_DefaultThemePolicy_IsStable",
+          "outcome": "Passed",
+          "duration": "00:00:00.2583719"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardViewFlatTests.StandardView_SubPartHelpers_EmitExpectedMetadata",
+          "outcome": "Passed",
+          "duration": "00:00:00.0010522"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardViewFlatTests.StandardView_SwitchTrack_OnAndOff_UseDistinctTrackBackgroundMetadata",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001476"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.DisabledCheckboxOmitsAction",
+          "outcome": "Passed",
+          "duration": "00:00:00.0008073"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardViewFlatTests.StandardView_CheckboxBox_CheckedAndUnchecked_UseDistinctFillMetadata",
+          "outcome": "Passed",
+          "duration": "00:00:00.0015197"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardViewFlatTests.StandardViewButton_LowersActionAndSemantics",
+          "outcome": "Passed",
+          "duration": "00:00:00.2549906"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardViewFlatTests.StandardView_ComponentCoverage_ProvidesExpectedRoles",
+          "outcome": "Passed",
+          "duration": "00:00:00.0013066"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.StandardInput_PlaceholderUsesPlaceholderTextStyle",
+          "outcome": "Passed",
+          "duration": "00:00:00.0057124"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardButtonTests.StandardButton_DefaultStyle_TextFitsDefaultShell",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002762"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardButtonTests.DisabledStandardButtonKeepsSemanticsAndOmitsAction",
+          "outcome": "Passed",
+          "duration": "00:00:00.0017093"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardTextBlockTests.TextBlock_PreservesMachinaTextSpec",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003174"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.DisabledSwitchOmitsAction",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003558"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.InputShellDisplaysValueAndCompilesThroughLayout",
+          "outcome": "Passed",
+          "duration": "00:00:00.0124025"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardTextBlockTests.StandardUI_TextBlock_CreatesExpectedNodeMetadata",
+          "outcome": "Passed",
+          "duration": "00:00:00.0039684"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardButtonTests.ButtonVariantsProduceDifferentDeterministicStyles",
+          "outcome": "Passed",
+          "duration": "00:00:00.0106205"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.StandardInput_ExplicitStyleOverridesShellContentAndText",
+          "outcome": "Passed",
+          "duration": "00:00:00.0006311"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardButtonTests.StandardButtonLowersThroughCoreWithSemanticsActionAndStyle",
+          "outcome": "Passed",
+          "duration": "00:00:00.0017296"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.DisabledInputOmitsAction",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001694"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardButtonTests.ButtonSizesMapToExplicitLabelTextSizes",
+          "outcome": "Passed",
+          "duration": "00:00:00.2553151"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.StandardInput_DefaultStyleMatchesThemeDefault",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002141"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardViewFlatTests.StandardView_SubPartHelpers_RemainMetadataOnly",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001729"
+        },
+        {
+          "name": "Machina.Standard.Tests.StandardFormTests.CheckboxCheckedWithLabelEmitsMarkerSemanticsAndAction",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002725"
+        }
+      ]
+    },
+    {
+      "id": "audio",
+      "command": "dotnet vstest \"C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Aurelian\\Aurelian.Audio.Tests\\bin\\Release\\net10.0\\Aurelian.Audio.Tests.dll\" \"--Logger:trx;LogFileName=audio.trx\" \"--ResultsDirectory:C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\docs\\audit-evidence\"",
+      "binary": "C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Aurelian\\Aurelian.Audio.Tests\\bin\\Release\\net10.0\\Aurelian.Audio.Tests.dll",
+      "binary_modified_utc": "2026-11-05T00:27:20.933618+00:00",
+      "binary_sha256": "c18dc27f62ffa1be820ce437fcfc210512c34819e3c6b1c399c385d14b55837f",
+      "trx": "audio.trx",
+      "counters": {
+        "total": "17",
+        "executed": "17",
+        "passed": "17",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "tests": [
+        {
+          "name": "Aurelian.Audio.Tests.Mp3DecoderTests.DecodesStereoMp3IntoAResidentClipWithTheSourcePitch",
+          "outcome": "Passed",
+          "duration": "00:00:00.2167202"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.UnknownAssetInvalidGainAndDisposal_AreExplicit",
+          "outcome": "Passed",
+          "duration": "00:00:00.0029405"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.RejectNewestPolicy_DropsWithoutBackendDependentChoice",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005928"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.EventDeduplication_RealizesSameEventOnceAndDistinctEventsTwice",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004912"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.DominatusGeneratedArtifact_LoadsWithoutGenerationPlaybackConflation",
+          "outcome": "Passed",
+          "duration": "00:00:00.1828213"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.BusMasterAndMute_UseCanonicalMultiplicationWithoutCorruptingVoices",
+          "outcome": "Passed",
+          "duration": "00:00:00.0063939"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.ThousandOneShots_ReleaseWithStableVoiceCount",
+          "outcome": "Passed",
+          "duration": "00:00:00.1147712"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.FadeAndCrossfade_AreDrivenByExplicitElapsedTime",
+          "outcome": "Passed",
+          "duration": "00:00:00.0385552"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.WindowsBackend_OpensAndSubmitsWhenDeviceIsAvailable",
+          "outcome": "Passed",
+          "duration": "00:00:00.1851269"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.DeviceLossBecomesDiagnosticAndDoesNotEscapeIntoGameplay",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005444"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.VoiceCapacity_StealsLowestPriorityOldestDeterministically",
+          "outcome": "Passed",
+          "duration": "00:00:00.0052450"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.Mp3DecoderTests.RejectsBytesThatAreNotMp3",
+          "outcome": "Passed",
+          "duration": "00:00:00.0007434"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.OneShotCompletesAndLoopStopsExplicitly",
+          "outcome": "Passed",
+          "duration": "00:00:00.0008268"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.SpatialPanAndAttenuation_AreBoundedAndDeterministic",
+          "outcome": "Passed",
+          "duration": "00:00:00.0020574"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.PauseAndFocusPolicy_AffectProjectionOnly",
+          "outcome": "Passed",
+          "duration": "00:00:00.0010860"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.PcmWavLoad_DecodesAuthoredMono16AndRejectsUnsupportedData",
+          "outcome": "Passed",
+          "duration": "00:00:00.0087410"
+        },
+        {
+          "name": "Aurelian.Audio.Tests.GameAudioM4Tests.AssetIdentityAndResourceMetadata_AreTypedAndValidated",
+          "outcome": "Passed",
+          "duration": "00:00:00.0052632"
+        }
+      ]
+    },
+    {
+      "id": "graphics",
+      "command": "dotnet vstest \"C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Aurelian\\Aurelian.Graphics.Tests\\bin\\Release\\net10.0\\Aurelian.Graphics.Tests.dll\" \"--TestCaseFilter:FullyQualifiedName~Native2DSubmissionM1Tests|FullyQualifiedName~VulkanTextureUploadM0Tests|FullyQualifiedName~VulkanTimelineFenceM0Tests|FullyQualifiedName~VulkanNativeFrameTargetM0Tests|FullyQualifiedName~NativeSrgbTransferM11ATests\" \"--Logger:trx;LogFileName=graphics.trx\" \"--ResultsDirectory:C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\docs\\audit-evidence\"",
+      "binary": "C:\\Users\\yuech\\source\\repos\\Copeland\\tests\\Aurelian\\Aurelian.Graphics.Tests\\bin\\Release\\net10.0\\Aurelian.Graphics.Tests.dll",
+      "binary_modified_utc": "2026-11-05T00:27:29.550856+00:00",
+      "binary_sha256": "704cc3bcc168532a1bf2e051a7438acf19ac9c1d9372d75f341b99670b45888a",
+      "trx": "graphics.trx",
+      "counters": {
+        "total": "32",
+        "executed": "32",
+        "passed": "32",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "tests": [
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTimelineFenceM0Tests.VulkanTimelineFence_CreateBundle_WhenPlantCreated_CreatesThreeFences",
+          "outcome": "Passed",
+          "duration": "00:00:00.2317076"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.Native2DSubmissionM1Tests.ValidateValues_RejectsReversedUvBounds",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002196"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTimelineFenceM0Tests.VulkanTimelineFence_QueryCompletedValue_DoesNotThrowWhenCreated",
+          "outcome": "Passed",
+          "duration": "00:00:00.2289138"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTextureUploadM0Tests.VulkanTextureUploader_UploadRejectsEmptyData",
+          "outcome": "Passed",
+          "duration": "00:00:00.2184174"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanNativeFrameTargetM0Tests.FrameWithoutPresentedPassCannotComplete",
+          "outcome": "Passed",
+          "duration": "00:00:01.0151304"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.Native2DSubmissionM1Tests.ValidateValues_RejectsTintOutsideUnitRange",
+          "outcome": "Passed",
+          "duration": "00:00:00.0004430"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTextureUploadM0Tests.VulkanTextureUploader_UploadTransitionsTextureToShaderResourceFragment",
+          "outcome": "Passed",
+          "duration": "00:00:01.1159881"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.NativeSrgbTransferM11ATests.Native_Pipelines_Declare_Authored_Srgb_Inputs_By_Default",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005322"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.Native2DSubmissionM1Tests.ValidateValues_RejectsNonFiniteCoordinates(value: NaN)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001743"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTextureUploadM0Tests.VulkanTextureUploader_DoesNotCallRawAllocationApis",
+          "outcome": "Passed",
+          "duration": "00:00:00.0026018"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.NativeSrgbTransferM11ATests.Decodes_Iec_Srgb_To_Linear(encoded: 0.0404499993, expected: 0.00313080009)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000033"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.NativeSrgbTransferM11ATests.Decodes_Iec_Srgb_To_Linear(encoded: 1, expected: 1)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0626381"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.NativeSrgbTransferM11ATests.Decoding_Color_Preserves_Straight_Alpha",
+          "outcome": "Passed",
+          "duration": "00:00:00.0020571"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTextureUploadM0Tests.VulkanTextureUploader_UploadAfterDispose_ReturnsDisposedDiagnostic",
+          "outcome": "Passed",
+          "duration": "00:00:00.1049262"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTextureUploadM0Tests.VulkanTextureUploader_Dispose_IsIdempotent",
+          "outcome": "Passed",
+          "duration": "00:00:00.1040172"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanNativeFrameTargetM0Tests.DisposedTargetRejectsPresentationLifecycle",
+          "outcome": "Passed",
+          "duration": "00:00:00.1947984"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanNativeFrameTargetM0Tests.PreserveContentsRejectsAnUninitializedTarget",
+          "outcome": "Passed",
+          "duration": "00:00:00.2290062"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTextureUploadM0Tests.VulkanTextureUploader_UploadRejectsTextureWithoutTransferDestinationUsage",
+          "outcome": "Passed",
+          "duration": "00:00:00.1065577"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTextureUploadM0Tests.VulkanTextureUploader_UploadRejectsSizeMismatch",
+          "outcome": "Passed",
+          "duration": "00:00:00.1966705"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTimelineFenceM0Tests.VulkanTimelineFence_AllocateSignalValue_IncrementsMonotonically",
+          "outcome": "Passed",
+          "duration": "00:00:00.9953199"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.Native2DSubmissionM1Tests.ValidateValues_RejectsNonFiniteCoordinates(value: \u221e)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000070"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanNativeFrameTargetM0Tests.BeginFrameRejectsInvalidClearColor",
+          "outcome": "Passed",
+          "duration": "00:00:00.2235275"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTextureUploadM0Tests.VulkanTextureUploader_UploadRejectsDisposedTexture",
+          "outcome": "Passed",
+          "duration": "00:00:00.2088306"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.NativeSrgbTransferM11ATests.Decodes_Iec_Srgb_To_Linear(encoded: 0.5, expected: 0.214041144)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001709"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.Native2DSubmissionM1Tests.ValidateValues_RejectsNonFiniteCoordinates(value: -\u221e)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0625727"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.Native2DSubmissionM1Tests.ValidateValues_RejectsNegativeDimensions",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001784"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTimelineFenceM0Tests.VulkanTimelineFence_Dispose_IsIdempotent",
+          "outcome": "Passed",
+          "duration": "00:00:00.1507955"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTimelineFenceM0Tests.VulkanTimelineFence_CreateBundle_WhenVulkanUnavailable_SkipsCleanly",
+          "outcome": "Passed",
+          "duration": "00:00:00.2118682"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTextureUploadM0Tests.VulkanTextureUploader_Upload_WhenVulkanUnavailable_SkipsCleanly",
+          "outcome": "Passed",
+          "duration": "00:00:00.1092054"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.NativeSrgbTransferM11ATests.Decodes_Iec_Srgb_To_Linear(encoded: 0, expected: 0)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000006"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.VulkanTextureUploadM0Tests.VulkanTextureUploader_UploadToTexture_WhenPlantCreated_SubmitsAndSignalsFence",
+          "outcome": "Passed",
+          "duration": "00:00:00.1535881"
+        },
+        {
+          "name": "Aurelian.Graphics.Tests.Native2DSubmissionM1Tests.ValidateValues_AcceptsFiniteAxisAlignedPixelAndUvPayload",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000933"
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "command": "dotnet vstest \"C:\\Users\\yuech\\source\\repos\\Deliverance\\test\\Deliverance.Core.Tests\\bin\\Debug\\net8.0\\Deliverance.Core.Tests.dll\" \"--TestCaseFilter:FullyQualifiedName~VNext|FullyQualifiedName~FileSaveStore|FullyQualifiedName~DtoMigration|FullyQualifiedName~RoundTrip\" \"--Logger:trx;LogFileName=storage.trx\" \"--ResultsDirectory:C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\docs\\audit-evidence\"",
+      "binary": "C:\\Users\\yuech\\source\\repos\\Deliverance\\test\\Deliverance.Core.Tests\\bin\\Debug\\net8.0\\Deliverance.Core.Tests.dll",
+      "binary_modified_utc": "2026-10-18T02:43:56.062530+00:00",
+      "binary_sha256": "3c616489c99c789181b18d6f8859e3c3726cf919adb233db90963bf9f3d5fff5",
+      "trx": "storage.trx",
+      "counters": {
+        "total": "15",
+        "executed": "15",
+        "passed": "15",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "tests": [
+        {
+          "name": "Deliverance.Core.Tests.FileSaveStoreVNextTests.ConcurrentWritesRemainWhole_AndCancelledWritePreservesPrimary",
+          "outcome": "Passed",
+          "duration": "00:00:00.1526962"
+        },
+        {
+          "name": "Deliverance.Core.Tests.VNextContainerTests.CompatibilityMismatch_HasTypedDiagnostic(definitionHash: null, cadenceHash: \"cadence-other\", expectedCode: CadenceMismatch)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001963"
+        },
+        {
+          "name": "Deliverance.Core.Tests.VNextContainerTests.ContainerRejectsBadMagicUnsupportedVersionAndPayloadCorruption",
+          "outcome": "Passed",
+          "duration": "00:00:00.0029670"
+        },
+        {
+          "name": "Deliverance.Core.Tests.VNextContainerTests.ExplicitSnapshot_RoundTripsAsCandidate_WithSeparatedMetadata",
+          "outcome": "Passed",
+          "duration": "00:00:00.0053805"
+        },
+        {
+          "name": "Deliverance.Core.Tests.DeliveranceRoundTripTests.SaveLoad_RoundTrips_Modules_And_KV",
+          "outcome": "Passed",
+          "duration": "00:00:00.1668645"
+        },
+        {
+          "name": "Deliverance.Core.Tests.VNextContainerTests.CompatibilityMismatch_HasTypedDiagnostic(definitionHash: \"definitions-other\", cadenceHash: null, expectedCode: DefinitionMismatch)",
+          "outcome": "Passed",
+          "duration": "00:00:00.0006294"
+        },
+        {
+          "name": "Deliverance.Core.Tests.VNextContainerTests.ModuleOwnedMigration_AdvancesV1ThroughV2ToV3",
+          "outcome": "Passed",
+          "duration": "00:00:00.0030504"
+        },
+        {
+          "name": "Deliverance.Core.Tests.DeliveranceRoundTripTests.ListSlots_And_SlotExists_Work",
+          "outcome": "Passed",
+          "duration": "00:00:00.0011421"
+        },
+        {
+          "name": "Deliverance.Core.Tests.VNextContainerTests.UnencryptedSave_IsByteDeterministic_WhenProvenanceIsStable",
+          "outcome": "Passed",
+          "duration": "00:00:00.1538865"
+        },
+        {
+          "name": "Deliverance.Core.Tests.FileSaveStoreVNextTests.DefaultExtension_SafeSlotEnumerationDeleteAndBackupRotationWork",
+          "outcome": "Passed",
+          "duration": "00:00:00.0201265"
+        },
+        {
+          "name": "Deliverance.Core.Tests.EncryptionTests.AesGcm_RoundTrips_AndUsesUniqueNonce",
+          "outcome": "Passed",
+          "duration": "00:00:00.1478658"
+        },
+        {
+          "name": "Deliverance.Core.Tests.VNextContainerTests.RequiredOptionalAndNewerSchemaLawsAreExplicit",
+          "outcome": "Passed",
+          "duration": "00:00:00.0010015"
+        },
+        {
+          "name": "Deliverance.Core.Tests.CompressionCodecRegistryTests.SaveLoad_WithGzipCodec_RoundTrips",
+          "outcome": "Passed",
+          "duration": "00:00:00.1654002"
+        },
+        {
+          "name": "Deliverance.Core.Tests.FileSaveStoreMetadataTests.FileSaveStore_ListSlotInfos_ReturnsSizeAndModified",
+          "outcome": "Passed",
+          "duration": "00:00:00.0971081"
+        },
+        {
+          "name": "Deliverance.Core.Tests.DtoMigrationTests.MigratableModule_Upgrades_V1_To_V2_OnLoad",
+          "outcome": "Passed",
+          "duration": "00:00:00.1707386"
+        }
+      ]
+    },
+    {
+      "id": "automation",
+      "command": "dotnet vstest \"C:\\Users\\yuech\\source\\repos\\Dominatus\\tests\\Dominatus.Core.Tests\\bin\\Release\\net8.0\\Dominatus.Core.Tests.dll\" \"--TestCaseFilter:FullyQualifiedName~AsyncActuationTests|FullyQualifiedName~ActuatorHostPolicyTests|FullyQualifiedName~M5c_ReplayDriverTests\" \"--Logger:trx;LogFileName=automation.trx\" \"--ResultsDirectory:C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\docs\\audit-evidence\"",
+      "binary": "C:\\Users\\yuech\\source\\repos\\Dominatus\\tests\\Dominatus.Core.Tests\\bin\\Release\\net8.0\\Dominatus.Core.Tests.dll",
+      "binary_modified_utc": "2026-10-20T16:30:59.334507+00:00",
+      "binary_sha256": "8300102140929fab8f198fd0ae73be2cb945346a3a5ebb1f8cbce3b07b3b7741",
+      "trx": "automation.trx",
+      "counters": {
+        "total": "25",
+        "executed": "25",
+        "passed": "25",
+        "failed": "0",
+        "error": "0",
+        "timeout": "0",
+        "aborted": "0",
+        "inconclusive": "0",
+        "passedButRunAborted": "0",
+        "notRunnable": "0",
+        "notExecuted": "0",
+        "disconnected": "0",
+        "warning": "0",
+        "completed": "0",
+        "inProgress": "0",
+        "pending": "0"
+      },
+      "tests": [
+        {
+          "name": "Dominatus.Core.Tests.AsyncActuationTests.Queued_progress_is_suppressed_when_its_owner_is_canceled_removed_or_disposed(action: \"dispose\")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0024419"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.ReplayDriver_External_PublishesExternalReplayEvent",
+          "outcome": "Passed",
+          "duration": "00:00:00.0255842"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.Dispatch_Deferred_AddsToInFlightActuations",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000528"
+        },
+        {
+          "name": "Dominatus.Core.Tests.AsyncActuationTests.Queued_progress_is_suppressed_when_its_owner_is_canceled_removed_or_disposed(action: \"cancel\")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0022932"
+        },
+        {
+          "name": "Dominatus.Core.Tests.ActuatorHostPolicyTests.ActuatorHost_DenyPolicy_CompletesWithFailureReason",
+          "outcome": "Passed",
+          "duration": "00:00:00.0006311"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.ReplayDriver_RngSeed_IsNoOp_DoesNotThrow",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002124"
+        },
+        {
+          "name": "Dominatus.Core.Tests.AsyncActuationTests.Queued_progress_is_suppressed_when_its_owner_is_canceled_removed_or_disposed(action: \"remove\")",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001398"
+        },
+        {
+          "name": "Dominatus.Core.Tests.AsyncActuationTests.Dispatch_does_not_block_and_completion_publishes_only_on_owner_tick_once",
+          "outcome": "Passed",
+          "duration": "00:00:00.0032700"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.Dispatch_Immediate_DoesNotAddToInFlightActuations",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002515"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.ReplayDriver_Completion_ClearsOnlyTheMatchingRestoredInFlightActuation",
+          "outcome": "Passed",
+          "duration": "00:00:00.0006846"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.ReplayDriver_Text_ReInjectsTypedAndUntypedCompletion_ForRestoredPendingActuation",
+          "outcome": "Passed",
+          "duration": "00:00:00.0003732"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.ReplayDriver_SyntheticId_UsedWhenPendingQueueExhausted",
+          "outcome": "Passed",
+          "duration": "00:00:00.0005234"
+        },
+        {
+          "name": "Dominatus.Core.Tests.ActuatorHostPolicyTests.ActuatorHost_AllowAllPolicy_PreservesHandlerInvocation",
+          "outcome": "Passed",
+          "duration": "00:00:00.0907527"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.EventCursorCodec_Deserialize_HandlesM5bPlaceholderBlob",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000504"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.ReplayDriver_ApplyUpTo_StopsAtCorrectPosition",
+          "outcome": "Passed",
+          "duration": "00:00:00.0002060"
+        },
+        {
+          "name": "Dominatus.Core.Tests.AsyncActuationTests.Removed_agents_and_disposed_hosts_cancel_owned_work_without_world_callbacks",
+          "outcome": "Passed",
+          "duration": "00:00:00.0961052"
+        },
+        {
+          "name": "Dominatus.Core.Tests.AsyncActuationTests.Progress_is_queued_until_tick_in_order_and_closed_after_completion",
+          "outcome": "Passed",
+          "duration": "00:00:00.0009071"
+        },
+        {
+          "name": "Dominatus.Core.Tests.AsyncActuationTests.Owned_resources_are_disposed_once_after_work_finishes_and_borrowed_handlers_stay_borrowed",
+          "outcome": "Passed",
+          "duration": "00:00:00.0031313"
+        },
+        {
+          "name": "Dominatus.Core.Tests.AsyncActuationTests.Cancellation_and_failure_are_terminal_and_never_publish_late_success",
+          "outcome": "Passed",
+          "duration": "00:00:00.0008051"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.ReplayDriver_IsComplete_AfterApplyAll",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001030"
+        },
+        {
+          "name": "Dominatus.Core.Tests.AsyncActuationTests.Policy_denial_prevents_start_and_faults_are_observed_without_payload_leakage",
+          "outcome": "Passed",
+          "duration": "00:00:00.0008853"
+        },
+        {
+          "name": "Dominatus.Core.Tests.ActuatorHostPolicyTests.ActuatorHost_DenyPolicy_PreventsHandlerInvocation",
+          "outcome": "Passed",
+          "duration": "00:00:00.0000910"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.EventCursorCodec_RoundTrips_PendingActuations",
+          "outcome": "Passed",
+          "duration": "00:00:00.0010186"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.Completion_Fires_RemovesFromInFlightActuations",
+          "outcome": "Passed",
+          "duration": "00:00:00.1295487"
+        },
+        {
+          "name": "Dominatus.Core.Tests.Persistence.M5c_ReplayDriverTests.Capture_IncludesInFlightActuations_InCursorBlob",
+          "outcome": "Passed",
+          "duration": "00:00:00.0001157"
+        }
+      ]
+    }
+  ]
+}

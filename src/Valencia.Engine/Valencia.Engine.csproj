@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="../Valencia.Core/Valencia.Core.csproj" />
+    <ProjectReference Include="../Valencia.Media/Valencia.Media.csproj" />
+    <ProjectReference Include="../Valencia.Analysis/Valencia.Analysis.csproj" />
+    <ProjectReference Include="../Valencia.Persistence/Valencia.Persistence.csproj" />
+    <ProjectReference Include="../Valencia.Obs/Valencia.Obs.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/src/Copeland/Copeland.TS/Copeland.TS.csproj" />
+    <EmbeddedResource Include="Contracts/edit-plan.obj.ts" />
+    <EmbeddedResource Include="Contracts/analysis.obj.ts" />
+  </ItemGroup>
+</Project>

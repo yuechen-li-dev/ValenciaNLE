@@ -1,0 +1,720 @@
+[
+  {
+    "package": "Dominatus.Core",
+    "version": "1.0.0",
+    "license": "MIT",
+    "repository": "https://github.com/yuechen-li-dev/Dominatus",
+    "projectUrl": "https://github.com/yuechen-li-dev/Dominatus",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "ExCSS",
+    "version": "4.2.3",
+    "license": "MIT",
+    "repository": "https://github.com/TylerBrinks/ExCSS",
+    "projectUrl": "https://github.com/TylerBrinks/ExCSS",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "FFmpeg.AutoGen",
+    "version": "7.1.1",
+    "license": "LICENSE.txt",
+    "repository": "",
+    "projectUrl": "https://github.com/Ruslan-B/FFmpeg.AutoGen",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "HarfBuzzSharp",
+    "version": "7.3.0",
+    "license": "",
+    "repository": "https://github.com/mono/SkiaSharp",
+    "projectUrl": "https://go.microsoft.com/fwlink/?linkid=868515",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "HarfBuzzSharp.NativeAssets.macOS",
+    "version": "7.3.0",
+    "license": "",
+    "repository": "https://github.com/mono/SkiaSharp",
+    "projectUrl": "https://go.microsoft.com/fwlink/?linkid=868515",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "HarfBuzzSharp.NativeAssets.Win32",
+    "version": "7.3.0",
+    "license": "",
+    "repository": "https://github.com/mono/SkiaSharp",
+    "projectUrl": "https://go.microsoft.com/fwlink/?linkid=868515",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "MathNet.Numerics",
+    "version": "5.0.0",
+    "license": "MIT",
+    "repository": "https://github.com/mathnet/mathnet-numerics",
+    "projectUrl": "https://numerics.mathdotnet.com/",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "MessagePack",
+    "version": "3.1.9",
+    "license": "MIT",
+    "repository": "https://github.com/MessagePack-CSharp/MessagePack-CSharp",
+    "projectUrl": "https://github.com/MessagePack-CSharp/MessagePack-CSharp",
+    "scopes": [
+      "application",
+      "test"
+    ]
+  },
+  {
+    "package": "MessagePack.Annotations",
+    "version": "3.1.9",
+    "license": "MIT",
+    "repository": "https://github.com/MessagePack-CSharp/MessagePack-CSharp",
+    "projectUrl": "https://github.com/MessagePack-CSharp/MessagePack-CSharp",
+    "scopes": [
+      "application",
+      "test"
+    ]
+  },
+  {
+    "package": "MessagePackAnalyzer",
+    "version": "3.1.9",
+    "license": "MIT",
+    "repository": "https://github.com/MessagePack-CSharp/MessagePack-CSharp",
+    "projectUrl": "https://github.com/MessagePack-CSharp/MessagePack-CSharp",
+    "scopes": [
+      "application",
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.CodeAnalysis.Analyzers",
+    "version": "3.11.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/roslyn-analyzers",
+    "projectUrl": "https://github.com/dotnet/roslyn-analyzers",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.CodeAnalysis.Common",
+    "version": "4.14.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/roslyn",
+    "projectUrl": "https://github.com/dotnet/roslyn",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.CodeAnalysis.CSharp",
+    "version": "4.14.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/roslyn",
+    "projectUrl": "https://github.com/dotnet/roslyn",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.CodeCoverage",
+    "version": "17.14.1",
+    "license": "MIT",
+    "repository": "https://github.com/microsoft/vstest",
+    "projectUrl": "https://github.com/microsoft/vstest",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.Direct3D.DXC",
+    "version": "1.9.2602.24",
+    "license": "LICENSE-LLVM.txt",
+    "repository": "https://github.com/microsoft/DirectXShaderCompiler.git",
+    "projectUrl": "https://github.com/Microsoft/DirectXShaderCompiler",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.DotNet.PlatformAbstractions",
+    "version": "3.1.6",
+    "license": "LICENSE.TXT",
+    "repository": "git://github.com/dotnet/core-setup",
+    "projectUrl": "https://dot.net/",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.Extensions.AI.Abstractions",
+    "version": "10.2.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/extensions",
+    "projectUrl": "https://dot.net/",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.Extensions.DependencyModel",
+    "version": "9.0.9",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/runtime",
+    "projectUrl": "https://dot.net/",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.NET.StringTools",
+    "version": "17.11.4",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/msbuild",
+    "projectUrl": "http://go.microsoft.com/fwlink/?LinkId=624683",
+    "scopes": [
+      "application",
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.NET.Test.Sdk",
+    "version": "17.14.1",
+    "license": "MIT",
+    "repository": "https://github.com/microsoft/vstest",
+    "projectUrl": "https://github.com/microsoft/vstest",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.TestPlatform.ObjectModel",
+    "version": "17.14.1",
+    "license": "MIT",
+    "repository": "https://github.com/microsoft/vstest",
+    "projectUrl": "https://github.com/microsoft/vstest",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "Microsoft.TestPlatform.TestHost",
+    "version": "17.14.1",
+    "license": "MIT",
+    "repository": "https://github.com/microsoft/vstest",
+    "projectUrl": "https://github.com/microsoft/vstest",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "MSDF-Sharp.Core",
+    "version": "1.0.2",
+    "license": "MIT",
+    "repository": "https://github.com/ExtraBinoss/MSDFGen-Sharp",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "test"
+    ]
+  },
+  {
+    "package": "NAudio.Core",
+    "version": "3.3.0",
+    "license": "MIT",
+    "repository": "https://github.com/naudio/NAudio",
+    "projectUrl": "https://naudio.github.io/NAudio/",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "NAudio.Midi",
+    "version": "3.3.0",
+    "license": "MIT",
+    "repository": "https://github.com/naudio/NAudio",
+    "projectUrl": "https://naudio.github.io/NAudio/",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "NAudio.WinMM",
+    "version": "3.3.0",
+    "license": "MIT",
+    "repository": "https://github.com/naudio/NAudio",
+    "projectUrl": "https://naudio.github.io/NAudio/",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Newtonsoft.Json",
+    "version": "13.0.3",
+    "license": "MIT",
+    "repository": "https://github.com/JamesNK/Newtonsoft.Json",
+    "projectUrl": "https://www.newtonsoft.com/json",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "SharpGLTF.Core",
+    "version": "1.0.7",
+    "license": "MIT",
+    "repository": "https://github.com/vpenades/SharpGLTF",
+    "projectUrl": "https://github.com/vpenades/SharpGLTF",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "ShimSkiaSharp",
+    "version": "1.0.0.18",
+    "license": "MIT",
+    "repository": "https://github.com/wieslawsoltes/Svg.Skia",
+    "projectUrl": "https://github.com/wieslawsoltes/Svg.Skia",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "Silk.NET.Core",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Silk.NET.GLFW",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Silk.NET.Input",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "test"
+    ]
+  },
+  {
+    "package": "Silk.NET.Input.Common",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "test"
+    ]
+  },
+  {
+    "package": "Silk.NET.Input.Glfw",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "test"
+    ]
+  },
+  {
+    "package": "Silk.NET.Maths",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Silk.NET.Vulkan",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Silk.NET.Vulkan.Extensions.KHR",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Silk.NET.Windowing",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Silk.NET.Windowing.Common",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Silk.NET.Windowing.Glfw",
+    "version": "2.23.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/Silk.NET.git",
+    "projectUrl": "",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "SkiaSharp",
+    "version": "2.88.9",
+    "license": "MIT",
+    "repository": "https://github.com/mono/SkiaSharp",
+    "projectUrl": "https://go.microsoft.com/fwlink/?linkid=868515",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "SkiaSharp",
+    "version": "3.119.1",
+    "license": "MIT",
+    "repository": "https://github.com/mono/SkiaSharp",
+    "projectUrl": "https://go.microsoft.com/fwlink/?linkid=868515",
+    "scopes": [
+      "product"
+    ]
+  },
+  {
+    "package": "SkiaSharp.HarfBuzz",
+    "version": "2.88.6",
+    "license": "",
+    "repository": "https://github.com/mono/SkiaSharp",
+    "projectUrl": "https://go.microsoft.com/fwlink/?linkid=868515",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "SkiaSharp.NativeAssets.macOS",
+    "version": "2.88.9",
+    "license": "MIT",
+    "repository": "https://github.com/mono/SkiaSharp",
+    "projectUrl": "https://go.microsoft.com/fwlink/?linkid=868515",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "SkiaSharp.NativeAssets.macOS",
+    "version": "3.119.1",
+    "license": "MIT",
+    "repository": "https://github.com/mono/SkiaSharp",
+    "projectUrl": "https://go.microsoft.com/fwlink/?linkid=868515",
+    "scopes": [
+      "product"
+    ]
+  },
+  {
+    "package": "SkiaSharp.NativeAssets.Win32",
+    "version": "2.88.9",
+    "license": "MIT",
+    "repository": "https://github.com/mono/SkiaSharp",
+    "projectUrl": "https://go.microsoft.com/fwlink/?linkid=868515",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "SkiaSharp.NativeAssets.Win32",
+    "version": "3.119.1",
+    "license": "MIT",
+    "repository": "https://github.com/mono/SkiaSharp",
+    "projectUrl": "https://go.microsoft.com/fwlink/?linkid=868515",
+    "scopes": [
+      "product"
+    ]
+  },
+  {
+    "package": "Svg.Custom",
+    "version": "1.0.0.18",
+    "license": "MS-PL",
+    "repository": "https://github.com/wieslawsoltes/Svg.Skia",
+    "projectUrl": "https://github.com/wieslawsoltes/Svg.Skia",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "Svg.Model",
+    "version": "1.0.0.18",
+    "license": "MIT",
+    "repository": "https://github.com/wieslawsoltes/Svg.Skia",
+    "projectUrl": "https://github.com/wieslawsoltes/Svg.Skia",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "Svg.Skia",
+    "version": "1.0.0.18",
+    "license": "MIT",
+    "repository": "https://github.com/wieslawsoltes/Svg.Skia",
+    "projectUrl": "https://github.com/wieslawsoltes/Svg.Skia",
+    "scopes": [
+      "research"
+    ]
+  },
+  {
+    "package": "System.Numerics.Tensors",
+    "version": "9.0.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/runtime",
+    "projectUrl": "https://dot.net/",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "System.Security.Cryptography.ProtectedData",
+    "version": "10.0.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/dotnet",
+    "projectUrl": "https://dot.net/",
+    "scopes": [
+      "application"
+    ]
+  },
+  {
+    "package": "System.Speech",
+    "version": "10.0.0",
+    "license": "MIT",
+    "repository": "https://github.com/dotnet/dotnet",
+    "projectUrl": "https://dot.net/",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "Tomlyn",
+    "version": "2.9.0",
+    "license": "BSD-2-Clause",
+    "repository": "https://github.com/xoofx/Tomlyn",
+    "projectUrl": "https://xoofx.github.io/Tomlyn/",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Ultz.Native.GLFW",
+    "version": "3.4.0",
+    "license": "Zlib",
+    "repository": "https://github.com/glfw/glfw",
+    "projectUrl": "https://github.com/dotnet/Silk.NET",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Whisper.net",
+    "version": "1.9.1",
+    "license": "LICENSE",
+    "repository": "https://github.com/sandrohanea/whisper.net",
+    "projectUrl": "https://github.com/sandrohanea/whisper.net",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Whisper.net.Runtime",
+    "version": "1.9.1",
+    "license": "MIT",
+    "repository": "",
+    "projectUrl": "https://github.com/sandrohanea/whisper.net",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "Whisper.net.Runtime.Metal",
+    "version": "1.9.1",
+    "license": "MIT",
+    "repository": "",
+    "projectUrl": "https://github.com/sandrohanea/whisper.net",
+    "scopes": [
+      "application",
+      "research",
+      "test"
+    ]
+  },
+  {
+    "package": "xunit",
+    "version": "2.9.3",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/xunit/xunit",
+    "projectUrl": "",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "xunit.abstractions",
+    "version": "2.0.3",
+    "license": "",
+    "repository": "",
+    "projectUrl": "https://github.com/xunit/xunit",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "xunit.analyzers",
+    "version": "1.18.0",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/xunit/xunit.analyzers",
+    "projectUrl": "",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "xunit.assert",
+    "version": "2.9.3",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/xunit/xunit",
+    "projectUrl": "",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "xunit.core",
+    "version": "2.9.3",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/xunit/xunit",
+    "projectUrl": "",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "xunit.extensibility.core",
+    "version": "2.9.3",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/xunit/xunit",
+    "projectUrl": "",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "xunit.extensibility.execution",
+    "version": "2.9.3",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/xunit/xunit",
+    "projectUrl": "",
+    "scopes": [
+      "test"
+    ]
+  },
+  {
+    "package": "xunit.runner.visualstudio",
+    "version": "3.1.5",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/xunit/visualstudio.xunit",
+    "projectUrl": "",
+    "scopes": [
+      "test"
+    ]
+  }
+]

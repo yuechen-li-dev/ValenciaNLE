@@ -1,0 +1,35 @@
+{
+  "outcome": "observed",
+  "inputPath": "Windows computer-use SendInput/UI Automation against actual published Valencia window",
+  "project": "artifacts/local/m2e/creator-1080/creator.valencia",
+  "initialWindowPixels": [
+    1282,
+    752
+  ],
+  "maximizedWindowPixels": [
+    2560,
+    1392
+  ],
+  "actions": [
+    "Ctrl+O opened native project dialog and loaded saved creator project",
+    "Ruler click sought to 1.017s and changed displayed source frame",
+    "Ctrl+K split all active unlocked tracks and displayed dirty state",
+    "Ctrl+Z restored the split and cleared dirty state",
+    "Pointer drag moved final video clip 4s->5s and sequence 7.15s->8.15s",
+    "Ctrl+Z restored placement; Ctrl+Shift+Z redid; final undo restored source document",
+    "Space started native playback; K paused at 6.627s",
+    "Native title-bar maximize preserved visible title/footer and sharp text",
+    "Window closed cleanly after edits were undone; no save was issued"
+  ],
+  "notTested": [
+    "Physical touch",
+    "Non-Windows tablet/phone",
+    "Varied DPI",
+    "External focus loss during held drag",
+    "Human editorial judgment"
+  ],
+  "automationLimits": [
+    "Accessibility element focus reporting in the OS file dialog was unreliable; screenshot-backed coordinates successfully selected the filename field",
+    "Outward border drag was rejected by the automation helper bounds; native maximize and application-driven resize covered resize separately"
+  ]
+}

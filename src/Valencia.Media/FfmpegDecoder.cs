@@ -1,0 +1,321 @@
+using FFmpeg.AutoGen;
+using Valencia.Core;
+using Valencia.Core.Timeline;
+
+namespace Valencia.Media;
+
+/// <summary>One demux/decoder context, confined to its worker. Audio and video use independent contexts.</summary>
+internal sealed unsafe class FfmpegDecoder : IDisposable
+{
+    private AVFormatContext* format;
+    private AVCodecContext* codec;
+    private AVPacket* packet;
+    private AVFrame* frame;
+    private SwsContext* scaler;
+    private SwrContext* resampler;
+    private readonly int streamIndex;
+    private int outputSampleRate = AudioStreamBuffer.SampleRate;
+    private int outputChannels = 2;
+    private bool draining;
+    private bool finished;
+    private bool disposed;
+    private double lastReadMilliseconds;
+
+    public FfmpegDecoder(MediaInfo info, int streamIndex, double seekSeconds)
+    {
+        this.streamIndex = streamIndex;
+        try
+        {
+            AVFormatContext* opened = null;
+            int openResult = ffmpeg.avformat_open_input(&opened, info.Path, null, null);
+            format = opened;
+            FfmpegRuntime.Check(openResult, "Open decoder source");
+            FfmpegRuntime.Check(ffmpeg.avformat_find_stream_info(format, null), "Read decoder streams");
+            if (streamIndex < 0 || streamIndex >= format->nb_streams) throw new InvalidDataException("Source stream no longer exists.");
+            AVStream* stream = format->streams[streamIndex];
+            AVCodec* decoder = ffmpeg.avcodec_find_decoder(stream->codecpar->codec_id);
+            if (decoder == null)
+            {
+                throw new NotSupportedException($"Decoder unavailable for {ffmpeg.avcodec_get_name(stream->codecpar->codec_id)}.");
+            }
+            codec = ffmpeg.avcodec_alloc_context3(decoder);
+            if (codec == null)
+            {
+                throw new OutOfMemoryException("FFmpeg codec context allocation failed.");
+            }
+            FfmpegRuntime.Check(ffmpeg.avcodec_parameters_to_context(codec, stream->codecpar), "Configure decoder");
+            codec->thread_count = Math.Min(Environment.ProcessorCount, 4);
+            FfmpegRuntime.Check(ffmpeg.avcodec_open2(codec, decoder, null), "Start software decoder");
+            packet = ffmpeg.av_packet_alloc();
+            frame = ffmpeg.av_frame_alloc();
+            if (packet == null || frame == null)
+            {
+                throw new OutOfMemoryException("FFmpeg frame/packet allocation failed.");
+            }
+            if (seekSeconds > 0)
+            {
+                long timestamp = checked((long)((seekSeconds + info.StartSeconds) * ffmpeg.AV_TIME_BASE));
+                FfmpegRuntime.Check(ffmpeg.av_seek_frame(format, -1, timestamp, ffmpeg.AVSEEK_FLAG_BACKWARD), "Seek media");
+                ffmpeg.avcodec_flush_buffers(codec);
+            }
+        }
+        catch
+        {
+            Dispose();
+            throw;
+        }
+    }
+
+    public FfmpegDecoder(MediaAsset asset, AssetStream stream, SourcePosition seek, int sampleRate)
+        : this(new MediaInfo(asset.SourcePath, asset.Container, 0, 0, 0, 0, 0, stream.Index, null, []), stream.Index, 0)
+    {
+        outputSampleRate = sampleRate;
+        try
+        {
+            if (stream.Start is { } first && seek.CompareTo(new(first)) <= 0) return;
+            // Matroska commonly indexes only video keyframes. Seeking against an
+            // audio stream bypasses those cues and can scan hours of interleaved
+            // packets. Use the container's video seek reference, then decode the
+            // selected audio stream forward to its exact sample-count anchor.
+            // The timebase conversion is rational; the reference does not change
+            // the audio stream's clock or its sample phase.
+            int referenceIndex = stream.Index;
+            if (stream.Kind == TrackKind.Audio)
+            {
+                for (int index = 0; index < format->nb_streams; index++)
+                {
+                    if (format->streams[index]->codecpar->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO)
+                    {
+                        referenceIndex = index;
+                        break;
+                    }
+                }
+            }
+            AVRational seekTimeBase = format->streams[referenceIndex]->time_base;
+            long timestamp = TimelineTime.Rebase(seek, seekTimeBase.num, seekTimeBase.den, TimeRounding.Floor).Value;
+            long referenceStart = format->streams[referenceIndex]->start_time;
+            if (referenceStart != ffmpeg.AV_NOPTS_VALUE && timestamp <= referenceStart) return;
+            FfmpegRuntime.Check(ffmpeg.av_seek_frame(format, referenceIndex, timestamp, ffmpeg.AVSEEK_FLAG_BACKWARD), "Seek source timestamp");
+            ffmpeg.avcodec_flush_buffers(codec);
+        }
+        catch { Dispose(); throw; }
+    }
+
+    public bool Read(CancellationToken cancellation)
+    {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        while (!finished)
+        {
+            cancellation.ThrowIfCancellationRequested();
+            int result = ffmpeg.avcodec_receive_frame(codec, frame);
+            if (result == 0)
+            {
+                lastReadMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+                return true;
+            }
+            if (result == ffmpeg.AVERROR_EOF)
+            {
+                finished = true;
+                return false;
+            }
+            if (result != ffmpeg.AVERROR(ffmpeg.EAGAIN))
+            {
+                FfmpegRuntime.Check(result, "Decode frame");
+            }
+            if (draining)
+            {
+                throw new InvalidDataException("Decoder requested input after its drain packet.");
+            }
+
+            while (true)
+            {
+                cancellation.ThrowIfCancellationRequested();
+                result = ffmpeg.av_read_frame(format, packet);
+                if (result == ffmpeg.AVERROR_EOF)
+                {
+                    FfmpegRuntime.Check(ffmpeg.avcodec_send_packet(codec, null), "Drain decoder");
+                    draining = true;
+                    break;
+                }
+                FfmpegRuntime.Check(result, "Read media packet");
+                try
+                {
+                    if (packet->stream_index == streamIndex)
+                    {
+                        FfmpegRuntime.Check(ffmpeg.avcodec_send_packet(codec, packet), "Submit compressed packet");
+                        break;
+                    }
+                }
+                finally
+                {
+                    ffmpeg.av_packet_unref(packet);
+                }
+            }
+        }
+        return false;
+    }
+
+    public MediaTimestamp Timestamp
+    {
+        get
+        {
+            long value = frame->best_effort_timestamp;
+            if (value == ffmpeg.AV_NOPTS_VALUE)
+            {
+                throw new NotSupportedException("Decoded frame has no usable presentation timestamp.");
+            }
+            AVRational timeBase = format->streams[streamIndex]->time_base;
+            return new MediaTimestamp(value, timeBase.num, timeBase.den);
+        }
+    }
+
+    public VideoFrame CopyVideo(double startSeconds)
+    {
+        long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        if (frame->color_trc is AVColorTransferCharacteristic.AVCOL_TRC_SMPTE2084 or AVColorTransferCharacteristic.AVCOL_TRC_ARIB_STD_B67)
+            throw new NotSupportedException("HDR PQ/HLG requires tone mapping; M1b supports SDR video only.");
+        int width = frame->width;
+        int height = frame->height;
+        if (width <= 0 || height <= 0 || (long)width * height > 33_177_600)
+        {
+            throw new NotSupportedException("M0 supports decoded frames up to 8K, with valid dimensions.");
+        }
+        scaler = ffmpeg.sws_getCachedContext(scaler, width, height, (AVPixelFormat)frame->format,
+            width, height, AVPixelFormat.AV_PIX_FMT_RGBA, ffmpeg.SWS_BILINEAR, null, null, null);
+        if (scaler == null)
+        {
+            throw new NotSupportedException("FFmpeg cannot convert this video pixel format to RGBA.");
+        }
+        int colorspace = frame->colorspace == AVColorSpace.AVCOL_SPC_BT709 ? ffmpeg.SWS_CS_ITU709 : ffmpeg.SWS_CS_DEFAULT;
+        int* sourceCoefficients = ffmpeg.sws_getCoefficients(colorspace);
+        int_array4 coefficients = default;
+        for (int index = 0; index < 4; index++)
+        {
+            coefficients[(uint)index] = sourceCoefficients[index];
+        }
+        FfmpegRuntime.Check(ffmpeg.sws_setColorspaceDetails(scaler, coefficients,
+            frame->color_range == AVColorRange.AVCOL_RANGE_JPEG ? 1 : 0, coefficients, 1, 0, 1 << 16, 1 << 16), "Configure SDR color conversion");
+        byte[] rgba = new byte[checked(width * height * 4)];
+        fixed (byte* destination = rgba)
+        {
+            byte_ptrArray4 data = default;
+            int_array4 strides = default;
+            data[0] = destination;
+            strides[0] = width * 4;
+            FfmpegRuntime.Check(ffmpeg.sws_scale(scaler, frame->data, frame->linesize, 0, height, data, strides), "Convert video frame");
+        }
+        MediaTimestamp timestamp = Timestamp;
+        MediaTimestamp? duration = frame->duration > 0 ? new(frame->duration, timestamp.Numerator, timestamp.Denominator) : null;
+        MediaTimestamp? dts = frame->pkt_dts == ffmpeg.AV_NOPTS_VALUE ? null : new(frame->pkt_dts, timestamp.Numerator, timestamp.Denominator);
+        return new VideoFrame(timestamp, timestamp.TotalSeconds - startSeconds, width, height, rgba, duration, dts)
+        {
+            Timing = new(System.Diagnostics.Stopwatch.GetTimestamp(), lastReadMilliseconds,
+                System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds)
+        };
+    }
+
+    public float[] CopyAudio()
+    {
+        if (resampler == null)
+        {
+            AVChannelLayout outputLayout = default;
+            ffmpeg.av_channel_layout_default(&outputLayout, outputChannels);
+            try
+            {
+                SwrContext* configured = null;
+                int result = ffmpeg.swr_alloc_set_opts2(&configured, &outputLayout, AVSampleFormat.AV_SAMPLE_FMT_FLT,
+                    outputSampleRate, &frame->ch_layout, (AVSampleFormat)frame->format, frame->sample_rate, 0, null);
+                resampler = configured;
+                FfmpegRuntime.Check(result, "Configure audio resampling");
+                FfmpegRuntime.Check(ffmpeg.swr_init(resampler), "Start audio resampler");
+            }
+            finally
+            {
+                ffmpeg.av_channel_layout_uninit(&outputLayout);
+            }
+        }
+        return ConvertAudio(frame->extended_data, frame->nb_samples);
+    }
+
+    public float[] DrainAudio() => resampler == null ? [] : ConvertAudio(null, 0);
+    public int SourceSampleRate => frame->sample_rate;
+    public int SourceSampleCount => frame->nb_samples;
+    public float[] CopyTranscriptionAudio()
+    {
+        outputSampleRate = 16000;
+        outputChannels = 1;
+        return CopyAudio();
+    }
+    public void ResetAudioConversion()
+    {
+        SwrContext* owned = resampler;
+        ffmpeg.swr_free(&owned);
+        resampler = null;
+    }
+
+    // Analysis changes sample format only: no rate conversion, channel mixing or fabricated timestamps.
+    public (float[] Samples, int Rate, int Channels) CopySourceAudio()
+    {
+        int channels = frame->ch_layout.nb_channels;
+        if (channels is < 1 or > 2 || frame->sample_rate <= 0)
+            throw new NotSupportedException("Source analysis currently supports mono/stereo streams; select another independent OBS stream.");
+        if (resampler != null && (outputSampleRate != frame->sample_rate || outputChannels != channels))
+            throw new NotSupportedException("Audio format changes within one stream are unsupported.");
+        outputSampleRate = frame->sample_rate;
+        outputChannels = channels;
+        return (CopyAudio(), outputSampleRate, outputChannels);
+    }
+
+    public byte[] CopyAnalysisLuma()
+    {
+        const int width = 64, height = 36;
+        scaler = ffmpeg.sws_getCachedContext(scaler, frame->width, frame->height, (AVPixelFormat)frame->format,
+            width, height, AVPixelFormat.AV_PIX_FMT_GRAY8, ffmpeg.SWS_AREA, null, null, null);
+        if (scaler == null) throw new NotSupportedException("Cannot downsample source luma.");
+        byte[] pixels = new byte[width * height];
+        fixed (byte* target = pixels)
+        {
+            byte_ptrArray4 data = default;
+            int_array4 strides = default;
+            data[0] = target;
+            strides[0] = width;
+            FfmpegRuntime.Check(ffmpeg.sws_scale(scaler, frame->data, frame->linesize, 0, frame->height, data, strides), "Downsample analysis frame");
+        }
+        return pixels;
+    }
+
+    private float[] ConvertAudio(byte** source, int sampleCount)
+    {
+        int capacity = ffmpeg.swr_get_out_samples(resampler, sampleCount);
+        FfmpegRuntime.Check(capacity, "Size audio block");
+        float[] samples = new float[checked(capacity * outputChannels)];
+        fixed (float* destination = samples)
+        {
+            byte* output = (byte*)destination;
+            int count = ffmpeg.swr_convert(resampler, &output, capacity, source, sampleCount);
+            FfmpegRuntime.Check(count, "Resample audio");
+            Array.Resize(ref samples, count * outputChannels);
+        }
+        return samples;
+    }
+
+    public void Dispose()
+    {
+        if (disposed)
+        {
+            return;
+        }
+        disposed = true;
+        ffmpeg.sws_freeContext(scaler);
+        SwrContext* ownedResampler = resampler;
+        AVFrame* ownedFrame = frame;
+        AVPacket* ownedPacket = packet;
+        AVCodecContext* ownedCodec = codec;
+        AVFormatContext* ownedFormat = format;
+        ffmpeg.swr_free(&ownedResampler);
+        ffmpeg.av_frame_free(&ownedFrame);
+        ffmpeg.av_packet_free(&ownedPacket);
+        ffmpeg.avcodec_free_context(&ownedCodec);
+        ffmpeg.avformat_close_input(&ownedFormat);
+    }
+}

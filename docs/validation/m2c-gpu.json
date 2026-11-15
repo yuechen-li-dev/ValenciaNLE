@@ -1,0 +1,4305 @@
+{
+  "milestone": "M2c GPU research",
+  "outcome": "qualified representative subgraphs; full Aurelian Whisper incomplete",
+  "recordedAt": "2026-11-15T01:58:30.136567-08:00",
+  "machine": {
+    "cpu": "AMD Ryzen 7 7700X 8-Core Processor             ",
+    "operatingSystem": "Microsoft Windows NT 10.0.26300.0",
+    "sdk": "10.0.401",
+    "gpu": "NVIDIA GeForce RTX 3070, 610.88, 8192 MiB",
+    "ffmpeg": "ffmpeg version 7.1.1-full_build-www.gyan.dev Copyright (c) 2000-2025 the FFmpeg developers",
+    "utc": "2026-11-15T09:35:05.2672249Z"
+  },
+  "copelandHead": "ebfbba7bfdea774bb38f8cdb268e8ad7bab95ec5",
+  "warmupPassesPerConfiguration": 1,
+  "measuredTrials": 5,
+  "sourceHashes": [
+    {
+      "path": "research\\Valencia.WhisperGpu\\GpuBlock.cs",
+      "sha256": "BAA087DAAFB86D610212A2F320D8049982DFDE3F3B0F382A2FB8C84F83B21DF8"
+    },
+    {
+      "path": "research\\Valencia.WhisperGpu\\Program.cs",
+      "sha256": "23F9AC77C6AEB9FCC11B683D2B52FDB0352B2E6A9CF280005AFFB7DA49783136"
+    },
+    {
+      "path": "research\\Valencia.WhisperGpu\\ReferenceBlock.cs",
+      "sha256": "22F2B915AD7262E3806DC9EBC33F99AEC2C0783E1ACD787253DEE656CCDDADE3"
+    },
+    {
+      "path": "research\\Valencia.WhisperGpu\\WhisperWeights.cs",
+      "sha256": "FFDE34C7E3731CC0932E078408ACED3126DA61E9B9A53DC609D483F8FFDAD314"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\Activation.v.ts",
+      "sha256": "E3DC7F8D906DD8005DA5E18E267C6A2C406BDAFF05B70BB5E2C2558A32534E79"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\AttentionMask.v.ts",
+      "sha256": "C993DC0877D91C1692FB3BBFAEAB61E7E947E47C9D0B1A364B2F5577786E75EC"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\BFloat16.v.ts",
+      "sha256": "F2C969A90D4A1EA81570E45942B7505A6F77A3EBDDD82564E6B272B314E3348A"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\BiasSilu.v.ts",
+      "sha256": "3BAEB37145B7F198EF3238557EC50C470435A20D7EF1D4210856134DA00D56CF"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\CooperativeSgemm.v.ts",
+      "sha256": "3C089496056998418D85C2334D2E2A71450BBDAF0701C72BAB1C693BE8DD9EE9"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\CoordinateRope.v.ts",
+      "sha256": "1EA05AA89F13EF781B76B4F22A633F7DF88305A4096CD9D8B61F14BD1DF5E937"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\DecoderNormalize.v.ts",
+      "sha256": "997211EEBE6A6FE782C2FCBEB49EDA97F777E3752E329DC8F8B3E8C9087B741E"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\DecoderRope.v.ts",
+      "sha256": "09DE879E3894C00B0CDBD181F4824E3DC810AA18818695427992344AE604BE46"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\DecoderScale.v.ts",
+      "sha256": "AF69F5C7A68F3985BCFD9DCB64E2B52CBABA9753354917BD43C5DE0D42555F2C"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\FftBitReverse.v.ts",
+      "sha256": "FF1E41B04CD4E2D55746D253049B3819F50256BD1A1DD0842EBCE7ADF90CA2F3"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\FftButterfly.v.ts",
+      "sha256": "611E7DD0CD96732A0A4A7339AEF390F0C88AE8B03BC4D89271ECEF8BBDF9E8BD"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\Float16.v.ts",
+      "sha256": "3502F0D58E4ABF5710797440DDE9B950146FB90B540269DB0E7083B5FC082B01"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\GroupedAttention.v.ts",
+      "sha256": "53C8627E8208AE34138C19C01514FC6B84A88E25DA996B43408CC9C0C7167678"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\HeadNormalize.v.ts",
+      "sha256": "9F1D2B7367D423C564EE1A27E20C345AA49F6ED460B07D79CF333D0B03C888FB"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\Im2Col.v.ts",
+      "sha256": "45CB713B8F8F554EA45ABC62F4DFD72CB4D314E17397EC99B96D25DE9A85E26C"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\KernelMath.v.ts",
+      "sha256": "0708F0FDA62AC8781ACED92618F156AE32A243C0C4F43D69A17149F7170BA729"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\LinearEpilogue.v.ts",
+      "sha256": "6315BBADE3B8CD58F272CBE5EDE9BBE6E323C7C54D6D54011DBA39813AFE8BFB"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\Normalization.v.ts",
+      "sha256": "889F4DC0F88A8E313DC3C32FCA585003151726431F94628C335457ADAE91CFE3"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\PackMatrixHalf.v.ts",
+      "sha256": "552952335DFE1C72B8BA162505737D89AFA17C8EE6BB085F3C08F3F6424C9D40"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\QuantizedGemv.v.ts",
+      "sha256": "AF5605379E278E867EC62A98E41E2AD5BACF50A15ECE644F9F2A614E1F178309"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\QuantizedLinear.v.ts",
+      "sha256": "2F2177F16EBB572DBFB9DA28FBA36AC940D682E11545A91E33ABA64A58317C9E"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\ResidentSgemm.v.ts",
+      "sha256": "455A10E03AEF3CAAA8C2E2D804105F743419EEDAD42146275A2A967245C095EA"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\Rope.v.ts",
+      "sha256": "0683ADE6B67EC4E83AB351CA18E7B5E65CE51490F26FF1A1E0FAA871A8C87002"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\RowReduction.v.ts",
+      "sha256": "56BF16C6B65F036D80EACDB6F55370D7CD64EDBA0232C7B81AD48D91D83CD760"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\Sgemm.v.ts",
+      "sha256": "DDE3607681056289983BA07C31823F0CE94E65FE77E1B91F05BE78720263D647"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\SparseChannelToSpatial.v.ts",
+      "sha256": "79E834D6CBA633A7EE2247D450E3C75A2F2B023735A50630482465BBB8C30B52"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\SparseColumns.v.ts",
+      "sha256": "AE5906D07DD5AB601B6C65F4C676D223E9FDF49DB6F5FAC95ACD8B0677976329"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\StreamingLinear.v.ts",
+      "sha256": "0FF21C30336FBAAF3290FCAB3A8EB83103948F5D9F65305F71C0D8095A043E6E"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\TensorMap.v.ts",
+      "sha256": "3C490AE34C9A2727FB4A7ABBCC8549F62B536D69A4D3A4E82CE7BD5E207C0705"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Shaders\\Assets\\ComputeMath\\VolumeMap.v.ts",
+      "sha256": "3BA73CB6A552467461D798A9968D7945454EB8D967EFF62A3A8D3FC0032EC6EF"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Graphics\\Vulkan\\ComputeMath\\IComputeStreamController.cs",
+      "sha256": "9252612AD2AE0C175FC1C8E2B4BD537E3D98C821A7E9E8D6846966F149A24817"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Graphics\\Vulkan\\ComputeMath\\VulkanComputeMath.Streaming.cs",
+      "sha256": "FAC1B21B253EBC2702264BF92F3F852621E530CABB6708053744B6440D61803C"
+    },
+    {
+      "path": "C:\\Users\\yuech\\source\\repos\\Copeland\\src\\Aurelian\\Aurelian.Graphics\\Vulkan\\ComputeMath\\VulkanComputeMath.SubmissionRing.cs",
+      "sha256": "2038C1E36B31C8D42DFDBFD4532CD14D44787C2570A104067198D23693F23FB3"
+    }
+  ],
+  "referenceTiny": {
+    "result": {
+      "job": {
+        "jobId": "670d6041-3950-4e14-a997-3510b8a15c05",
+        "assetId": "30a95d8c-89a9-43f4-bf36-ca4633df6b9e",
+        "key": "C7524A24AB3F458DF0A81566C2CFD581E30024292B281041898F2F1FE88800F4",
+        "state": "completed",
+        "progress": 1,
+        "processedUnits": "151580",
+        "cacheHit": false,
+        "cacheReadMs": 1.156,
+        "analysisMs": 596.9772,
+        "cacheWriteMs": 3.1822
+      },
+      "result": {
+        "apiVersion": 1,
+        "key": "C7524A24AB3F458DF0A81566C2CFD581E30024292B281041898F2F1FE88800F4",
+        "assetId": "30a95d8c-89a9-43f4-bf36-ca4633df6b9e",
+        "streamIndex": 1,
+        "artifactKind": "transcript",
+        "algorithm": "whisper.net-1.9.1/token-times-v2/5359861c739e955e79d9a303bcbc70fb988958b1",
+        "parameters": "{\"model\":\"tiny.en\",\"language\":\"en\",\"chunkSeconds\":30,\"overlapSeconds\":2,\"threads\":4}",
+        "fingerprint": "86FB39F654C824A74000F0D07A40AA924883FBC3D9CD6C3A538BE5C620CB079D",
+        "status": "complete",
+        "sampleRate": 16000,
+        "channels": 1,
+        "processedUnits": "151580",
+        "containerStart": {
+          "value": "0",
+          "numerator": 1,
+          "denominator": 1000000
+        },
+        "levels": 0,
+        "silenceCount": 0,
+        "activityCount": 0,
+        "sceneCount": 0,
+        "transcript": {
+          "model": {
+            "id": "tiny.en",
+            "revision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+            "sha256": "921E4CF8686FDD993DCD081A5DA5B6C365BFDE1162E72B08D75AC75289920B1F",
+            "bytes": "77704715",
+            "precision": "GGML mixed F16/F32",
+            "path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2c\\models\\ggml-tiny.en.bin"
+          },
+          "language": "en",
+          "provider": "Whisper.net 1.9.1 / whisper.cpp CPU reference",
+          "alignment": "experimental native token-timestamp word splitting; not forced alignment or calibrated confidence",
+          "preprocessing": "ffmpeg-swr/mono16k-float/no-peak-normalization/v1",
+          "wordCount": 19,
+          "segmentCount": 2,
+          "completedChunks": 1,
+          "reusedChunks": 0
+        },
+        "kind": "words",
+        "offset": 0,
+        "total": 19,
+        "records": [
+          {
+            "id": "76ea3b9d-b850-0678-a8af-4626a31d0abf",
+            "text": "Welcome",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "30481920000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "208293120000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "1200000",
+            "nativeEndTicks": "8200000",
+            "decoderProbability": 0.8901532888412476,
+            "timingUsable": true
+          },
+          {
+            "id": "8fc83df3-446d-78cd-e0b3-398d8f2e7e07",
+            "text": "to",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "208293120000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "266716800000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "8200000",
+            "nativeEndTicks": "10500000",
+            "decoderProbability": 0.9835242033004761,
+            "timingUsable": true
+          },
+          {
+            "id": "ee55b96e-d157-538f-a00b-4bb74a7b9fa1",
+            "text": "Valencia.",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "266716800000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "548674560000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "10500000",
+            "nativeEndTicks": "21600000",
+            "decoderProbability": 0.8597997426986694,
+            "timingUsable": true
+          },
+          {
+            "id": "9fd8f70b-069f-ef1b-e12e-a84db67ddd1f",
+            "text": "The",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "548674560000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "586776960000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "21600000",
+            "nativeEndTicks": "23100000",
+            "decoderProbability": 0.7290524840354919,
+            "timingUsable": true
+          },
+          {
+            "id": "9f4694c0-4cf7-aedf-7391-3a27b214b42b",
+            "text": "important",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "586776960000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "706164480000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "23100000",
+            "nativeEndTicks": "27800000",
+            "decoderProbability": 0.8701202273368835,
+            "timingUsable": true
+          },
+          {
+            "id": "e5f0c360-997a-7755-6c14-1b78f1cf45e5",
+            "text": "announcement",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "706164480000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "866194560000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "27800000",
+            "nativeEndTicks": "34100000",
+            "decoderProbability": 0.9985647797584534,
+            "timingUsable": true
+          },
+          {
+            "id": "1951c43f-c8e0-8da6-ae44-21b8a8c92122",
+            "text": "begins",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "866194560000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "947479680000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "34100000",
+            "nativeEndTicks": "37300000",
+            "decoderProbability": 0.9939226508140564,
+            "timingUsable": true
+          },
+          {
+            "id": "4a2d8502-e19a-3893-43e9-688e19690041",
+            "text": "now.",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "947479680000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "995742720000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "37300000",
+            "nativeEndTicks": "39200000",
+            "decoderProbability": 0.7186148762702942,
+            "timingUsable": true
+          },
+          {
+            "id": "95b9c557-3783-18a7-3a2d-6497db7823dd",
+            "text": "Keep",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1198955520000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1198955520000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "47200000",
+            "nativeEndTicks": "47200000",
+            "decoderProbability": 0.9759969711303711,
+            "timingUsable": false
+          },
+          {
+            "id": "8d8f8f11-619f-049a-c747-68e87d9acb3e",
+            "text": "this",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1198955520000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1229437440000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "47200000",
+            "nativeEndTicks": "48400000",
+            "decoderProbability": 0.9850279688835144,
+            "timingUsable": true
+          },
+          {
+            "id": "a1476c6f-292d-eb98-43b7-1be743dd62c6",
+            "text": "sentence",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1229437440000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1328503680000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "48400000",
+            "nativeEndTicks": "52300000",
+            "decoderProbability": 0.9945418238639832,
+            "timingUsable": true
+          },
+          {
+            "id": "92c6346b-b964-003c-49cc-ba631f027dbc",
+            "text": "for",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1328503680000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1389467520000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "52300000",
+            "nativeEndTicks": "54700000",
+            "decoderProbability": 0.9994279742240906,
+            "timingUsable": true
+          },
+          {
+            "id": "93b67c32-7a60-ef53-6006-092785c11238",
+            "text": "the",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1389467520000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1450431360000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "54700000",
+            "nativeEndTicks": "57100000",
+            "decoderProbability": 0.9971773028373718,
+            "timingUsable": true
+          },
+          {
+            "id": "ae2f5c4d-be7d-757c-fb04-3a4c28fe800d",
+            "text": "final",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1450431360000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1666344960000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "57100000",
+            "nativeEndTicks": "65600000",
+            "decoderProbability": 0.996565043926239,
+            "timingUsable": true
+          },
+          {
+            "id": "f46a469f-3b90-0fd3-d077-3bcff3a2fef2",
+            "text": "video.",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1666344960000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1747630080000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "65600000",
+            "nativeEndTicks": "68800000",
+            "decoderProbability": 0.986532986164093,
+            "timingUsable": true
+          },
+          {
+            "id": "bf54d3d9-b44a-e76d-18fe-33a2989efb02",
+            "text": "Thank",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1747630080000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1828915200000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "68800000",
+            "nativeEndTicks": "72000000",
+            "decoderProbability": 0.7090101838111877,
+            "timingUsable": true
+          },
+          {
+            "id": "d1122716-b552-8fd3-5c2c-3b960058501c",
+            "text": "you",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1828915200000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1902579840000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "72000000",
+            "nativeEndTicks": "74900000",
+            "decoderProbability": 0.9805460572242737,
+            "timingUsable": true
+          },
+          {
+            "id": "492e3dd1-8016-5fa4-8297-655fb79b87c8",
+            "text": "for",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1902579840000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1976244480000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "74900000",
+            "nativeEndTicks": "77800000",
+            "decoderProbability": 0.9979612231254578,
+            "timingUsable": true
+          },
+          {
+            "id": "d7072fbb-e564-9124-9c00-719558dd433c",
+            "text": "listening.",
+            "range": {
+              "start": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "1976244480000"
+                }
+              },
+              "end": {
+                "timestamp": {
+                  "value": "0",
+                  "numerator": 1,
+                  "denominator": 22050
+                },
+                "offset": {
+                  "ticks": "2406484080000"
+                }
+              },
+              "epoch": 0
+            },
+            "nativeStartTicks": "77800000",
+            "nativeEndTicks": "125600000",
+            "decoderProbability": 0.6276153326034546,
+            "timingUsable": false
+          }
+        ],
+        "diagnostics": [
+          "Native boundary unsupported or outside chunk; retained as untimed text: Keep",
+          "Native boundary unsupported or outside chunk; retained as untimed text: listening."
+        ]
+      }
+    },
+    "wallMs": 902.8028,
+    "sampledPeakWorkingSetBytes": 307159040
+  },
+  "referenceLarge": {
+    "job": {
+      "jobId": "0f73743b-5ecd-45ab-84e6-f6bd3ecb9b42",
+      "assetId": "f3269eb1-2c2e-4186-b9c7-e99527473a10",
+      "key": "0EE2B5CD131B5642977796507F67AF7186DE30EB1E064669ADC302FE49118831",
+      "state": "completed",
+      "progress": 1,
+      "processedUnits": "151580",
+      "cacheHit": false,
+      "cacheReadMs": 1.4593,
+      "analysisMs": 19633.2039,
+      "cacheWriteMs": 3.0125
+    },
+    "result": {
+      "apiVersion": 1,
+      "key": "0EE2B5CD131B5642977796507F67AF7186DE30EB1E064669ADC302FE49118831",
+      "assetId": "f3269eb1-2c2e-4186-b9c7-e99527473a10",
+      "streamIndex": 1,
+      "artifactKind": "transcript",
+      "algorithm": "whisper.net-1.9.1/token-times-v2/5359861c739e955e79d9a303bcbc70fb988958b1",
+      "parameters": "{\"model\":\"large-v3\",\"language\":\"en\",\"chunkSeconds\":30,\"overlapSeconds\":2,\"threads\":4}",
+      "fingerprint": "B5E977345C542EC5CC2626B717DC5FD2F9E8DEBEE4F9B4A44F39FCEF21BD88B6",
+      "status": "complete",
+      "sampleRate": 16000,
+      "channels": 1,
+      "processedUnits": "151580",
+      "containerStart": {
+        "value": "0",
+        "numerator": 1,
+        "denominator": 1000000
+      },
+      "levels": 0,
+      "silenceCount": 0,
+      "activityCount": 0,
+      "sceneCount": 0,
+      "transcript": {
+        "model": {
+          "id": "large-v3",
+          "revision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+          "sha256": "64D182B440B98D5203C4F9BD541544D84C605196C4F7B845DFA11FB23594D1E2",
+          "bytes": "3095033483",
+          "precision": "GGML mixed F16/F32",
+          "path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2c\\models\\ggml-large-v3.bin"
+        },
+        "language": "en",
+        "provider": "Whisper.net 1.9.1 / whisper.cpp CPU reference",
+        "alignment": "experimental native token-timestamp word splitting; not forced alignment or calibrated confidence",
+        "preprocessing": "ffmpeg-swr/mono16k-float/no-peak-normalization/v1",
+        "wordCount": 19,
+        "segmentCount": 2,
+        "completedChunks": 1,
+        "reusedChunks": 0
+      },
+      "kind": "words",
+      "offset": 0,
+      "total": 19,
+      "records": [
+        {
+          "id": "f0733049-c234-3cee-e830-8fba8ad499f2",
+          "text": "Welcome",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "30481920000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "208293120000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "1200000",
+          "nativeEndTicks": "8200000",
+          "decoderProbability": 0.9266701936721802,
+          "timingUsable": true
+        },
+        {
+          "id": "12975c61-51c1-2a83-37a0-6c4ea1c82024",
+          "text": "to",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "208293120000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "266716800000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "8200000",
+          "nativeEndTicks": "10500000",
+          "decoderProbability": 0.9979783296585083,
+          "timingUsable": true
+        },
+        {
+          "id": "1309899f-ec01-f750-8859-80d0064c479b",
+          "text": "Valencia.",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "266716800000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "548674560000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "10500000",
+          "nativeEndTicks": "21600000",
+          "decoderProbability": 0.9391515254974365,
+          "timingUsable": true
+        },
+        {
+          "id": "df8f8c78-d985-0953-d21f-4a405eaae0d1",
+          "text": "The",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "548674560000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "584236800000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "21600000",
+          "nativeEndTicks": "23000000",
+          "decoderProbability": 0.7885313034057617,
+          "timingUsable": true
+        },
+        {
+          "id": "5a0b1d66-b463-798b-77a3-25fa15c7bae7",
+          "text": "important",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "584236800000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "703624320000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "23000000",
+          "nativeEndTicks": "27700000",
+          "decoderProbability": 0.9915519952774048,
+          "timingUsable": true
+        },
+        {
+          "id": "d1fb4726-d7ca-df6c-e8f9-e0f34c57e56f",
+          "text": "announcement",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "703624320000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "858574080000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "27700000",
+          "nativeEndTicks": "33800000",
+          "decoderProbability": 0.9987381100654602,
+          "timingUsable": true
+        },
+        {
+          "id": "9eb1ebc1-6187-1601-1b29-47ed4b354649",
+          "text": "begins",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "858574080000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "932238720000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "33800000",
+          "nativeEndTicks": "36700000",
+          "decoderProbability": 0.9973580241203308,
+          "timingUsable": true
+        },
+        {
+          "id": "be5bc658-86f9-057e-063b-07ede97d5fbd",
+          "text": "now.",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "932238720000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1016064000000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "36700000",
+          "nativeEndTicks": "40000000",
+          "decoderProbability": 0.854788601398468,
+          "timingUsable": true
+        },
+        {
+          "id": "917dc96f-af62-d875-1b2e-4d1c829813bc",
+          "text": "Keep",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1234517760000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1234517760000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "48600000",
+          "nativeEndTicks": "48600000",
+          "decoderProbability": 0.9997349381446838,
+          "timingUsable": false
+        },
+        {
+          "id": "db771873-cca6-7afc-f92f-b9e7ee407944",
+          "text": "this",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1234517760000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1264999680000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "48600000",
+          "nativeEndTicks": "49800000",
+          "decoderProbability": 0.9999847412109375,
+          "timingUsable": true
+        },
+        {
+          "id": "c6b9eaa7-bdc6-b8c5-2f34-95f5b18bbc69",
+          "text": "sentence",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1264999680000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1313262720000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "49800000",
+          "nativeEndTicks": "51700000",
+          "decoderProbability": 0.9999828338623047,
+          "timingUsable": true
+        },
+        {
+          "id": "fb2e708c-6dbe-2837-c2e0-ead939a3cc03",
+          "text": "for",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1313262720000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1376766720000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "51700000",
+          "nativeEndTicks": "54200000",
+          "decoderProbability": 0.9999961853027344,
+          "timingUsable": true
+        },
+        {
+          "id": "ca00a5c6-1ece-003e-8693-fb500a4e38e7",
+          "text": "the",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1376766720000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1425029760000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "54200000",
+          "nativeEndTicks": "56100000",
+          "decoderProbability": 0.9999961853027344,
+          "timingUsable": true
+        },
+        {
+          "id": "b4935bd7-89bc-98da-5ece-3a34e6892091",
+          "text": "final",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1425029760000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1516475520000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "56100000",
+          "nativeEndTicks": "59700000",
+          "decoderProbability": 0.9999961853027344,
+          "timingUsable": true
+        },
+        {
+          "id": "1572028d-c8a5-ca29-48f0-33ece009db6a",
+          "text": "video.",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1516475520000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1780652160000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "59700000",
+          "nativeEndTicks": "70100000",
+          "decoderProbability": 0.9999256134033203,
+          "timingUsable": true
+        },
+        {
+          "id": "cdca480c-bb13-4cf1-a251-c3da474b4d16",
+          "text": "Thank",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1780652160000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1785732480000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "70100000",
+          "nativeEndTicks": "70300000",
+          "decoderProbability": 0.940650224685669,
+          "timingUsable": true
+        },
+        {
+          "id": "127f85e2-df4c-27a8-be81-017792505a1d",
+          "text": "you",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1785732480000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1864477440000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "70300000",
+          "nativeEndTicks": "73400000",
+          "decoderProbability": 0.9998378753662109,
+          "timingUsable": true
+        },
+        {
+          "id": "a281cc57-309d-b94c-93d8-e41449f9555b",
+          "text": "for",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1864477440000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1907660160000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "73400000",
+          "nativeEndTicks": "75100000",
+          "decoderProbability": 0.9999942779541016,
+          "timingUsable": true
+        },
+        {
+          "id": "b711ce5f-4d03-e078-ae6b-4479f7b8d592",
+          "text": "listening.",
+          "range": {
+            "start": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "1907660160000"
+              }
+            },
+            "end": {
+              "timestamp": {
+                "value": "0",
+                "numerator": 1,
+                "denominator": 22050
+              },
+              "offset": {
+                "ticks": "2164216320000"
+              }
+            },
+            "epoch": 0
+          },
+          "nativeStartTicks": "75100000",
+          "nativeEndTicks": "85200000",
+          "decoderProbability": 0.8363580107688904,
+          "timingUsable": true
+        }
+      ],
+      "diagnostics": [
+        "Native boundary unsupported or outside chunk; retained as untimed text: Keep"
+      ]
+    }
+  },
+  "comparisonWarning": "CPU reference performs full transcription; Aurelian performs block subgraphs. No end-to-end speed ratio is valid.",
+  "unavailable": [
+    "Full resident/streaming Whisper inference",
+    "Decoder cross attention, KV cache, autoregressive tokens/logits",
+    "Full-model VRAM-pressure baseline",
+    "Actual dedicated-queue asynchronous prefetch",
+    "Full-model token latency and Aurelian WER"
+  ],
+  "configurations": [
+    {
+      "scope": "Measured Whisper block subgraphs, not full model inference/transcription. Decoder cross-attention, logits, KV cache and token generation are not implemented here.",
+      "model": {
+        "id": "tiny.en",
+        "revision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+        "sha256": "921E4CF8686FDD993DCD081A5DA5B6C365BFDE1162E72B08D75AC75289920B1F",
+        "bytes": 77704715,
+        "precision": "GGML mixed F16/F32",
+        "path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2c\\models\\ggml-tiny.en.bin"
+      },
+      "audioSha256": "46DC5B6906EE7D1FBC28A7411E8FE61FA464D80D2ED4D022AEAFEC8FFC39D9CE",
+      "frontendMs": 862.6706,
+      "gpuInitializationMs": 292.9364,
+      "activation": "Real-audio native16k PCM \u2192 MathNet 400-point STFT \u2192 checkpoint mel filters \u2192 Whisper conv1/GELU/conv2/GELU/position prefix. Same activation fixture reused for decoder-shape subgraph.",
+      "precision": "checkpoint F16 expanded to FP32; identical StreamingLinear shaders/tiles in resident and streaming modes; CPU scalar block oracle",
+      "gpu": {
+        "plantId": {
+          "value": 0
+        },
+        "physicalDeviceName": "NVIDIA GeForce RTX 3070",
+        "deviceType": "DiscreteGpu",
+        "apiVersion": 4211029,
+        "driverVersion": 2559967232,
+        "vendorId": 4318,
+        "deviceId": 9352,
+        "queueFamilyIndex": 0,
+        "timelineSemaphores": true,
+        "enabledInstanceExtensions": [
+          "VK_EXT_debug_utils"
+        ],
+        "enabledDeviceExtensions": [],
+        "enabledValidationLayers": [
+          "VK_LAYER_KHRONOS_validation"
+        ],
+        "cooperativeMatrixEnabled": false,
+        "synchronization2Enabled": true,
+        "createdQueueCount": 2,
+        "indirectDrawingEnabled": true,
+        "bindlessMaterialsEnabled": true,
+        "visibilityBufferEnabled": true,
+        "hierarchicalZEnabled": true,
+        "cooperativeMatrixDiagnostic": "NotRequested"
+      },
+      "runtime": "10.0.15",
+      "checkpointTensors": 167,
+      "wholeCheckpointFp32TensorBytes": 151041024,
+      "processPeakWorkingSetBytes": 257175552,
+      "raw": "artifacts\\local\\m2c\\gpu-tiny.json",
+      "rawSha256": "584AFE222BB1CBBC730635E5B91C7F7730D4C85370FE417495AA794B0E1C2E09",
+      "summaries": [
+        {
+          "part": "encoder",
+          "mode": "R0-resident-static2",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 29.5385,
+            "loadMs": 74.1475,
+            "firstPassMs": 2556.5413,
+            "gpuComputeMs": 12.56464,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.013799999999999972,
+            "ringCpuRecordingMs": 6.882299999999999,
+            "ringCpuSubmissionMs": 1.3421000000000003,
+            "ringCpuCompletionWaitMs": 8.547,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 2.6433999999999997,
+            "residentSelectedWeightBytes": 7091712,
+            "streamingSlotBytes": 2365440,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 54,
+            "allocatedManagedBytes": 390600,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 29.4264,
+          "wallMaxMs": 29.7922,
+          "wallP95Ms": 29.7922,
+          "allocatorHighWaterBytes": 7884352
+        },
+        {
+          "part": "encoder",
+          "mode": "R1-stream-dominatus",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 35.526,
+            "loadMs": 39.8072,
+            "firstPassMs": 57.5473,
+            "gpuComputeMs": 9.357216000000001,
+            "gpuTransferMs": 2.2354879999999993,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.7510999999999998,
+            "ringCpuRecordingMs": 7.3252000000000015,
+            "ringCpuSubmissionMs": 1.4579,
+            "ringCpuCompletionWaitMs": 4.0457,
+            "ringWeightPreparationMs": 4.2272,
+            "outerStageOverheadUpperBoundMs": 2.8766000000000034,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 31,
+            "allocatedManagedBytes": 532928,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 35.2696,
+          "wallMaxMs": 36.4179,
+          "wallP95Ms": 36.4179,
+          "allocatorHighWaterBytes": 7884352
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static2",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 38.9102,
+            "loadMs": 39.196,
+            "firstPassMs": 38.4271,
+            "gpuComputeMs": 9.63648,
+            "gpuTransferMs": 2.245792,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.009199999999999998,
+            "ringCpuRecordingMs": 6.918000000000002,
+            "ringCpuSubmissionMs": 1.3323999999999998,
+            "ringCpuCompletionWaitMs": 7.3019,
+            "ringWeightPreparationMs": 3.8524000000000003,
+            "outerStageOverheadUpperBoundMs": 3.1959000000000017,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 52,
+            "allocatedManagedBytes": 409928,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 37.6496,
+          "wallMaxMs": 40.3349,
+          "wallP95Ms": 40.3349,
+          "allocatorHighWaterBytes": 7884352
+        },
+        {
+          "part": "encoder",
+          "mode": "R3-stream-static4",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 52.0947,
+            "loadMs": 40.3049,
+            "firstPassMs": 49.804,
+            "gpuComputeMs": 9.211264,
+            "gpuTransferMs": 2.280992000000001,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.004099999999999998,
+            "ringCpuRecordingMs": 9.6657,
+            "ringCpuSubmissionMs": 1.2938000000000003,
+            "ringCpuCompletionWaitMs": 5.0543000000000005,
+            "ringWeightPreparationMs": 2.8864,
+            "outerStageOverheadUpperBoundMs": 3.2408999999999963,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 1573888,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 38,
+            "allocatedManagedBytes": 475528,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 46.9315,
+          "wallMaxMs": 55.9026,
+          "wallP95Ms": 55.9026,
+          "allocatorHighWaterBytes": 7884352
+        },
+        {
+          "part": "encoder",
+          "mode": "R4-stream-stage-only",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 38.3082,
+            "loadMs": 30.3355,
+            "firstPassMs": 37.7411,
+            "gpuComputeMs": 8.270272,
+            "gpuTransferMs": 2.249984,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.004099999999999998,
+            "ringCpuRecordingMs": 6.775099999999998,
+            "ringCpuSubmissionMs": 1.2545,
+            "ringCpuCompletionWaitMs": 8.160400000000001,
+            "ringWeightPreparationMs": 2.8596,
+            "outerStageOverheadUpperBoundMs": 3.286600000000007,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 52,
+            "allocatedManagedBytes": 418128,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 36.2949,
+          "wallMaxMs": 39.137,
+          "wallP95Ms": 39.137,
+          "allocatorHighWaterBytes": 7884352
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static1",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 41.5273,
+            "loadMs": 31.1623,
+            "firstPassMs": 42.7721,
+            "gpuComputeMs": 7.854272000000001,
+            "gpuTransferMs": 2.224032,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0035999999999999977,
+            "ringCpuRecordingMs": 5.104399999999998,
+            "ringCpuSubmissionMs": 1.3200999999999996,
+            "ringCpuCompletionWaitMs": 18.2187,
+            "ringWeightPreparationMs": 2.8787000000000003,
+            "outerStageOverheadUpperBoundMs": 3.0926999999999936,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 393472,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 54,
+            "allocatedManagedBytes": 368928,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 39.7716,
+          "wallMaxMs": 42.0548,
+          "wallP95Ms": 42.0548,
+          "allocatorHighWaterBytes": 7884352
+        },
+        {
+          "part": "encoder",
+          "mode": "R0-resident-static2",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 22.1162,
+            "loadMs": 47.8358,
+            "firstPassMs": 22.5686,
+            "gpuComputeMs": 4.379968,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0011000000000000003,
+            "ringCpuRecordingMs": 4.211600000000001,
+            "ringCpuSubmissionMs": 0.5061,
+            "ringCpuCompletionWaitMs": 4.445699999999999,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 3.1571999999999996,
+            "residentSelectedWeightBytes": 8667136,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 16,
+            "allocatedManagedBytes": 286928,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 22.0875,
+          "wallMaxMs": 24.0579,
+          "wallP95Ms": 24.0579,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "encoder",
+          "mode": "R1-stream-dominatus",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 32.6591,
+            "loadMs": 30.0958,
+            "firstPassMs": 32.7385,
+            "gpuComputeMs": 3.63232,
+            "gpuTransferMs": 2.8000320000000003,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.2024999999999999,
+            "ringCpuRecordingMs": 4.5237,
+            "ringCpuSubmissionMs": 0.5225,
+            "ringCpuCompletionWaitMs": 4.8943,
+            "ringWeightPreparationMs": 3.4638,
+            "outerStageOverheadUpperBoundMs": 3.238899999999994,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 14,
+            "allocatedManagedBytes": 368928,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 31.8282,
+          "wallMaxMs": 33.6932,
+          "wallP95Ms": 33.6932,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static2",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 31.2648,
+            "loadMs": 29.4638,
+            "firstPassMs": 30.8625,
+            "gpuComputeMs": 3.6542079999999997,
+            "gpuTransferMs": 2.812704,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0013000000000000004,
+            "ringCpuRecordingMs": 4.5331,
+            "ringCpuSubmissionMs": 0.5181000000000001,
+            "ringCpuCompletionWaitMs": 4.4197999999999995,
+            "ringWeightPreparationMs": 3.4432,
+            "outerStageOverheadUpperBoundMs": 3.1484999999999985,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 13,
+            "allocatedManagedBytes": 308384,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 30.5317,
+          "wallMaxMs": 31.8592,
+          "wallP95Ms": 31.8592,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "encoder",
+          "mode": "R3-stream-static4",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 35.7019,
+            "loadMs": 31.4993,
+            "firstPassMs": 36.9838,
+            "gpuComputeMs": 3.7169919999999994,
+            "gpuTransferMs": 2.8584,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0010000000000000002,
+            "ringCpuRecordingMs": 5.4239999999999995,
+            "ringCpuSubmissionMs": 0.5272999999999999,
+            "ringCpuCompletionWaitMs": 4.3191,
+            "ringWeightPreparationMs": 3.4594000000000005,
+            "outerStageOverheadUpperBoundMs": 3.126899999999999,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 11,
+            "allocatedManagedBytes": 325840,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 35.0409,
+          "wallMaxMs": 35.8934,
+          "wallP95Ms": 35.8934,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "encoder",
+          "mode": "R4-stream-stage-only",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 31.1134,
+            "loadMs": 29.439,
+            "firstPassMs": 33.983,
+            "gpuComputeMs": 3.6351679999999993,
+            "gpuTransferMs": 2.809696,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0014000000000000004,
+            "ringCpuRecordingMs": 4.3802,
+            "ringCpuSubmissionMs": 0.525,
+            "ringCpuCompletionWaitMs": 4.5409999999999995,
+            "ringWeightPreparationMs": 3.4557,
+            "outerStageOverheadUpperBoundMs": 3.0908000000000015,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 14,
+            "allocatedManagedBytes": 327928,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 30.4902,
+          "wallMaxMs": 31.8324,
+          "wallP95Ms": 31.8324,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static1",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 29.7075,
+            "loadMs": 29.9178,
+            "firstPassMs": 28.9531,
+            "gpuComputeMs": 3.5182399999999996,
+            "gpuTransferMs": 2.7337599999999997,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0013000000000000004,
+            "ringCpuRecordingMs": 2.9904,
+            "ringCpuSubmissionMs": 0.5174,
+            "ringCpuCompletionWaitMs": 10.1656,
+            "ringWeightPreparationMs": 3.4603,
+            "outerStageOverheadUpperBoundMs": 3.0341999999999985,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 1573888,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 16,
+            "allocatedManagedBytes": 270528,
+            "maximumError": 6.198883056640625e-06,
+            "rmsError": 4.203958218269258e-07
+          },
+          "wallMinMs": 29.0167,
+          "wallMaxMs": 29.9953,
+          "wallP95Ms": 29.9953,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R0-resident-static2",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 36.4434,
+            "loadMs": 57.1081,
+            "firstPassMs": 101.0298,
+            "gpuComputeMs": 12.393696000000002,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0037999999999999974,
+            "ringCpuRecordingMs": 5.404499999999999,
+            "ringCpuSubmissionMs": 1.0687999999999998,
+            "ringCpuCompletionWaitMs": 8.5549,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 8.319099999999995,
+            "residentSelectedWeightBytes": 7091712,
+            "streamingSlotBytes": 2365440,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 54,
+            "allocatedManagedBytes": 387072,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 35.901,
+          "wallMaxMs": 36.8194,
+          "wallP95Ms": 36.8194,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R1-stream-dominatus",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 43.2199,
+            "loadMs": 29.9612,
+            "firstPassMs": 42.6314,
+            "gpuComputeMs": 8.982623999999998,
+            "gpuTransferMs": 2.2777279999999998,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.2181999999999999,
+            "ringCpuRecordingMs": 5.6551,
+            "ringCpuSubmissionMs": 1.139,
+            "ringCpuCompletionWaitMs": 5.7728,
+            "ringWeightPreparationMs": 2.8443,
+            "outerStageOverheadUpperBoundMs": 8.316400000000002,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 51,
+            "allocatedManagedBytes": 516528,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 41.3098,
+          "wallMaxMs": 43.2943,
+          "wallP95Ms": 43.2943,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static2",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 42.3811,
+            "loadMs": 29.2241,
+            "firstPassMs": 40.8846,
+            "gpuComputeMs": 9.366656,
+            "gpuTransferMs": 2.2439679999999997,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0031999999999999984,
+            "ringCpuRecordingMs": 5.5569,
+            "ringCpuSubmissionMs": 1.0979,
+            "ringCpuCompletionWaitMs": 6.484099999999999,
+            "ringWeightPreparationMs": 2.9086,
+            "outerStageOverheadUpperBoundMs": 8.09900000000001,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 53,
+            "allocatedManagedBytes": 409928,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 41.6372,
+          "wallMaxMs": 43.7143,
+          "wallP95Ms": 43.7143,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R3-stream-static4",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 51.8991,
+            "loadMs": 30.014,
+            "firstPassMs": 52.1086,
+            "gpuComputeMs": 9.105376,
+            "gpuTransferMs": 2.282176,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0029999999999999988,
+            "ringCpuRecordingMs": 8.088799999999999,
+            "ringCpuSubmissionMs": 1.1861999999999997,
+            "ringCpuCompletionWaitMs": 4.4383,
+            "ringWeightPreparationMs": 2.8789,
+            "outerStageOverheadUpperBoundMs": 8.01379999999999,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 1573888,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 35,
+            "allocatedManagedBytes": 467328,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 51.1512,
+          "wallMaxMs": 53.2535,
+          "wallP95Ms": 53.2535,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R4-stream-stage-only",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 41.3849,
+            "loadMs": 29.9682,
+            "firstPassMs": 41.7939,
+            "gpuComputeMs": 8.709311999999999,
+            "gpuTransferMs": 2.26768,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0029999999999999988,
+            "ringCpuRecordingMs": 5.494,
+            "ringCpuSubmissionMs": 1.1339,
+            "ringCpuCompletionWaitMs": 5.969799999999999,
+            "ringWeightPreparationMs": 2.8681,
+            "outerStageOverheadUpperBoundMs": 8.3189,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 52,
+            "allocatedManagedBytes": 423200,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 40.9544,
+          "wallMaxMs": 41.4933,
+          "wallP95Ms": 41.4933,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static1",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 46.0481,
+            "loadMs": 30.4217,
+            "firstPassMs": 45.5861,
+            "gpuComputeMs": 7.9792,
+            "gpuTransferMs": 2.223871999999999,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0032999999999999982,
+            "ringCpuRecordingMs": 4.329199999999999,
+            "ringCpuSubmissionMs": 1.1895000000000004,
+            "ringCpuCompletionWaitMs": 16.231900000000003,
+            "ringWeightPreparationMs": 2.8459000000000003,
+            "outerStageOverheadUpperBoundMs": 8.214999999999996,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 393472,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 54,
+            "allocatedManagedBytes": 377320,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 44.7297,
+          "wallMaxMs": 48.2376,
+          "wallP95Ms": 48.2376,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R0-resident-static2",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 28.8168,
+            "loadMs": 45.7854,
+            "firstPassMs": 30.3437,
+            "gpuComputeMs": 4.443776,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0012000000000000003,
+            "ringCpuRecordingMs": 3.2600999999999996,
+            "ringCpuSubmissionMs": 0.36210000000000003,
+            "ringCpuCompletionWaitMs": 3.4296999999999995,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 8.357399999999998,
+            "residentSelectedWeightBytes": 8667136,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 16,
+            "allocatedManagedBytes": 295920,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 28.3285,
+          "wallMaxMs": 30.8312,
+          "wallP95Ms": 30.8312,
+          "allocatorHighWaterBytes": 10241536
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R1-stream-dominatus",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 39.4745,
+            "loadMs": 30.9427,
+            "firstPassMs": 38.2283,
+            "gpuComputeMs": 3.680064,
+            "gpuTransferMs": 2.8340160000000005,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0952,
+            "ringCpuRecordingMs": 3.3854999999999995,
+            "ringCpuSubmissionMs": 0.3918,
+            "ringCpuCompletionWaitMs": 4.5912999999999995,
+            "ringWeightPreparationMs": 3.474,
+            "outerStageOverheadUpperBoundMs": 8.439899999999998,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 14,
+            "allocatedManagedBytes": 363000,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 38.976,
+          "wallMaxMs": 40.1979,
+          "wallP95Ms": 40.1979,
+          "allocatorHighWaterBytes": 10241536
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static2",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 38.1669,
+            "loadMs": 29.5431,
+            "firstPassMs": 38.1206,
+            "gpuComputeMs": 3.663936,
+            "gpuTransferMs": 2.789376,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0011000000000000003,
+            "ringCpuRecordingMs": 3.472200000000001,
+            "ringCpuSubmissionMs": 0.3806,
+            "ringCpuCompletionWaitMs": 4.5193,
+            "ringWeightPreparationMs": 3.4805,
+            "outerStageOverheadUpperBoundMs": 8.041500000000003,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 12,
+            "allocatedManagedBytes": 311528,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 38.151,
+          "wallMaxMs": 38.7709,
+          "wallP95Ms": 38.7709,
+          "allocatorHighWaterBytes": 10241536
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R3-stream-static4",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 39.4953,
+            "loadMs": 29.2656,
+            "firstPassMs": 37.8955,
+            "gpuComputeMs": 3.7112,
+            "gpuTransferMs": 2.83392,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0012000000000000003,
+            "ringCpuRecordingMs": 3.8467000000000002,
+            "ringCpuSubmissionMs": 0.3889,
+            "ringCpuCompletionWaitMs": 3.2861,
+            "ringWeightPreparationMs": 3.4551999999999996,
+            "outerStageOverheadUpperBoundMs": 8.289899999999996,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 10,
+            "allocatedManagedBytes": 319728,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 38.4337,
+          "wallMaxMs": 40.4701,
+          "wallP95Ms": 40.4701,
+          "allocatorHighWaterBytes": 10241536
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R4-stream-stage-only",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 37.6151,
+            "loadMs": 29.7627,
+            "firstPassMs": 40.5076,
+            "gpuComputeMs": 3.658848,
+            "gpuTransferMs": 2.7821759999999998,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0011000000000000003,
+            "ringCpuRecordingMs": 3.433,
+            "ringCpuSubmissionMs": 0.373,
+            "ringCpuCompletionWaitMs": 3.6740999999999997,
+            "ringWeightPreparationMs": 3.4784,
+            "outerStageOverheadUpperBoundMs": 8.419699999999999,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 12,
+            "allocatedManagedBytes": 328616,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 36.6341,
+          "wallMaxMs": 37.8747,
+          "wallP95Ms": 37.8747,
+          "allocatorHighWaterBytes": 10241536
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static1",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 35.6505,
+            "loadMs": 28.3121,
+            "firstPassMs": 34.1548,
+            "gpuComputeMs": 3.79936,
+            "gpuTransferMs": 2.739744,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0011000000000000003,
+            "ringCpuRecordingMs": 2.3234,
+            "ringCpuSubmissionMs": 0.3766,
+            "ringCpuCompletionWaitMs": 8.2225,
+            "ringWeightPreparationMs": 3.7947,
+            "outerStageOverheadUpperBoundMs": 8.182200000000002,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 1573888,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 49152,
+            "deviceToHostBytes": 49152,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 16,
+            "allocatedManagedBytes": 282808,
+            "maximumError": 8.58306884765625e-06,
+            "rmsError": 3.4479803289560946e-07
+          },
+          "wallMinMs": 33.9001,
+          "wallMaxMs": 38.1259,
+          "wallP95Ms": 38.1259,
+          "allocatorHighWaterBytes": 10241536
+        }
+      ]
+    },
+    {
+      "scope": "Measured Whisper block subgraphs, not full model inference/transcription. Decoder cross-attention, logits, KV cache and token generation are not implemented here.",
+      "model": {
+        "id": "large-v3",
+        "revision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+        "sha256": "64D182B440B98D5203C4F9BD541544D84C605196C4F7B845DFA11FB23594D1E2",
+        "bytes": 3095033483,
+        "precision": "GGML mixed F16/F32",
+        "path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2c\\models\\ggml-large-v3.bin"
+      },
+      "audioSha256": "46DC5B6906EE7D1FBC28A7411E8FE61FA464D80D2ED4D022AEAFEC8FFC39D9CE",
+      "frontendMs": 1290.2752,
+      "gpuInitializationMs": 293.6113,
+      "activation": "Real-audio native16k PCM \u2192 MathNet 400-point STFT \u2192 checkpoint mel filters \u2192 Whisper conv1/GELU/conv2/GELU/position prefix. Same activation fixture reused for decoder-shape subgraph.",
+      "precision": "checkpoint F16 expanded to FP32; identical StreamingLinear shaders/tiles in resident and streaming modes; CPU scalar block oracle",
+      "gpu": {
+        "plantId": {
+          "value": 0
+        },
+        "physicalDeviceName": "NVIDIA GeForce RTX 3070",
+        "deviceType": "DiscreteGpu",
+        "apiVersion": 4211029,
+        "driverVersion": 2559967232,
+        "vendorId": 4318,
+        "deviceId": 9352,
+        "queueFamilyIndex": 0,
+        "timelineSemaphores": true,
+        "enabledInstanceExtensions": [
+          "VK_EXT_debug_utils"
+        ],
+        "enabledDeviceExtensions": [],
+        "enabledValidationLayers": [
+          "VK_LAYER_KHRONOS_validation"
+        ],
+        "cooperativeMatrixEnabled": false,
+        "synchronization2Enabled": true,
+        "createdQueueCount": 2,
+        "indirectDrawingEnabled": true,
+        "bindlessMaterialsEnabled": true,
+        "visibilityBufferEnabled": true,
+        "hierarchicalZEnabled": true,
+        "cooperativeMatrixDiagnostic": "NotRequested"
+      },
+      "runtime": "10.0.15",
+      "checkpointTensors": 1259,
+      "wholeCheckpointFp32TensorBytes": 6173962240,
+      "processPeakWorkingSetBytes": 749019136,
+      "raw": "artifacts\\local\\m2c\\gpu-large.json",
+      "rawSha256": "022AC3EA2717E8A8EA4AE1DA01E896EBBA291415B0C373E0FDA82C347BD1B0A9",
+      "summaries": [
+        {
+          "part": "encoder",
+          "mode": "R0-resident-static2",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 59.9324,
+            "loadMs": 479.8727,
+            "firstPassMs": 2610.4147,
+            "gpuComputeMs": 21.457472,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.03730000000000004,
+            "ringCpuRecordingMs": 31.854299999999995,
+            "ringCpuSubmissionMs": 4.4068999999999985,
+            "ringCpuCompletionWaitMs": 1.5004000000000002,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 2.113800000000005,
+            "residentSelectedWeightBytes": 78689280,
+            "streamingSlotBytes": 26234880,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2545,
+            "submissions": 205,
+            "completionWaits": 25,
+            "allocatedManagedBytes": 1598592,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 59.2006,
+          "wallMaxMs": 171.6659,
+          "wallP95Ms": 171.6659,
+          "allocatorHighWaterBytes": 81331264
+        },
+        {
+          "part": "encoder",
+          "mode": "R1-stream-dominatus",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 108.0583,
+            "loadMs": 307.0025,
+            "firstPassMs": 128.9061,
+            "gpuComputeMs": 20.048832,
+            "gpuTransferMs": 3.4853440000000004,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 2.237199999999999,
+            "ringCpuRecordingMs": 33.488899999999994,
+            "ringCpuSubmissionMs": 5.0382,
+            "ringCpuCompletionWaitMs": 1.0506,
+            "ringWeightPreparationMs": 38.1411,
+            "outerStageOverheadUpperBoundMs": 2.461199999999991,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 2621952,
+            "hostToDeviceWeightBytes": 78689280,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2545,
+            "submissions": 205,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 1959408,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 106.4451,
+          "wallMaxMs": 110.0459,
+          "wallP95Ms": 110.0459,
+          "allocatorHighWaterBytes": 81331264
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static2",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 97.5666,
+            "loadMs": 326.6929,
+            "firstPassMs": 104.2139,
+            "gpuComputeMs": 24.08944,
+            "gpuTransferMs": 5.617984000000002,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0361,
+            "ringCpuRecordingMs": 31.703700000000005,
+            "ringCpuSubmissionMs": 4.395399999999998,
+            "ringCpuCompletionWaitMs": 1.6162,
+            "ringWeightPreparationMs": 32.35959999999999,
+            "outerStageOverheadUpperBoundMs": 2.3057999999999907,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 2621952,
+            "hostToDeviceWeightBytes": 78689280,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2545,
+            "submissions": 205,
+            "completionWaits": 7,
+            "allocatedManagedBytes": 1606792,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 95.6133,
+          "wallMaxMs": 110.7852,
+          "wallP95Ms": 110.7852,
+          "allocatorHighWaterBytes": 81331264
+        },
+        {
+          "part": "encoder",
+          "mode": "R3-stream-static4",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 120.7467,
+            "loadMs": 302.9726,
+            "firstPassMs": 124.0938,
+            "gpuComputeMs": 22.576863999999997,
+            "gpuTransferMs": 3.590080000000001,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.03529999999999997,
+            "ringCpuRecordingMs": 38.90010000000001,
+            "ringCpuSubmissionMs": 4.362699999999997,
+            "ringCpuCompletionWaitMs": 1.2610999999999999,
+            "ringWeightPreparationMs": 32.4855,
+            "outerStageOverheadUpperBoundMs": 2.2472999999999956,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 5243904,
+            "hostToDeviceWeightBytes": 78689280,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2545,
+            "submissions": 205,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 1770792,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 120.2626,
+          "wallMaxMs": 122.8511,
+          "wallP95Ms": 122.8511,
+          "allocatorHighWaterBytes": 81331264
+        },
+        {
+          "part": "encoder",
+          "mode": "R4-stream-stage-only",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 99.1977,
+            "loadMs": 310.2679,
+            "firstPassMs": 102.3372,
+            "gpuComputeMs": 27.307232000000003,
+            "gpuTransferMs": 6.524128000000001,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.03269999999999991,
+            "ringCpuRecordingMs": 32.596000000000004,
+            "ringCpuSubmissionMs": 4.388600000000002,
+            "ringCpuCompletionWaitMs": 1.9083999999999999,
+            "ringWeightPreparationMs": 32.5133,
+            "outerStageOverheadUpperBoundMs": 2.522599999999997,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 2621952,
+            "hostToDeviceWeightBytes": 78689280,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2545,
+            "submissions": 205,
+            "completionWaits": 8,
+            "allocatedManagedBytes": 1623192,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 95.5084,
+          "wallMaxMs": 104.8587,
+          "wallP95Ms": 104.8587,
+          "allocatorHighWaterBytes": 81331264
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static1",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 120.9471,
+            "loadMs": 306.499,
+            "firstPassMs": 120.1739,
+            "gpuComputeMs": 23.460704,
+            "gpuTransferMs": 3.626464000000001,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.03279999999999991,
+            "ringCpuRecordingMs": 27.8598,
+            "ringCpuSubmissionMs": 4.518400000000001,
+            "ringCpuCompletionWaitMs": 40.00550000000002,
+            "ringWeightPreparationMs": 31.8026,
+            "outerStageOverheadUpperBoundMs": 2.352099999999993,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 1310976,
+            "hostToDeviceWeightBytes": 78689280,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2545,
+            "submissions": 205,
+            "completionWaits": 180,
+            "allocatedManagedBytes": 1532992,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 119.0712,
+          "wallMaxMs": 122.3126,
+          "wallP95Ms": 122.3126,
+          "allocatorHighWaterBytes": 81331264
+        },
+        {
+          "part": "encoder",
+          "mode": "R0-resident-static2",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 39.8628,
+            "loadMs": 344.8391,
+            "firstPassMs": 39.4257,
+            "gpuComputeMs": 8.253152,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.010499999999999992,
+            "ringCpuRecordingMs": 15.260200000000005,
+            "ringCpuSubmissionMs": 1.3498000000000006,
+            "ringCpuCompletionWaitMs": 2.7349999999999994,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 2.626400000000004,
+            "residentSelectedWeightBytes": 81720912,
+            "streamingSlotBytes": 29251152,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 825,
+            "submissions": 72,
+            "completionWaits": 29,
+            "allocatedManagedBytes": 975392,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 39.1017,
+          "wallMaxMs": 47.8254,
+          "wallP95Ms": 47.8254,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "encoder",
+          "mode": "R1-stream-dominatus",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 87.1726,
+            "loadMs": 309.682,
+            "firstPassMs": 90.5224,
+            "gpuComputeMs": 17.299519999999998,
+            "gpuTransferMs": 12.346048000000003,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.34990000000000027,
+            "ringCpuRecordingMs": 16.4704,
+            "ringCpuSubmissionMs": 1.5674000000000001,
+            "ringCpuCompletionWaitMs": 4.7962,
+            "ringWeightPreparationMs": 33.1744,
+            "outerStageOverheadUpperBoundMs": 3.0841000000000065,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 8357472,
+            "hostToDeviceWeightBytes": 81720912,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 825,
+            "submissions": 72,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 1128080,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 83.7295,
+          "wallMaxMs": 88.3032,
+          "wallP95Ms": 88.3032,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static2",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 84.5533,
+            "loadMs": 308.4276,
+            "firstPassMs": 89.3891,
+            "gpuComputeMs": 16.813984,
+            "gpuTransferMs": 12.340352000000001,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.01329999999999998,
+            "ringCpuRecordingMs": 16.366000000000003,
+            "ringCpuSubmissionMs": 1.5392,
+            "ringCpuCompletionWaitMs": 4.4146,
+            "ringWeightPreparationMs": 34.083999999999996,
+            "outerStageOverheadUpperBoundMs": 2.766300000000001,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 8357472,
+            "hostToDeviceWeightBytes": 81720912,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 825,
+            "submissions": 72,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 991792,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 83.6189,
+          "wallMaxMs": 87.5772,
+          "wallP95Ms": 87.5772,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "encoder",
+          "mode": "R3-stream-static4",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 114.9112,
+            "loadMs": 301.5774,
+            "firstPassMs": 114.1378,
+            "gpuComputeMs": 16.267328,
+            "gpuTransferMs": 12.380512000000001,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.015299999999999975,
+            "ringCpuRecordingMs": 25.533700000000003,
+            "ringCpuSubmissionMs": 1.6736999999999993,
+            "ringCpuCompletionWaitMs": 4.0049,
+            "ringWeightPreparationMs": 33.709799999999994,
+            "outerStageOverheadUpperBoundMs": 2.834399999999988,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 16714944,
+            "hostToDeviceWeightBytes": 81720912,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 825,
+            "submissions": 72,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 1158864,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 113.0074,
+          "wallMaxMs": 122.4618,
+          "wallP95Ms": 122.4618,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "encoder",
+          "mode": "R4-stream-stage-only",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 88.5354,
+            "loadMs": 318.6548,
+            "firstPassMs": 87.9228,
+            "gpuComputeMs": 16.283488,
+            "gpuTransferMs": 12.32848,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.014199999999999982,
+            "ringCpuRecordingMs": 17.5397,
+            "ringCpuSubmissionMs": 1.6493000000000002,
+            "ringCpuCompletionWaitMs": 4.2731,
+            "ringWeightPreparationMs": 34.098699999999994,
+            "outerStageOverheadUpperBoundMs": 2.9994000000000085,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 8357472,
+            "hostToDeviceWeightBytes": 81720912,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 825,
+            "submissions": 72,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 1009840,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 87.3076,
+          "wallMaxMs": 89.7878,
+          "wallP95Ms": 89.7878,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static1",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 120.1946,
+            "loadMs": 314.9929,
+            "firstPassMs": 117.9781,
+            "gpuComputeMs": 16.449376,
+            "gpuTransferMs": 12.324416,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.017199999999999965,
+            "ringCpuRecordingMs": 13.279699999999998,
+            "ringCpuSubmissionMs": 1.7689999999999995,
+            "ringCpuCompletionWaitMs": 49.6451,
+            "ringWeightPreparationMs": 34.535000000000004,
+            "outerStageOverheadUpperBoundMs": 2.844300000000004,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 4178736,
+            "hostToDeviceWeightBytes": 81720912,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 825,
+            "submissions": 72,
+            "completionWaits": 47,
+            "allocatedManagedBytes": 909792,
+            "maximumError": 5.245208740234375e-06,
+            "rmsError": 8.182153258017194e-07
+          },
+          "wallMinMs": 106.3983,
+          "wallMaxMs": 123.0304,
+          "wallP95Ms": 123.0304,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R0-resident-static2",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 114.1559,
+            "loadMs": 409.9606,
+            "firstPassMs": 196.4167,
+            "gpuComputeMs": 54.836064000000015,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.025999999999999905,
+            "ringCpuRecordingMs": 29.418400000000016,
+            "ringCpuSubmissionMs": 3.454099999999999,
+            "ringCpuCompletionWaitMs": 30.282,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 17.937399999999997,
+            "residentSelectedWeightBytes": 78689280,
+            "streamingSlotBytes": 26234880,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2565,
+            "submissions": 205,
+            "completionWaits": 173,
+            "allocatedManagedBytes": 1631392,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 84.2529,
+          "wallMaxMs": 128.726,
+          "wallP95Ms": 128.726,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R1-stream-dominatus",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 123.4945,
+            "loadMs": 302.8038,
+            "firstPassMs": 122.1706,
+            "gpuComputeMs": 24.316288,
+            "gpuTransferMs": 3.6417920000000006,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.6213000000000006,
+            "ringCpuRecordingMs": 30.574700000000014,
+            "ringCpuSubmissionMs": 4.0901,
+            "ringCpuCompletionWaitMs": 1.2798,
+            "ringWeightPreparationMs": 32.964600000000004,
+            "outerStageOverheadUpperBoundMs": 17.383200000000002,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 2621952,
+            "hostToDeviceWeightBytes": 78689280,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2565,
+            "submissions": 205,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 1947120,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 121.905,
+          "wallMaxMs": 125.415,
+          "wallP95Ms": 125.415,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static2",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 129.5841,
+            "loadMs": 313.2227,
+            "firstPassMs": 120.7554,
+            "gpuComputeMs": 35.45024000000001,
+            "gpuTransferMs": 12.445855999999988,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.03199999999999989,
+            "ringCpuRecordingMs": 31.253499999999995,
+            "ringCpuSubmissionMs": 4.076199999999997,
+            "ringCpuCompletionWaitMs": 5.0306,
+            "ringWeightPreparationMs": 32.568200000000004,
+            "outerStageOverheadUpperBoundMs": 18.92440000000002,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 2621952,
+            "hostToDeviceWeightBytes": 78689280,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2565,
+            "submissions": 205,
+            "completionWaits": 22,
+            "allocatedManagedBytes": 1655984,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 120.3386,
+          "wallMaxMs": 136.9546,
+          "wallP95Ms": 136.9546,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R3-stream-static4",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 142.4613,
+            "loadMs": 310.7182,
+            "firstPassMs": 146.2904,
+            "gpuComputeMs": 22.378559999999997,
+            "gpuTransferMs": 3.612800000000002,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.03379999999999994,
+            "ringCpuRecordingMs": 37.567699999999995,
+            "ringCpuSubmissionMs": 4.119899999999997,
+            "ringCpuCompletionWaitMs": 1.1629,
+            "ringWeightPreparationMs": 32.4667,
+            "outerStageOverheadUpperBoundMs": 16.79820000000001,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 5243904,
+            "hostToDeviceWeightBytes": 78689280,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2565,
+            "submissions": 205,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 1811792,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 141.5885,
+          "wallMaxMs": 148.3985,
+          "wallP95Ms": 148.3985,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R4-stream-stage-only",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 125.443,
+            "loadMs": 310.6564,
+            "firstPassMs": 118.5222,
+            "gpuComputeMs": 25.548768,
+            "gpuTransferMs": 3.6888000000000014,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.03169999999999988,
+            "ringCpuRecordingMs": 30.636400000000002,
+            "ringCpuSubmissionMs": 4.032699999999997,
+            "ringCpuCompletionWaitMs": 1.3734000000000002,
+            "ringWeightPreparationMs": 32.6302,
+            "outerStageOverheadUpperBoundMs": 18.049599999999998,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 2621952,
+            "hostToDeviceWeightBytes": 78689280,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2565,
+            "submissions": 205,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 1672392,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 121.4974,
+          "wallMaxMs": 127.2679,
+          "wallP95Ms": 127.2679,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static1",
+          "rows": 32,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 151.8911,
+            "loadMs": 300.8838,
+            "firstPassMs": 153.6209,
+            "gpuComputeMs": 25.608896,
+            "gpuTransferMs": 3.6630720000000005,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.03169999999999989,
+            "ringCpuRecordingMs": 26.432999999999993,
+            "ringCpuSubmissionMs": 4.0629000000000035,
+            "ringCpuCompletionWaitMs": 45.864699999999985,
+            "ringWeightPreparationMs": 31.873800000000003,
+            "outerStageOverheadUpperBoundMs": 17.4658,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 1310976,
+            "hostToDeviceWeightBytes": 78689280,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 2565,
+            "submissions": 205,
+            "completionWaits": 180,
+            "allocatedManagedBytes": 1589152,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 150.6226,
+          "wallMaxMs": 152.4532,
+          "wallP95Ms": 152.4532,
+          "allocatorHighWaterBytes": 85899712
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R0-resident-static2",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 72.6403,
+            "loadMs": 359.238,
+            "firstPassMs": 73.0929,
+            "gpuComputeMs": 18.9824,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.009000000000000003,
+            "ringCpuRecordingMs": 13.387399999999998,
+            "ringCpuSubmissionMs": 1.0099,
+            "ringCpuCompletionWaitMs": 10.7113,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 18.487199999999994,
+            "residentSelectedWeightBytes": 81720912,
+            "streamingSlotBytes": 29251152,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 845,
+            "submissions": 72,
+            "completionWaits": 42,
+            "allocatedManagedBytes": 1023888,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 71.8767,
+          "wallMaxMs": 74.7949,
+          "wallP95Ms": 74.7949,
+          "allocatorHighWaterBytes": 85900160
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R1-stream-dominatus",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 112.9283,
+            "loadMs": 307.1375,
+            "firstPassMs": 114.3797,
+            "gpuComputeMs": 19.917632,
+            "gpuTransferMs": 12.4184,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.22099999999999997,
+            "ringCpuRecordingMs": 14.485200000000003,
+            "ringCpuSubmissionMs": 1.1855000000000002,
+            "ringCpuCompletionWaitMs": 4.5224,
+            "ringWeightPreparationMs": 33.527100000000004,
+            "outerStageOverheadUpperBoundMs": 19.778099999999995,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 8357472,
+            "hostToDeviceWeightBytes": 81720912,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 845,
+            "submissions": 72,
+            "completionWaits": 7,
+            "allocatedManagedBytes": 1139648,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 110.6841,
+          "wallMaxMs": 118.3597,
+          "wallP95Ms": 118.3597,
+          "allocatorHighWaterBytes": 85900160
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static2",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 112.8521,
+            "loadMs": 299.7504,
+            "firstPassMs": 113.6294,
+            "gpuComputeMs": 19.125696,
+            "gpuTransferMs": 12.400736,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.010999999999999992,
+            "ringCpuRecordingMs": 14.390999999999998,
+            "ringCpuSubmissionMs": 1.1519000000000004,
+            "ringCpuCompletionWaitMs": 5.030399999999999,
+            "ringWeightPreparationMs": 33.7081,
+            "outerStageOverheadUpperBoundMs": 19.5706,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 8357472,
+            "hostToDeviceWeightBytes": 81720912,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 845,
+            "submissions": 72,
+            "completionWaits": 8,
+            "allocatedManagedBytes": 1040992,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 111.5719,
+          "wallMaxMs": 115.7241,
+          "wallP95Ms": 115.7241,
+          "allocatorHighWaterBytes": 85900160
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R3-stream-static4",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 139.6729,
+            "loadMs": 310.8035,
+            "firstPassMs": 141.0649,
+            "gpuComputeMs": 20.216864,
+            "gpuTransferMs": 12.458304,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.012299999999999981,
+            "ringCpuRecordingMs": 22.131999999999998,
+            "ringCpuSubmissionMs": 1.2022,
+            "ringCpuCompletionWaitMs": 4.4807999999999995,
+            "ringWeightPreparationMs": 33.0434,
+            "outerStageOverheadUpperBoundMs": 19.728300000000004,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 16714944,
+            "hostToDeviceWeightBytes": 81720912,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 845,
+            "submissions": 72,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 1196792,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 137.7213,
+          "wallMaxMs": 141.8714,
+          "wallP95Ms": 141.8714,
+          "allocatorHighWaterBytes": 85900160
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R4-stream-stage-only",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 114.8144,
+            "loadMs": 371.568,
+            "firstPassMs": 116.1472,
+            "gpuComputeMs": 22.53152,
+            "gpuTransferMs": 12.482208000000002,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.010099999999999998,
+            "ringCpuRecordingMs": 14.284600000000001,
+            "ringCpuSubmissionMs": 1.1393,
+            "ringCpuCompletionWaitMs": 5.3401000000000005,
+            "ringWeightPreparationMs": 33.248400000000004,
+            "outerStageOverheadUpperBoundMs": 20.404600000000002,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 8357472,
+            "hostToDeviceWeightBytes": 81720912,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 845,
+            "submissions": 72,
+            "completionWaits": 8,
+            "allocatedManagedBytes": 1059072,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 114.3549,
+          "wallMaxMs": 115.8314,
+          "wallP95Ms": 115.8314,
+          "allocatorHighWaterBytes": 85900160
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static1",
+          "rows": 32,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 135.2022,
+            "loadMs": 300.7029,
+            "firstPassMs": 145.2559,
+            "gpuComputeMs": 18.871328000000002,
+            "gpuTransferMs": 12.389056,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.01069999999999999,
+            "ringCpuRecordingMs": 10.384899999999998,
+            "ringCpuSubmissionMs": 1.1560999999999997,
+            "ringCpuCompletionWaitMs": 40.510099999999994,
+            "ringWeightPreparationMs": 33.9831,
+            "outerStageOverheadUpperBoundMs": 19.462999999999994,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 4178736,
+            "hostToDeviceWeightBytes": 81720912,
+            "additionalInputUploadBytes": 163840,
+            "deviceToHostBytes": 163840,
+            "dispatches": 845,
+            "submissions": 72,
+            "completionWaits": 47,
+            "allocatedManagedBytes": 963912,
+            "maximumError": 4.902482032775879e-06,
+            "rmsError": 4.169122350403027e-07
+          },
+          "wallMinMs": 133.4436,
+          "wallMaxMs": 145.8205,
+          "wallP95Ms": 145.8205,
+          "allocatorHighWaterBytes": 85900160
+        }
+      ]
+    },
+    {
+      "scope": "Measured Whisper block subgraphs, not full model inference/transcription. Decoder cross-attention, logits, KV cache and token generation are not implemented here.",
+      "model": {
+        "id": "tiny.en",
+        "revision": "5359861c739e955e79d9a303bcbc70fb988958b1",
+        "sha256": "921E4CF8686FDD993DCD081A5DA5B6C365BFDE1162E72B08D75AC75289920B1F",
+        "bytes": 77704715,
+        "precision": "GGML mixed F16/F32",
+        "path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2c\\models\\ggml-tiny.en.bin"
+      },
+      "audioSha256": "46DC5B6906EE7D1FBC28A7411E8FE61FA464D80D2ED4D022AEAFEC8FFC39D9CE",
+      "frontendMs": 908.6873,
+      "gpuInitializationMs": 291.2231,
+      "activation": "Real-audio native16k PCM \u2192 MathNet 400-point STFT \u2192 checkpoint mel filters \u2192 Whisper conv1/GELU/conv2/GELU/position prefix. Same activation fixture reused for decoder-shape subgraph.",
+      "precision": "checkpoint F16 expanded to FP32; identical StreamingLinear shaders/tiles in resident and streaming modes; CPU scalar block oracle",
+      "gpu": {
+        "plantId": {
+          "value": 0
+        },
+        "physicalDeviceName": "NVIDIA GeForce RTX 3070",
+        "deviceType": "DiscreteGpu",
+        "apiVersion": 4211029,
+        "driverVersion": 2559967232,
+        "vendorId": 4318,
+        "deviceId": 9352,
+        "queueFamilyIndex": 0,
+        "timelineSemaphores": true,
+        "enabledInstanceExtensions": [
+          "VK_EXT_debug_utils"
+        ],
+        "enabledDeviceExtensions": [],
+        "enabledValidationLayers": [
+          "VK_LAYER_KHRONOS_validation"
+        ],
+        "cooperativeMatrixEnabled": false,
+        "synchronization2Enabled": true,
+        "createdQueueCount": 2,
+        "indirectDrawingEnabled": true,
+        "bindlessMaterialsEnabled": true,
+        "visibilityBufferEnabled": true,
+        "hierarchicalZEnabled": true,
+        "cooperativeMatrixDiagnostic": "NotRequested"
+      },
+      "runtime": "10.0.15",
+      "checkpointTensors": 167,
+      "wholeCheckpointFp32TensorBytes": 151041024,
+      "processPeakWorkingSetBytes": 253153280,
+      "raw": "artifacts\\local\\m2c\\gpu-single-row.json",
+      "rawSha256": "5B39EC6DA2DB688188CE3DBDE7C5B0E7B4496398D46E6A440AF885F24A0C737E",
+      "summaries": [
+        {
+          "part": "encoder",
+          "mode": "R0-resident-static2",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 19.4901,
+            "loadMs": 72.416,
+            "firstPassMs": 2435.3562,
+            "gpuComputeMs": 2.07184,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.01419999999999998,
+            "ringCpuRecordingMs": 6.8573999999999975,
+            "ringCpuSubmissionMs": 1.4264999999999999,
+            "ringCpuCompletionWaitMs": 0.4715,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 2.011499999999998,
+            "residentSelectedWeightBytes": 7091712,
+            "streamingSlotBytes": 2365440,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 246000,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 19.1813,
+          "wallMaxMs": 27.7075,
+          "wallP95Ms": 27.7075,
+          "allocatorHighWaterBytes": 7485184
+        },
+        {
+          "part": "encoder",
+          "mode": "R1-stream-dominatus",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 32.7304,
+            "loadMs": 37.9543,
+            "firstPassMs": 54.5996,
+            "gpuComputeMs": 4.951328,
+            "gpuTransferMs": 1.1752319999999998,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.7731999999999988,
+            "ringCpuRecordingMs": 7.441,
+            "ringCpuSubmissionMs": 1.5558999999999998,
+            "ringCpuCompletionWaitMs": 1.226,
+            "ringWeightPreparationMs": 4.3107,
+            "outerStageOverheadUpperBoundMs": 2.712500000000002,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 6,
+            "allocatedManagedBytes": 393464,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 32.4147,
+          "wallMaxMs": 33.0646,
+          "wallP95Ms": 33.0646,
+          "allocatorHighWaterBytes": 7485184
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static2",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 31.8603,
+            "loadMs": 37.9007,
+            "firstPassMs": 31.1464,
+            "gpuComputeMs": 5.053504,
+            "gpuTransferMs": 1.2038400000000005,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.015699999999999967,
+            "ringCpuRecordingMs": 7.1566,
+            "ringCpuSubmissionMs": 1.4319000000000002,
+            "ringCpuCompletionWaitMs": 1.8273000000000004,
+            "ringWeightPreparationMs": 3.9374000000000007,
+            "outerStageOverheadUpperBoundMs": 2.567800000000002,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 22,
+            "allocatedManagedBytes": 264936,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 31.1628,
+          "wallMaxMs": 33.0521,
+          "wallP95Ms": 33.0521,
+          "allocatorHighWaterBytes": 7485184
+        },
+        {
+          "part": "encoder",
+          "mode": "R3-stream-static4",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 41.5759,
+            "loadMs": 43.1412,
+            "firstPassMs": 44.4031,
+            "gpuComputeMs": 5.390112,
+            "gpuTransferMs": 1.2040640000000002,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0049,
+            "ringCpuRecordingMs": 9.541899999999995,
+            "ringCpuSubmissionMs": 1.2555999999999992,
+            "ringCpuCompletionWaitMs": 1.3688,
+            "ringWeightPreparationMs": 2.8895,
+            "outerStageOverheadUpperBoundMs": 2.4586999999999932,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 1573888,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 12,
+            "allocatedManagedBytes": 328000,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 41.1375,
+          "wallMaxMs": 42.1828,
+          "wallP95Ms": 42.1828,
+          "allocatorHighWaterBytes": 7485184
+        },
+        {
+          "part": "encoder",
+          "mode": "R4-stream-stage-only",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 33.274,
+            "loadMs": 30.5857,
+            "firstPassMs": 30.8442,
+            "gpuComputeMs": 5.422112,
+            "gpuTransferMs": 1.1909440000000004,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0038999999999999972,
+            "ringCpuRecordingMs": 6.6212,
+            "ringCpuSubmissionMs": 1.2616,
+            "ringCpuCompletionWaitMs": 3.624099999999999,
+            "ringWeightPreparationMs": 2.875,
+            "outerStageOverheadUpperBoundMs": 2.9044000000000025,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 33,
+            "allocatedManagedBytes": 276928,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 31.9721,
+          "wallMaxMs": 35.2797,
+          "wallP95Ms": 35.2797,
+          "allocatorHighWaterBytes": 7485184
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static1",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 35.426,
+            "loadMs": 30.7808,
+            "firstPassMs": 35.6473,
+            "gpuComputeMs": 5.449344,
+            "gpuTransferMs": 1.1676160000000002,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0035999999999999977,
+            "ringCpuRecordingMs": 5.045200000000001,
+            "ringCpuSubmissionMs": 1.3141000000000005,
+            "ringCpuCompletionWaitMs": 14.2462,
+            "ringWeightPreparationMs": 2.8758999999999997,
+            "outerStageOverheadUpperBoundMs": 2.621000000000002,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 393472,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 263,
+            "submissions": 65,
+            "completionWaits": 54,
+            "allocatedManagedBytes": 224344,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 35.2358,
+          "wallMaxMs": 37.8106,
+          "wallP95Ms": 37.8106,
+          "allocatorHighWaterBytes": 7485184
+        },
+        {
+          "part": "encoder",
+          "mode": "R0-resident-static2",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 21.0808,
+            "loadMs": 44.9956,
+            "firstPassMs": 19.6063,
+            "gpuComputeMs": 2.906848,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0015000000000000005,
+            "ringCpuRecordingMs": 4.289300000000001,
+            "ringCpuSubmissionMs": 0.511,
+            "ringCpuCompletionWaitMs": 3.0942999999999996,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 2.7739999999999974,
+            "residentSelectedWeightBytes": 8667136,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 15,
+            "allocatedManagedBytes": 147600,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 20.1751,
+          "wallMaxMs": 22.8705,
+          "wallP95Ms": 22.8705,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "encoder",
+          "mode": "R1-stream-dominatus",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 29.4098,
+            "loadMs": 30.2871,
+            "firstPassMs": 29.4836,
+            "gpuComputeMs": 2.3957119999999996,
+            "gpuTransferMs": 1.432096,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.1647999999999999,
+            "ringCpuRecordingMs": 4.415800000000001,
+            "ringCpuSubmissionMs": 0.5186000000000001,
+            "ringCpuCompletionWaitMs": 2.9803,
+            "ringWeightPreparationMs": 3.5063,
+            "outerStageOverheadUpperBoundMs": 2.8085000000000058,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 11,
+            "allocatedManagedBytes": 229400,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 28.7783,
+          "wallMaxMs": 29.8417,
+          "wallP95Ms": 29.8417,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static2",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 28.5238,
+            "loadMs": 30.3659,
+            "firstPassMs": 29.0644,
+            "gpuComputeMs": 2.419136,
+            "gpuTransferMs": 1.435776,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0015000000000000005,
+            "ringCpuRecordingMs": 4.384,
+            "ringCpuSubmissionMs": 0.5173000000000001,
+            "ringCpuCompletionWaitMs": 2.9029,
+            "ringWeightPreparationMs": 3.4797000000000002,
+            "outerStageOverheadUpperBoundMs": 2.623199999999997,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 10,
+            "allocatedManagedBytes": 163312,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 28.3196,
+          "wallMaxMs": 29.6528,
+          "wallP95Ms": 29.6528,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "encoder",
+          "mode": "R3-stream-static4",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 31.7724,
+            "loadMs": 29.3394,
+            "firstPassMs": 31.9447,
+            "gpuComputeMs": 2.534112,
+            "gpuTransferMs": 1.4430399999999999,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0015000000000000005,
+            "ringCpuRecordingMs": 5.256400000000001,
+            "ringCpuSubmissionMs": 0.5296000000000001,
+            "ringCpuCompletionWaitMs": 2.3513,
+            "ringWeightPreparationMs": 3.4506,
+            "outerStageOverheadUpperBoundMs": 2.7282999999999973,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 9,
+            "allocatedManagedBytes": 183648,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 31.338,
+          "wallMaxMs": 33.2261,
+          "wallP95Ms": 33.2261,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "encoder",
+          "mode": "R4-stream-stage-only",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 28.581,
+            "loadMs": 29.8101,
+            "firstPassMs": 28.6369,
+            "gpuComputeMs": 2.52864,
+            "gpuTransferMs": 1.4375680000000002,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0014000000000000004,
+            "ringCpuRecordingMs": 4.439699999999999,
+            "ringCpuSubmissionMs": 0.5204000000000001,
+            "ringCpuCompletionWaitMs": 2.6251999999999995,
+            "ringWeightPreparationMs": 3.454,
+            "outerStageOverheadUpperBoundMs": 2.9250000000000007,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 9,
+            "allocatedManagedBytes": 181096,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 27.9199,
+          "wallMaxMs": 28.8794,
+          "wallP95Ms": 28.8794,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "encoder",
+          "mode": "R2-stream-static1",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 26.5643,
+            "loadMs": 28.3234,
+            "firstPassMs": 25.1378,
+            "gpuComputeMs": 2.482624,
+            "gpuTransferMs": 1.425632,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0016000000000000005,
+            "ringCpuRecordingMs": 3.0431999999999997,
+            "ringCpuSubmissionMs": 0.5226,
+            "ringCpuCompletionWaitMs": 7.160899999999999,
+            "ringWeightPreparationMs": 3.4325,
+            "outerStageOverheadUpperBoundMs": 2.779700000000002,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 1573888,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 113,
+            "submissions": 27,
+            "completionWaits": 16,
+            "allocatedManagedBytes": 128768,
+            "maximumError": 1.6689300537109375e-06,
+            "rmsError": 3.7619610798059417e-07
+          },
+          "wallMinMs": 26.2797,
+          "wallMaxMs": 28.5426,
+          "wallP95Ms": 28.5426,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R0-resident-static2",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 33.9261,
+            "loadMs": 56.3645,
+            "firstPassMs": 94.6288,
+            "gpuComputeMs": 10.844128000000001,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0036999999999999976,
+            "ringCpuRecordingMs": 5.2906,
+            "ringCpuSubmissionMs": 1.1005000000000003,
+            "ringCpuCompletionWaitMs": 7.2646999999999995,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 7.7292999999999985,
+            "residentSelectedWeightBytes": 7091712,
+            "streamingSlotBytes": 2365440,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 53,
+            "allocatedManagedBytes": 246000,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 33.4472,
+          "wallMaxMs": 34.3427,
+          "wallP95Ms": 34.3427,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R1-stream-dominatus",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 40.2055,
+            "loadMs": 30.6748,
+            "firstPassMs": 40.6507,
+            "gpuComputeMs": 6.797952,
+            "gpuTransferMs": 2.2336639999999996,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.19799999999999973,
+            "ringCpuRecordingMs": 5.468500000000001,
+            "ringCpuSubmissionMs": 1.1272,
+            "ringCpuCompletionWaitMs": 4.571300000000001,
+            "ringWeightPreparationMs": 2.8552,
+            "outerStageOverheadUpperBoundMs": 8.009700000000002,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 45,
+            "allocatedManagedBytes": 377200,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 38.8392,
+          "wallMaxMs": 41.7666,
+          "wallP95Ms": 41.7666,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static2",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 38.9107,
+            "loadMs": 29.2429,
+            "firstPassMs": 39.0995,
+            "gpuComputeMs": 6.806048,
+            "gpuTransferMs": 2.2335679999999996,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0029999999999999988,
+            "ringCpuRecordingMs": 5.504699999999999,
+            "ringCpuSubmissionMs": 1.1169999999999998,
+            "ringCpuCompletionWaitMs": 4.4403999999999995,
+            "ringWeightPreparationMs": 2.8558000000000003,
+            "outerStageOverheadUpperBoundMs": 7.819099999999999,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 47,
+            "allocatedManagedBytes": 262400,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 38.608,
+          "wallMaxMs": 39.948,
+          "wallP95Ms": 39.948,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R3-stream-static4",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 49.2156,
+            "loadMs": 29.9646,
+            "firstPassMs": 49.3983,
+            "gpuComputeMs": 7.359455999999999,
+            "gpuTransferMs": 2.27808,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0035999999999999977,
+            "ringCpuRecordingMs": 8.1402,
+            "ringCpuSubmissionMs": 1.1343999999999999,
+            "ringCpuCompletionWaitMs": 3.1256999999999997,
+            "ringWeightPreparationMs": 2.8635,
+            "outerStageOverheadUpperBoundMs": 7.733700000000006,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 1573888,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 28,
+            "allocatedManagedBytes": 319800,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 48.4466,
+          "wallMaxMs": 51.3444,
+          "wallP95Ms": 51.3444,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R4-stream-stage-only",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 38.0477,
+            "loadMs": 31.5916,
+            "firstPassMs": 38.1035,
+            "gpuComputeMs": 6.758528,
+            "gpuTransferMs": 2.234848,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.003499999999999998,
+            "ringCpuRecordingMs": 5.532,
+            "ringCpuSubmissionMs": 1.1129,
+            "ringCpuCompletionWaitMs": 4.0701,
+            "ringWeightPreparationMs": 2.8946,
+            "outerStageOverheadUpperBoundMs": 7.841200000000004,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 786944,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 46,
+            "allocatedManagedBytes": 276096,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 37.4731,
+          "wallMaxMs": 41.4387,
+          "wallP95Ms": 41.4387,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static1",
+          "rows": 1,
+          "tileRows": 64,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 43.4822,
+            "loadMs": 28.3272,
+            "firstPassMs": 43.9028,
+            "gpuComputeMs": 6.61728,
+            "gpuTransferMs": 2.2231680000000003,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0032999999999999982,
+            "ringCpuRecordingMs": 4.2662999999999975,
+            "ringCpuSubmissionMs": 1.1614000000000002,
+            "ringCpuCompletionWaitMs": 14.775600000000003,
+            "ringWeightPreparationMs": 2.9349,
+            "outerStageOverheadUpperBoundMs": 7.817400000000006,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 393472,
+            "hostToDeviceWeightBytes": 7091712,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 269,
+            "submissions": 65,
+            "completionWaits": 54,
+            "allocatedManagedBytes": 233088,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 43.1001,
+          "wallMaxMs": 43.8907,
+          "wallP95Ms": 43.8907,
+          "allocatorHighWaterBytes": 10241088
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R0-resident-static2",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 27.77,
+            "loadMs": 46.9533,
+            "firstPassMs": 27.7575,
+            "gpuComputeMs": 4.166752000000001,
+            "gpuTransferMs": 0,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0011000000000000003,
+            "ringCpuRecordingMs": 3.2705999999999995,
+            "ringCpuSubmissionMs": 0.3675999999999999,
+            "ringCpuCompletionWaitMs": 2.9385000000000003,
+            "ringWeightPreparationMs": 0,
+            "outerStageOverheadUpperBoundMs": 7.9864,
+            "residentSelectedWeightBytes": 8667136,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 0,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 16,
+            "allocatedManagedBytes": 152736,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 26.8044,
+          "wallMaxMs": 28.7341,
+          "wallP95Ms": 28.7341,
+          "allocatorHighWaterBytes": 10241536
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R1-stream-dominatus",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 37.0808,
+            "loadMs": 28.8888,
+            "firstPassMs": 37.7049,
+            "gpuComputeMs": 2.979552,
+            "gpuTransferMs": 2.742208,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.09200000000000001,
+            "ringCpuRecordingMs": 3.3565,
+            "ringCpuSubmissionMs": 0.40739999999999993,
+            "ringCpuCompletionWaitMs": 3.8042000000000007,
+            "ringWeightPreparationMs": 3.4519,
+            "outerStageOverheadUpperBoundMs": 7.826000000000004,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 13,
+            "allocatedManagedBytes": 227224,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 36.5402,
+          "wallMaxMs": 38.4319,
+          "wallP95Ms": 38.4319,
+          "allocatorHighWaterBytes": 10241536
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static2",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 37.1385,
+            "loadMs": 28.8565,
+            "firstPassMs": 37.8193,
+            "gpuComputeMs": 3.266912,
+            "gpuTransferMs": 2.774784,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0012000000000000003,
+            "ringCpuRecordingMs": 3.4385000000000003,
+            "ringCpuSubmissionMs": 0.39280000000000004,
+            "ringCpuCompletionWaitMs": 3.8017000000000003,
+            "ringWeightPreparationMs": 3.4546,
+            "outerStageOverheadUpperBoundMs": 7.868499999999994,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 12,
+            "allocatedManagedBytes": 168112,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 36.4535,
+          "wallMaxMs": 38.2945,
+          "wallP95Ms": 38.2945,
+          "allocatorHighWaterBytes": 10241536
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R3-stream-static4",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 39.6159,
+            "loadMs": 28.9197,
+            "firstPassMs": 38.2287,
+            "gpuComputeMs": 3.4444800000000004,
+            "gpuTransferMs": 2.8078399999999997,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0010000000000000002,
+            "ringCpuRecordingMs": 3.6829,
+            "ringCpuSubmissionMs": 0.3799,
+            "ringCpuCompletionWaitMs": 3.3826,
+            "ringWeightPreparationMs": 3.4627999999999997,
+            "outerStageOverheadUpperBoundMs": 8.033199999999994,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 10,
+            "allocatedManagedBytes": 174224,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 37.6778,
+          "wallMaxMs": 40.4947,
+          "wallP95Ms": 40.4947,
+          "allocatorHighWaterBytes": 10241536
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R4-stream-stage-only",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 37.3402,
+            "loadMs": 29.8901,
+            "firstPassMs": 36.1594,
+            "gpuComputeMs": 3.4095039999999996,
+            "gpuTransferMs": 2.78608,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0010000000000000002,
+            "ringCpuRecordingMs": 3.3790000000000004,
+            "ringCpuSubmissionMs": 0.3892,
+            "ringCpuCompletionWaitMs": 3.4878,
+            "ringWeightPreparationMs": 3.4522,
+            "outerStageOverheadUpperBoundMs": 8.0107,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 3147776,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 11,
+            "allocatedManagedBytes": 186728,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 36.972,
+          "wallMaxMs": 40.3167,
+          "wallP95Ms": 40.3167,
+          "allocatorHighWaterBytes": 10241536
+        },
+        {
+          "part": "decoder-self-attention-mlp",
+          "mode": "R2-stream-static1",
+          "rows": 1,
+          "tileRows": 256,
+          "trials": 5,
+          "allCorrect": true,
+          "median": {
+            "wallMs": 34.1363,
+            "loadMs": 30.6591,
+            "firstPassMs": 34.6606,
+            "gpuComputeMs": 3.3575360000000005,
+            "gpuTransferMs": 2.7370560000000004,
+            "overlapMs": 0,
+            "schedulerDecisionMs": 0.0011000000000000003,
+            "ringCpuRecordingMs": 2.1362,
+            "ringCpuSubmissionMs": 0.3822999999999999,
+            "ringCpuCompletionWaitMs": 7.9587,
+            "ringWeightPreparationMs": 3.4364000000000003,
+            "outerStageOverheadUpperBoundMs": 7.695599999999999,
+            "residentSelectedWeightBytes": 0,
+            "streamingSlotBytes": 1573888,
+            "hostToDeviceWeightBytes": 8667136,
+            "additionalInputUploadBytes": 1536,
+            "deviceToHostBytes": 1536,
+            "dispatches": 119,
+            "submissions": 27,
+            "completionWaits": 16,
+            "allocatedManagedBytes": 139400,
+            "maximumError": 3.814697265625e-06,
+            "rmsError": 3.624097815247864e-07
+          },
+          "wallMinMs": 32.5403,
+          "wallMaxMs": 34.733,
+          "wallP95Ms": 34.733,
+          "allocatorHighWaterBytes": 10241536
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,483 @@
+{
+  "observedDate": "2026-11-07 America/Los_Angeles",
+  "page0": [
+    {
+      "name": "yuechen-li-dev/learn-golang",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 3,
+      "url": "https://github.com/yuechen-li-dev/learn-golang"
+    },
+    {
+      "name": "yuechen-li-dev/roadkill",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 1402,
+      "url": "https://github.com/yuechen-li-dev/roadkill"
+    },
+    {
+      "name": "yuechen-li-dev/StrideTurnBasedTactics",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 31547,
+      "url": "https://github.com/yuechen-li-dev/StrideTurnBasedTactics"
+    },
+    {
+      "name": "yuechen-li-dev/Ariadne",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 136,
+      "url": "https://github.com/yuechen-li-dev/Ariadne"
+    },
+    {
+      "name": "yuechen-li-dev/AriadneStrideSandbox",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 4194,
+      "url": "https://github.com/yuechen-li-dev/AriadneStrideSandbox"
+    },
+    {
+      "name": "yuechen-li-dev/octave-modern",
+      "defaultBranch": "main",
+      "archived": true,
+      "sizeKiB": 161,
+      "url": "https://github.com/yuechen-li-dev/octave-modern"
+    },
+    {
+      "name": "yuechen-li-dev/PersonalWebsite",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 4,
+      "url": "https://github.com/yuechen-li-dev/PersonalWebsite"
+    },
+    {
+      "name": "yuechen-li-dev/StrideCleanUIPostFXPatch",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 8,
+      "url": "https://github.com/yuechen-li-dev/StrideCleanUIPostFXPatch"
+    },
+    {
+      "name": "yuechen-li-dev/GumSole",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 27,
+      "url": "https://github.com/yuechen-li-dev/GumSole"
+    },
+    {
+      "name": "yuechen-li-dev/Gum",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 177468,
+      "url": "https://github.com/yuechen-li-dev/Gum"
+    },
+    {
+      "name": "yuechen-li-dev/InputMan",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 20623,
+      "url": "https://github.com/yuechen-li-dev/InputMan"
+    },
+    {
+      "name": "yuechen-li-dev/stride",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 40876,
+      "url": "https://github.com/yuechen-li-dev/stride"
+    },
+    {
+      "name": "yuechen-li-dev/Deliverance",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 85,
+      "url": "https://github.com/yuechen-li-dev/Deliverance"
+    },
+    {
+      "name": "yuechen-li-dev/GumSoleStrideTest",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 1073,
+      "url": "https://github.com/yuechen-li-dev/GumSoleStrideTest"
+    },
+    {
+      "name": "yuechen-li-dev/SkiaTest2",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 1064,
+      "url": "https://github.com/yuechen-li-dev/SkiaTest2"
+    },
+    {
+      "name": "yuechen-li-dev/IrizaUI",
+      "defaultBranch": "dev",
+      "archived": false,
+      "sizeKiB": 1156,
+      "url": "https://github.com/yuechen-li-dev/IrizaUI"
+    },
+    {
+      "name": "yuechen-li-dev/stride-docs",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 14177,
+      "url": "https://github.com/yuechen-li-dev/stride-docs"
+    },
+    {
+      "name": "yuechen-li-dev/Dominatus",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 13811,
+      "url": "https://github.com/yuechen-li-dev/Dominatus"
+    },
+    {
+      "name": "yuechen-li-dev/chatgpt-virtualizer",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 46,
+      "url": "https://github.com/yuechen-li-dev/chatgpt-virtualizer"
+    },
+    {
+      "name": "yuechen-li-dev/Flexture",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 84,
+      "url": "https://github.com/yuechen-li-dev/Flexture"
+    },
+    {
+      "name": "yuechen-li-dev/Aetheris",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 53075,
+      "url": "https://github.com/yuechen-li-dev/Aetheris"
+    },
+    {
+      "name": "yuechen-li-dev/GenerativeCompressionProtocol",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 55,
+      "url": "https://github.com/yuechen-li-dev/GenerativeCompressionProtocol"
+    },
+    {
+      "name": "yuechen-li-dev/TheChimeraPrompt",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 4,
+      "url": "https://github.com/yuechen-li-dev/TheChimeraPrompt"
+    },
+    {
+      "name": "yuechen-li-dev/NSLab",
+      "defaultBranch": "main",
+      "archived": true,
+      "sizeKiB": 67,
+      "url": "https://github.com/yuechen-li-dev/NSLab"
+    },
+    {
+      "name": "yuechen-li-dev/TOMinaL-Studio",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 892,
+      "url": "https://github.com/yuechen-li-dev/TOMinaL-Studio"
+    },
+    {
+      "name": "yuechen-li-dev/primer",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 199,
+      "url": "https://github.com/yuechen-li-dev/primer"
+    },
+    {
+      "name": "yuechen-li-dev/Margaret",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 126,
+      "url": "https://github.com/yuechen-li-dev/Margaret"
+    },
+    {
+      "name": "yuechen-li-dev/vulkan-sgemm-bench",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 43,
+      "url": "https://github.com/yuechen-li-dev/vulkan-sgemm-bench"
+    },
+    {
+      "name": "yuechen-li-dev/ClaudesGuide",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 437,
+      "url": "https://github.com/yuechen-li-dev/ClaudesGuide"
+    },
+    {
+      "name": "yuechen-li-dev/Refraction",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 217,
+      "url": "https://github.com/yuechen-li-dev/Refraction"
+    },
+    {
+      "name": "yuechen-li-dev/RFCompressionReplay",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 1295,
+      "url": "https://github.com/yuechen-li-dev/RFCompressionReplay"
+    },
+    {
+      "name": "yuechen-li-dev/oct",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 59867,
+      "url": "https://github.com/yuechen-li-dev/oct"
+    },
+    {
+      "name": "yuechen-li-dev/TheoryOfIntelligence",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 4,
+      "url": "https://github.com/yuechen-li-dev/TheoryOfIntelligence"
+    },
+    {
+      "name": "yuechen-li-dev/MarionetteSSE",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 124,
+      "url": "https://github.com/yuechen-li-dev/MarionetteSSE"
+    },
+    {
+      "name": "yuechen-li-dev/DragonGod",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 509,
+      "url": "https://github.com/yuechen-li-dev/DragonGod"
+    },
+    {
+      "name": "yuechen-li-dev/Copeland",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 660517,
+      "url": "https://github.com/yuechen-li-dev/Copeland"
+    },
+    {
+      "name": "yuechen-li-dev/worst",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 7,
+      "url": "https://github.com/yuechen-li-dev/worst"
+    },
+    {
+      "name": "yuechen-li-dev/NopePad",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 14,
+      "url": "https://github.com/yuechen-li-dev/NopePad"
+    },
+    {
+      "name": "yuechen-li-dev/MarionetteTests",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 23,
+      "url": "https://github.com/yuechen-li-dev/MarionetteTests"
+    },
+    {
+      "name": "yuechen-li-dev/marionette-go",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 12,
+      "url": "https://github.com/yuechen-li-dev/marionette-go"
+    },
+    {
+      "name": "yuechen-li-dev/Dreadfang",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 202,
+      "url": "https://github.com/yuechen-li-dev/Dreadfang"
+    },
+    {
+      "name": "yuechen-li-dev/chatgpt-vellum",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 12,
+      "url": "https://github.com/yuechen-li-dev/chatgpt-vellum"
+    },
+    {
+      "name": "yuechen-li-dev/MachinaLayout.JS",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 7373,
+      "url": "https://github.com/yuechen-li-dev/MachinaLayout.JS"
+    },
+    {
+      "name": "yuechen-li-dev/stri-v",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 43858,
+      "url": "https://github.com/yuechen-li-dev/stri-v"
+    },
+    {
+      "name": "yuechen-li-dev/tspack",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 3159,
+      "url": "https://github.com/yuechen-li-dev/tspack"
+    },
+    {
+      "name": "yuechen-li-dev/Dunewyrm",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 119,
+      "url": "https://github.com/yuechen-li-dev/Dunewyrm"
+    },
+    {
+      "name": "yuechen-li-dev/WyrmCoil",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 702,
+      "url": "https://github.com/yuechen-li-dev/WyrmCoil"
+    },
+    {
+      "name": "yuechen-li-dev/Aurelian",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 3147,
+      "url": "https://github.com/yuechen-li-dev/Aurelian"
+    },
+    {
+      "name": "yuechen-li-dev/yuechen-li-dev",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 23,
+      "url": "https://github.com/yuechen-li-dev/yuechen-li-dev"
+    },
+    {
+      "name": "yuechen-li-dev/Concept",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 8821,
+      "url": "https://github.com/yuechen-li-dev/Concept"
+    },
+    {
+      "name": "yuechen-li-dev/yield-return",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 77,
+      "url": "https://github.com/yuechen-li-dev/yield-return"
+    },
+    {
+      "name": "yuechen-li-dev/Sibyl",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 34,
+      "url": "https://github.com/yuechen-li-dev/Sibyl"
+    },
+    {
+      "name": "yuechen-li-dev/Leviathan",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 2158,
+      "url": "https://github.com/yuechen-li-dev/Leviathan"
+    },
+    {
+      "name": "yuechen-li-dev/Ariadne.Player",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 17,
+      "url": "https://github.com/yuechen-li-dev/Ariadne.Player"
+    },
+    {
+      "name": "yuechen-li-dev/yuechen-li-dev.github.io",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 791,
+      "url": "https://github.com/yuechen-li-dev/yuechen-li-dev.github.io"
+    },
+    {
+      "name": "yuechen-li-dev/Machina-Canvas",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 6151,
+      "url": "https://github.com/yuechen-li-dev/Machina-Canvas"
+    },
+    {
+      "name": "yuechen-li-dev/Odyssey",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 83,
+      "url": "https://github.com/yuechen-li-dev/Odyssey"
+    },
+    {
+      "name": "yuechen-li-dev/Riemann",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 1019,
+      "url": "https://github.com/yuechen-li-dev/Riemann"
+    },
+    {
+      "name": "yuechen-li-dev/MetaVersus",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 602,
+      "url": "https://github.com/yuechen-li-dev/MetaVersus"
+    },
+    {
+      "name": "yuechen-li-dev/OctetDB",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 2073,
+      "url": "https://github.com/yuechen-li-dev/OctetDB"
+    },
+    {
+      "name": "yuechen-li-dev/vitest-tspack",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 68495,
+      "url": "https://github.com/yuechen-li-dev/vitest-tspack"
+    },
+    {
+      "name": "yuechen-li-dev/visionary",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 139992,
+      "url": "https://github.com/yuechen-li-dev/visionary"
+    },
+    {
+      "name": "yuechen-li-dev/agentic-control-theory",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 111,
+      "url": "https://github.com/yuechen-li-dev/agentic-control-theory"
+    },
+    {
+      "name": "yuechen-li-dev/HeliosCAD",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 4983,
+      "url": "https://github.com/yuechen-li-dev/HeliosCAD"
+    },
+    {
+      "name": "yuechen-li-dev/CodeNativeDesignDemo",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 564,
+      "url": "https://github.com/yuechen-li-dev/CodeNativeDesignDemo"
+    },
+    {
+      "name": "yuechen-li-dev/truck",
+      "defaultBranch": "master",
+      "archived": false,
+      "sizeKiB": 45505,
+      "url": "https://github.com/yuechen-li-dev/truck"
+    },
+    {
+      "name": "yuechen-li-dev/Aetheris-PCBA-DFM",
+      "defaultBranch": "main",
+      "archived": false,
+      "sizeKiB": 434,
+      "url": "https://github.com/yuechen-li-dev/Aetheris-PCBA-DFM"
+    }
+  ],
+  "page100": {
+    "repositories": []
+  },
+  "inspectedRemoteHeads": {
+    "Aurelian": "cef2dd311244f479fc61c43f6b4c81a0f0e1d086",
+    "Flexture": "fdf7dab9da04f0e68edc33eeae3c4bf122830ea9",
+    "visionary": "d620ca0c03d24a51c05ae4dca8a9d5923a4aeb9c",
+    "stri-v": "ca0ff3fd49c653282e4cbd91128168b85743cca0"
+  }
+}

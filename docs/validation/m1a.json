@@ -1,0 +1,84 @@
+{
+  "milestone": "M1a",
+  "recordedAt": "2026-11-14T21:27:56.9552966-08:00",
+  "build": {
+    "configuration": "Release",
+    "succeeded": true,
+    "warnings": 0,
+    "errors": 0,
+    "log": "artifacts/local/m1a-build.log"
+  },
+  "tests": [
+    {
+      "suite": "Valencia.Core.Tests",
+      "total": 70,
+      "passed": 70,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-14T21:26:12.8143733-08:00",
+      "finished": "2026-11-14T21:26:13.3305377-08:00"
+    },
+    {
+      "suite": "Valencia.Persistence.Tests",
+      "total": 21,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-14T21:27:06.4578509-08:00",
+      "finished": "2026-11-14T21:27:07.3192058-08:00"
+    },
+    {
+      "suite": "Valencia.Tests",
+      "total": 16,
+      "passed": 16,
+      "failed": 0,
+      "skipped": 0,
+      "started": "2026-11-14T21:26:15.3985296-08:00",
+      "finished": "2026-11-14T21:26:17.2898759-08:00"
+    }
+  ],
+  "hardwareSmokes": [
+    {
+      "container": "mp4",
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "maximumAvSkewSeconds": 0.032354166666666906,
+      "sampledFrames": 427,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "windowResize": true
+    },
+    {
+      "container": "mkv",
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "maximumAvSkewSeconds": 0.03291666666666604,
+      "sampledFrames": 432,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "windowResize": true
+    }
+  ],
+  "headlessDemo": {
+    "outcome": "passed",
+    "project": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m1a-demo\\demonstration.valencia",
+    "revision": 6,
+    "semanticEquality": true,
+    "fixtureOnly": true,
+    "missingMedia": 0,
+    "activeClipId": "00000007-0000-0000-0000-000000000000",
+    "source": {
+      "Timestamp": {
+        "Value": 0,
+        "Numerator": 1,
+        "Denominator": 90000
+      },
+      "Offset": {
+        "Ticks": 1016064000001
+      }
+    },
+    "durationTicks": 2540159999999,
+    "workflow": "create → register → sequence/tracks → insert → split → trim → move → undo/redo → save → reopen → evaluate"
+  },
+  "publishedCoreSha256": "F3DD1B4B0BB0C73D989051D566B8A78BD37BB9A398EE056BD2F73B976571336F"
+}

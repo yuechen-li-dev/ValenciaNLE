@@ -1,0 +1,1597 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUtc": "2026-11-15T21:48:53.1402916+00:00",
+  "outcome": "engine-fixes-verified; native-playback-qualification-failed",
+  "machine": {
+    "cpu": "AMD Ryzen 7 7700X 8-Core Processor             ",
+    "os": "10.0.26300",
+    "dotnetSdk": "10.0.401",
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "gpuDriver": "610.88",
+    "ffmpeg": "7.1.1-full_build-www.gyan.dev"
+  },
+  "source": {
+    "id": "b8084953-a060-4a15-adb7-4ec2b49360b7",
+    "name": "long-1080-repeated.mkv",
+    "sourcePath": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\long-1080-repeated.mkv",
+    "container": "matroska,webm",
+    "streams": [
+      {
+        "index": 0,
+        "kind": "video",
+        "codec": "h264",
+        "timeBaseNumerator": 1,
+        "timeBaseDenominator": 1000,
+        "start": {
+          "value": "21",
+          "numerator": 1,
+          "denominator": 1000
+        },
+        "width": 1920,
+        "height": 1080,
+        "frameRate": {
+          "numerator": 60,
+          "denominator": 1
+        }
+      },
+      {
+        "index": 1,
+        "kind": "audio",
+        "codec": "aac",
+        "timeBaseNumerator": 1,
+        "timeBaseDenominator": 1000,
+        "start": {
+          "value": "-21",
+          "numerator": 1,
+          "denominator": 1000
+        },
+        "sampleRate": 48000,
+        "channels": 2
+      },
+      {
+        "index": 2,
+        "kind": "audio",
+        "codec": "aac",
+        "timeBaseNumerator": 1,
+        "timeBaseDenominator": 1000,
+        "start": {
+          "value": "-21",
+          "numerator": 1,
+          "denominator": 1000
+        },
+        "sampleRate": 48000,
+        "channels": 2
+      },
+      {
+        "index": 3,
+        "kind": "audio",
+        "codec": "aac",
+        "timeBaseNumerator": 1,
+        "timeBaseDenominator": 1000,
+        "start": {
+          "value": "-21",
+          "numerator": 1,
+          "denominator": 1000
+        },
+        "sampleRate": 48000,
+        "channels": 2
+      }
+    ]
+  },
+  "sourceDurationSeconds": 7200.037,
+  "sourceScope": "7200.037-second repeated controlled OBS video with continuous reencoded AAC; not two hours of unique human footage. Three 48 kHz stereo AAC streams, 1080p60 H264, millisecond Matroska clocks.",
+  "method": "Median averages middle pair; p95 nearest rank. Six warm requests are a paired comparison, not a tail-latency qualification. Fresh processes, same request order, OS caches not flushed, no other task-owned tests/benchmarks during final measurements. No audio device in these CPU PCM measurements.",
+  "matched": {
+    "beforeWarm": {
+      "count": 6,
+      "medianMs": 2886.13785,
+      "p95Ms": 4657.9356,
+      "minimumMs": 653.45,
+      "maximumMs": 4657.9356
+    },
+    "afterWarm": {
+      "count": 6,
+      "medianMs": 104.55555000000001,
+      "p95Ms": 117.6162,
+      "minimumMs": 92.1516,
+      "maximumMs": 117.6162
+    },
+    "before": {
+      "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\long-1080-repeated.mkv",
+      "asset": {
+        "id": "a50ec8ff-7fb0-4737-be9f-1b34caaf3848",
+        "name": "long-1080-repeated.mkv",
+        "sourcePath": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\long-1080-repeated.mkv",
+        "container": "matroska,webm",
+        "streams": [
+          {
+            "index": 0,
+            "kind": "video",
+            "codec": "h264",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "width": 1920,
+            "height": 1080,
+            "frameRate": {
+              "numerator": 60,
+              "denominator": 1
+            }
+          },
+          {
+            "index": 1,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 2,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 3,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          }
+        ]
+      },
+      "measurements": [
+        {
+          "pass": 0,
+          "second": 690,
+          "elapsedMs": 1969.4215,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 0,
+          "second": 5952,
+          "elapsedMs": 14821.2673,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 0,
+          "second": 2308,
+          "elapsedMs": 1841.6447,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 0,
+          "second": 5041,
+          "elapsedMs": 3919.1883,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 0,
+          "second": 1313,
+          "elapsedMs": 1114.386,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 0,
+          "second": 5913,
+          "elapsedMs": 4891.0237,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 690,
+          "elapsedMs": 653.45,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 5952,
+          "elapsedMs": 4657.9356,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 2308,
+          "elapsedMs": 1938.6068,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 5041,
+          "elapsedMs": 3833.6689,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 1313,
+          "elapsedMs": 1064.451,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 5913,
+          "elapsedMs": 4487.7382,
+          "sampleCount": 4096,
+          "finite": true
+        }
+      ],
+      "peakWorkingSetBytes": "120246272",
+      "scope": "Fresh process; progressive sample-count index; repeated positions; OS caches not flushed; CPU PCM, no audio device"
+    },
+    "after": {
+      "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\long-1080-repeated.mkv",
+      "asset": {
+        "id": "b8084953-a060-4a15-adb7-4ec2b49360b7",
+        "name": "long-1080-repeated.mkv",
+        "sourcePath": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\long-1080-repeated.mkv",
+        "container": "matroska,webm",
+        "streams": [
+          {
+            "index": 0,
+            "kind": "video",
+            "codec": "h264",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "width": 1920,
+            "height": 1080,
+            "frameRate": {
+              "numerator": 60,
+              "denominator": 1
+            }
+          },
+          {
+            "index": 1,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 2,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 3,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          }
+        ]
+      },
+      "measurements": [
+        {
+          "pass": 0,
+          "second": 690,
+          "elapsedMs": 1439.5811,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 0,
+          "second": 5952,
+          "elapsedMs": 9660.9202,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 0,
+          "second": 2308,
+          "elapsedMs": 101.1743,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 0,
+          "second": 5041,
+          "elapsedMs": 93.2111,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 0,
+          "second": 1313,
+          "elapsedMs": 100.6786,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 0,
+          "second": 5913,
+          "elapsedMs": 96.9939,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 690,
+          "elapsedMs": 96.372,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 5952,
+          "elapsedMs": 117.6162,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 2308,
+          "elapsedMs": 108.6942,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 5041,
+          "elapsedMs": 100.8121,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 1313,
+          "elapsedMs": 108.299,
+          "sampleCount": 4096,
+          "finite": true
+        },
+        {
+          "pass": 1,
+          "second": 5913,
+          "elapsedMs": 92.1516,
+          "sampleCount": 4096,
+          "finite": true
+        }
+      ],
+      "peakWorkingSetBytes": "122486784",
+      "scope": "Fresh process; progressive sample-count index; repeated positions; OS caches not flushed; CPU PCM, no audio device"
+    }
+  },
+  "fortyRequests": {
+    "baseline": "Historical M2e, same seed/positions/source/machine; not a fresh paired baseline",
+    "beforeAudio": {
+      "count": 40,
+      "medianMs": 3145.26455,
+      "p95Ms": 9738.2617,
+      "minimumMs": 428.7752,
+      "maximumMs": 13063.996
+    },
+    "afterAudio": {
+      "count": 40,
+      "medianMs": 92.16695,
+      "p95Ms": 1151.1102,
+      "minimumMs": 78.8162,
+      "maximumMs": 8054.2327
+    },
+    "current": {
+      "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\long-1080-repeated.mkv",
+      "sourceCharacteristics": {
+        "id": "c3770e03-235b-4c7c-a8d4-dae93446e1f0",
+        "name": "long-1080-repeated.mkv",
+        "sourcePath": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2e\\long-1080-repeated.mkv",
+        "container": "matroska,webm",
+        "streams": [
+          {
+            "index": 0,
+            "kind": "video",
+            "codec": "h264",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "width": 1920,
+            "height": 1080,
+            "frameRate": {
+              "numerator": 60,
+              "denominator": 1
+            }
+          },
+          {
+            "index": 1,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 2,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          },
+          {
+            "index": 3,
+            "kind": "audio",
+            "codec": "aac",
+            "timeBaseNumerator": 1,
+            "timeBaseDenominator": 1000,
+            "start": {
+              "value": "-21",
+              "numerator": 1,
+              "denominator": 1000
+            },
+            "sampleRate": 48000,
+            "channels": 2
+          }
+        ]
+      },
+      "durationSeconds": 7200.037,
+      "importMs": 64.6836,
+      "firstDecodeMs": 64.595,
+      "randomSeeks": [
+        {
+          "requestedTicks": "175474234079020",
+          "videoMs": 483.7494,
+          "audioMs": 1343.3706,
+          "activeVideoDecodedFrames": "434",
+          "sourceTimestamps": [
+            {
+              "value": "690765",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "313573606852464",
+          "videoMs": 137.3129,
+          "audioMs": 1080.2213,
+          "activeVideoDecodedFrames": "510",
+          "sourceTimestamps": [
+            {
+              "value": "1234438",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1511952815034144",
+          "videoMs": 556.9755,
+          "audioMs": 8054.2327,
+          "activeVideoDecodedFrames": "878",
+          "sourceTimestamps": [
+            {
+              "value": "5952161",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "586498641933657",
+          "videoMs": 750.9757,
+          "audioMs": 102.7482,
+          "activeVideoDecodedFrames": "1263",
+          "sourceTimestamps": [
+            {
+              "value": "2308868",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1280744727283929",
+          "videoMs": 643.2558,
+          "audioMs": 93.68,
+          "activeVideoDecodedFrames": "1583",
+          "sourceTimestamps": [
+            {
+              "value": "5041961",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "947960170670822",
+          "videoMs": 866.5895,
+          "audioMs": 101.0461,
+          "activeVideoDecodedFrames": "2085",
+          "sourceTimestamps": [
+            {
+              "value": "3731870",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "333563358467001",
+          "videoMs": 825.6171,
+          "audioMs": 100.1698,
+          "activeVideoDecodedFrames": "2565",
+          "sourceTimestamps": [
+            {
+              "value": "1313124",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1502095105866499",
+          "videoMs": 334.0565,
+          "audioMs": 92.3839,
+          "activeVideoDecodedFrames": "2763",
+          "sourceTimestamps": [
+            {
+              "value": "5913352",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "497559792801456",
+          "videoMs": 560.3564,
+          "audioMs": 98.6049,
+          "activeVideoDecodedFrames": "3126",
+          "sourceTimestamps": [
+            {
+              "value": "1958742",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1224286938414691",
+          "videoMs": 800.9487,
+          "audioMs": 96.3985,
+          "activeVideoDecodedFrames": "3541",
+          "sourceTimestamps": [
+            {
+              "value": "4819700",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "443571003445449",
+          "videoMs": 200.1132,
+          "audioMs": 102.4839,
+          "activeVideoDecodedFrames": "3624",
+          "sourceTimestamps": [
+            {
+              "value": "1746207",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1139883732832723",
+          "videoMs": 827.3234,
+          "audioMs": 100.9639,
+          "activeVideoDecodedFrames": "4129",
+          "sourceTimestamps": [
+            {
+              "value": "4487416",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1084450121539344",
+          "videoMs": 577.1141,
+          "audioMs": 93.225,
+          "activeVideoDecodedFrames": "4492",
+          "sourceTimestamps": [
+            {
+              "value": "4269194",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "565740757137225",
+          "videoMs": 438.9351,
+          "audioMs": 88.3762,
+          "activeVideoDecodedFrames": "4771",
+          "sourceTimestamps": [
+            {
+              "value": "2227162",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "823595750745062",
+          "videoMs": 527.7443,
+          "audioMs": 87.5305,
+          "activeVideoDecodedFrames": "5037",
+          "sourceTimestamps": [
+            {
+              "value": "3242261",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1335227316542582",
+          "videoMs": 493.538,
+          "audioMs": 88.4307,
+          "activeVideoDecodedFrames": "5274",
+          "sourceTimestamps": [
+            {
+              "value": "5256434",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "592241351912582",
+          "videoMs": 143.4258,
+          "audioMs": 99.4419,
+          "activeVideoDecodedFrames": "5337",
+          "sourceTimestamps": [
+            {
+              "value": "2331490",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1208375608218307",
+          "videoMs": 904.6764,
+          "audioMs": 92.7008,
+          "activeVideoDecodedFrames": "5831",
+          "sourceTimestamps": [
+            {
+              "value": "4757053",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1624173415131859",
+          "videoMs": 971.915,
+          "audioMs": 979.2535,
+          "activeVideoDecodedFrames": "6324",
+          "sourceTimestamps": [
+            {
+              "value": "6393944",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1765839120535526",
+          "videoMs": 963.2881,
+          "audioMs": 1151.1102,
+          "activeVideoDecodedFrames": "6822",
+          "sourceTimestamps": [
+            {
+              "value": "6951656",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "131562620514057",
+          "videoMs": 455.0846,
+          "audioMs": 90.0848,
+          "activeVideoDecodedFrames": "7077",
+          "sourceTimestamps": [
+            {
+              "value": "517902",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1629276014125872",
+          "videoMs": 69.1762,
+          "audioMs": 92.6844,
+          "activeVideoDecodedFrames": "7096",
+          "sourceTimestamps": [
+            {
+              "value": "6414032",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1723354040022652",
+          "videoMs": 260.9107,
+          "audioMs": 88.8222,
+          "activeVideoDecodedFrames": "7272",
+          "sourceTimestamps": [
+            {
+              "value": "6784397",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "125161510664937",
+          "videoMs": 581.4852,
+          "audioMs": 85.6651,
+          "activeVideoDecodedFrames": "7694",
+          "sourceTimestamps": [
+            {
+              "value": "492697",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1337495138317699",
+          "videoMs": 285.9803,
+          "audioMs": 78.8162,
+          "activeVideoDecodedFrames": "7867",
+          "sourceTimestamps": [
+            {
+              "value": "5265367",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "854723433497068",
+          "videoMs": 118.0609,
+          "audioMs": 88.4017,
+          "activeVideoDecodedFrames": "7931",
+          "sourceTimestamps": [
+            {
+              "value": "3364810",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1350297358015939",
+          "videoMs": 734.3854,
+          "audioMs": 87.2743,
+          "activeVideoDecodedFrames": "8490",
+          "sourceTimestamps": [
+            {
+              "value": "5315764",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1488634486298064",
+          "videoMs": 360.5375,
+          "audioMs": 82.0167,
+          "activeVideoDecodedFrames": "8747",
+          "sourceTimestamps": [
+            {
+              "value": "5860371",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1505679727382006",
+          "videoMs": 773.1851,
+          "audioMs": 89.5171,
+          "activeVideoDecodedFrames": "9313",
+          "sourceTimestamps": [
+            {
+              "value": "5927473",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "667170914917852",
+          "videoMs": 54.9429,
+          "audioMs": 86.3918,
+          "activeVideoDecodedFrames": "9327",
+          "sourceTimestamps": [
+            {
+              "value": "2626469",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1583553800917872",
+          "videoMs": 51.2087,
+          "audioMs": 97.6811,
+          "activeVideoDecodedFrames": "9339",
+          "sourceTimestamps": [
+            {
+              "value": "6234036",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "673005069323193",
+          "videoMs": 498.1711,
+          "audioMs": 90.4714,
+          "activeVideoDecodedFrames": "9651",
+          "sourceTimestamps": [
+            {
+              "value": "2649424",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "412425031808160",
+          "videoMs": 442.6285,
+          "audioMs": 81.2234,
+          "activeVideoDecodedFrames": "9932",
+          "sourceTimestamps": [
+            {
+              "value": "1623591",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1416521411626406",
+          "videoMs": 52.6688,
+          "audioMs": 91.95,
+          "activeVideoDecodedFrames": "9944",
+          "sourceTimestamps": [
+            {
+              "value": "5576468",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1628453014288128",
+          "videoMs": 596.7304,
+          "audioMs": 83.2929,
+          "activeVideoDecodedFrames": "10369",
+          "sourceTimestamps": [
+            {
+              "value": "6410799",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "551804626551427",
+          "videoMs": 322.8496,
+          "audioMs": 81.3283,
+          "activeVideoDecodedFrames": "10594",
+          "sourceTimestamps": [
+            {
+              "value": "2172298",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1065941769632745",
+          "videoMs": 440.6615,
+          "audioMs": 79.8224,
+          "activeVideoDecodedFrames": "10902",
+          "sourceTimestamps": [
+            {
+              "value": "4196325",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "555755025772598",
+          "videoMs": 140.801,
+          "audioMs": 92.5517,
+          "activeVideoDecodedFrames": "10981",
+          "sourceTimestamps": [
+            {
+              "value": "2187852",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "1763900498695507",
+          "videoMs": 88.8804,
+          "audioMs": 88.6861,
+          "activeVideoDecodedFrames": "11021",
+          "sourceTimestamps": [
+            {
+              "value": "6944022",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        },
+        {
+          "requestedTicks": "786853380211113",
+          "videoMs": 320.265,
+          "audioMs": 79.1169,
+          "activeVideoDecodedFrames": "11243",
+          "sourceTimestamps": [
+            {
+              "value": "3097624",
+              "numerator": 1,
+              "denominator": 1000
+            }
+          ]
+        }
+      ],
+      "sequentialVideoMilliseconds": [
+        32.7152,
+        0.9819,
+        3.2614,
+        2.6261,
+        1.6409,
+        3.8955,
+        2.2766,
+        0.8919,
+        3.4869,
+        2.2263,
+        0.9421,
+        3.2809,
+        2.4506,
+        0.9105,
+        5.6654,
+        2.2224,
+        1.3028,
+        3.4039,
+        2.5585,
+        2.3593,
+        3.6171,
+        3.5738,
+        2.1231,
+        4.2488,
+        2.6251,
+        0.9312,
+        3.7545,
+        2.3375,
+        0.8875,
+        3.4285,
+        2.3032,
+        1.2134,
+        3.8724,
+        2.3497,
+        1.5246,
+        3.4084,
+        2.5124,
+        0.8663,
+        3.519,
+        2.2439,
+        0.9495,
+        3.6319,
+        2.913,
+        0.9273,
+        3.6809,
+        2.2703,
+        1.3393,
+        3.3488,
+        2.3386,
+        1.5028,
+        3.6797,
+        2.2762,
+        0.9394,
+        3.2832,
+        2.1922,
+        1.5506,
+        3.8989,
+        2.3448,
+        1.3597,
+        3.2261,
+        2.4513,
+        1.0059,
+        3.9605,
+        2.0703,
+        0.9466,
+        3.552,
+        2.1834,
+        1.3498,
+        3.6634,
+        2.2093,
+        1.3695,
+        4.0441,
+        2.6305,
+        0.9523,
+        3.2396,
+        2.1579,
+        1.3824,
+        3.2256,
+        2.3612,
+        1.1192,
+        4.1385,
+        2.461,
+        1.2799,
+        3.5895,
+        2.6908,
+        0.8923,
+        3.19,
+        1.9641,
+        1.0486,
+        3.4469,
+        2.9442,
+        1.294,
+        3.7741,
+        2.2568,
+        1.4132,
+        3.3965,
+        2.7466,
+        0.9833,
+        3.5657,
+        2.2134,
+        0.947,
+        3.6075,
+        2.6141,
+        1.0889,
+        4.0342,
+        2.0079,
+        1.2248,
+        3.4583,
+        2.8095,
+        1.2389,
+        3.916,
+        2.3441,
+        1.2555,
+        3.71,
+        2.3201,
+        0.9058,
+        3.5248,
+        2.2829,
+        1.2394,
+        3.2523
+      ],
+      "identityProfileVideoMilliseconds": [
+        35.7339,
+        0.881,
+        3.5884,
+        2.9323,
+        1.5885,
+        4.7288,
+        2.3403,
+        2.2198,
+        5.3635,
+        3.336,
+        0.9232,
+        4.1154,
+        3.4187,
+        2.1018,
+        3.4824,
+        2.8641,
+        1.2246,
+        4.3994,
+        1.906,
+        1.411,
+        3.6062,
+        3.0489,
+        1.2566,
+        4.076,
+        2.5933,
+        2.2117,
+        3.2123,
+        2.7929,
+        0.9471,
+        4.1162
+      ],
+      "peakWorkingSetBytes": "323878912",
+      "scope": "Current source native FFmpeg and shared sequence evaluator, source-sized output; headless throughput is not a sustained GPU/device playback measurement. 40 seek samples: p99 unqualified."
+    }
+  },
+  "tests": [
+    {
+      "trx": "artifacts/local/int64-audio/tests/Valencia.Core.Tests.trx",
+      "total": 73,
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "8892A02308E1D3A741B089655E02263FEA2D651E678764579C936F6E7B16B423"
+    },
+    {
+      "trx": "artifacts/local/int64-audio/tests/Valencia.Persistence.Tests.trx",
+      "total": 21,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "9DC0F0E2CFD676522F14B79E4EC9174EA3D6CABF2F201C375B63016230F33430"
+    },
+    {
+      "trx": "artifacts/local/int64-audio/tests/Valencia.Tests.trx",
+      "total": 61,
+      "passed": 61,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "840EF67A5FF76F491344F6291D03F0E57A2DA258C279A5471095965CA10DEC36"
+    },
+    {
+      "trx": "artifacts/local/int64-audio/tests/Valencia.Programming.Tests.trx",
+      "total": 85,
+      "passed": 85,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "A61340C0195AFC88FBE9B701CD27C54A56C15A434317E33847840D798927F98D"
+    },
+    {
+      "trx": "../Copeland/tests/Copeland/Copeland.TS.Tests/TestResults/int64-regression.trx",
+      "total": 1777,
+      "passed": 1777,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "BD4A219529681F3D4867940E73B3257982B91DB4E5BD302427C451A8B39D8AD3"
+    },
+    {
+      "trx": "../Copeland/tests/Copeland/Copeland.TS.Backend.CSharp.Tests/TestResults/int64-backend.trx",
+      "total": 274,
+      "passed": 274,
+      "failed": 0,
+      "skipped": 0,
+      "sha256": "44333B34A1116FD4300A70FA6F7FB91857414C874BB2A4797C47364B274A987D"
+    }
+  ],
+  "cli": {
+    "outcome": "passed",
+    "decoder": "independent FFmpeg CLI",
+    "script": {
+      "success": true,
+      "returnValue": "{\"apiVersion\":1,\"valid\":true,\"committed\":false,\"expectedRevision\":\"4\",\"resultingRevision\":\"5\",\"currentRevision\":\"4\",\"canCommit\":true,\"affectedIds\":[\"4a6924e1-2f3a-41bf-b48d-7e1dff991698\",\"4d658e43-deaa-448d-b05f-064ea4be2e3c\",\"505d89f8-034c-4b46-bd66-7a1dbf49c849\",\"556b211b-a102-4be8-bace-d592ad84e404\",\"59e68929-58ce-46bc-aed1-b4d18076009f\",\"97ae1a20-e768-41dc-b4ec-8eb9a8395e4c\"],\"changes\":[{\"kind\":\"updated\",\"clipId\":\"4a6924e1-2f3a-41bf-b48d-7e1dff991698\",\"beforeTrack\":\"505d89f8-034c-4b46-bd66-7a1dbf49c849\",\"afterTrack\":\"505d89f8-034c-4b46-bd66-7a1dbf49c849\",\"before\":{\"id\":\"4a6924e1-2f3a-41bf-b48d-7e1dff991698\",\"assetId\":\"e0da9d36-5169-4581-9453-4172fb02d48f\",\"streamIndex\":1,\"start\":{\"ticks\":\"0\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"0\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"1016064000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}},\"after\":{\"id\":\"4a6924e1-2f3a-41bf-b48d-7e1dff991698\",\"assetId\":\"e0da9d36-5169-4581-9453-4172fb02d48f\",\"streamIndex\":1,\"start\":{\"ticks\":\"0\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"0\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"508032000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}}},{\"kind\":\"created\",\"clipId\":\"4d658e43-deaa-448d-b05f-064ea4be2e3c\",\"afterTrack\":\"505d89f8-034c-4b46-bd66-7a1dbf49c849\",\"after\":{\"id\":\"4d658e43-deaa-448d-b05f-064ea4be2e3c\",\"assetId\":\"e0da9d36-5169-4581-9453-4172fb02d48f\",\"streamIndex\":1,\"start\":{\"ticks\":\"762048000000\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"508032000000\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":48000},\"offset\":{\"ticks\":\"1016064000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}}},{\"kind\":\"created\",\"clipId\":\"556b211b-a102-4be8-bace-d592ad84e404\",\"afterTrack\":\"59e68929-58ce-46bc-aed1-b4d18076009f\",\"after\":{\"id\":\"556b211b-a102-4be8-bace-d592ad84e404\",\"assetId\":\"e0da9d36-5169-4581-9453-4172fb02d48f\",\"streamIndex\":0,\"start\":{\"ticks\":\"762048000000\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"508032000000\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"1016064000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}}},{\"kind\":\"updated\",\"clipId\":\"97ae1a20-e768-41dc-b4ec-8eb9a8395e4c\",\"beforeTrack\":\"59e68929-58ce-46bc-aed1-b4d18076009f\",\"afterTrack\":\"59e68929-58ce-46bc-aed1-b4d18076009f\",\"before\":{\"id\":\"97ae1a20-e768-41dc-b4ec-8eb9a8395e4c\",\"assetId\":\"e0da9d36-5169-4581-9453-4172fb02d48f\",\"streamIndex\":0,\"start\":{\"ticks\":\"0\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"0\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"1016064000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}},\"after\":{\"id\":\"97ae1a20-e768-41dc-b4ec-8eb9a8395e4c\",\"assetId\":\"e0da9d36-5169-4581-9453-4172fb02d48f\",\"streamIndex\":0,\"start\":{\"ticks\":\"0\"},\"sourceIn\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"0\"}},\"sourceOut\":{\"timestamp\":{\"value\":\"0\",\"numerator\":1,\"denominator\":15360},\"offset\":{\"ticks\":\"508032000000\"}},\"properties\":{\"name\":\"source.mp4\",\"enabled\":true,\"opacity\":1,\"gain\":1}}}],\"resultingDuration\":{\"ticks\":\"1270080000000\"},\"diagnostics\":[]}",
+      "diagnostics": [],
+      "cacheHit": false,
+      "elapsedMs": 2201.1568
+    },
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264"
+        },
+        {
+          "codec_name": "aac"
+        }
+      ],
+      "format": {
+        "duration": "5.000000"
+      }
+    },
+    "gapVideoMaximum": 0.0,
+    "gapAudioRms": 0.0,
+    "postCutFrameError": 1.1209490740740742,
+    "originalProjectUnchanged": true,
+    "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2a-demo\\input.valencia.edited.valencia.mp4"
+  },
+  "native": {
+    "editor": {
+      "outcome": "failed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "runtime": "10.0.15",
+      "elapsedSeconds": 51.6673153,
+      "maximumAvSkewSeconds": 2.833375,
+      "realPlaybackSeconds": 10,
+      "seekRequests": 10,
+      "staleGenerationsRejected": 1,
+      "presentedFrames": 198,
+      "seekLatencyMs": [
+        120.0348,
+        254.8048,
+        515.2724,
+        516.0362,
+        526.3772,
+        267.6891,
+        503.5433,
+        503.7966
+      ],
+      "uploadedFrames": 54,
+      "syntheticFrameMedianMs": 250.07,
+      "syntheticFrameP95Ms": 263.6066,
+      "syntheticClipCount": 5000,
+      "inputProposalMs": 6.8697,
+      "renderedBenchmarkFrames": 120,
+      "export": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\int64-audio\\native-editor-qualified\\edited.mp4",
+      "saveReopenSemanticEquality": true,
+      "copelandScriptOnLiveSession": true
+    },
+    "editorAvQualified": false,
+    "independentExport": {
+      "outcome": "passed",
+      "decoder": "independent FFmpeg CLI",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000"
+        }
+      },
+      "earlySourceFrameError": 0.6464120370370371,
+      "postCutSourceFrameError": 0.6614583333333334,
+      "gapVideoMaximum": 0.0,
+      "secondSourceBlueMean": 252.0,
+      "gapAudioRms": 0.0,
+      "signalAudioRms": 0.08822027237194988
+    },
+    "m0": "Failed 150 ms skew limit, including unchanged direct-file decoder path and a foregrounded native window",
+    "m0Peaks": [
+      {
+        "State": 1,
+        "Position": 0,
+        "VideoPosition": 0.021,
+        "TickGapSeconds": 0.009332600000000024,
+        "ElapsedSeconds": 2.1170806
+      },
+      {
+        "State": 1,
+        "Position": 0.3815208333333333,
+        "VideoPosition": 0.321,
+        "TickGapSeconds": 0.25034,
+        "ElapsedSeconds": 2.5077655
+      },
+      {
+        "State": 1,
+        "Position": 0.6333958333333334,
+        "VideoPosition": 0.488,
+        "TickGapSeconds": 0.25188830000000006,
+        "ElapsedSeconds": 2.7596538
+      },
+      {
+        "State": 1,
+        "Position": 0.8962291666666666,
+        "VideoPosition": 0.654,
+        "TickGapSeconds": 0.2628165,
+        "ElapsedSeconds": 3.0224703
+      },
+      {
+        "State": 1,
+        "Position": 1.1533541666666667,
+        "VideoPosition": 0.821,
+        "TickGapSeconds": 0.25714809999999977,
+        "ElapsedSeconds": 3.2796184
+      },
+      {
+        "State": 1,
+        "Position": 1.4201666666666666,
+        "VideoPosition": 0.988,
+        "TickGapSeconds": 0.26680290000000007,
+        "ElapsedSeconds": 3.5464213
+      }
+    ],
+    "m0FrameCosts": {
+      "columns": [
+        "layoutMs",
+        "uiMs",
+        "drawMs"
+      ],
+      "frames": [
+        [
+          2019.5352,
+          21.0164,
+          29.4217
+        ],
+        [
+          1.7165,
+          1.2848,
+          2.7173
+        ],
+        [
+          0,
+          0,
+          4.7787
+        ],
+        [
+          0,
+          0,
+          4.8552
+        ],
+        [
+          0,
+          0,
+          123.9003
+        ],
+        [
+          0.9397,
+          1.2382,
+          245.5188
+        ],
+        [
+          1.1778,
+          1.3928,
+          246.4699
+        ],
+        [
+          1.2669,
+          1.5206,
+          246.2357
+        ],
+        [
+          0.4357,
+          0.2879,
+          252.8375
+        ],
+        [
+          0.378,
+          0.3118,
+          260.699
+        ],
+        [
+          0.3183,
+          0.2674,
+          255.4303
+        ],
+        [
+          0.2853,
+          0.2033,
+          237.7322
+        ],
+        [
+          0.4884,
+          0.5389,
+          229.9669
+        ],
+        [
+          0.4283,
+          0.4153,
+          248.9641
+        ],
+        [
+          0.4288,
+          0.4146,
+          260.5184
+        ],
+        [
+          0.4154,
+          0.3154,
+          318.0443
+        ],
+        [
+          0.3353,
+          0.3077,
+          2.6498
+        ],
+        [
+          0,
+          0,
+          3.937
+        ],
+        [
+          0,
+          0,
+          3.7783
+        ],
+        [
+          0,
+          0,
+          169.8724
+        ],
+        [
+          0.271,
+          0.194,
+          258.8119
+        ],
+        [
+          0.3627,
+          0.3271,
+          246.4936
+        ],
+        [
+          0.3802,
+          0.3233,
+          261.7762
+        ]
+      ]
+    },
+    "focusCheck": "computer-use sky.activate_window followed by screenshot of the actual playing native window; still failed"
+  },
+  "sources": [
+    {
+      "path": "src/Valencia.Media/FfmpegDecoder.cs",
+      "sha256": "0E40DC314B990A3EE195F3FA55B7448939CA6FB0C80D3A534ED104AC587C3316"
+    },
+    {
+      "path": "src/Valencia.Media/SequenceEvaluator.cs",
+      "sha256": "48C8D14E16B5F6AD5BE1817E249BBF5F28AF1E06D6B6FECDB40441F99736D145"
+    },
+    {
+      "path": "src/Valencia.Scripting/ScriptApi.cs",
+      "sha256": "15A97FE48801FC961EFB4D691FBF6AB5CE0325082D8C777C60C477955E227AEB"
+    },
+    {
+      "path": "tests/Valencia.Tests/CreatorMediaTests.cs",
+      "sha256": "8E18C780C3AD7B7DB51BF51CAC982D432CA1C66DFDE2664AF6D6B3BCB432E531"
+    },
+    {
+      "path": "tests/Valencia.Programming.Tests/EngineAndScriptTests.cs",
+      "sha256": "133CD1FB4B4727AB4C90EB9ED73A28C4242D7B4356AD7BB4E4028913E3239A97"
+    },
+    {
+      "path": "src/Valencia.App/PlayerWindow.cs",
+      "sha256": "91C43605DB65B64980864F417142419095952BFABDC4F01C307AB5687B5C376E"
+    },
+    {
+      "path": "src/Valencia.App/SmokeScenario.cs",
+      "sha256": "CD5ADABDA93B2B02EA72AF466A9AE31FD941DE1A066BF68F0E095D04C975FDD8"
+    },
+    {
+      "path": "src/Valencia.App/Editing/EditorSmoke.cs",
+      "sha256": "62634278B6DD1907D259285145CEF6C4CA4A2A16128DBF8197FA5A01B840BE12"
+    },
+    {
+      "path": "samples/Valencia.Qualification/Program.cs",
+      "sha256": "1E6FAB7B15D83F399BDFEB6ADCA6E3C88A550D694E3E09844BBF18F2DC09AF10"
+    },
+    {
+      "path": "examples/rough-cut.ts",
+      "sha256": "88C2D301DD780D22ED956B3BF4024FBD56286C547DEFA6489B3DEE6291051B16"
+    },
+    {
+      "path": "scripts/VerifyEditorExport.ps1",
+      "sha256": "64B3DC43819A926307BBB1C54A9D79740BE98EB4D720535166C448DA122C7711"
+    },
+    {
+      "path": "../Copeland/src/Copeland/Copeland.TS/Semantics/Types.cs",
+      "sha256": "5ADDC82F77BFF00FE0A06C41F13CD59AD23160AA3D72E66FEB211A3A35992752"
+    },
+    {
+      "path": "../Copeland/src/Copeland/Copeland.TS/Semantics/Binder.cs",
+      "sha256": "8EF6C1D23512792508F85780C2095A6A82C0A5C36BB4CA31AC7A2CFD6F3D22AE"
+    },
+    {
+      "path": "../Copeland/src/Copeland/Copeland.TS/Semantics/StaticEvaluation.cs",
+      "sha256": "B334CA0C65F2E612C0FECA141F4DA74BDD26EE2DDA1B66CC6A171FB03952B4E1"
+    },
+    {
+      "path": "../Copeland/src/Copeland/Copeland.TS/Syntax/SyntaxKind.cs",
+      "sha256": "91EDDEC8D59EFB96C602655CFDC60040280B70F8DC76AF54E585E341259E571F"
+    },
+    {
+      "path": "../Copeland/src/Copeland/Copeland.TS/Syntax/SyntaxFacts.cs",
+      "sha256": "28F4261C5FC621C433F842DC7039340347BBE233BD7680F5768A43552AA7E255"
+    },
+    {
+      "path": "../Copeland/src/Copeland/Copeland.TS/Syntax/Lexer.cs",
+      "sha256": "B9D9E004044EA589FC4E47A6F34CDD39985516BD90E35324FA799703B2D79736"
+    },
+    {
+      "path": "../Copeland/src/Copeland/Copeland.TS/Syntax/Parser.cs",
+      "sha256": "5C7DB9333FD500FF28B4B5B9829CCCB62DE3F26AC430E8DC71B83223427E191F"
+    },
+    {
+      "path": "../Copeland/src/Copeland/Copeland.TS/Syntax/FlowExecutionProjection.cs",
+      "sha256": "B5A886D4B2A5E1D469938507B2532BA0A18DD5F4A59DF14EC590AB7233B8C987"
+    },
+    {
+      "path": "../Copeland/src/Copeland/Copeland.TS/Lowering/MirLowerer.cs",
+      "sha256": "61E6572C2207A69959F0F5730CFED526E1FDD087C5F2511FF2A023E20E7B856A"
+    },
+    {
+      "path": "../Copeland/src/Copeland/Copeland.TS.Backend.CSharp/CSharp/CSharpBackend.cs",
+      "sha256": "DEDE9F596557B8071E5CE7C853C57EFF6D1DDEBCA6E5E398B20C16BDBC326ABE"
+    },
+    {
+      "path": "../Copeland/tests/Copeland/Copeland.TS.Tests/Int64InteropTests.cs",
+      "sha256": "B5EFA873C728D21598DF1C78C12CB695137EE6E377296706CAEE3C07AC558737"
+    }
+  ],
+  "limitations": [
+    "Exact progressive sample-count audio anchors remain process-local. Cold requests beyond the indexed high-water mark still decode/count intervening samples.",
+    "General CLR mutable field access, Int64 bitwise operators and Int64 GPU/JavaScript emission are not added. Existing TSON numbers remain binary64; exact wire values remain canonical strings.",
+    "Native GPU draw stalls remain unresolved. Desktop save/script/export actions work and export content verifies, but neither M0 nor editor realtime A/V timing is qualified on this run.",
+    "No renderer workaround, driver setting change, larger playback queue, codec rewrite or weakening of A/V acceptance thresholds was introduced."
+  ]
+}

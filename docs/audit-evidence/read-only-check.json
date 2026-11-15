@@ -1,0 +1,20 @@
+{
+  "checked_utc": "2026-11-08T00:49:55.008608+00:00",
+  "scope": "Git HEAD and complete porcelain status compared with initial inventory for discovered repositories with a HEAD; does not assert byte-level identity of every untracked/ignored artifact. Existing tests use temporary fixtures.",
+  "changes": [
+    {
+      "repository": "Copeland",
+      "head_before": "114aa3745e46a080ade471a7e0c25b0741a747bf",
+      "head_after": "114aa3745e46a080ade471a7e0c25b0741a747bf",
+      "status_before": "",
+      "status_after": "M Games/TinyFarm/TinyFarm.InputMan/TinyFarm.InputMan.csproj\n M Games/TinyFarm/TinyFarm.InputMan/TinyFarmContainerMenu.cs\n M Games/TinyFarm/TinyFarm.InputMan/TinyFarmCraftingMenu.cs\n M Games/TinyFarm/TinyFarm.InputMan/TinyFarmGame.cs\n M Games/TinyFarm/TinyFarm.InputMan/TinyFarmMenuActions.cs\n M Games/TinyFarm/TinyFarm.InputMan/TinyFarmMenus.cs\n M Games/TinyFarm/TinyFarm.UI/TinyFarmNativeUi.cs\n M Games/TinyFarm/TinyFarm/TinyFarmApp.cs\n M Games/TinyFarm/TinyFarm/TinyFarmNativeUiFont.cs\n?? Games/TinyFarm/TinyFarm.Core.Tests/TinyFarmUiFlowTests.cs\n?? Games/TinyFarm/TinyFarm.Core.Tests/TinyFarmUiInvalidationTests.cs\n?? Games/TinyFarm/TinyFarm.InputMan/TinyFarmUiFlow.cs\n?? Games/TinyFarm/TinyFarm.InputMan/TinyFarmWidgetStates.cs\n?? src/Machina.UI/Machina.Pipeline/MachinaPresentationCache.cs\n?? src/Machina.UI/Machina.Pipeline/UiDeclarationSnapshot.cs\n?? src/Machina.UI/Machina.Runtime/Input/UiPointerActivation.cs\n?? src/Machina.UI/Machina.Runtime/State/\n?? tests/Machina.UI/Machina.Pipeline.Tests/MachinaPresentationCacheTests.cs\n?? tests/Machina.UI/Machina.Runtime.Tests/UiStateScopeTests.cs"
+    },
+    {
+      "repository": "InputMan",
+      "head_before": "f55011e77e9f869441a4be977c4304de97c7332c",
+      "head_after": "f9fe1f08a3d87ae5f8287e02992f771c57b9df01",
+      "status_before": "M src/InputMan.Core/Controls.cs\n M src/InputMan.Core/InputManEngine.cs\n?? tests/InputMan.Core.Tests/FunctionKeyTests.cs\n?? tests/InputMan.Core.Tests/MapTransitionTests.cs",
+      "status_after": ""
+    }
+  ]
+}

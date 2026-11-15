@@ -1,0 +1,302 @@
+{
+  "entrypoints": [
+    "Copeland/src/Aurelian/Aurelian.Graphics/Aurelian.Graphics.csproj",
+    "Copeland/src/Integrations/Aurelian.Machina.Graphics/Aurelian.Machina.Graphics.csproj",
+    "Copeland/src/Machina.UI/Machina.Pipeline/Machina.Pipeline.csproj",
+    "Copeland/src/Machina.UI/Machina.Standard/Machina.Standard.csproj",
+    "Copeland/src/Copeland/Copeland.TS.Backend.CSharp/Copeland.TS.Backend.CSharp.csproj",
+    "Copeland/src/Integrations/Aurelian.NativeComposition/Aurelian.NativeComposition.csproj",
+    "Copeland/src/Aurelian/Aurelian.Shaders.Builtins/Aurelian.Shaders.Builtins.csproj",
+    "Deliverance/src/Deliverance.Core/Deliverance.Core.csproj",
+    "InputMan/src/InputMan.Core/InputMan.Core.csproj",
+    "Dominatus/src/Dominatus.Core/Dominatus.Core.csproj"
+  ],
+  "projects": {
+    "Copeland/src/Aurelian/Aurelian.Graphics/Aurelian.Graphics.csproj": {
+      "references": [
+        "Copeland/src/Aurelian/Aurelian.Diagnostics/Aurelian.Diagnostics.csproj",
+        "Copeland/src/Aurelian/Aurelian.Rendering.Contracts/Aurelian.Rendering.Contracts.csproj"
+      ],
+      "packages": [
+        {
+          "Include": "Silk.NET.Vulkan"
+        },
+        {
+          "Include": "Silk.NET.Vulkan.Extensions.KHR"
+        },
+        {
+          "Include": "Silk.NET.Windowing"
+        }
+      ],
+      "frameworks": [
+        "net10.0"
+      ]
+    },
+    "Copeland/src/Aurelian/Aurelian.Diagnostics/Aurelian.Diagnostics.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": [
+        "net10.0"
+      ]
+    },
+    "Copeland/src/Aurelian/Aurelian.Rendering.Contracts/Aurelian.Rendering.Contracts.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": [
+        "net10.0"
+      ]
+    },
+    "Copeland/src/Integrations/Aurelian.Machina.Graphics/Aurelian.Machina.Graphics.csproj": {
+      "references": [
+        "Copeland/src/Machina.UI/Machina.Fonts/Machina.Fonts.csproj",
+        "Copeland/src/Machina.UI/Machina.Presentation/Machina.Presentation.csproj",
+        "Copeland/src/Aurelian/Aurelian.Graphics/Aurelian.Graphics.csproj"
+      ],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Machina.UI/Machina.Fonts/Machina.Fonts.csproj": {
+      "references": [
+        "Copeland/src/Copeland/Copeland.Profile/Copeland.Profile.csproj",
+        "Copeland/src/ThirdParty/Machina.Typography.OpenFont/Machina.Typography.OpenFont.csproj",
+        "Copeland/src/Machina.UI/Machina.Core/Machina.Core.csproj"
+      ],
+      "packages": [
+        {
+          "Include": "MSDF-Sharp.Core"
+        },
+        {
+          "Include": "Tomlyn"
+        }
+      ],
+      "frameworks": []
+    },
+    "Copeland/src/Copeland/Copeland.Profile/Copeland.Profile.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/ThirdParty/Machina.Typography.OpenFont/Machina.Typography.OpenFont.csproj": {
+      "references": [],
+      "packages": [
+        {
+          "Include": "System.Numerics.Vectors"
+        }
+      ],
+      "frameworks": [
+        "netstandard2.0"
+      ]
+    },
+    "Copeland/src/Machina.UI/Machina.Core/Machina.Core.csproj": {
+      "references": [
+        "Copeland/src/Machina.UI/Machina.Layout/Machina.Layout.csproj"
+      ],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Machina.UI/Machina.Layout/Machina.Layout.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Machina.UI/Machina.Presentation/Machina.Presentation.csproj": {
+      "references": [
+        "Copeland/src/Copeland/Copeland.SpanAllocation/Copeland.SpanAllocation.csproj",
+        "Copeland/src/Machina.UI/Machina.Core/Machina.Core.csproj",
+        "Copeland/src/Machina.UI/Machina.Fonts/Machina.Fonts.csproj",
+        "Copeland/src/Machina.UI/Machina.Layout/Machina.Layout.csproj",
+        "Copeland/src/Machina.UI/Machina.Standard/Machina.Standard.csproj",
+        "Copeland/src/Machina.UI/Machina.Runtime/Machina.Runtime.csproj"
+      ],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Copeland/Copeland.SpanAllocation/Copeland.SpanAllocation.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Machina.UI/Machina.Standard/Machina.Standard.csproj": {
+      "references": [
+        "Copeland/src/Machina.UI/Machina.Core/Machina.Core.csproj",
+        "Copeland/src/Machina.UI/Machina.Layout/Machina.Layout.csproj"
+      ],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Machina.UI/Machina.Runtime/Machina.Runtime.csproj": {
+      "references": [
+        "Copeland/src/Machina.UI/Machina.Core/Machina.Core.csproj",
+        "Copeland/src/Machina.UI/Machina.Layout/Machina.Layout.csproj"
+      ],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Machina.UI/Machina.Pipeline/Machina.Pipeline.csproj": {
+      "references": [
+        "Copeland/src/Machina.UI/Machina.Layout/Machina.Layout.csproj",
+        "Copeland/src/Machina.UI/Machina.Core/Machina.Core.csproj",
+        "Copeland/src/Machina.UI/Machina.Presentation/Machina.Presentation.csproj",
+        "Copeland/src/Machina.UI/Machina.Runtime/Machina.Runtime.csproj"
+      ],
+      "packages": [],
+      "frameworks": [
+        "net10.0"
+      ]
+    },
+    "Copeland/src/Copeland/Copeland.TS.Backend.CSharp/Copeland.TS.Backend.CSharp.csproj": {
+      "references": [
+        "Copeland/src/Copeland/Copeland.TS.Mir/Copeland.TS.Mir.csproj",
+        "Copeland/src/Copeland/Copeland.TS/Copeland.TS.csproj"
+      ],
+      "packages": [
+        {
+          "Include": "Microsoft.CodeAnalysis.CSharp"
+        }
+      ],
+      "frameworks": []
+    },
+    "Copeland/src/Copeland/Copeland.TS.Mir/Copeland.TS.Mir.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Copeland/Copeland.TS/Copeland.TS.csproj": {
+      "references": [
+        "Copeland/src/Copeland/Copeland.SpanAllocation/Copeland.SpanAllocation.csproj",
+        "Copeland/src/Copeland/Copeland.Profile/Copeland.Profile.csproj",
+        "Copeland/src/Copeland/Copeland.Markdown/Copeland.Markdown.csproj",
+        "Copeland/src/Copeland/Copeland.TS.Mir/Copeland.TS.Mir.csproj",
+        "Copeland/src/Copeland/Copeland.TS.Workspace/Copeland.TS.Workspace.csproj"
+      ],
+      "packages": [
+        {
+          "Include": "Microsoft.CodeAnalysis.CSharp"
+        }
+      ],
+      "frameworks": []
+    },
+    "Copeland/src/Copeland/Copeland.Markdown/Copeland.Markdown.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Copeland/Copeland.TS.Workspace/Copeland.TS.Workspace.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Integrations/Aurelian.NativeComposition/Aurelian.NativeComposition.csproj": {
+      "references": [
+        "Copeland/src/Aurelian/Aurelian.Physics3D/Aurelian.Physics3D.csproj",
+        "Copeland/src/Aurelian/Aurelian.Spatial3D/Aurelian.Spatial3D.csproj",
+        "Copeland/src/Aurelian/Aurelian.World/Aurelian.World.csproj",
+        "Copeland/src/Aurelian/Aurelian.Composition/Aurelian.Composition.csproj",
+        "Copeland/src/Aurelian/Aurelian.GameHost/Aurelian.GameHost.csproj",
+        "Copeland/src/Aurelian/Aurelian.Graphics/Aurelian.Graphics.csproj"
+      ],
+      "packages": [],
+      "frameworks": [
+        "net10.0"
+      ]
+    },
+    "Copeland/src/Aurelian/Aurelian.Physics3D/Aurelian.Physics3D.csproj": {
+      "references": [
+        "Copeland/src/Aurelian/Aurelian.Spatial3D/Aurelian.Spatial3D.csproj"
+      ],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Aurelian/Aurelian.Spatial3D/Aurelian.Spatial3D.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Aurelian/Aurelian.World/Aurelian.World.csproj": {
+      "references": [
+        "Copeland/src/Aurelian/Aurelian.Rendering.Contracts/Aurelian.Rendering.Contracts.csproj"
+      ],
+      "packages": [],
+      "frameworks": [
+        "net10.0"
+      ]
+    },
+    "Copeland/src/Aurelian/Aurelian.Composition/Aurelian.Composition.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Aurelian/Aurelian.GameHost/Aurelian.GameHost.csproj": {
+      "references": [
+        "Copeland/src/Aurelian/Aurelian.Audio/Aurelian.Audio.csproj",
+        "Copeland/src/Aurelian/Aurelian.Simulation/Aurelian.Simulation.csproj"
+      ],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Aurelian/Aurelian.Audio/Aurelian.Audio.csproj": {
+      "references": [],
+      "packages": [
+        {
+          "Include": "NLayer"
+        }
+      ],
+      "frameworks": []
+    },
+    "Copeland/src/Aurelian/Aurelian.Simulation/Aurelian.Simulation.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": [
+        "net10.0"
+      ]
+    },
+    "Copeland/src/Aurelian/Aurelian.Shaders.Builtins/Aurelian.Shaders.Builtins.csproj": {
+      "references": [
+        "Copeland/src/Aurelian/Aurelian.Shaders/Aurelian.Shaders.csproj"
+      ],
+      "packages": [],
+      "frameworks": []
+    },
+    "Copeland/src/Aurelian/Aurelian.Shaders/Aurelian.Shaders.csproj": {
+      "references": [
+        "Copeland/src/Aurelian/Aurelian.Rendering.Contracts/Aurelian.Rendering.Contracts.csproj",
+        "Copeland/src/Copeland/Copeland.TS/Copeland.TS.csproj"
+      ],
+      "packages": [
+        {
+          "Include": "Microsoft.Direct3D.DXC",
+          "GeneratePathProperty": "true"
+        }
+      ],
+      "frameworks": [
+        "net10.0"
+      ]
+    },
+    "Deliverance/src/Deliverance.Core/Deliverance.Core.csproj": {
+      "references": [],
+      "packages": [
+        {
+          "Include": "MessagePack",
+          "Version": "3.1.9"
+        }
+      ],
+      "frameworks": [
+        "net8.0"
+      ]
+    },
+    "InputMan/src/InputMan.Core/InputMan.Core.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": [
+        "net8.0"
+      ]
+    },
+    "Dominatus/src/Dominatus.Core/Dominatus.Core.csproj": {
+      "references": [],
+      "packages": [],
+      "frameworks": [
+        "net8.0;net10.0"
+      ]
+    }
+  }
+}

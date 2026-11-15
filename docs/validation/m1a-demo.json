@@ -1,0 +1,21 @@
+{
+  "outcome": "passed",
+  "project": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m1a-demo\\demonstration.valencia",
+  "revision": 6,
+  "semanticEquality": true,
+  "fixtureOnly": true,
+  "missingMedia": 0,
+  "activeClipId": "00000007-0000-0000-0000-000000000000",
+  "source": {
+    "Timestamp": {
+      "Value": 0,
+      "Numerator": 1,
+      "Denominator": 90000
+    },
+    "Offset": {
+      "Ticks": 1016064000001
+    }
+  },
+  "durationTicks": 2540159999999,
+  "workflow": "create \u2192 register \u2192 sequence/tracks \u2192 insert \u2192 split \u2192 trim \u2192 move \u2192 undo/redo \u2192 save \u2192 reopen \u2192 evaluate"
+}

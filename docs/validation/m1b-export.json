@@ -1,0 +1,30 @@
+{
+  "outcome": "passed",
+  "decoder": "independent FFmpeg CLI",
+  "probe": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "h264",
+        "width": 1280,
+        "height": 720,
+        "r_frame_rate": "30/1"
+      },
+      {
+        "codec_name": "aac",
+        "sample_rate": "48000",
+        "r_frame_rate": "0/0"
+      }
+    ],
+    "format": {
+      "duration": "10.000000"
+    }
+  },
+  "earlySourceFrameError": 0.6464120370370371,
+  "postCutSourceFrameError": 0.6614583333333334,
+  "gapVideoMaximum": 0.0,
+  "secondSourceBlueMean": 252.0,
+  "gapAudioRms": 0.0,
+  "signalAudioRms": 0.08822027264794709
+}

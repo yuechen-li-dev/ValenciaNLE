@@ -1,0 +1,1909 @@
+{
+  "milestone": "M2d",
+  "recordedAt": "2026-11-15T10:32:43.6301826-08:00",
+  "outcome": "Working creator PoC qualified on explicitly generated low-resolution three-hour media; original PoC parity remains partial",
+  "machine": {
+    "cpu": "AMD Ryzen 7 7700X 8-Core Processor",
+    "os": "Microsoft Windows NT 10.0.26300.0",
+    "sdk": "10.0.401",
+    "gpu": "NVIDIA GeForce RTX 3070, 610.88, 8192 MiB",
+    "ffmpeg": "ffmpeg version 7.1.1-full_build-www.gyan.dev Copyright (c) 2000-2025 the FFmpeg developers"
+  },
+  "sourceBuild": {
+    "valenciaHasGitMetadata": false,
+    "sourceManifestSha256": "66E2D8EAD94B8E192ED0DAD63C017AC9417DB1914889EA0D067C0E86ED895684",
+    "copelandCommit": "a17ec8bdba64963b76688402828b8a688a98b612",
+    "copelandStatus": "",
+    "manifest": [
+      {
+        "path": "samples\\Valencia.Headless\\Program.cs",
+        "sha256": "F0110CDBC7E5745F4583E24D90F40F22CA220C17392AFBA5F2908D993DC56E01"
+      },
+      {
+        "path": "samples\\Valencia.Headless\\Valencia.Headless.csproj",
+        "sha256": "70E1B158420FA06B6F10A75E9E8F17FE02C7886AFDD8244F6914585B0BEF4C93"
+      },
+      {
+        "path": "scripts\\AnalysisSmoke.ps1",
+        "sha256": "E62EEBD7C7D95C67209B2C512AEC2D9A65E2061AC5F06AEAAA3367C3FF4E134E"
+      },
+      {
+        "path": "scripts\\Build.ps1",
+        "sha256": "8227CB4BA1D0DA3CF94F9D597670ABC9D9630C7457080BB78EE76181C92B46B0"
+      },
+      {
+        "path": "scripts\\CreatorSmoke.ps1",
+        "sha256": "7754AF01C52D0E90468E62AE9E8204C1C6818BAE27B3E689BC14D8B11DB0A89C"
+      },
+      {
+        "path": "scripts\\DownloadWhisperModels.ps1",
+        "sha256": "23D10E39B21A0EF32A90168DCB289ACB6161EFE41200B9E1CC10D850B8C4DD64"
+      },
+      {
+        "path": "scripts\\EditorSmoke.ps1",
+        "sha256": "90956FC782A7E1D4E1B5AC1C6BD4123F6923D5E4576CD692F2AA5F03A733E4CF"
+      },
+      {
+        "path": "scripts\\ProgrammingSmoke.ps1",
+        "sha256": "C00EB3257C6C4D75A6ADD15C5A9C0E51FE9557D1EE8616F6B5286CBAE0A33591"
+      },
+      {
+        "path": "scripts\\RecordCreatorEvidence.ps1",
+        "sha256": "183F335885CFD875ACE7BBEDB789DF5E49B876D050215BCA9F04E08AE0E48499"
+      },
+      {
+        "path": "scripts\\Smoke.ps1",
+        "sha256": "0E7511373C91DB3D9A2F7F353A97E419B18CE262C79FAFD660DB68A64316E79F"
+      },
+      {
+        "path": "scripts\\TranscriptionSmoke.ps1",
+        "sha256": "3D73C87A2C933EA8CBC5A254EBF97AA1CE0D38FEC84FACB9BBB7FEB5B702E0A9"
+      },
+      {
+        "path": "scripts\\VerifyCreator.ps1",
+        "sha256": "FFAD5EEDB1BD6DC2FF09565BAA0EEF713BE84E72970FF00086BFB77E16010A26"
+      },
+      {
+        "path": "scripts\\VerifyCreatorAudio.ps1",
+        "sha256": "25C6D9DCA2E1E8B6265A3E8BA520E3E41E0D28D9112811BC49606496A3195217"
+      },
+      {
+        "path": "scripts\\VerifyEditorExport.ps1",
+        "sha256": "826A3FAE005F0E66747AC71BAEBC356C21B571A0004C661797B497078A797337"
+      },
+      {
+        "path": "scripts\\WhisperGpuResearch.ps1",
+        "sha256": "A1FF6312CB399179B2F68BC68B0336829B28E42616019E65F6F5386F6E632C94"
+      },
+      {
+        "path": "src\\Valencia.Analysis\\AnalysisCache.cs",
+        "sha256": "C912B36C14CE1D1400A4125EBB888775D23FD3F5F4E614C61280F5897C715D94"
+      },
+      {
+        "path": "src\\Valencia.Analysis\\AudioAnalyzer.cs",
+        "sha256": "4CD888792F7F7EB3A8C7848ACE708267AB6CB8F3CFAA9BE171F418C66F2ECA32"
+      },
+      {
+        "path": "src\\Valencia.Analysis\\Contracts.cs",
+        "sha256": "96C200A4F9BA449CA4612FDE36D0C45220E1CC98370891604F38B37BAB9BF998"
+      },
+      {
+        "path": "src\\Valencia.Analysis\\LoudnessAnalyzer.cs",
+        "sha256": "D17B37510D80F906B516A5C0EC0F0C266B5393A24492FDF2D27A371A9E36CAE9"
+      },
+      {
+        "path": "src\\Valencia.Analysis\\MediaAnalyzer.cs",
+        "sha256": "A3140431EF78F1B86425EEDD407CD7525A9D3D799B19D1FAD8BC382F967D77D7"
+      },
+      {
+        "path": "src\\Valencia.Analysis\\MediaResourceAnalyzer.cs",
+        "sha256": "7098CB714C72D3BF8BD6931B18724F0707EAA4087D3CE76AB36E2F38FAF555B9"
+      },
+      {
+        "path": "src\\Valencia.Analysis\\TranscriptionContracts.cs",
+        "sha256": "65E2527FD542C4B46ABC262DB3467E772A66248E5B6F262AFCD2E757FB15BAB1"
+      },
+      {
+        "path": "src\\Valencia.Analysis\\Valencia.Analysis.csproj",
+        "sha256": "B2DA033A1D2726EAC92E079AC3E67D178F8E29F89A896151C932EBA2EDE95D7E"
+      },
+      {
+        "path": "src\\Valencia.Analysis\\WaveformIndex.cs",
+        "sha256": "EAC4E050A7845801444933CD624A55DDB09436A9E4F4F6BEE9EEB6CDEE8B57E8"
+      },
+      {
+        "path": "src\\Valencia.Analysis\\WhisperTranscriber.cs",
+        "sha256": "05C10A9F934E39EEEDE07DF2678DA9CD2567F9869A1A91BF48F0E113685531CC"
+      },
+      {
+        "path": "src\\Valencia.App\\AssemblyInfo.cs",
+        "sha256": "CA814474D73C3F63AC8E9193289F2B8F0B6B88B4BD75F0E1D69A532B6DC8862D"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\AnalysisSmoke.cs",
+        "sha256": "E909722366F3F4A80BA1CFFE04395053FDAEA600E5A827DA68EFC9951369E71C"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\CreatorSmoke.cs",
+        "sha256": "53C872E542782B06925600120EAA396B02E5B273164ED92D87A5B4F04AA163B8"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\EditorAnalysis.cs",
+        "sha256": "2BA106460D23B57C6C6B8DC7CD9E05625240F3486D3C91D7E2E36529BD614195"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\EditorDocument.cs",
+        "sha256": "3F7FD61EB9E5C1BCFEF0FCAB129E3AF86A2D2B86B9ED8C85C7CBFE75A95C9965"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\EditorKeymap.cs",
+        "sha256": "25A9200526CC372300D48E302B1FF13A62D47EC73EA8B9F0CF1BDF9FD7CC82AB"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\EditorSmoke.cs",
+        "sha256": "6762F417C6402F5D8B9F7DC539367D5D4471772075156952B1A3CD4BC91F4D52"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\EditorSynchronizationContext.cs",
+        "sha256": "4649D725192A09AFCDA26C8E4415FB1674FE9AC8B66962AD33C59FEAEC3B93A6"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\EditorTranscript.cs",
+        "sha256": "FB0ADB4228EAF11813DCE2A08A6D38C356C82BDE6CEA308D4C3491B1681152AB"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\EditorView.cs",
+        "sha256": "F639B0A6A183E08CC585C4D32499F7E000C6F24EB1A6DF2D5C09C552AFB8FD53"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\EditorWindow.cs",
+        "sha256": "2C597DB8C7ACB255763B844C5BC760C3B7677241701B546DA0AA94ED681D7751"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\TimelineGesture.cs",
+        "sha256": "B88BB61AA1C7B534414BE7027A331F5066DF2954C1E90648B5B6640589BE2447"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\TimelineViewport.cs",
+        "sha256": "4D8EE6A05F3F056F6A0E6B381F75F58CDFB02E411A6535DE9503D6D5B28C2179"
+      },
+      {
+        "path": "src\\Valencia.App\\Editing\\TranscriptSmoke.cs",
+        "sha256": "23245FC95ACBB8575DA6CDF7F86A97B45438A02EE67C91FDACD6693BCD8E412C"
+      },
+      {
+        "path": "src\\Valencia.App\\PlayerKeymap.cs",
+        "sha256": "81220DC7E961B15B46972123DB2C3842E111E6962474BB0F5C61CECEF959B56B"
+      },
+      {
+        "path": "src\\Valencia.App\\PlayerWindow.cs",
+        "sha256": "86ED456FF6993BAE000B0BD4457098A611FF50F26D08A3CF5A414CADA665E399"
+      },
+      {
+        "path": "src\\Valencia.App\\Program.cs",
+        "sha256": "380180FEF22E1570C3EBC6A7C487DE42AB17169578DEE710C970FBA2D4C32101"
+      },
+      {
+        "path": "src\\Valencia.App\\SmokeScenario.cs",
+        "sha256": "486BBCBCE19B74246984B82A6DD13C50633134B954599F7CE69C7844778F8B9D"
+      },
+      {
+        "path": "src\\Valencia.App\\TransportView.cs",
+        "sha256": "F7A797BF429681E6D21C46EE4787C473D5B8681AE3AE4AE5C507C62E06DCF6DB"
+      },
+      {
+        "path": "src\\Valencia.App\\Valencia.App.csproj",
+        "sha256": "8AF9796060F5B5B7C92C78065F7DE0ED528D0A24A1C2EC57AA15DCBA4E830A3E"
+      },
+      {
+        "path": "src\\Valencia.Cli\\CreatorCli.cs",
+        "sha256": "C4083B422A1AA684B841437633546F736C24FFBB13F78ADB36CAB8ACDFE1965A"
+      },
+      {
+        "path": "src\\Valencia.Cli\\Program.cs",
+        "sha256": "CD462988D6CE587EB8F257B170A0704D02AEFAD7FF2C68AD501BFE97A8EF321F"
+      },
+      {
+        "path": "src\\Valencia.Cli\\StdioMcpServer.cs",
+        "sha256": "C4374C95C379991B78D82872AD626D3E53BF610F638880956150EED6B7C3B88A"
+      },
+      {
+        "path": "src\\Valencia.Cli\\Valencia.Cli.csproj",
+        "sha256": "B6A87AFA9D4EAEAFDF33D2F40BD6084526AB3CE90EAE7FA173598A2E8AE4CBEE"
+      },
+      {
+        "path": "src\\Valencia.Core\\Editing\\EditCommands.cs",
+        "sha256": "BA64D5F27EF7DFDE844E5CB725D2580EFC9A70D0C5E00315F53C26BC1A603ECE"
+      },
+      {
+        "path": "src\\Valencia.Core\\Editing\\EditingSession.cs",
+        "sha256": "DDDCEB188B0A22778C072F6CA9A64E3507306D3F4F25AA5F2559A50A11591840"
+      },
+      {
+        "path": "src\\Valencia.Core\\Editing\\EditReducer.cs",
+        "sha256": "DEE45E8DC9520C720016EDE93C729CD982A4BE78603701443326360B1C03674F"
+      },
+      {
+        "path": "src\\Valencia.Core\\MediaInfo.cs",
+        "sha256": "5F5E3C6518C6C509E4B256DAB0D34BF41C8C14D5E50B727052670C77B102B89C"
+      },
+      {
+        "path": "src\\Valencia.Core\\MediaTime.cs",
+        "sha256": "A30B8451947D11C78B906AD8D5108ED3D2C162774420CE50780E0D8523D7CCC2"
+      },
+      {
+        "path": "src\\Valencia.Core\\Timeline\\CaptionEvaluation.cs",
+        "sha256": "F92553F5CF1B0070030CADDCB42A5E26D9B3AC7F82A4EA8ADAE48F402D138CD3"
+      },
+      {
+        "path": "src\\Valencia.Core\\Timeline\\CaptionIndex.cs",
+        "sha256": "0D62149A0E879865A7343D94F112246E2B571656289491ABACCCF64ABC61B17E"
+      },
+      {
+        "path": "src\\Valencia.Core\\Timeline\\CreatorSettings.cs",
+        "sha256": "9593C3A2F86258098A0409C941AF6163BE709702937E5A0B6D9980B5AD73786C"
+      },
+      {
+        "path": "src\\Valencia.Core\\Timeline\\DocumentValidator.cs",
+        "sha256": "82D8053D8EFB156DD408A2E83CEB9A2DE153CE078B6E11E40086548FD9E77699"
+      },
+      {
+        "path": "src\\Valencia.Core\\Timeline\\ExactTime.cs",
+        "sha256": "D493EB373928FC299CF0348C7867F1CBF874667DEE29F87B890F1178EA4CC8C6"
+      },
+      {
+        "path": "src\\Valencia.Core\\Timeline\\ProjectDocument.cs",
+        "sha256": "073C50F5F84249EF2822B82AF72CB67AA531539AF8FADAFDAA5B32A9A0FC7926"
+      },
+      {
+        "path": "src\\Valencia.Core\\Timeline\\TimelineQueries.cs",
+        "sha256": "AF8E84A9553AECFF8C0F47DD7AF5912D6DAF161A7D84FBC7CA424125CB45508C"
+      },
+      {
+        "path": "src\\Valencia.Core\\Valencia.Core.csproj",
+        "sha256": "E6FCB8E1E93A724D47A829CFFD19D47840A5EB088E9ACE43F3A34BBAF1524B07"
+      },
+      {
+        "path": "src\\Valencia.Engine\\AnalysisContracts.cs",
+        "sha256": "F95688ED5B411B0218EB441C79497753B5B64F47C31C7C025249B16D15648861"
+      },
+      {
+        "path": "src\\Valencia.Engine\\AnalysisJobs.cs",
+        "sha256": "19E09E1B26F19282C42E8BE848703BAE7D57BE150001277B0DF4F2F8A74F1659"
+      },
+      {
+        "path": "src\\Valencia.Engine\\Contracts\\analysis.obj.ts",
+        "sha256": "3B5DD02A1398E4A7691A19482A846D40E382A473252BF4BD4D3574FA8E475CFB"
+      },
+      {
+        "path": "src\\Valencia.Engine\\Contracts\\edit-plan.obj.ts",
+        "sha256": "F9CC9DCAE13BF0053844C8CF9F135EE1FF26AF65108B31F65A63837769F2A87E"
+      },
+      {
+        "path": "src\\Valencia.Engine\\CreatorEngine.cs",
+        "sha256": "7B6AF63AE9C93B07DE1D02DC71CBE9C33B1D57103222BC81E953751503E24362"
+      },
+      {
+        "path": "src\\Valencia.Engine\\CreatorJobs.cs",
+        "sha256": "A38F3B617D3352970B4D802D1E983A1BBCDC1475FD11C9D4D404A96A3609E1D9"
+      },
+      {
+        "path": "src\\Valencia.Engine\\CreatorPlanning.cs",
+        "sha256": "8C608F12018624648A0DDBA8EF64218C62F37D8E23F1A6D220EA3B29825B2527"
+      },
+      {
+        "path": "src\\Valencia.Engine\\EditingEngine.cs",
+        "sha256": "5D54305CD833235DB2E03129B334DB15C28C10FDE1B7EC0C04C9B281F1865F5C"
+      },
+      {
+        "path": "src\\Valencia.Engine\\EditPlans.cs",
+        "sha256": "A6ACA4720948613AF0799F70AA83785B764AEC3FEF81A9E3E9996893865B45C6"
+      },
+      {
+        "path": "src\\Valencia.Engine\\EngineJson.cs",
+        "sha256": "F186860C0A5DF2828E57000AF03E49F8E2A2F546FE9A37E27EA4D0829FC19C09"
+      },
+      {
+        "path": "src\\Valencia.Engine\\ExportJobs.cs",
+        "sha256": "7FC854BAEE0A892256F3483745AB66D96A3C3DF472A0D00413E3BFF2AE2836A2"
+      },
+      {
+        "path": "src\\Valencia.Engine\\InsertionCommands.cs",
+        "sha256": "366D7744BF908DEC522057A715423A28386B402E112FF387FD7B326F963E4C6E"
+      },
+      {
+        "path": "src\\Valencia.Engine\\RoughCutPlanner.cs",
+        "sha256": "BB3C5550486CD6235386EEA8636D1BFBA16CD95641BFE34FF5ACEC816E5E1E10"
+      },
+      {
+        "path": "src\\Valencia.Engine\\TranscriptCorrections.cs",
+        "sha256": "3E8D38E6B85069CBC0AEB8C4B180162CF39B40D9083D70C1457D3A9085B9CDC9"
+      },
+      {
+        "path": "src\\Valencia.Engine\\TranscriptEditing.cs",
+        "sha256": "A52C7D1DCA6BF387980D43FAF6E1AD993EF5567B5ABCAF89B2DBCC098A8A6A15"
+      },
+      {
+        "path": "src\\Valencia.Engine\\Valencia.Engine.csproj",
+        "sha256": "32311A0B4A0E6D4DAB2D8A406C03A1849ABD902269F78CA3110F490BE816806A"
+      },
+      {
+        "path": "src\\Valencia.Engine\\WorkspacePolicy.cs",
+        "sha256": "70CD54E6D895BCA78C42B452BF468EB85845F65B8E346B5AEE5C081C4CC0CCC7"
+      },
+      {
+        "path": "src\\Valencia.Media\\AnalysisStream.cs",
+        "sha256": "811DB7A7CD152546FB8B64B72FE8458D0E23CFE5BAB5BB5C130EA07472910ADB"
+      },
+      {
+        "path": "src\\Valencia.Media\\AudioFilter.cs",
+        "sha256": "D2D26FAB54E43B8C3F92739EE59296C57DBE493ED3A924404EF801E5BFEF4A40"
+      },
+      {
+        "path": "src\\Valencia.Media\\AudioSeekIndex.cs",
+        "sha256": "4982826B93DA93E39037469B529AB1BAA3258A3D8F7244C2AB8F88E714332226"
+      },
+      {
+        "path": "src\\Valencia.Media\\AudioStreamBuffer.cs",
+        "sha256": "B4DEB5DDD42FE8C70196E15E23973A6FBBAABD577F0432997BEE2A37FBBF1BF7"
+      },
+      {
+        "path": "src\\Valencia.Media\\CreatorRenderer.cs",
+        "sha256": "66DE043DD50247D1648F912EFCEBDB1A00DADCE5A02651CE8FDB3534DF4E559E"
+      },
+      {
+        "path": "src\\Valencia.Media\\DecodedFrames.cs",
+        "sha256": "54306BA22450D7680C064DB48B8E6B1E167CADEB05201B7CE63AD19C84433F9E"
+      },
+      {
+        "path": "src\\Valencia.Media\\DecodeSession.cs",
+        "sha256": "FB487AA326A347093B140E65D418BD4D324501976906711BFD78B1FBFEF46DDA"
+      },
+      {
+        "path": "src\\Valencia.Media\\FfmpegDecoder.cs",
+        "sha256": "BF0056FBBA45284636894FC7B69D34EF958FD3F082BC3448288EB49B60DFD6E6"
+      },
+      {
+        "path": "src\\Valencia.Media\\FfmpegRuntime.cs",
+        "sha256": "8ABD018E8A2DC12E9CD0AF80C942CD2B7F222D0C61E2BF47D446DF4C889E3BD4"
+      },
+      {
+        "path": "src\\Valencia.Media\\MediaAssetProbe.cs",
+        "sha256": "DC1949712EB67AF85EF96643DF552693360A1AF7E37CC3D5C2FEE85FA80E5EE8"
+      },
+      {
+        "path": "src\\Valencia.Media\\MediaIndex.cs",
+        "sha256": "10B7C3094DCC8721E8124174A0BABCF0C23317EB156A08B8CC55160E71A2102F"
+      },
+      {
+        "path": "src\\Valencia.Media\\MediaProbe.cs",
+        "sha256": "CD2BD5B4D8DEB7437FFF002AD71A0D88154F920B002434CD00274A65D556ECBF"
+      },
+      {
+        "path": "src\\Valencia.Media\\MediaProcess.cs",
+        "sha256": "3565B31C9B857BF18AB767314071B04DBE368B3A4FFDDCA6F7ABAC52B11BD407"
+      },
+      {
+        "path": "src\\Valencia.Media\\MediaProxy.cs",
+        "sha256": "48AB6852B822EBCE0336619CF6285885C788E949F52CAF9B8168B45D9A977DC7"
+      },
+      {
+        "path": "src\\Valencia.Media\\PlaybackSession.cs",
+        "sha256": "547FBA9BD5CFF4DFDCCA4A9293CDE4E5036B75B52BDD1A7360AF22367093D500"
+      },
+      {
+        "path": "src\\Valencia.Media\\SequenceEvaluator.cs",
+        "sha256": "E815BC20BF968C4B2A290C71F062A3DC9D255E29D06346F03BC6C52415DA590F"
+      },
+      {
+        "path": "src\\Valencia.Media\\SequenceExport.cs",
+        "sha256": "AEA3375050CBAAF7052A9EBAFBF291FCA0BD3C2299D8E665E18628B0D9953DDD"
+      },
+      {
+        "path": "src\\Valencia.Media\\SequencePlayback.cs",
+        "sha256": "778FA22862659C2810084C9F1481E7D21170DA7CB373B6D25EAD2B244E7B00D7"
+      },
+      {
+        "path": "src\\Valencia.Media\\Valencia.Media.csproj",
+        "sha256": "86F226E19202E1D19F451BD576994A4A058C834C44C6D45783AA30819FA85D85"
+      },
+      {
+        "path": "src\\Valencia.Persistence\\ProjectFile.cs",
+        "sha256": "FAC4DED94BBE31F114A08FD2A719E7EACC97A3DBC078D9B487B99A8B50267D1F"
+      },
+      {
+        "path": "src\\Valencia.Persistence\\ProjectJsonSerializer.cs",
+        "sha256": "C664B0947515D5FEBE8F39ED1CF8A4B0E943FCDE986EBB8A087FDA6DD3F51ED1"
+      },
+      {
+        "path": "src\\Valencia.Persistence\\Valencia.Persistence.csproj",
+        "sha256": "0CD13D40484DB69FF97E683C5271D2DB423479512A4372AC9792318EDB54AAEC"
+      },
+      {
+        "path": "src\\Valencia.Rendering\\NativeVideoPresenter.cs",
+        "sha256": "8AD1FEC72B19D5DEB78955A28448656BD8328677AE6850C47465F9E3A8CE809D"
+      },
+      {
+        "path": "src\\Valencia.Rendering\\Valencia.Rendering.csproj",
+        "sha256": "2D1233A7033CE08947B5C77A4F5EE02C904B50D84E1BEE71296A436D304840D0"
+      },
+      {
+        "path": "src\\Valencia.Rendering\\VideoShader.cs",
+        "sha256": "60AE62F6A422F5E01BD820D9D83B4834CEA1565FC87048896ED8E25B4573F1D7"
+      },
+      {
+        "path": "src\\Valencia.Scripting\\CopelandScriptHost.cs",
+        "sha256": "98E513CE911C69DCFFB6286F14055FC9BD4B2317DBF5A1E2ECEDD917BB5C4112"
+      },
+      {
+        "path": "src\\Valencia.Scripting\\ScriptApi.cs",
+        "sha256": "6F9F61D2FA061DA51B4B116C50AAF690BB8F7B69FA821054B6AA97B7AF81A04F"
+      },
+      {
+        "path": "src\\Valencia.Scripting\\ScriptingContract.cs",
+        "sha256": "404DDD139860177DA33A90B0A310A929AF662EB5D60E7F91DCBEDFA899AEB2C9"
+      },
+      {
+        "path": "src\\Valencia.Scripting\\Valencia.Scripting.csproj",
+        "sha256": "477CB50594F2EDC99C7EC9D3FEDF4FE4FD820490ADB51F3209FD93639484832B"
+      },
+      {
+        "path": "tests\\TestProject.cs",
+        "sha256": "A55A4FF17157636B841795825ECE43CDE2AD15870AE60C0031109DEB0784686C"
+      },
+      {
+        "path": "tests\\Valencia.Core.Tests\\CreatorTests.cs",
+        "sha256": "A694E50196F014E0BF5CB7F370D0B340C95C44CF0CD37B75C4A1D1544A0CF329"
+      },
+      {
+        "path": "tests\\Valencia.Core.Tests\\DeterminismTests.cs",
+        "sha256": "D7AAD2FB326AC489D7798C1507D4BF2A1B7C5F36A4349463D4E55D54EBFFB196"
+      },
+      {
+        "path": "tests\\Valencia.Core.Tests\\EditingTests.cs",
+        "sha256": "EF326B00AD0234D2854447F6D13E3BA87BFAE376A14B7EA81FE4E7A286BEE157"
+      },
+      {
+        "path": "tests\\Valencia.Core.Tests\\TimingAndQueryTests.cs",
+        "sha256": "23BC37557C96A971E99FBCE3CA40520125A23DEF95EFEAAC912C3EB4B2E42D02"
+      },
+      {
+        "path": "tests\\Valencia.Core.Tests\\Valencia.Core.Tests.csproj",
+        "sha256": "979A424819F5B4741C6185C9280B9D4DF378C3AE058DA6E98AAFE6DD66F7AD3A"
+      },
+      {
+        "path": "tests\\Valencia.Persistence.Tests\\ProjectFileTests.cs",
+        "sha256": "12A34C9505792B0D218F9CBDF4BCDE1C912731F98BE8F94B28BB534FFA2390F0"
+      },
+      {
+        "path": "tests\\Valencia.Persistence.Tests\\Valencia.Persistence.Tests.csproj",
+        "sha256": "FC325A4E5B8753BBB12D7EF945543F28716428488D3088784CF187CC28EE48F2"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\AnalysisCacheSceneTests.cs",
+        "sha256": "A700A063E17023558BE81E166F54C178B55F77C78AB06BDB3C5BD0A5BCC60C04"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\AnalysisIntegrationTests.cs",
+        "sha256": "B456DBC640DFC23951E13870629EEBB3647C94A89426C1808E68F63BE1996CA3"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\AnalysisMcpTests.cs",
+        "sha256": "E3556E486DE7E351A9740A17E0AF85A51C1C216B5F7EA95BDB8EFEE3E1D62DA0"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\AnalysisTests.cs",
+        "sha256": "2DE0D8820A2AA6BA32426F2EC51A139639C8A79FBB07DD6E02BCF2403F8FB47A"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\CreatorAlignmentTests.cs",
+        "sha256": "13258EA20ADE4E81DC4C7E5EEC136A8F3B28F2A883138933DD636884192A230B"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\CreatorProtocolTests.cs",
+        "sha256": "5CB27202F7322516B93B19FF4E804F3DD0192D6E2B21EE959F8467DEC63E4CC8"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\CreatorWorkflowTests.cs",
+        "sha256": "03634F5090E7690DCB1D2FC640E7D3FE2E743D3E4976058DE284D3D9ADF3F313"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\EngineAndScriptTests.cs",
+        "sha256": "2CB8A30674DB937A72D15232EA51B1ADDD6FACCCCE43722EF3ADE78E72324281"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\HeadlessProtocolTests.cs",
+        "sha256": "0B09DF6DD5B321ECB69D0F7013C0AC5016E56886026AA15B8FCA4B4F59389507"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\MediaProgrammingTests.cs",
+        "sha256": "A8CC8423D5063818E1E9F60800D8F1BB484E3F556E6AAA19EB49D088279AFF4D"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\TranscriptionTests.cs",
+        "sha256": "857067F87599E987AA34036E792878239C34BC82B2CECCF176A46C602145FF70"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\TranscriptProtocolTests.cs",
+        "sha256": "7F7CCD53E6303D9776160D31E9A8D1668B846812A0245F01F719EB3BB1C7298F"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\TranscriptTimingTests.cs",
+        "sha256": "75F9CBE5B0EAE9E0734927605F4453637838767BD7A85E95A221A7194BB98B66"
+      },
+      {
+        "path": "tests\\Valencia.Programming.Tests\\Valencia.Programming.Tests.csproj",
+        "sha256": "2379052C3AC5E5D82A9E8D1D2ED45CEB5EAF2831ED2C43C228E48BEC3309FF44"
+      },
+      {
+        "path": "tests\\Valencia.Tests\\AssetMetadataTests.cs",
+        "sha256": "6342C1C1E3AB2AA9B796A00EBCAC0A752E5B6105D6151624B93E7E56B060541B"
+      },
+      {
+        "path": "tests\\Valencia.Tests\\CreatorMediaTests.cs",
+        "sha256": "6B58809A70192C19A6865E0E5B07DE18CA81D308B5F9F30CC51B0CCFBD516002"
+      },
+      {
+        "path": "tests\\Valencia.Tests\\EditorInteractionTests.cs",
+        "sha256": "2FB43558963310051FAA6297C11B6046349C27B480E6A058E9D1E87872E543EC"
+      },
+      {
+        "path": "tests\\Valencia.Tests\\KeyboardTests.cs",
+        "sha256": "090156BC870B183DD0F8B4F04B56840A852FE1414760649BABB4A907F8B89916"
+      },
+      {
+        "path": "tests\\Valencia.Tests\\MediaFixture.cs",
+        "sha256": "759C1261E08764B65A7F730EABA053FDC4E0AAB9C3CFFFE09875EA2DA4827704"
+      },
+      {
+        "path": "tests\\Valencia.Tests\\MediaTests.cs",
+        "sha256": "B18AB8CB5DCCB41F1C8DEDB544D8A6F200C97D40C9771CDDE0A4C4F46AC5F765"
+      },
+      {
+        "path": "tests\\Valencia.Tests\\TimeAndAudioTests.cs",
+        "sha256": "FDE58076761E0606028C4F0D32BDA71CC3FF7178392944AD06FF168EFA2B1EA9"
+      },
+      {
+        "path": "tests\\Valencia.Tests\\TimelineIntegrationTests.cs",
+        "sha256": "C3B098AC271F80105164EEC560F8E07D951861D81882CD0416A6DAC2FB0AB4D2"
+      },
+      {
+        "path": "tests\\Valencia.Tests\\Valencia.Tests.csproj",
+        "sha256": "8CC076A5F2EA1E474DF1539A722F141002E9204877AD0FA5EE384CBAAB593360"
+      }
+    ]
+  },
+  "published": [
+    {
+      "file": "artifacts/publish/win-x64/Valencia.App.exe",
+      "sha256": "591CD6092E6245E8BFF5F3E23ECCB96BF8CEB91249D5E86ACFD8B63F91201203"
+    },
+    {
+      "file": "artifacts/publish/win-x64/Valencia.App.dll",
+      "sha256": "07FB1310A13EC2DC904158973D11D3D441C9C50546A3CBE471AE11C6D8FFE3AB"
+    },
+    {
+      "file": "artifacts/publish/cli-win-x64/Valencia.Cli.exe",
+      "sha256": "C1CFCF1DCD3FD07BF6F6134A2A33587898085F561454244D732F36DAEA5A1743"
+    },
+    {
+      "file": "artifacts/publish/cli-win-x64/Valencia.Cli.dll",
+      "sha256": "35D72192A4D8EB5D78DD81E9EB511222E5CCAF1AB4ADEC12A6ECF26D06761194"
+    }
+  ],
+  "tests": [
+    {
+      "trx": "artifacts/local/tests/Valencia.Core.Tests.trx",
+      "sha256": "3BB69DBC979437428EF11F95B155C1857E32289F88BD70644B6834E5CE71FC1B",
+      "total": 73,
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "trx": "artifacts/local/tests/Valencia.Persistence.Tests.trx",
+      "sha256": "01EEAC8493EE21293C7C9012CE0328CD420645A6AE64879BCB65CD883AD2BE18",
+      "total": 21,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "trx": "artifacts/local/tests/Valencia.Tests.trx",
+      "sha256": "A9E5FD97D65C094A6A2598B7B5482D15E1DD99C4C32AFA9C6B070290651666D7",
+      "total": 47,
+      "passed": 47,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "trx": "artifacts/local/tests/Valencia.Programming.Tests.trx",
+      "sha256": "F4D72AB6ED71A4295CE92DD90EDCC1AA8C5F69BF2F01BD3BF915D679E4D18BE1",
+      "total": 69,
+      "passed": 69,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "trx": "artifacts/local/tests/m2d-copeland.trx",
+      "sha256": "C0BD664E6336FFFBCDE8756AB03AB658BE0750F4D737FE11AE209D759BBEFB0F",
+      "total": 329,
+      "passed": 329,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "trx": "artifacts/local/tests/m2d-aurelian-graphics.trx",
+      "sha256": "815760FCAE42E38D92A627389E61322A90596374B360232D47B75F495CC63007",
+      "total": 351,
+      "passed": 351,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "trx": "artifacts/local/tests/m2d-aurelian-inference.trx",
+      "sha256": "068E804E92D58C96DBC7D0E21E1F1483147EE0DF2738C6DED60C9D38F5731ACE",
+      "total": 19,
+      "passed": 19,
+      "failed": 0,
+      "skipped": 0
+    }
+  ],
+  "valenciaPassed": 210,
+  "source": {
+    "provenance": "Generated synthetic qualification fixture; no real OBS footage or editorial-quality claim",
+    "durationSeconds": 10800,
+    "source": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2d\\three-hour.mkv",
+    "sourceSha256": "5EE7C20DA53EB533426ADE9EEB1E9804C2C2E316D964ED48A2DE9272D8AD7EF7",
+    "voice": "Microsoft David Desktop - English (United States)",
+    "video": "H.264 160x90/30, long 300-frame GOP, B-frames, visible frame number and 16-bit frame-ID stripe",
+    "audio": "Two independent mono 48kHz AAC streams: sixty seconds repeated speech every ten minutes, and continuous 330Hz game/music signal",
+    "generationSeconds": 117.5908506
+  },
+  "sourceUnchanged": true,
+  "inputProjectUnchanged": true,
+  "coldPipeline": {
+    "seconds": 249.3171751,
+    "cliPeakWorkingSetBytes": 424833024,
+    "cpuSeconds": 339.5625,
+    "qualification": "Earlier cold run before denoiser latency correction; output superseded; initial inspection at time zero is not qualified as a decoded first frame"
+  },
+  "correctedCacheAssistedPipeline": {
+    "seconds": 76.872406,
+    "cliPeakWorkingSetBytes": 211382272,
+    "cpuSeconds": 98.859375,
+    "firstDecodedInspectionMs": 99.5305,
+    "durationTicks": "152409600000000",
+    "candidateCount": 102,
+    "segments": 16,
+    "operationCount": 52,
+    "diagnostics": [
+      "Normalization gain is constrained by true-peak safety; the LUFS target cannot be reached by static gain alone."
+    ],
+    "normalization": {
+      "integratedLufs": -20.6,
+      "truePeakDb": -3.17,
+      "loudnessRange": 2.4,
+      "thresholdLufs": -31.93,
+      "algorithm": "FFmpeg7.1/loudnorm/BS.1770-4/EBU-R128",
+      "measurement": "Edited sequence through the shared audio evaluator; integrated gating and oversampled true-peak estimation",
+      "targetLufs": -16,
+      "peakCeilingDb": -1,
+      "safeGainDb": 2.17
+    }
+  },
+  "outputs": [
+    {
+      "file": "artifacts/local/m2d/outputs/long-form.mp4",
+      "sha256": "86C33385E3A4D02F6CA228973E0B1AFDFB951BB1ABC19449A56561BE35F7E494",
+      "profile": {
+        "id": "deb6a9d6-57cd-856f-4598-511c08344964",
+        "name": "long-form",
+        "width": 320,
+        "height": 180,
+        "frameRate": {
+          "numerator": 30,
+          "denominator": 1
+        },
+        "fit": "fit",
+        "focalX": 0.5,
+        "focalY": 0.5,
+        "captionY": 0.84,
+        "start": {
+          "ticks": "0"
+        },
+        "end": {
+          "ticks": "152409600000000"
+        }
+      },
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 320,
+            "height": 180,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "600.000000",
+          "size": "44049271"
+        }
+      }
+    },
+    {
+      "file": "artifacts/local/m2d/outputs/short-1.mp4",
+      "sha256": "7AEC6A4ED05660F733C06489D88B2EADBECABBC5DEB6A8D4350680A15158E837",
+      "profile": {
+        "id": "9aad4f1a-2dba-e5cd-2a5a-2b54c4b9a440",
+        "name": "short-1",
+        "width": 180,
+        "height": 320,
+        "frameRate": {
+          "numerator": 30,
+          "denominator": 1
+        },
+        "fit": "fill",
+        "focalX": 0.5,
+        "focalY": 0.5,
+        "captionY": 0.78,
+        "start": {
+          "ticks": "31227033600000"
+        },
+        "end": {
+          "ticks": "34004275200000"
+        }
+      },
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 180,
+            "height": 320,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.933333",
+          "size": "850239"
+        }
+      }
+    },
+    {
+      "file": "artifacts/local/m2d/outputs/short-2.mp4",
+      "sha256": "AD95F2B210E5DCD7BC3DC38660B1B903681016B4759A6A90B20D0B55276D81C6",
+      "profile": {
+        "id": "9706d620-41fa-fe3e-7750-a0c0314ff6a9",
+        "name": "short-2",
+        "width": 180,
+        "height": 320,
+        "frameRate": {
+          "numerator": 30,
+          "denominator": 1
+        },
+        "fit": "fill",
+        "focalX": 0.5,
+        "focalY": 0.5,
+        "captionY": 0.78,
+        "start": {
+          "ticks": "90429696000000"
+        },
+        "end": {
+          "ticks": "93206937600000"
+        }
+      },
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 180,
+            "height": 320,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.933333",
+          "size": "849225"
+        }
+      }
+    },
+    {
+      "file": "artifacts/local/m2d/outputs/short-3.mp4",
+      "sha256": "183EDBD839615C62F6739EB6872C826D88436ED04D3E8B7F4DF569FAECED5265",
+      "profile": {
+        "id": "ddf946d7-57b2-10a5-97de-e075e331fdf6",
+        "name": "short-3",
+        "width": 180,
+        "height": 320,
+        "frameRate": {
+          "numerator": 30,
+          "denominator": 1
+        },
+        "fit": "fill",
+        "focalX": 0.5,
+        "focalY": 0.5,
+        "captionY": 0.78,
+        "start": {
+          "ticks": "149632358400000"
+        },
+        "end": {
+          "ticks": "152409600000000"
+        }
+      },
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 180,
+            "height": 320,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.933333",
+          "size": "848404"
+        }
+      }
+    }
+  ],
+  "independentVideo": {
+    "outcome": "passed",
+    "reference": "Independent FFprobe actual PTS lookup and FFmpeg decode of source and outputs; plan placements interpreted outside Valencia",
+    "frameChecks": [
+      {
+        "profile": "long-form",
+        "outputFrame": 0,
+        "sourcePts": 400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 1.9543788580246915,
+        "visibleFrameId": 12
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 1,
+        "sourcePts": 433,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.1372685185185185,
+        "visibleFrameId": 13
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 30,
+        "sourcePts": 1400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 1.9949074074074074,
+        "visibleFrameId": 42
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 1021,
+        "sourcePts": 34433,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.951929012345679,
+        "visibleFrameId": 1033
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 1022,
+        "sourcePts": 1200400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.7151523919753084,
+        "visibleFrameId": 36012
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 1023,
+        "sourcePts": 1200433,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.4495563271604937,
+        "visibleFrameId": 36013
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 2353,
+        "sourcePts": 1244767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 3.024556327160494,
+        "visibleFrameId": 37343
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 2354,
+        "sourcePts": 1800333,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 1.9971161265432098,
+        "visibleFrameId": 54010
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 2355,
+        "sourcePts": 1800367,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.3712962962962965,
+        "visibleFrameId": 54011
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 3687,
+        "sourcePts": 1844767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.88311149691358,
+        "visibleFrameId": 55343
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 3688,
+        "sourcePts": 1849233,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.680102237654321,
+        "visibleFrameId": 55477
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 3689,
+        "sourcePts": 1849267,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.607108410493827,
+        "visibleFrameId": 55478
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 4015,
+        "sourcePts": 1860133,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.7551408179012347,
+        "visibleFrameId": 55804
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 4016,
+        "sourcePts": 2400400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 1.9617573302469136,
+        "visibleFrameId": 6476
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 4017,
+        "sourcePts": 2400433,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.3176311728395063,
+        "visibleFrameId": 6477
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 5347,
+        "sourcePts": 2444767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.976957947530864,
+        "visibleFrameId": 7807
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 5348,
+        "sourcePts": 3000367,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.751880787037037,
+        "visibleFrameId": 24475
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 5349,
+        "sourcePts": 3000400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.703202160493827,
+        "visibleFrameId": 24476
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 6680,
+        "sourcePts": 3044767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 3.076736111111111,
+        "visibleFrameId": 25807
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 6681,
+        "sourcePts": 3600367,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 1.8530381944444445,
+        "visibleFrameId": 42475
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 6682,
+        "sourcePts": 3600400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.2085648148148147,
+        "visibleFrameId": 42476
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 8013,
+        "sourcePts": 3644767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 3.024141589506173,
+        "visibleFrameId": 43807
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 8014,
+        "sourcePts": 5400400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 3.0776909722222223,
+        "visibleFrameId": 30940
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 8015,
+        "sourcePts": 5400433,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.885223765432099,
+        "visibleFrameId": 30941
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 9345,
+        "sourcePts": 5444767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 3.079079861111111,
+        "visibleFrameId": 32271
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 9346,
+        "sourcePts": 6000333,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 1.9764178240740742,
+        "visibleFrameId": 48938
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 9347,
+        "sourcePts": 6000367,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.295707947530864,
+        "visibleFrameId": 48939
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 10679,
+        "sourcePts": 6044767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 3.167476851851852,
+        "visibleFrameId": 50271
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 10680,
+        "sourcePts": 6049233,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.8468460648148146,
+        "visibleFrameId": 50405
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 10681,
+        "sourcePts": 6049267,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.761603009259259,
+        "visibleFrameId": 50406
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 11007,
+        "sourcePts": 6060133,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.812239583333333,
+        "visibleFrameId": 50732
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 11008,
+        "sourcePts": 6600400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.801996527777778,
+        "visibleFrameId": 1404
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 11009,
+        "sourcePts": 6600433,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.760715663580247,
+        "visibleFrameId": 1405
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 12339,
+        "sourcePts": 6644767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 3.0261091820987653,
+        "visibleFrameId": 2735
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 12340,
+        "sourcePts": 7200367,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 1.9987364969135804,
+        "visibleFrameId": 19403
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 12341,
+        "sourcePts": 7200400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.5549093364197533,
+        "visibleFrameId": 19404
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 13672,
+        "sourcePts": 7244767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.8291184413580246,
+        "visibleFrameId": 20735
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 13673,
+        "sourcePts": 7800367,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.055343364197531,
+        "visibleFrameId": 37403
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 13674,
+        "sourcePts": 7800400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.578385416666667,
+        "visibleFrameId": 37404
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 15005,
+        "sourcePts": 7844767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 3.080738811728395,
+        "visibleFrameId": 38735
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 15006,
+        "sourcePts": 9600400,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.6290316358024692,
+        "visibleFrameId": 25868
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 15007,
+        "sourcePts": 9600433,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.502363040123457,
+        "visibleFrameId": 25869
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 16337,
+        "sourcePts": 9644767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 3.066724537037037,
+        "visibleFrameId": 27199
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 16338,
+        "sourcePts": 10200333,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.0758198302469135,
+        "visibleFrameId": 43866
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 16339,
+        "sourcePts": 10200367,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.482494212962963,
+        "visibleFrameId": 43867
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 17671,
+        "sourcePts": 10244767,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.915943287037037,
+        "visibleFrameId": 45199
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 17672,
+        "sourcePts": 10249233,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.7206404320987656,
+        "visibleFrameId": 45333
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 17673,
+        "sourcePts": 10249267,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 2.658690200617284,
+        "visibleFrameId": 45334
+      },
+      {
+        "profile": "long-form",
+        "outputFrame": 17999,
+        "sourcePts": 10260133,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 3.06796875,
+        "visibleFrameId": 45660
+      },
+      {
+        "profile": "short-1",
+        "outputFrame": 0,
+        "sourcePts": 1849233,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 6.107233796296296,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-1",
+        "outputFrame": 1,
+        "sourcePts": 1849267,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 6.4981481481481485,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-1",
+        "outputFrame": 30,
+        "sourcePts": 1850233,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 7.0679494598765435,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-1",
+        "outputFrame": 327,
+        "sourcePts": 1860133,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 8.074874614197531,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-2",
+        "outputFrame": 0,
+        "sourcePts": 6049233,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 6.450626929012346,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-2",
+        "outputFrame": 1,
+        "sourcePts": 6049267,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 6.820216049382716,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-2",
+        "outputFrame": 30,
+        "sourcePts": 6050233,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 7.705140817901235,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-2",
+        "outputFrame": 327,
+        "sourcePts": 6060133,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 8.144386574074074,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-3",
+        "outputFrame": 0,
+        "sourcePts": 10249233,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 6.297347608024691,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-3",
+        "outputFrame": 1,
+        "sourcePts": 10249267,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 6.626716820987654,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-3",
+        "outputFrame": 30,
+        "sourcePts": 10250233,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 7.807851080246913,
+        "visibleFrameId": null
+      },
+      {
+        "profile": "short-3",
+        "outputFrame": 327,
+        "sourcePts": 10260133,
+        "sourceTimebase": "1/1000",
+        "rgbMaeTop60Percent": 8.74693287037037,
+        "visibleFrameId": null
+      }
+    ],
+    "scope": "All long-form cuts before/at/after plus start/end and three vertical output windows; captions excluded from source-pixel comparison"
+  },
+  "independentAudio": {
+    "outcome": "passed",
+    "checks": [
+      {
+        "profile": "long-form",
+        "segment": 0,
+        "timelineSample": 96000,
+        "sourceSample": 116800,
+        "meanAbsolutePcmError": 0.0015684756913490598,
+        "correlation": 0.9997981237166158,
+        "offsetSamples": 0.0
+      },
+      {
+        "profile": "long-form",
+        "segment": 3,
+        "timelineSample": 5996800,
+        "sourceSample": 88860800,
+        "meanAbsolutePcmError": 0.00022296781008757685,
+        "correlation": 0.9998952765959788,
+        "offsetSamples": 0.0
+      },
+      {
+        "profile": "short-1",
+        "segment": 3,
+        "timelineSample": 5996800,
+        "sourceSample": 88860800,
+        "meanAbsolutePcmError": 0.00020672230484000426,
+        "correlation": 0.9998983525702446,
+        "offsetSamples": 0.0
+      },
+      {
+        "profile": "long-form",
+        "segment": 9,
+        "timelineSample": 17184000,
+        "sourceSample": 290460800,
+        "meanAbsolutePcmError": 0.00024676443950786127,
+        "correlation": 0.9998681883950287,
+        "offsetSamples": 0.0
+      },
+      {
+        "profile": "short-2",
+        "segment": 9,
+        "timelineSample": 17184000,
+        "sourceSample": 290460800,
+        "meanAbsolutePcmError": 0.00020308468028673587,
+        "correlation": 0.9998916496841151,
+        "offsetSamples": 0.0
+      },
+      {
+        "profile": "long-form",
+        "segment": 15,
+        "timelineSample": 28371200,
+        "sourceSample": 492060800,
+        "meanAbsolutePcmError": 0.00024332322380113663,
+        "correlation": 0.9998561468811944,
+        "offsetSamples": 0.0
+      },
+      {
+        "profile": "short-3",
+        "segment": 15,
+        "timelineSample": 28371200,
+        "sourceSample": 492060800,
+        "meanAbsolutePcmError": 0.00021591146505651673,
+        "correlation": 0.9998774647861494,
+        "offsetSamples": 0.0
+      }
+    ],
+    "reference": "Independent full-source sample-count trim, native FFmpeg afftdn with measured two-hop latency compensation, explicit plan gain/envelope mixing, separate AAC output decode",
+    "limitations": "Four source windows compared to long-form and three Shorts (seven 200ms output checks), not continuous acoustic/display measurement; AAC is lossy"
+  },
+  "actualExportLoudness": {
+    "integratedLufs": -18.47,
+    "truePeakDb": -0.85,
+    "loudnessRange": 2.4,
+    "note": "Input measurements of the encoded file; loudnorm output fields are a discarded diagnostic filter output, not Valencia output"
+  },
+  "alignment": {
+    "meanStartErrorSeconds": 0.07733333333333342,
+    "maximumStartErrorSeconds": 0.2450000000000001,
+    "usable": 15,
+    "words": [
+      {
+        "text": "Welcome",
+        "seconds": 0.11,
+        "timingUsable": true
+      },
+      {
+        "text": "to",
+        "seconds": 0.46,
+        "timingUsable": true
+      },
+      {
+        "text": "Valencia.",
+        "seconds": 0.8,
+        "timingUsable": true
+      },
+      {
+        "text": "The",
+        "seconds": 2.15,
+        "timingUsable": true
+      },
+      {
+        "text": "important",
+        "seconds": 2.44,
+        "timingUsable": true
+      },
+      {
+        "text": "announcement",
+        "seconds": 2.78,
+        "timingUsable": true
+      },
+      {
+        "text": "begins",
+        "seconds": 3.32,
+        "timingUsable": true
+      },
+      {
+        "text": "now.",
+        "seconds": 3.74,
+        "timingUsable": true
+      },
+      {
+        "text": "Keep",
+        "seconds": 4.87,
+        "timingUsable": true
+      },
+      {
+        "text": "this",
+        "seconds": 5.14,
+        "timingUsable": true
+      },
+      {
+        "text": "sentence",
+        "seconds": 5.4,
+        "timingUsable": true
+      },
+      {
+        "text": "for",
+        "seconds": 5.7,
+        "timingUsable": true
+      },
+      {
+        "text": "the",
+        "seconds": 5.96,
+        "timingUsable": true
+      },
+      {
+        "text": "final",
+        "seconds": 6.16,
+        "timingUsable": true
+      },
+      {
+        "text": "video.",
+        "seconds": 6.36,
+        "timingUsable": true
+      },
+      {
+        "text": "Thank",
+        "seconds": 7.58,
+        "timingUsable": true
+      },
+      {
+        "text": "you",
+        "seconds": 7.9,
+        "timingUsable": true
+      },
+      {
+        "text": "for",
+        "seconds": 8.1,
+        "timingUsable": true
+      },
+      {
+        "text": "listening.",
+        "seconds": 8.26,
+        "timingUsable": true
+      }
+    ]
+  },
+  "syntheticRandomSeekMilliseconds": [
+    10.9109,
+    0.9407,
+    0.1051,
+    3.6489,
+    0.1626,
+    0.109,
+    2.4509,
+    0.2016,
+    0.1103,
+    5.1599,
+    0.1501,
+    0.1019,
+    2.1547,
+    0.2103,
+    0.1431,
+    3.5932,
+    0.1839,
+    0.1346,
+    3.4779,
+    0.13,
+    0.1335,
+    7.0067,
+    0.1859,
+    0.1359
+  ],
+  "proxy": {
+    "timing": {
+      "exit": 0,
+      "wallSeconds": 22.8114635,
+      "sourceSeconds": 10800.021
+    },
+    "data": {
+      "version": 1,
+      "key": "0F815DDB1191170AAEA3C911492117DA22FE92AB715BBCD44BCC96F81E879FC4",
+      "sourceIdentity": "859CAA3DAFCAB2D29C74D0B01CD754FF00AB9D3A9870EC519E677069770F27C6",
+      "sourceStream": 0,
+      "width": 160,
+      "height": 90,
+      "codec": "H.264 all-intra CRF20",
+      "clockPolicy": "Absolute original PTS; demux timebase; VFR passthrough; originals for audio/export",
+      "videoIdentity": "DE71C11837244E1DC287C4818878EF7AEDC499C2C8335CEDEE7FC2B4B1EBD68D",
+      "bytes": "661562439"
+    },
+    "nativePreview": {
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "elapsedSeconds": 6.0711685,
+      "actualPlaybackSeconds": 5.0271315,
+      "maximumObservedPresentationSkewSeconds": 0.03341666666666043,
+      "underrunFrames": 0,
+      "seekLatenciesMs": [
+        291.1256,
+        190.9757,
+        198.3197,
+        178.0669
+      ],
+      "captionPreview": true,
+      "verticalPreview": true,
+      "scope": "Automated native editor, Vulkan GPU presentation/readback and NAudio device playback across one cut; not human usability approval"
+    }
+  },
+  "script": {
+    "run": {
+      "seconds": 102.8935915,
+      "exit": 0
+    },
+    "outputs": [
+      {
+        "file": "artifacts/local/m2d/three-hour.valencia.outputs/long-form.mp4",
+        "sha256": "86C33385E3A4D02F6CA228973E0B1AFDFB951BB1ABC19449A56561BE35F7E494",
+        "byteIdenticalToCli": true,
+        "decodedAudioIdentical": true,
+        "videoComparison": "Byte-identical container"
+      },
+      {
+        "file": "artifacts/local/m2d/three-hour.valencia.outputs/short-1.mp4",
+        "sha256": "7AEC6A4ED05660F733C06489D88B2EADBECABBC5DEB6A8D4350680A15158E837",
+        "byteIdenticalToCli": true,
+        "decodedAudioIdentical": true,
+        "videoComparison": "Byte-identical container"
+      },
+      {
+        "file": "artifacts/local/m2d/three-hour.valencia.outputs/short-2.mp4",
+        "sha256": "AD95F2B210E5DCD7BC3DC38660B1B903681016B4759A6A90B20D0B55276D81C6",
+        "byteIdenticalToCli": true,
+        "decodedAudioIdentical": true,
+        "videoComparison": "Byte-identical container"
+      },
+      {
+        "file": "artifacts/local/m2d/three-hour.valencia.outputs/short-3.mp4",
+        "sha256": "8FD295DDC1189F67E5EEB76DCED89046E1EFF14174350D467A4FEA1C89821167",
+        "byteIdenticalToCli": false,
+        "decodedAudioIdentical": true,
+        "videoComparison": "Independent FFmpeg SSIM All reported 1.000000 (67.613117 dB); eight frames have tiny lossy pixel differences. Not bit-identical video."
+      }
+    ],
+    "entry": "examples/creator-cut.ts",
+    "runtime": "Copeland C# backend, Roslyn, ordinary CLR; no Node",
+    "note": "Three containers byte-identical; fourth has identical decoded audio and SSIM video comparison above"
+  },
+  "native": {
+    "creator": {
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "elapsedSeconds": 6.0738046,
+      "actualPlaybackSeconds": 5.0189867,
+      "maximumObservedPresentationSkewSeconds": 0.03354166666667169,
+      "underrunFrames": 0,
+      "seekLatenciesMs": [
+        307.7135,
+        183.8565,
+        194.8633,
+        181.1889
+      ],
+      "captionPreview": true,
+      "verticalPreview": true,
+      "scope": "Automated native editor, Vulkan GPU presentation/readback and NAudio device playback across one cut; not human usability approval"
+    },
+    "threeHourSource": {
+      "outcome": "passed",
+      "source": {
+        "Path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m2d\\three-hour.mkv",
+        "Container": "matroska,webm",
+        "DurationSeconds": 10800.021,
+        "StartSeconds": -0.021,
+        "Width": 160,
+        "Height": 90,
+        "NominalFrameRate": 30,
+        "VideoStreamIndex": 0,
+        "AudioStreamIndex": 1,
+        "Streams": [
+          {
+            "Index": 0,
+            "Kind": "Video",
+            "Codec": "h264",
+            "Details": "160 x 90"
+          },
+          {
+            "Index": 1,
+            "Kind": "Audio",
+            "Codec": "aac",
+            "Details": "48000 Hz / 1 ch"
+          },
+          {
+            "Index": 2,
+            "Kind": "Audio",
+            "Codec": "aac",
+            "Details": "48000 Hz / 1 ch"
+          }
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "validationAvailable": true,
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "nativeWindow": true,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "softwareDecode": true,
+      "windowResize": true,
+      "pauseClockStable": true,
+      "seekSeconds": 3.2,
+      "maximumAvSkewSeconds": 0.03297916666666667,
+      "sampledFrames": 433,
+      "presentedFrames": 483,
+      "uploadedVideoFrames": 92,
+      "finalGenerationUnderrunFrames": 0,
+      "elapsedSeconds": 3.5679528
+    },
+    "m0mp4": {
+      "outcome": "passed",
+      "source": {
+        "Path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\player-fixtures\\av.mp4",
+        "Container": "mov,mp4,m4a,3gp,3g2,mj2",
+        "DurationSeconds": 6,
+        "StartSeconds": 0,
+        "Width": 640,
+        "Height": 360,
+        "NominalFrameRate": 30,
+        "VideoStreamIndex": 0,
+        "AudioStreamIndex": 1,
+        "Streams": [
+          {
+            "Index": 0,
+            "Kind": "Video",
+            "Codec": "h264",
+            "Details": "640 x 360"
+          },
+          {
+            "Index": 1,
+            "Kind": "Audio",
+            "Codec": "aac",
+            "Details": "48000 Hz / 1 ch"
+          }
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "validationAvailable": true,
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "nativeWindow": true,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "softwareDecode": true,
+      "windowResize": true,
+      "pauseClockStable": true,
+      "seekSeconds": 3.2,
+      "maximumAvSkewSeconds": 0.03227083333333347,
+      "sampledFrames": 431,
+      "presentedFrames": 481,
+      "uploadedVideoFrames": 93,
+      "finalGenerationUnderrunFrames": 0,
+      "elapsedSeconds": 3.5544597
+    },
+    "m0mkv": {
+      "outcome": "passed",
+      "source": {
+        "Path": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\player-fixtures\\av.mkv",
+        "Container": "matroska,webm",
+        "DurationSeconds": 6.021,
+        "StartSeconds": 0,
+        "Width": 640,
+        "Height": 360,
+        "NominalFrameRate": 30,
+        "VideoStreamIndex": 0,
+        "AudioStreamIndex": 1,
+        "Streams": [
+          {
+            "Index": 0,
+            "Kind": "Video",
+            "Codec": "h264",
+            "Details": "640 x 360"
+          },
+          {
+            "Index": 1,
+            "Kind": "Audio",
+            "Codec": "aac",
+            "Details": "48000 Hz / 1 ch"
+          }
+        ]
+      },
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "validationAvailable": true,
+      "audioBackend": "NAudio 3 / WaveOut / device clock",
+      "nativeWindow": true,
+      "gpuReadbackMatchesDecodedPixels": true,
+      "softwareDecode": true,
+      "windowResize": true,
+      "pauseClockStable": true,
+      "seekSeconds": 3.2,
+      "maximumAvSkewSeconds": 0.03277083333333364,
+      "sampledFrames": 431,
+      "presentedFrames": 481,
+      "uploadedVideoFrames": 92,
+      "finalGenerationUnderrunFrames": 0,
+      "elapsedSeconds": 3.5375153
+    },
+    "m1b": {
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "runtime": "10.0.15",
+      "elapsedSeconds": 15.8593158,
+      "maximumAvSkewSeconds": 0.03335416666666635,
+      "realPlaybackSeconds": 10,
+      "seekRequests": 10,
+      "staleGenerationsRejected": 1,
+      "presentedFrames": 2125,
+      "seekLatencyMs": [
+        68.7814,
+        48.8069,
+        44.9762,
+        46.8871,
+        74.6938,
+        48.3662,
+        49.8324,
+        68.7382
+      ],
+      "uploadedFrames": 307,
+      "syntheticFrameMedianMs": 6.0165,
+      "syntheticFrameP95Ms": 10.935,
+      "syntheticClipCount": 5000,
+      "inputProposalMs": 8.4679,
+      "renderedBenchmarkFrames": 120,
+      "export": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m1b-smoke\\edited.mp4",
+      "saveReopenSemanticEquality": true,
+      "copelandScriptOnLiveSession": true
+    },
+    "m1bIndependent": {
+      "outcome": "passed",
+      "decoder": "independent FFmpeg CLI",
+      "probe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "width": 1280,
+            "height": 720,
+            "r_frame_rate": "30/1"
+          },
+          {
+            "codec_name": "aac",
+            "sample_rate": "48000",
+            "r_frame_rate": "0/0"
+          }
+        ],
+        "format": {
+          "duration": "10.000000"
+        }
+      },
+      "earlySourceFrameError": 0.6464120370370371,
+      "postCutSourceFrameError": 0.6614583333333334,
+      "gapVideoMaximum": 0.0,
+      "secondSourceBlueMean": 252.0,
+      "gapAudioRms": 0.0,
+      "signalAudioRms": 0.08822027237194988
+    },
+    "m2b": {
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "elapsedSeconds": 1.4773512,
+      "waveformStreams": 1,
+      "waveformQuads": 107,
+      "waveformFrameMedianMs": 7.2249,
+      "waveformFrameP95Ms": 8.2705,
+      "outputDurationSeconds": 4.2,
+      "previewNonMutating": true,
+      "cancelNonMutating": true,
+      "undoRedo": true
+    },
+    "m2c": {
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "elapsedSeconds": 1.1389538,
+      "words": 19,
+      "previewNonMutating": true,
+      "cancelNonMutating": true,
+      "undoRedo": true,
+      "outputDurationSeconds": 1.1396825396825396,
+      "searchNavigatedToSource": true,
+      "seekLatenciesMs": [
+        68.8906,
+        46.9634,
+        25.2828
+      ]
+    }
+  },
+  "font": {
+    "path": "C:/Windows/Fonts/arial.ttf",
+    "sha256": "EDFBD22A3D088FC2F5D7C79B8C9C732DF6DC878A60F0A80BE0F92A3C7A634404",
+    "redistributed": false
+  },
+  "limits": [
+    "Synthetic 160x90 source / 320x180 and 180x320 exports; no real OBS/editorial/high-resolution qualification",
+    "Three Shorts use distinct source windows; repeated fixture speech does not establish topic diversity",
+    "Native source smoke 3.57s and edited playback about 5s per run, not three hours elapsed playback",
+    "No full Whisper GPU inference or GPU scheduling research in this milestone",
+    "Peak GPU memory, child-process aggregate RAM and per-stage cold analysis throughput not separately measured",
+    "Native FFmpeg logged Matroska keyframe warnings; tested actual-PTS/source-frame checks pass; unusual/damaged cue behavior unqualified",
+    "Word alignment: one English SAPI voice, 15 uniquely matched starts; no overlapping-speaker or human corpus qualification",
+    "Full original codec/interchange/advanced trim matrix remains deferred or partial; see docs/M2D_POC_COVERAGE.md"
+  ]
+}

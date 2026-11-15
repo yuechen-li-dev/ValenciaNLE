@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><AllowUnsafeBlocks>true</AllowUnsafeBlocks></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Valencia.Core/Valencia.Core.csproj" />
+    <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
+    <PackageReference Include="NAudio.WinMM" Version="3.3.0" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="3.119.1" />
+  </ItemGroup>
+</Project>
