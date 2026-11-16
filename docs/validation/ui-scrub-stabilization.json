@@ -1,0 +1,823 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "task": "Button alignment and scrub stabilization",
+  "baseCommit": "6d3c606e787151b118886585a06d862e55ed635d",
+  "status": "Verified improvements and diagnostic containment; original abrupt termination not reproduced",
+  "hardware": {
+    "cpu": "AMD Ryzen 7 7700X",
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "driver": "610.88 / 32.0.16.1088",
+    "runtime": "10.0.15",
+    "sdk": "10.0.401"
+  },
+  "historicalCrash": {
+    "reproduced": false,
+    "eventLog": "Application event 1000",
+    "localEventTime": "2026-11-15 18:14:05",
+    "exceptionCode": "0xc000041d",
+    "managedStackAvailable": false,
+    "originalRootCause": "unknown"
+  },
+  "tests": [
+    {
+      "name": "Valencia.Core.Tests",
+      "passed": 73,
+      "failed": 0,
+      "skipped": 0,
+      "total": 73
+    },
+    {
+      "name": "Valencia.Persistence.Tests",
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0,
+      "total": 21
+    },
+    {
+      "name": "Valencia.Tests",
+      "passed": 100,
+      "failed": 0,
+      "skipped": 0,
+      "total": 100
+    },
+    {
+      "name": "Valencia.Programming.Tests",
+      "passed": 85,
+      "failed": 0,
+      "skipped": 0,
+      "total": 85
+    }
+  ],
+  "totalPassed": 279.0,
+  "build": {
+    "configuration": "Release",
+    "warnings": 0,
+    "errors": 0,
+    "publishedExecutable": "artifacts/publish/win-x64/Valencia.App.exe",
+    "executableSha256": "5A814F97E7F4BCE0D0D8500E343B31F3FAB7A41DF714ECFEA73F68447D98C810"
+  },
+  "cpuSeekComparison": {
+    "source": "artifacts/local/m2e/motion.mp4",
+    "format": "1920x1080 H264 60fps; AAC 48kHz mono; 12 seconds",
+    "scope": "Same source/snapshot/timestamps. Full player audio prebuffer/device versus reusable paused video evaluator. Decode-ready CPU latency; excludes UI/presentation. OS caches not flushed.",
+    "quantiles": "Median averages the two middle samples; p95 is nearest rank. Earlier progress messages used upper middle samples.",
+    "before": {
+      "count": 12,
+      "medianMs": 295.8088,
+      "p95Ms": 801.4227,
+      "maximumMs": 801.4227
+    },
+    "after": {
+      "count": 12,
+      "medianMs": 165.24175,
+      "p95Ms": 401.8461,
+      "maximumMs": 401.8461
+    },
+    "beforeAllMeasurements": [
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "2438553599999",
+        "elapsedMs": 801.4227,
+        "disposeMs": 5.6602
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "304819199999",
+        "elapsedMs": 108.2343,
+        "disposeMs": 3.6964
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "1828915199999",
+        "elapsedMs": 500.4245,
+        "disposeMs": 4.2413
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "0",
+        "elapsedMs": 33.0893,
+        "disposeMs": 3.3204
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "1219276799999",
+        "elapsedMs": 376.3208,
+        "disposeMs": 3.8301
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "609638399999",
+        "elapsedMs": 192.7094,
+        "disposeMs": 3.8305
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "2438553599999",
+        "elapsedMs": 652.9698,
+        "disposeMs": 4.2464
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "304819199999",
+        "elapsedMs": 133.154,
+        "disposeMs": 4.1179
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "1828915199999",
+        "elapsedMs": 564.6136,
+        "disposeMs": 4.2658
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "0",
+        "elapsedMs": 23.0046,
+        "disposeMs": 3.6575
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "1219276799999",
+        "elapsedMs": 420.2424,
+        "disposeMs": 5.1453
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "609638399999",
+        "elapsedMs": 215.2968,
+        "disposeMs": 4.1863
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "2438553599999",
+        "elapsedMs": 826.8474,
+        "disposeMs": 0.0103
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "304819199999",
+        "elapsedMs": 133.4771,
+        "disposeMs": 0.0076
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "1828915199999",
+        "elapsedMs": 630.9099,
+        "disposeMs": 0.0158
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "0",
+        "elapsedMs": 21.1972,
+        "disposeMs": 0.0088
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "1219276799999",
+        "elapsedMs": 437.624,
+        "disposeMs": 0.0155
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "609638399999",
+        "elapsedMs": 221.3117,
+        "disposeMs": 0.014
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "2438553599999",
+        "elapsedMs": 812.3304,
+        "disposeMs": 0.0099
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "304819199999",
+        "elapsedMs": 125.5986,
+        "disposeMs": 0.0094
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "1828915199999",
+        "elapsedMs": 599.1999,
+        "disposeMs": 0.0091
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "0",
+        "elapsedMs": 18.844,
+        "disposeMs": 0.0125
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "1219276799999",
+        "elapsedMs": 448.4631,
+        "disposeMs": 0.0185
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "609638399999",
+        "elapsedMs": 217.9967,
+        "disposeMs": 0.0068
+      }
+    ],
+    "afterAllMeasurements": [
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "2438553599999",
+        "elapsedMs": 455.0797,
+        "disposeMs": 5.9305
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "304819199999",
+        "elapsedMs": 68.6995,
+        "disposeMs": 3.9924
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "1828915199999",
+        "elapsedMs": 322.0793,
+        "disposeMs": 4.3236
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "0",
+        "elapsedMs": 30.6239,
+        "disposeMs": 3.4893
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "1219276799999",
+        "elapsedMs": 220.3398,
+        "disposeMs": 4.1185
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 0,
+        "ticks": "609638399999",
+        "elapsedMs": 119.8353,
+        "disposeMs": 4.0793
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "2438553599999",
+        "elapsedMs": 416.1442,
+        "disposeMs": 4.5346
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "304819199999",
+        "elapsedMs": 69.3852,
+        "disposeMs": 3.3599
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "1828915199999",
+        "elapsedMs": 316.9879,
+        "disposeMs": 4.0573
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "0",
+        "elapsedMs": 20.8671,
+        "disposeMs": 3.3795
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "1219276799999",
+        "elapsedMs": 216.3885,
+        "disposeMs": 4.3153
+      },
+      {
+        "mode": "audio-video-open",
+        "pass": 1,
+        "ticks": "609638399999",
+        "elapsedMs": 121.6426,
+        "disposeMs": 3.8035
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "2438553599999",
+        "elapsedMs": 400.1057,
+        "disposeMs": 0.0074
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "304819199999",
+        "elapsedMs": 68.573,
+        "disposeMs": 0.0078
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "1828915199999",
+        "elapsedMs": 311.7495,
+        "disposeMs": 0.015
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "0",
+        "elapsedMs": 17.9862,
+        "disposeMs": 0.0083
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "1219276799999",
+        "elapsedMs": 213.0889,
+        "disposeMs": 0.014
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 0,
+        "ticks": "609638399999",
+        "elapsedMs": 117.0335,
+        "disposeMs": 0.0085
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "2438553599999",
+        "elapsedMs": 401.8461,
+        "disposeMs": 0.0069
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "304819199999",
+        "elapsedMs": 74.2829,
+        "disposeMs": 0.0074
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "1828915199999",
+        "elapsedMs": 310.614,
+        "disposeMs": 0.0076
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "0",
+        "elapsedMs": 18.1901,
+        "disposeMs": 0.0067
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "1219276799999",
+        "elapsedMs": 212.3217,
+        "disposeMs": 0.0171
+      },
+      {
+        "mode": "video-only-preview",
+        "pass": 1,
+        "ticks": "609638399999",
+        "elapsedMs": 118.1618,
+        "disposeMs": 0.0074
+      }
+    ],
+    "peakWorkingSetBeforeBytes": "338313216",
+    "peakWorkingSetAfterBytes": "277471232"
+  },
+  "nativeScrubs": [
+    {
+      "name": "final-short",
+      "outcome": "passed",
+      "source": {
+        "name": "av.mp4",
+        "streams": [
+          {
+            "Index": 0,
+            "Kind": 0,
+            "Codec": "h264",
+            "TimeBaseNumerator": 1,
+            "TimeBaseDenominator": 15360,
+            "Start": {
+              "Value": 0,
+              "Numerator": 1,
+              "Denominator": 15360
+            },
+            "End": {
+              "Value": 92160,
+              "Numerator": 1,
+              "Denominator": 15360
+            },
+            "Width": 640,
+            "Height": 360,
+            "SampleRate": null,
+            "Channels": null,
+            "FrameRate": {
+              "Numerator": 30,
+              "Denominator": 1
+            }
+          },
+          {
+            "Index": 1,
+            "Kind": 1,
+            "Codec": "aac",
+            "TimeBaseNumerator": 1,
+            "TimeBaseDenominator": 48000,
+            "Start": {
+              "Value": 0,
+              "Numerator": 1,
+              "Denominator": 48000
+            },
+            "End": {
+              "Value": 288000,
+              "Numerator": 1,
+              "Denominator": 48000
+            },
+            "Width": null,
+            "Height": null,
+            "SampleRate": 48000,
+            "Channels": 1,
+            "FrameRate": null
+          }
+        ]
+      },
+      "sequence": {
+        "width": 1280,
+        "height": 720,
+        "fpsNumerator": 30,
+        "fpsDenominator": 1
+      },
+      "trials": 24,
+      "pointerMoves": 2400,
+      "timing": {
+        "count": 24,
+        "medianMs": 32.14925,
+        "p95Ms": 41.5587,
+        "maximumMs": 45.0501
+      },
+      "latencySamplesMs": [
+        45.0501,
+        31.0535,
+        33.4428,
+        41.5587,
+        41.157,
+        33.3994,
+        35.997,
+        31.519,
+        30.9803,
+        31.4598,
+        35.2809,
+        32.6535,
+        33.6469,
+        31.0105,
+        35.9069,
+        31.645,
+        40.3989,
+        31.1005,
+        30.0501,
+        30.2506,
+        29.4963,
+        30.3928,
+        30.1457,
+        33.5943
+      ],
+      "callbackFailures": 0,
+      "injectedCallbackFailureReported": true,
+      "sourceToTimelineSwitch": true,
+      "pauseCancelsPendingPlay": true,
+      "maximumAvSkewSeconds": 0.0408125,
+      "underrunFrames": 0,
+      "validationAvailable": true,
+      "validationErrors": 0,
+      "revisionUnchanged": true,
+      "scope": "Native GPU/audio window; actual coordinate/capture handlers, synthetic events. Physical pointer drags qualified separately."
+    },
+    {
+      "name": "final-obs",
+      "outcome": "passed",
+      "source": {
+        "name": "2026-11-15 12-56-56.mkv",
+        "streams": [
+          {
+            "Index": 0,
+            "Kind": 0,
+            "Codec": "h264",
+            "TimeBaseNumerator": 1,
+            "TimeBaseDenominator": 1000,
+            "Start": {
+              "Value": 0,
+              "Numerator": 1,
+              "Denominator": 1000
+            },
+            "End": null,
+            "Width": 2560,
+            "Height": 1440,
+            "SampleRate": null,
+            "Channels": null,
+            "FrameRate": {
+              "Numerator": 60,
+              "Denominator": 1
+            }
+          },
+          {
+            "Index": 1,
+            "Kind": 1,
+            "Codec": "aac",
+            "TimeBaseNumerator": 1,
+            "TimeBaseDenominator": 1000,
+            "Start": {
+              "Value": -21,
+              "Numerator": 1,
+              "Denominator": 1000
+            },
+            "End": null,
+            "Width": null,
+            "Height": null,
+            "SampleRate": 48000,
+            "Channels": 2,
+            "FrameRate": null
+          },
+          {
+            "Index": 2,
+            "Kind": 1,
+            "Codec": "aac",
+            "TimeBaseNumerator": 1,
+            "TimeBaseDenominator": 1000,
+            "Start": {
+              "Value": -21,
+              "Numerator": 1,
+              "Denominator": 1000
+            },
+            "End": null,
+            "Width": null,
+            "Height": null,
+            "SampleRate": 48000,
+            "Channels": 2,
+            "FrameRate": null
+          },
+          {
+            "Index": 3,
+            "Kind": 1,
+            "Codec": "aac",
+            "TimeBaseNumerator": 1,
+            "TimeBaseDenominator": 1000,
+            "Start": {
+              "Value": -21,
+              "Numerator": 1,
+              "Denominator": 1000
+            },
+            "End": null,
+            "Width": null,
+            "Height": null,
+            "SampleRate": 48000,
+            "Channels": 2,
+            "FrameRate": null
+          }
+        ]
+      },
+      "sequence": {
+        "width": 1280,
+        "height": 720,
+        "fpsNumerator": 30,
+        "fpsDenominator": 1
+      },
+      "trials": 24,
+      "pointerMoves": 2400,
+      "timing": {
+        "count": 24,
+        "medianMs": 89.77955,
+        "p95Ms": 142.3023,
+        "maximumMs": 147.342
+      },
+      "latencySamplesMs": [
+        33.6248,
+        147.342,
+        86.6842,
+        96.4148,
+        92.3154,
+        93.9009,
+        25.3339,
+        140.2174,
+        90.3266,
+        89.0962,
+        89.0184,
+        88.8638,
+        24.3991,
+        141.9437,
+        88.2034,
+        89.2325,
+        90.7023,
+        92.9179,
+        27.7849,
+        142.3023,
+        85.9513,
+        94.0008,
+        93.9037,
+        87.0635
+      ],
+      "callbackFailures": 0,
+      "injectedCallbackFailureReported": true,
+      "sourceToTimelineSwitch": true,
+      "pauseCancelsPendingPlay": true,
+      "maximumAvSkewSeconds": 0.041604166666666664,
+      "underrunFrames": 0,
+      "validationAvailable": true,
+      "validationErrors": 0,
+      "revisionUnchanged": true,
+      "scope": "Native GPU/audio window; actual coordinate/capture handlers, synthetic events. Physical pointer drags qualified separately."
+    }
+  ],
+  "player": {
+    "outcome": "passed",
+    "maximumAvSkewSeconds": 0.0686666666666671,
+    "underruns": 0,
+    "gpuReadbackMatchesDecodedPixels": true,
+    "windowResize": true,
+    "pauseClockStable": true
+  },
+  "editedPlayback": {
+    "outcome": "passed",
+    "maximumAvSkewSeconds": 0.046729166666666266,
+    "playbackElapsedSeconds": 9.7608605,
+    "sequenceDurationSeconds": 9.666666666666666,
+    "staleGenerationsRejected": 1,
+    "saveReopenSemanticEquality": true,
+    "copelandScriptOnLiveSession": true
+  },
+  "exportVerification": {
+    "outcome": "passed",
+    "decoder": "independent FFmpeg CLI",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1"
+        },
+        {
+          "codec_name": "aac",
+          "sample_rate": "48000",
+          "r_frame_rate": "0/0"
+        }
+      ],
+      "format": {
+        "duration": "9.666667"
+      }
+    },
+    "earlySourceFrameError": 0.6464120370370371,
+    "postCutSourceFrameError": 0.6614583333333334,
+    "gapVideoMaximum": 0.0,
+    "secondSourceBlueMean": 252.0,
+    "gapAudioRms": 0.0,
+    "signalAudioRms": 0.08822027237194988
+  },
+  "nativeLayout": {
+    "outcome": "passed",
+    "layouts": [
+      {
+        "Name": "desktop",
+        "Width": 1280,
+        "Height": 720,
+        "profile": "Desktop",
+        "framebufferWidth": 1280,
+        "framebufferHeight": 720,
+        "textGlyphs": 723,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 0,
+        "visibleTracks": 4,
+        "frameMedianMs": 5.3911,
+        "frameP95Ms": 8.5152
+      },
+      {
+        "Name": "desktop-wide",
+        "Width": 1920,
+        "Height": 1080,
+        "profile": "Desktop",
+        "framebufferWidth": 1920,
+        "framebufferHeight": 1080,
+        "textGlyphs": 819,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 0,
+        "visibleTracks": 4,
+        "frameMedianMs": 5.3535,
+        "frameP95Ms": 19.2948
+      },
+      {
+        "Name": "desktop-1440",
+        "Width": 2560,
+        "Height": 1440,
+        "profile": "Desktop",
+        "framebufferWidth": 2560,
+        "framebufferHeight": 1421,
+        "textGlyphs": 847,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 0,
+        "visibleTracks": 4,
+        "frameMedianMs": 5.3862,
+        "frameP95Ms": 12.7176
+      },
+      {
+        "Name": "vertical-tablet",
+        "Width": 768,
+        "Height": 1024,
+        "profile": "VerticalTablet",
+        "framebufferWidth": 768,
+        "framebufferHeight": 1024,
+        "textGlyphs": 434,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 0,
+        "visibleTracks": 4,
+        "frameMedianMs": 5.6849,
+        "frameP95Ms": 19.2145
+      },
+      {
+        "Name": "vertical-phone",
+        "Width": 390,
+        "Height": 844,
+        "profile": "VerticalPhone",
+        "framebufferWidth": 390,
+        "framebufferHeight": 844,
+        "textGlyphs": 389,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 0,
+        "visibleTracks": 3,
+        "frameMedianMs": 5.4841,
+        "frameP95Ms": 24.6815
+      },
+      {
+        "Name": "desktop-restored",
+        "Width": 1280,
+        "Height": 720,
+        "profile": "Desktop",
+        "framebufferWidth": 1280,
+        "framebufferHeight": 720,
+        "textGlyphs": 723,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 0,
+        "visibleTracks": 4,
+        "frameMedianMs": 5.5968,
+        "frameP95Ms": 26.5812
+      }
+    ],
+    "semanticDocumentPreservedByResize": true,
+    "syntheticClips": 5000,
+    "visibleClips": 7,
+    "benchmarkFrameMedianMs": 5.4932,
+    "benchmarkFrameP95Ms": 6.2671
+  },
+  "physicalPointer": {
+    "performed": true,
+    "fixture": "artifacts/local/fixtures/av.mp4",
+    "actions": [
+      "Backward ruler drag before playback",
+      "Space playback after seek",
+      "Backward ruler drag after playback"
+    ],
+    "crashObserved": false,
+    "api": "computer-use sky",
+    "note": "Older qualified Release build, with the same media/capture/alignment fixes; final synthetic native smokes additionally cover pending-play cancellation and injected failure reporting."
+  },
+  "limits": [
+    "No managed stack for the historical callback termination: exact original crash cause remains unknown.",
+    "Physical Windows DPI changes were not performed; hinted geometry tested at four device scales.",
+    "Short controlled sources; no universal latency guarantee for long-GOP, HDR, damaged, or multi-hour footage.",
+    "The CPU comparison uses historical pre-conversion source and current optimized source; current full-player mode also benefits from the conversion fix.",
+    "Existing older Debug session was preserved.",
+    "No commit or push performed."
+  ]
+}

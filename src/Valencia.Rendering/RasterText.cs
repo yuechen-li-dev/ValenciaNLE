@@ -33,6 +33,7 @@ public sealed class RasterText
     private readonly record struct Slot(int X, int Y, int Width, int Height, int Left, int Top);
 
     private readonly Dictionary<string, SKTypeface> typefaces = [];
+    private readonly object gate = new(); // shared measurer may be queried while another caller warms a face
     private readonly Dictionary<(TextSize Size, float Scale), Face> faces = [];
     private readonly Dictionary<(TextSize Size, float Scale, char Glyph, bool Dark), Slot?> slots = [];
     private int penX = 1, penY = 1, rowHeight;
@@ -76,31 +77,52 @@ public sealed class RasterText
     /// <summary>Logical size of one line (ASCII) at the role's size.</summary>
     public IntrinsicSize Measure(string value, TextSize size)
     {
-        var face = FaceFor(size, 1);
-        float width = 0;
-        foreach (char c in value) width += Advance(face, c);
-        return new(Math.Ceiling(width) + 1, face.Ascent + face.Descent + 2);
+        lock (gate)
+        {
+            var face = FaceFor(size, 1);
+            float width = 0;
+            foreach (char c in value) width += Advance(face, c);
+            return new(Math.Ceiling(width) + 1, face.Ascent + face.Descent + 2);
+        }
     }
 
     /// <summary>Appends the glyph quads for one positioned text operation, clipped to <paramref name="clip"/>.</summary>
     public void Layout(PositionedTextOperation text, Rect clip, float scale, List<RasterGlyphQuad> into)
     {
+        lock (gate) LayoutCore(text, clip, scale, into);
+    }
+    private void LayoutCore(PositionedTextOperation text, Rect clip, float scale, List<RasterGlyphQuad> into)
+    {
         var size = text.Style.Size;
         var face = FaceFor(size, scale);
-        var measured = Measure(text.Text, size);
-        double x = text.Rect.X + text.Style.AlignX switch
-        {
-            TextAlignX.Center => (text.Rect.Width - measured.Width) / 2, TextAlignX.Right => text.Rect.Width - measured.Width, _ => 0,
-        };
-        double y = text.Rect.Y + 1 + text.Style.AlignY switch
-        {
-            TextAlignY.Center => (text.Rect.Height - measured.Height) / 2, TextAlignY.Bottom => text.Rect.Height - measured.Height, _ => 0,
-        };
         uint rgba = text.Color.Rgba;
         var tint = new Native2DTint((rgba >> 24) / 255f, ((rgba >> 16) & 255) / 255f, ((rgba >> 8) & 255) / 255f, (rgba & 255) / 255f);
         bool dark = .2126f * tint.Red + .7152f * tint.Green + .0722f * tint.Blue < .25f;
+        // Align the visible glyph run, using this device scale's hinted advances and bearings.
+        // Logical 1x metrics differ at fractional DPI, and advance boxes include unequal side bearings.
+        float advanceWidth = 0, inkLeft = float.PositiveInfinity, inkTop = float.PositiveInfinity;
+        float inkRight = float.NegativeInfinity, inkBottom = float.NegativeInfinity;
+        foreach (char c in text.Text)
+        {
+            if (!char.IsWhiteSpace(c) && Glyph(face, size, scale, c, dark) is { } slot)
+            {
+                inkLeft = Math.Min(inkLeft, advanceWidth + slot.Left); inkRight = Math.Max(inkRight, advanceWidth + slot.Left + slot.Width);
+                inkTop = Math.Min(inkTop, slot.Top); inkBottom = Math.Max(inkBottom, slot.Top + slot.Height);
+            }
+            advanceWidth += Advance(face, c);
+        }
+        if (!float.IsFinite(inkLeft)) return;
         // Device-pixel space from here: whole-pixel origins and baseline.
-        float pen = MathF.Round((float)x * scale), baseline = MathF.Round((float)y * scale) + face.Ascent;
+        float pen = MathF.Round((float)(text.Rect.X * scale) + (text.Style.AlignX switch
+        {
+            TextAlignX.Center => ((float)text.Rect.Width * scale - inkLeft - inkRight) / 2,
+            TextAlignX.Right => (float)text.Rect.Width * scale - inkRight, _ => 0,
+        }));
+        float baseline = MathF.Round((float)(text.Rect.Y * scale) + (text.Style.AlignY switch
+        {
+            TextAlignY.Center => ((float)text.Rect.Height * scale - inkTop - inkBottom) / 2,
+            TextAlignY.Bottom => (float)text.Rect.Height * scale - inkBottom, _ => scale + face.Ascent,
+        }));
         int clipLeft = (int)Math.Floor(clip.X * scale), clipTop = (int)Math.Floor(clip.Y * scale);
         int clipRight = (int)Math.Ceiling((clip.X + clip.Width) * scale), clipBottom = (int)Math.Ceiling((clip.Y + clip.Height) * scale);
         foreach (char c in text.Text)

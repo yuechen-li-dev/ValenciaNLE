@@ -26,9 +26,11 @@ public sealed class SequencePlayback : IAsyncDisposable
     public SequenceTime Start { get; }
     public SequenceFrame? Current { get; private set; }
     public bool IsPlaying { get; private set; }
+    /// <summary>Paused video-only seeks must reopen at the requested timestamp before starting audio playback.</summary>
+    public bool CanPlay { get; }
     public Exception? Failure => Volatile.Read(ref failure);
     public long UnderrunFrames => audio.UnderrunFrames;
-    private SequencePlayback(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start, CancellationToken cancellation, OutputProfile? profile)
+    private SequencePlayback(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start, CancellationToken cancellation, OutputProfile? profile, SequenceFrame? preview = null)
     {
         Snapshot = snapshot; queries = new(snapshot); Sequence = queries.Sequence(sequenceId);
         Start = start; lastPosition = start;
@@ -42,9 +44,21 @@ public sealed class SequencePlayback : IAsyncDisposable
         // Edited cuts may jump hours forward and need sample-anchor discovery. Keep a bounded
         // 64-block horizon (~2.7 s / 1 MiB at 48 kHz), independently of the short video queue.
         audio = new(Sequence.AudioSampleRate, capacity: 64);
-        videoWorker = Task.Run(() => ProduceVideo(sequenceId));
-        audioWorker = Task.Run(() => ProduceAudio(sequenceId));
+        CanPlay = preview is null;
+        if (preview is not null)
+        {
+            Current = preview; video.Writer.TryComplete(); audio.Complete();
+            videoWorker = audioWorker = Task.CompletedTask;
+        }
+        else
+        {
+            videoWorker = Task.Run(() => ProduceVideo(sequenceId));
+            audioWorker = Task.Run(() => ProduceAudio(sequenceId));
+        }
     }
+    public static SequencePlayback OpenPreview(SequencePreview preview, ProjectSnapshot snapshot, Guid sequenceId,
+        SequenceTime start, CancellationToken cancellation = default, OutputProfile? profile = null) =>
+        new(snapshot, sequenceId, start, cancellation, profile, preview.Video(snapshot, sequenceId, start, cancellation, profile));
     public static async Task<SequencePlayback> OpenAsync(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start, CancellationToken cancellation = default, OutputProfile? profile = null)
     {
         var session = new SequencePlayback(snapshot, sequenceId, start, cancellation, profile);
@@ -80,7 +94,11 @@ public sealed class SequencePlayback : IAsyncDisposable
             }
         }
     }
-    public void Play() { lock (clockGate) { output?.Play(); IsPlaying = true; } }
+    public void Play()
+    {
+        if (!CanPlay) throw new InvalidOperationException("Reopen paused preview with OpenAsync before playing audio.");
+        lock (clockGate) { output?.Play(); IsPlaying = true; }
+    }
     public void Pause() { lock (clockGate) { output?.Pause(); IsPlaying = false; } }
     public bool Update()
     {

@@ -27,6 +27,7 @@ public sealed class SequenceEvaluator : IDisposable
     private SequenceTime? audioThrough;
     /// <summary>Diagnostic work count for currently retained cursors, including frames skipped during seek.</summary>
     public long ActiveVideoDecodedFrames => videos.Values.Sum(v => v.DecodedFrames);
+    public long ActiveVideoConvertedFrames => videos.Values.Sum(v => v.ConvertedFrames);
     /// <summary>Cursor decode work since the last discontinuous seek; excludes progressive index construction.</summary>
     public long ActiveAudioDecodedFrames => audios.Values.Sum(a => a.DecodedFrames);
     public SequenceDocument Sequence { get; }
@@ -170,10 +171,13 @@ public sealed class SequenceEvaluator : IDisposable
             catch (Exception error) when (proxy is not null && error is IOException or InvalidOperationException or NotSupportedException)
             { proxy = null; decoder = new(clip.Asset, clip.Stream, clip.SourcePosition, rate); }
         }
-        private VideoFrame? current, next;
+        private VideoFrame? current;
+        private MediaTimestamp? nextTimestamp;
+        private bool retainedDirty;
         private bool ended;
         private SourcePosition? requested;
         public long DecodedFrames { get; private set; }
+        public long ConvertedFrames { get; private set; }
         public VideoFrame? At(SourcePosition target, CancellationToken cancellation)
         {
             try { return ReadAt(target, cancellation); }
@@ -181,7 +185,7 @@ public sealed class SequenceEvaluator : IDisposable
             {
                 decoder.Dispose(); proxy = null;
                 decoder = new(clip.Asset, clip.Stream, target, rate);
-                current = null; next = null; ended = false; requested = null;
+                current = null; nextTimestamp = null; retainedDirty = false; ended = false; requested = null;
                 return ReadAt(target, cancellation);
             }
         }
@@ -190,17 +194,18 @@ public sealed class SequenceEvaluator : IDisposable
             if (requested is { } previous && (target.CompareTo(previous) < 0 || target.Since(previous).Ticks > SequenceTime.TicksPerSecond))
             {
                 decoder.Dispose(); decoder = new(proxy?.Asset ?? clip.Asset, proxy?.Stream ?? clip.Stream, target, rate);
-                current = null; next = null; ended = false;
+                current = null; nextTimestamp = null; retainedDirty = false; ended = false;
             }
             requested = target;
             while (true)
             {
-                if (next is null && !ended)
+                if (nextTimestamp is null && !ended)
                 {
-                    if (decoder.Read(cancellation)) { DecodedFrames++; next = decoder.CopyVideo(0); } else ended = true;
+                    if (decoder.Read(cancellation)) { DecodedFrames++; nextTimestamp = decoder.Timestamp; } else ended = true;
                 }
-                if (next is null || new SourcePosition(next.SourceTimestamp).CompareTo(target) > 0)
+                if (nextTimestamp is null || new SourcePosition(nextTimestamp.Value).CompareTo(target) > 0)
                 {
+                    if (retainedDirty) { current = decoder.CopyRetainedVideo(); ConvertedFrames++; retainedDirty = false; }
                     if (ended && current?.Duration is { } length)
                     {
                         var end = new MediaTimestamp(checked(current.SourceTimestamp.Value + length.Value), length.Numerator, length.Denominator);
@@ -208,7 +213,7 @@ public sealed class SequenceEvaluator : IDisposable
                     }
                     return current;
                 }
-                current = next; next = null;
+                decoder.RetainVideo(); retainedDirty = true; nextTimestamp = null;
             }
         }
         public void Dispose() => decoder.Dispose();

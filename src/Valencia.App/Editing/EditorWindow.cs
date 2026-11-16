@@ -27,14 +27,16 @@ internal sealed partial class EditorWindow : IDisposable
     private readonly Dictionary<Guid, ImportedAsset> imports = [];
     private readonly Stopwatch clock = Stopwatch.StartNew();
     private readonly EditorSynchronizationContext context = new();
+    private readonly EditorDiagnostics diagnostics;
     private readonly SynchronizationContext? previousContext = SynchronizationContext.Current;
     private CancellationTokenSource? seekCancellation, jobCancellation;
     private Task<SequencePlayback?>? opening;
+    private readonly SequencePreview pausedPreview = new(); // touched only by the serialized opening worker
     private Task? job;
     public SequencePlayback? Playback { get; private set; }
     private long generation, openingGeneration;
     private bool desired, resume, razor, scrubbing, focused = true;
-    private (double X, double Y)? pointerPosition;
+    private SequenceTime? pendingScrub;
     private double lastUi = -1, lastTick;
     private readonly Stopwatch seekLatency = new();
     public List<double> SeekLatenciesMs { get; } = [];
@@ -44,19 +46,27 @@ internal sealed partial class EditorWindow : IDisposable
     private readonly CreatorSmoke? creatorSmoke;
     private readonly QualificationSmoke? qualificationSmoke;
     private readonly LayoutSmoke? layoutSmoke;
+    private readonly ScrubSmoke? scrubSmoke;
     public long StaleGenerationsRejected { get; private set; }
     public long SeekRequests { get; private set; }
+    public long InputFailures { get; private set; }
     public bool Busy => job is not null || opening is not null || desired;
     public double MaximumAvSkew { get; private set; }
     public List<double> FrameMilliseconds { get; } = [];
-    public EditorWindow(string? path = null, string? smokeDirectory = null, bool analyzeSmoke = false, bool transcribeSmoke = false, bool createSmoke = false, bool qualifySmoke = false, bool resizeSmoke = false)
+    public EditorWindow(string? path = null, string? smokeDirectory = null, bool analyzeSmoke = false, bool transcribeSmoke = false, bool createSmoke = false, bool qualifySmoke = false, bool resizeSmoke = false, bool scrubTest = false)
     {
         SynchronizationContext.SetSynchronizationContext(context);
+        diagnostics = new(smokeDirectory is null ? null : Path.Combine(Path.GetFullPath(smokeDirectory), "editor-diagnostics.json"));
+        AppDomain.CurrentDomain.UnhandledException += UnhandledException;
         Gesture = new(Editor); input = Graphics.Window.CreateInput(); Graphics.Window.Title = "Valencia — timeline editor";
+        diagnostics.Record("window-created", generation, 0, $"gpu={Graphics.GpuName};hwnd={WindowHandle};size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}");
         foreach (var keyboard in input.Keyboards) { keyboard.KeyDown += (_, k, _) => { keys.Record(k, true); Editor.Card = null; }; keyboard.KeyUp += (_, k, _) => keys.Record(k, false); }
         foreach (var mouse in input.Mice)
         {
-            mouse.MouseDown += MouseDown; mouse.MouseUp += MouseUp; mouse.MouseMove += MouseMove;
+            // Exceptions escaping GLFW callbacks terminate Windows with 0xc000041d before Main can report them.
+            mouse.MouseDown += (m, b) => HandlePointer(() => MouseDown(m, b));
+            mouse.MouseUp += (m, b) => HandlePointer(() => MouseUp(m, b));
+            mouse.MouseMove += (m, p) => HandlePointer(() => MouseMove(m, p));
             mouse.Scroll += (m, wheel) =>
             {
                 var point = Point(m); var media = view.Layout.Media;
@@ -69,11 +79,12 @@ internal sealed partial class EditorWindow : IDisposable
             };
         }
         Graphics.Window.FocusChanged += value => { focused = value; if (!value) CancelGesture(); keys.Reset(); };
-        Graphics.Window.Resize += _ => { CancelGesture(); pointerPosition = null; Prepare(); };
-        Graphics.Window.Closing += () => { if (smoke is null && analysisSmoke is null && transcriptSmoke is null && creatorSmoke is null && qualificationSmoke is null && layoutSmoke is null && !DiscardAllowed()) { Graphics.Window.IsClosing = false; return; } jobCancellation?.Cancel(); seekCancellation?.Cancel(); Gesture.Cancel(); };
+        Graphics.Window.Resize += _ => { diagnostics.Record("resize", generation, Editor.Playhead.Ticks, $"size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}"); CancelGesture(); Prepare(); };
+        Graphics.Window.Closing += () => { if (smoke is null && analysisSmoke is null && transcriptSmoke is null && creatorSmoke is null && qualificationSmoke is null && layoutSmoke is null && scrubSmoke is null && !DiscardAllowed()) { Graphics.Window.IsClosing = false; return; } jobCancellation?.Cancel(); seekCancellation?.Cancel(); Gesture.Cancel(); };
         if (smokeDirectory is not null)
         {
-            if (resizeSmoke) layoutSmoke = new(smokeDirectory);
+            if (scrubTest) scrubSmoke = new(smokeDirectory);
+            else if (resizeSmoke) layoutSmoke = new(smokeDirectory);
             else if (qualifySmoke) qualificationSmoke = new(smokeDirectory);
             else if (createSmoke) creatorSmoke = new(smokeDirectory);
             else if (transcribeSmoke) transcriptSmoke = new(smokeDirectory);
@@ -93,9 +104,16 @@ internal sealed partial class EditorWindow : IDisposable
             var frameClock = Stopwatch.StartNew(); Graphics.Window.DoEvents(); context.Pump();
             double now = clock.Elapsed.TotalSeconds;
             if (focused) foreach (var action in keys.Read(now - lastTick)) Action(action.ToString()); lastTick = now;
-            if (Gesture.Active && GetCapture() == 0) CancelGesture();
+            if ((Gesture.Active || scrubbing) && GetCapture() != WindowHandle) CancelGesture();
             if (job?.IsCompleted == true) { try { job.GetAwaiter().GetResult(); } catch (Exception e) { Editor.Status = "ERROR: " + e.Message; Console.Error.WriteLine(e); } job = null; lastUi = -1; }
             CompleteSeek();
+            // At most one decode plus one latest pointer position. Continuous movement cannot repeatedly
+            // cancel every frame before it is ready, nor build an unbounded queue of obsolete seeks.
+            if (scrubbing && pendingScrub is { } target && opening is null)
+            {
+                pendingScrub = null;
+                if (target != Editor.Playhead) Seek(target);
+            }
             if (desired && opening is null) BeginSeek();
             if (!desired && opening is null && Playback is { } playback)
             {
@@ -117,6 +135,7 @@ internal sealed partial class EditorWindow : IDisposable
             creatorSmoke?.Tick(this);
             qualificationSmoke?.Tick(this);
             layoutSmoke?.Tick(this);
+            scrubSmoke?.Tick(this);
             if (now - lastUi >= .1) Prepare();
             Graphics.Draw();
             if (!desired && opening is null && Playback is { IsPlaying: true, Current: { } presentedFrame } presentedPlayback)
@@ -126,10 +145,10 @@ internal sealed partial class EditorWindow : IDisposable
                 MaximumAvSkew = Math.Max(MaximumAvSkew, Math.Abs(observedClock - presentedFrame.Time.TotalSeconds));
             }
             if (FrameMilliseconds.Count < 10000) FrameMilliseconds.Add(frameClock.Elapsed.TotalMilliseconds);
-            if (smoke?.Finished == true || analysisSmoke?.Finished == true || transcriptSmoke?.Finished == true || creatorSmoke?.Finished == true || qualificationSmoke?.Finished == true || layoutSmoke?.Finished == true) return;
+            if (smoke?.Finished == true || analysisSmoke?.Finished == true || transcriptSmoke?.Finished == true || creatorSmoke?.Finished == true || qualificationSmoke?.Finished == true || layoutSmoke?.Finished == true || scrubSmoke?.Finished == true) return;
             Thread.Sleep(1);
         }
-        if (smoke is not null || analysisSmoke is not null || transcriptSmoke is not null || creatorSmoke is not null || qualificationSmoke is not null || layoutSmoke is not null) throw new InvalidOperationException("Editor smoke closed before completing its assertions.");
+        if (smoke is not null || analysisSmoke is not null || transcriptSmoke is not null || creatorSmoke is not null || qualificationSmoke is not null || layoutSmoke is not null || scrubSmoke is not null) throw new InvalidOperationException("Editor smoke closed before completing its assertions.");
     }
     private void Prepare()
     {
@@ -139,7 +158,7 @@ internal sealed partial class EditorWindow : IDisposable
         Editor.Recording = Obs?.Recording.Snapshot.State == "recording";
         if (Editor.Card is { } card && (clock.Elapsed.TotalSeconds > Editor.CardUntil
             || card.Kind == TitleCardKind.Proposal && Editor.ProposedCut is null && Editor.ProposedTextCut is null)) Editor.Card = null;
-        var prepared = view.Prepare(Editor, Gesture, Playback?.IsPlaying == true, razor,
+        var prepared = view.Prepare(Editor, Gesture, Playback?.IsPlaying == true || resume && (opening is not null || desired), razor,
             Math.Max(1, Graphics.Window.Size.X), Math.Max(1, Graphics.Window.Size.Y), job is not null);
         Graphics.ProgramMonitor = view.HideVideo ? new(0, 0, 0, 0) : view.Layout.Monitor;
         Graphics.RecordCpuPhase("layoutAndPresentationBuildMs", Stopwatch.GetElapsedTime(preparedAt).TotalMilliseconds);
@@ -187,20 +206,27 @@ internal sealed partial class EditorWindow : IDisposable
     {
         Editor.Playhead = new(Math.Clamp(position.Ticks, 0, Editor.MonitorDuration.Ticks));
         resume = play; generation++; SeekRequests++; desired = true;
+        diagnostics.Record("seek-request", generation, Editor.Playhead.Ticks, $"play={play};scrubbing={scrubbing}");
         seekLatency.Restart();
-        Playback?.Pause(); seekCancellation?.Cancel(); Graphics.ClearVideo(); lastUi = -1;
+        Playback?.Pause(); seekCancellation?.Cancel();
+        // Keep the last confirmed picture during a drag instead of destroying/reallocating its texture per mouse event.
+        if (!scrubbing) Graphics.ClearVideo();
+        lastUi = -1;
     }
     private void BeginSeek()
     {
         desired = false; openingGeneration = generation; var old = Playback; Playback = null;
+        diagnostics.Record("seek-start", generation, Editor.Playhead.Ticks);
         var previousCancellation = seekCancellation; seekCancellation = new(); var token = seekCancellation.Token;
         var snapshot = Editor.Source?.Snapshot ?? Editor.Session.Snapshot; var id = Editor.Source?.SequenceId ?? Editor.SequenceId; var position = Editor.Playhead;
         var profile = Editor.Source is null ? Editor.Sequence.Creator?.Profiles.FirstOrDefault(p => p.Id == Editor.SelectedProfile) : null;
+        bool prepareAudio = resume;
         opening = Task.Run(async () =>
         {
             if (old is not null) await old.DisposeAsync(); previousCancellation?.Dispose();
             if (new TimelineQueries(snapshot).Duration(id).Ticks == 0) return null;
-            return await SequencePlayback.OpenAsync(snapshot, id, position, token, profile);
+            return prepareAudio ? await SequencePlayback.OpenAsync(snapshot, id, position, token, profile)
+                : SequencePlayback.OpenPreview(pausedPreview, snapshot, id, position, token, profile);
         });
     }
     private void CompleteSeek()
@@ -211,12 +237,29 @@ internal sealed partial class EditorWindow : IDisposable
             var opened = opening.GetAwaiter().GetResult();
             if (openingGeneration != generation)
             {
-                StaleGenerationsRejected++; if (opened is not null) opened.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                // The next opening worker retires this generation. Never join decoder/audio workers on the UI thread.
+                StaleGenerationsRejected++; Playback = opened;
+                diagnostics.Record("seek-stale", openingGeneration, Editor.Playhead.Ticks);
             }
-            else { Playback = opened; if (opened?.Current is { } frame) { Graphics.UpdateVideo(frame.Width, frame.Height, frame.Rgba); if (SeekLatenciesMs.Count < 1000) SeekLatenciesMs.Add(seekLatency.Elapsed.TotalMilliseconds); } if (resume) opened?.Play(); }
+            else
+            {
+                Playback = opened;
+                diagnostics.Record("seek-complete", generation, Editor.Playhead.Ticks, $"elapsedMs={seekLatency.Elapsed.TotalMilliseconds:F2}");
+                if (opened?.Current is { } frame)
+                {
+                    Graphics.UpdateVideo(frame.Width, frame.Height, frame.Rgba);
+                    diagnostics.Record("seek-frame-uploaded", generation, frame.Time.Ticks,
+                        $"sourcePTS={string.Join(';', frame.SourceTimestamps ?? [])};evaluationMs={frame.EvaluationMilliseconds:F2}");
+                    if (SeekLatenciesMs.Count < 1000) SeekLatenciesMs.Add(seekLatency.Elapsed.TotalMilliseconds);
+                }
+                if (resume && opened is not null)
+                {
+                    if (opened.CanPlay) opened.Play(); else Seek(Editor.Playhead, true);
+                }
+            }
         }
-        catch (OperationCanceledException) when (openingGeneration != generation) { StaleGenerationsRejected++; }
-        catch (Exception error) { Editor.Status = "Preview error: " + error.Message; Console.Error.WriteLine(error); }
+        catch (OperationCanceledException) when (openingGeneration != generation) { StaleGenerationsRejected++; diagnostics.Record("seek-cancelled", openingGeneration, Editor.Playhead.Ticks); }
+        catch (Exception error) { Editor.Status = "Preview error: " + error.Message; Console.Error.WriteLine(error); diagnostics.Record("seek-error", generation, Editor.Playhead.Ticks, error.ToString()); diagnostics.Save(error); }
         opening = null;
     }
     public async Task Import(string path)
@@ -346,10 +389,10 @@ internal sealed partial class EditorWindow : IDisposable
                             if (Editor.Transcript?.AssetId == assetId) { Editor.Transcript = null; Editor.ProposedTextCut = null; }
                         } });
                     break;
-                case "TogglePlay": if (Playback?.IsPlaying == true) Playback.Pause(); else StartPlaying(); break;
-                case "Pause": Playback?.Pause(); break;
+                case "TogglePlay": if (Playback?.IsPlaying == true || resume && (opening is not null || desired)) PauseTransport(); else StartPlaying(); break;
+                case "Pause": PauseTransport(); break;
                 case "Play": StartPlaying(); break;
-                case "ReverseUnsupported": Playback?.Pause(); Editor.Status = "J: reverse/shuttle playback is not implemented; playback paused."; break;
+                case "ReverseUnsupported": PauseTransport(); Editor.Status = "J: reverse/shuttle playback is not implemented; playback paused."; break;
                 case "MarkIn" or "MarkOut" or "ClearMarks" when Editor.Source is { } markSource:
                 {
                     var current = Editor.SourceMarks.GetValueOrDefault(markSource.AssetId);
@@ -423,23 +466,30 @@ internal sealed partial class EditorWindow : IDisposable
         catch (Exception e) { Editor.Status = "ERROR: " + e.Message; Console.Error.WriteLine(e); }
         lastUi = -1;
     }
-    private void StartPlaying() { if (opening is not null || desired) resume = true; else if (Editor.Playhead.Ticks >= Editor.MonitorDuration.Ticks) Seek(default, true); else if (Playback is null) Seek(Editor.Playhead, true); else Playback.Play(); }
+    private void StartPlaying() { if (opening is not null || desired) resume = true; else if (Editor.Playhead.Ticks >= Editor.MonitorDuration.Ticks) Seek(default, true); else if (Playback is null || !Playback.CanPlay) Seek(Editor.Playhead, true); else Playback.Play(); }
+    private void PauseTransport() { resume = false; Playback?.Pause(); lastUi = -1; }
     private static (double X, double Y) Point(IMouse mouse) => (mouse.Position.X, mouse.Position.Y);
     private void MouseDown(IMouse mouse, MouseButton button)
     {
         if (button != MouseButton.Left || job is not null) return;
-        var p = pointerPosition ?? Point(mouse);
+        PointerDown(Point(mouse));
+    }
+    internal double RulerY => view.Layout.RulerY;
+    internal void PointerDown((double X, double Y) p)
+    {
+        diagnostics.Record("pointer-down", generation, Editor.Playhead.Ticks, $"x={p.X};y={p.Y}");
+        diagnostics.Save(); // persist the last gesture even if a native fault prevents managed unwinding
         var viewport = Editor.Viewport;
         if (p.X >= viewport.ClipLeft && p.X <= viewport.ClipRight && p.Y >= view.Layout.RulerY && p.Y < viewport.TrackTop + viewport.VisibleTracks * viewport.Row)
         {
-            Playback?.Pause(); ExitSource();
+            PauseTransport(); ExitSource();
             if (Editor.Viewport.Hit(Editor.Sequence, p.X, p.Y) is { } hit && p.Y >= viewport.TrackTop)
             {
                 Editor.SelectedClip = hit.Clip.Id;
                 if (razor) { Seek(Snap(p.X)); Editor.Split(); Seek(Editor.Playhead); }
-                else { Gesture.Begin(hit.Clip, hit.Edge, p.X); SetCapture(Graphics.Window.Native!.DXHandle!.Value); }
+                else { Gesture.Begin(hit.Clip, hit.Edge, p.X); CapturePointer(); }
             }
-            else { Editor.SelectedClip = null; scrubbing = true; SetCapture(Graphics.Window.Native!.DXHandle!.Value); Seek(Snap(p.X)); }
+            else { Editor.SelectedClip = null; scrubbing = true; CapturePointer(); Seek(Snap(p.X)); }
             lastUi = -1; return;
         }
         pointer.Press(view.Prepared?.HitTest.HitTest(new PointerPoint(p.X, p.Y)));
@@ -486,29 +536,69 @@ internal sealed partial class EditorWindow : IDisposable
 
     private void MouseMove(IMouse mouse, System.Numerics.Vector2 position)
     {
-        var p = (X: (double)position.X, Y: (double)position.Y);
-        pointerPosition = p;
-        if (Gesture.Active) { Gesture.Move(p.X, p.Y); lastUi = -1; } else if (scrubbing) Seek(Snap(p.X));
+        PointerMove((position.X, position.Y));
+    }
+    internal void PointerMove((double X, double Y) p)
+    {
+        if (Gesture.Active) { Gesture.Move(p.X, p.Y); lastUi = -1; } else if (scrubbing) pendingScrub = Snap(p.X);
     }
     private void MouseUp(IMouse mouse, MouseButton button)
     {
         if (button != MouseButton.Left) return;
-        if (Gesture.Active) { var p = pointerPosition ?? Point(mouse); Gesture.Move(p.X, p.Y); if (Gesture.Release()) Seek(Editor.Playhead); ReleaseCapture(); }
-        else if (scrubbing) { scrubbing = false; ReleaseCapture(); }
-        else { var p = Point(mouse); if (pointer.Release(view.Prepared?.HitTest.HitTest(new PointerPoint(p.X, p.Y)))?.Name is { } name) Action(name); }
-        lastUi = -1;
+        PointerUp(Point(mouse));
     }
-    private void CancelGesture() { Gesture.Cancel(); scrubbing = false; pointer.Reset(); ReleaseCapture(); lastUi = -1; }
+    internal void PointerUp((double X, double Y) p)
+    {
+        diagnostics.Record("pointer-up", generation, Editor.Playhead.Ticks);
+        if (Gesture.Active) { Gesture.Move(p.X, p.Y); if (Gesture.Release()) Seek(Editor.Playhead); ReleasePointer(); }
+        else if (scrubbing)
+        {
+            var target = Snap(p.X);
+            scrubbing = false; pendingScrub = null; ReleasePointer();
+            if (target != Editor.Playhead) Seek(target);
+        }
+        else { if (pointer.Release(view.Prepared?.HitTest.HitTest(new PointerPoint(p.X, p.Y)))?.Name is { } name) Action(name); }
+        lastUi = -1;
+        diagnostics.Save();
+    }
+    private void CancelGesture() { Gesture.Cancel(); scrubbing = false; pendingScrub = null; pointer.Reset(); ReleasePointer(); lastUi = -1; }
+    private nint WindowHandle => Graphics.Window.Native?.Win32?.Hwnd ?? 0;
+    private void CapturePointer()
+    {
+        if (WindowHandle == 0) throw new InvalidOperationException("Timeline input requires a Win32 window handle.");
+        SetCapture(WindowHandle);
+        if (GetCapture() != WindowHandle) throw new InvalidOperationException("Could not capture timeline pointer.");
+    }
+    private void ReleasePointer() { if (WindowHandle != 0 && GetCapture() == WindowHandle) ReleaseCapture(); }
+    internal void HandlePointer(Action action)
+    {
+        try { action(); }
+        catch (Exception error)
+        {
+            InputFailures++;
+            CancelGesture();
+            Editor.Status = "Timeline input error: " + error.Message;
+            Console.Error.WriteLine(error);
+            string directory = diagnostics.DirectoryPath;
+            try { Directory.CreateDirectory(directory); File.WriteAllText(Path.Combine(directory, "last-input-error.txt"), error.ToString()); }
+            catch (IOException) { } catch (UnauthorizedAccessException) { }
+            diagnostics.Record("pointer-error", generation, Editor.Playhead.Ticks, error.ToString()); diagnostics.Save(error);
+        }
+    }
+    private void UnhandledException(object sender, UnhandledExceptionEventArgs args) => diagnostics.Save(args.ExceptionObject as Exception);
     [DllImport("user32.dll")] private static extern nint SetCapture(nint window);
     [DllImport("user32.dll")] private static extern bool ReleaseCapture();
     [DllImport("user32.dll")] private static extern nint GetCapture();
     public void Dispose()
     {
+        AppDomain.CurrentDomain.UnhandledException -= UnhandledException;
+        diagnostics.Record("shutdown", generation, Editor.Playhead.Ticks); diagnostics.Save();
         jobCancellation?.Cancel(); seekCancellation?.Cancel();
         while (job is { IsCompleted: false }) { context.Pump(); Thread.Sleep(1); }
         if (job is not null) try { job.GetAwaiter().GetResult(); } catch (OperationCanceledException) { } catch (Exception e) { Console.Error.WriteLine(e); }
         if (opening is not null) try { opening.GetAwaiter().GetResult()?.DisposeAsync().AsTask().GetAwaiter().GetResult(); } catch (OperationCanceledException) { } catch (Exception e) { Console.Error.WriteLine(e); }
         Playback?.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        pausedPreview.Dispose();
         qualificationSmoke?.Dispose();
         obsEngine?.DisposeAsync().AsTask().GetAwaiter().GetResult();
         scriptHost.Dispose(); input.Dispose(); Graphics.Dispose(); seekCancellation?.Dispose(); jobCancellation?.Dispose();

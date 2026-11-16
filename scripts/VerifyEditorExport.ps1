@@ -50,7 +50,11 @@ $silenceRms = Rms (Decode $exportPath 3 $true)
 $signalRms = Rms (Decode $exportPath 5 $true)
 if ($silenceRms -gt .001 -or $signalRms -lt .03) { throw 'Edited audio signal/gap is incorrect.' }
 $probe = (& ffprobe -v error -show_entries format=duration:stream=codec_name,width,height,r_frame_rate,sample_rate -of json $exportPath | ConvertFrom-Json)
-if ($LASTEXITCODE -ne 0 -or [Math]::Abs([double]$probe.format.duration-10) -gt .04) { throw 'Export duration is incorrect.' }
+# The linked-clip trim now trims audio and video together. Compare against the source document duration
+# recorded before export; old smoke reports (before linked trimming) describe a ten-second document.
+$smoke = Get-Content (Join-Path $directoryPath 'result.json') -Raw | ConvertFrom-Json
+$expectedDuration = if ($null -ne $smoke.exportDurationSeconds) { [double]$smoke.exportDurationSeconds } else { 10.0 }
+if ($LASTEXITCODE -ne 0 -or [Math]::Abs([double]$probe.format.duration-$expectedDuration) -gt .04) { throw 'Export duration is incorrect.' }
 if (-not ($probe.streams.codec_name -contains 'h264') -or -not ($probe.streams.codec_name -contains 'aac')) { throw 'Required codecs absent.' }
 [ordered]@{outcome='passed';decoder='independent FFmpeg CLI';probe=$probe;earlySourceFrameError=$earlyError;postCutSourceFrameError=$afterCutError;gapVideoMaximum=($gap|Measure-Object -Maximum).Maximum;secondSourceBlueMean=$blueMean;gapAudioRms=$silenceRms;signalAudioRms=$signalRms} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $directoryPath 'independent-verification.json')
 Get-Content (Join-Path $directoryPath 'independent-verification.json')

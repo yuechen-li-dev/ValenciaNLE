@@ -11,6 +11,7 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
     private AVCodecContext* codec;
     private AVPacket* packet;
     private AVFrame* frame;
+    private AVFrame* retainedVideo;
     private SwsContext* scaler;
     private SwrContext* resampler;
     private readonly int streamIndex;
@@ -155,21 +156,32 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
         return false;
     }
 
-    public MediaTimestamp Timestamp
+    public MediaTimestamp Timestamp => TimestampOf(frame);
+    private MediaTimestamp TimestampOf(AVFrame* frame)
     {
-        get
+        long value = frame->best_effort_timestamp;
+        if (value == ffmpeg.AV_NOPTS_VALUE)
         {
-            long value = frame->best_effort_timestamp;
-            if (value == ffmpeg.AV_NOPTS_VALUE)
-            {
-                throw new NotSupportedException("Decoded frame has no usable presentation timestamp.");
-            }
-            AVRational timeBase = format->streams[streamIndex]->time_base;
-            return new MediaTimestamp(value, timeBase.num, timeBase.den);
+            throw new NotSupportedException("Decoded frame has no usable presentation timestamp.");
         }
+        AVRational timeBase = format->streams[streamIndex]->time_base;
+        return new MediaTimestamp(value, timeBase.num, timeBase.den);
     }
 
-    public VideoFrame CopyVideo(double startSeconds)
+    // Keep one ref-counted decoded picture while reading the next PTS. Seeking need not swscale/copy
+    // every preroll frame merely to discover which presentation interval contains the requested time.
+    public void RetainVideo()
+    {
+        if (retainedVideo == null) retainedVideo = ffmpeg.av_frame_alloc();
+        if (retainedVideo == null) throw new OutOfMemoryException("FFmpeg retained frame allocation failed.");
+        ffmpeg.av_frame_unref(retainedVideo);
+        FfmpegRuntime.Check(ffmpeg.av_frame_ref(retainedVideo, frame), "Retain decoded video frame");
+    }
+    public VideoFrame CopyRetainedVideo() => retainedVideo == null
+        ? throw new InvalidOperationException("No retained video frame.") : CopyVideo(retainedVideo, 0);
+
+    public VideoFrame CopyVideo(double startSeconds) => CopyVideo(frame, startSeconds);
+    private VideoFrame CopyVideo(AVFrame* frame, double startSeconds)
     {
         long started = System.Diagnostics.Stopwatch.GetTimestamp();
         if (frame->color_trc is AVColorTransferCharacteristic.AVCOL_TRC_SMPTE2084 or AVColorTransferCharacteristic.AVCOL_TRC_ARIB_STD_B67)
@@ -204,7 +216,7 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
             strides[0] = width * 4;
             FfmpegRuntime.Check(ffmpeg.sws_scale(scaler, frame->data, frame->linesize, 0, height, data, strides), "Convert video frame");
         }
-        MediaTimestamp timestamp = Timestamp;
+        MediaTimestamp timestamp = TimestampOf(frame);
         MediaTimestamp? duration = frame->duration > 0 ? new(frame->duration, timestamp.Numerator, timestamp.Denominator) : null;
         MediaTimestamp? dts = frame->pkt_dts == ffmpeg.AV_NOPTS_VALUE ? null : new(frame->pkt_dts, timestamp.Numerator, timestamp.Denominator);
         return new VideoFrame(timestamp, timestamp.TotalSeconds - startSeconds, width, height, rgba, duration, dts)
@@ -309,11 +321,13 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
         ffmpeg.sws_freeContext(scaler);
         SwrContext* ownedResampler = resampler;
         AVFrame* ownedFrame = frame;
+        AVFrame* ownedRetainedVideo = retainedVideo;
         AVPacket* ownedPacket = packet;
         AVCodecContext* ownedCodec = codec;
         AVFormatContext* ownedFormat = format;
         ffmpeg.swr_free(&ownedResampler);
         ffmpeg.av_frame_free(&ownedFrame);
+        ffmpeg.av_frame_free(&ownedRetainedVideo);
         ffmpeg.av_packet_free(&ownedPacket);
         ffmpeg.avcodec_free_context(&ownedCodec);
         ffmpeg.avformat_close_input(&ownedFormat);

@@ -31,6 +31,37 @@ if (!transaction.Success) throw new InvalidOperationException(transaction.Messag
 var snapshot = engine.Session.Snapshot;
 var sequence = engine.Query().Sequence(sequenceId);
 var firstVideo = sequence.Tracks.First(t => t.Kind == TrackKind.Video).Clips[0];
+if (args.Contains("--scrub-seeks"))
+{
+    if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("Audio-device seek comparison requires Windows.");
+    var measurements = new List<object>();
+    using var preview = new SequencePreview();
+    foreach (string mode in new[] { "audio-video-open", "video-only-preview" })
+    foreach (int pass in new[] { 0, 1 })
+    foreach (double fraction in new[] { .8, .1, .6, 0, .4, .2 })
+    {
+        // Bounded span also allows the same comparison on multi-hour sources without an obligatory full audio index scan.
+        long ticks = checked((long)(Math.Min(sequence.Duration.Ticks - 1, 20 * SequenceTime.TicksPerSecond) * fraction));
+        var at = new SequenceTime(Math.Max(0, ticks));
+        var timer = Stopwatch.StartNew();
+        var player = mode == "audio-video-open"
+            ? await SequencePlayback.OpenAsync(snapshot, sequenceId, at, token)
+            : SequencePlayback.OpenPreview(preview, snapshot, sequenceId, at, token);
+        double elapsedMs = timer.Elapsed.TotalMilliseconds;
+        if (player.Current?.Time != at) throw new InvalidOperationException("Seek returned the wrong timeline position.");
+        timer.Restart(); await player.DisposeAsync();
+        var result = new { mode, pass, ticks, elapsedMs, disposeMs = timer.Elapsed.TotalMilliseconds };
+        measurements.Add(result); Console.Error.WriteLine(EngineJson.Write(result));
+    }
+    await File.WriteAllTextAsync(Path.Combine(output, "scrub-seeks.json"), EngineJson.Write(new
+    {
+        source, imported.Asset, measurements, runtime = Environment.Version.ToString(),
+        cpu = Environment.GetEnvironmentVariable("PROCESSOR_IDENTIFIER"),
+        peakWorkingSetBytes = Process.GetCurrentProcess().PeakWorkingSet64,
+        scope = "Same source/snapshot/timestamps. Full player audio prebuffer/device versus reusable paused video evaluator. Decode-ready CPU latency; excludes UI/presentation. OS caches not flushed."
+    }), token);
+    return;
+}
 if (args.Contains("--audio-seeks"))
 {
     var measurements = new List<object>();

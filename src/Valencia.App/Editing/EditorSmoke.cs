@@ -17,12 +17,14 @@ internal sealed class EditorSmoke(string directory)
     private bool capturedPlayback;
     private double largeInputMs;
     private bool benchStarted;
+    private SequenceTime exportDuration;
+    private readonly Stopwatch playbackElapsed = new();
     public bool Finished { get; private set; }
     public void Tick(EditorWindow window)
     {
         if (deadline.Elapsed.TotalSeconds > 90) throw new TimeoutException("Editor smoke timed out at phase " + phase);
         if (operation is { IsCompleted: true }) { operation.GetAwaiter().GetResult(); operation = null; }
-        if (phase == 50) { window.Seek(T(0), true); phase = 6; return; }
+        if (phase == 50) { window.Seek(T(0), true); playbackElapsed.Restart(); phase = 6; return; }
         if (operation is not null || window.Busy) return;
         Directory.CreateDirectory(directory);
         var e = window.Editor;
@@ -95,7 +97,7 @@ internal sealed class EditorSmoke(string directory)
             case 6:
                 if (!capturedPlayback && e.Playhead.Ticks >= T(5).Ticks) { window.Capture(Path.Combine(directory, "playing.png")); capturedPlayback = true; }
                 if (window.Playback?.IsPlaying == true || e.Playhead.Ticks < e.Sequence.Duration.Ticks) return;
-                window.Capture(Path.Combine(directory, "editor.png"));
+                playbackElapsed.Stop(); window.Capture(Path.Combine(directory, "editor.png")); exportDuration = e.Sequence.Duration;
                 operation = SequenceExport.RunAsync(e.Session.Snapshot, e.SequenceId, Path.Combine(directory, "edited.mp4")); phase = 7; break;
             case 7:
                 var snapshot = e.Session.Snapshot;
@@ -120,7 +122,9 @@ internal sealed class EditorSmoke(string directory)
                 {
                     outcome = window.MaximumAvSkew <= .15 ? "passed" : "failed", gpu = window.Graphics.GpuName, runtime = Environment.Version.ToString(),
                     elapsedSeconds = deadline.Elapsed.TotalSeconds, maximumAvSkewSeconds = window.MaximumAvSkew,
-                    realPlaybackSeconds = 10, seekRequests = window.SeekRequests,
+                    realPlaybackSeconds = exportDuration.TotalSeconds, exportDurationSeconds = exportDuration.TotalSeconds,
+                    playbackElapsedSeconds = playbackElapsed.Elapsed.TotalSeconds,
+                    exportDurationTicks = exportDuration.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture), seekRequests = window.SeekRequests,
                     staleGenerationsRejected = window.StaleGenerationsRejected, presentedFrames = window.Graphics.PresentedFrames,
                     seekLatencyMs = window.SeekLatenciesMs,
                     uploadedFrames = window.Graphics.UploadedVideoFrames,
