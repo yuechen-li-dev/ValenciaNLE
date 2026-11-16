@@ -1,0 +1,1904 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-15",
+  "task": "Native UI text placement, quality, and capture cleanup",
+  "baseCommits": {
+    "valencia": "13bd520d4e3191b4b075946f6114c867092c2a1e",
+    "copeland": "23dbfded8a390e9a2b8dc12f72e4dede02458508"
+  },
+  "capture": {
+    "kernelReset": true,
+    "staleCodexHelperStopped": 30536,
+    "sharedHelperRestarted": 16844,
+    "userConfirmedYellowBorderGone": true,
+    "desktopScreenshotsUsedForRenderValidation": false,
+    "editorSessionsPreserved": true,
+    "snippingToolUntouched": true
+  },
+  "reproduced": {
+    "actualGpuInkFailure": "Undo visible GPU ink is off-center: dx=2.00, dy=0.00 framebuffer pixels.",
+    "log": "artifacts/local/text-quality-qualified-layout.log",
+    "cause": "Vertex/instance-dependent 1e-6 bias added to clip X in text, textured and widget shaders.",
+    "formula": "deltaPixels=(vertexId+instanceId)*0.000001*framebufferWidth/2",
+    "anonymousButtonLayoutBefore": "46x14 intrinsic text instead of the 160x36 control alignment region"
+  },
+  "policy": {
+    "smallText": "Xs/Sm/Md: hinted glyph atlas, device-pixel aligned",
+    "largeText": "Lg/Xl/H1/H2: shared Machina MSDF",
+    "msdfContour": 0.5,
+    "antialias": "CPU-matched one-framebuffer-pixel coverage; logical field scale converted in native renderer",
+    "newPackages": 0,
+    "publicEngineContractsChanged": false
+  },
+  "validation": {
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "driver": "610.88",
+    "runtime": "10.0.15",
+    "valenciaTests": [
+      {
+        "suite": "Valencia.Core.Tests.TimingAndQueryTests",
+        "total": 73,
+        "passed": 73,
+        "failed": 0,
+        "skipped": 0,
+        "file": "Valencia.Core.Tests.trx"
+      },
+      {
+        "suite": "Valencia.Persistence.Tests.ProjectFileTests",
+        "total": 21,
+        "passed": 21,
+        "failed": 0,
+        "skipped": 0,
+        "file": "Valencia.Persistence.Tests.trx"
+      },
+      {
+        "suite": "Valencia.Programming.Tests.SceneAnalysisTests",
+        "total": 85,
+        "passed": 85,
+        "failed": 0,
+        "skipped": 0,
+        "file": "Valencia.Programming.Tests.trx"
+      },
+      {
+        "suite": "Valencia.Tests.TimelineIntegrationTests",
+        "total": 105,
+        "passed": 105,
+        "failed": 0,
+        "skipped": 0,
+        "file": "Valencia.Tests.trx"
+      }
+    ],
+    "valenciaPassed": 284.0,
+    "machinaTests": [
+      {
+        "suite": "Machina.Core.Tests.UiStackAuthoringM17bTests",
+        "total": 119,
+        "passed": 119,
+        "failed": 0,
+        "skipped": 0,
+        "file": "yuech_DESKTOP-AKFI9N2_2026-11-15_23_09_02_net10.0.trx"
+      },
+      {
+        "suite": "Machina.Fonts.Tests.Generation.MsdfSharp.TypographyToMsdfSharpPipelineTests",
+        "total": 307,
+        "passed": 307,
+        "failed": 0,
+        "skipped": 0,
+        "file": "yuech_DESKTOP-AKFI9N2_2026-11-15_23_09_06_net10.0.trx"
+      },
+      {
+        "suite": "Machina.Fonts.Tooling.Unit.Tests.LayerCompositorTests",
+        "total": 35,
+        "passed": 35,
+        "failed": 0,
+        "skipped": 0,
+        "file": "yuech_DESKTOP-AKFI9N2_2026-11-15_23_09_12_net10.0.trx"
+      },
+      {
+        "suite": "Machina.Layout.Tests.LayoutCompilerTests",
+        "total": 88,
+        "passed": 88,
+        "failed": 0,
+        "skipped": 0,
+        "file": "yuech_DESKTOP-AKFI9N2_2026-11-15_23_09_14_net10.0.trx"
+      },
+      {
+        "suite": "Machina.Pipeline.Tests.StandardPositionedAuthoringTests",
+        "total": 32,
+        "passed": 32,
+        "failed": 0,
+        "skipped": 0,
+        "file": "yuech_DESKTOP-AKFI9N2_2026-11-15_23_09_19_net10.0.trx"
+      },
+      {
+        "suite": "Machina.Presentation.Tests.MachinaTextPresentationM3Tests",
+        "total": 43,
+        "passed": 43,
+        "failed": 0,
+        "skipped": 0,
+        "file": "yuech_DESKTOP-AKFI9N2_2026-11-15_23_09_21_net10.0.trx"
+      },
+      {
+        "suite": "Machina.Runtime.Tests.Dispatch.DispatchTableTests",
+        "total": 64,
+        "passed": 64,
+        "failed": 0,
+        "skipped": 0,
+        "file": "yuech_DESKTOP-AKFI9N2_2026-11-15_23_09_23_net10.0.trx"
+      },
+      {
+        "suite": "Machina.Standard.Tests.Text.MachinaTextLayoutTests",
+        "total": 106,
+        "passed": 106,
+        "failed": 0,
+        "skipped": 0,
+        "file": "yuech_DESKTOP-AKFI9N2_2026-11-15_23_09_25_net10.0.trx"
+      },
+      {
+        "suite": "Machina.Typography.OpenFont.Tests.GlyphIdentityTests",
+        "total": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "file": "yuech_DESKTOP-AKFI9N2_2026-11-15_23_09_26_net10.0.trx"
+      }
+    ],
+    "machinaPassed": 796.0,
+    "graphicsIntegrationShaderTests": [
+      {
+        "suite": "Aurelian.Machina.Tests.trx",
+        "passed": 50,
+        "failed": 0,
+        "skipped": 0,
+        "total": 50
+      },
+      {
+        "suite": "Aurelian.Graphics.Tests.trx",
+        "passed": 351,
+        "failed": 0,
+        "skipped": 0,
+        "total": 351
+      },
+      {
+        "suite": "Aurelian.Shaders.Tests.trx",
+        "passed": 460,
+        "failed": 0,
+        "skipped": 0,
+        "total": 460
+      }
+    ],
+    "totalSharedPassed": 1657.0,
+    "shaderDependency": "Existing artifacts/local/webgpu-tools/bin/naga.exe via process-local AURELIAN_NAGA; no installation",
+    "extraBuiltinFocusedTests": 4,
+    "buildConfiguration": "Release",
+    "buildErrors": 0,
+    "buildWarnings": 0
+  },
+  "nativeLayout": {
+    "outcome": "passed",
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "runtime": "10.0.15",
+    "pipeline": "Machina -> pixel-aligned hinted controls + shared MSDF headings -> Vulkan",
+    "validationAvailable": true,
+    "validationErrors": 0,
+    "deviceScales": [
+      {
+        "scale": 1,
+        "role": "Md",
+        "logicalWidth": 1280,
+        "framebufferWidth": 1280,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Md",
+            "dx": -0.5,
+            "dy": -0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 12,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": -0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 50,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 88,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Md",
+            "dx": 0,
+            "dy": -0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 126,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 164,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 202,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 240,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      },
+      {
+        "scale": 1,
+        "role": "Lg",
+        "logicalWidth": 1280,
+        "framebufferWidth": 1280,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 12,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 50,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 88,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 126,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 164,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 148.6178
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 202,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 150.40519999999998
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 240,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      },
+      {
+        "scale": 1.25,
+        "role": "Md",
+        "logicalWidth": 1024,
+        "framebufferWidth": 1280,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Md",
+            "dx": -0.5,
+            "dy": -0.75,
+            "bounds": {
+              "X": 30,
+              "Y": 12,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": -1.25,
+            "bounds": {
+              "X": 30,
+              "Y": 50,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Md",
+            "dx": -0.5,
+            "dy": 0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 88,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Md",
+            "dx": 0,
+            "dy": -1.25,
+            "bounds": {
+              "X": 30,
+              "Y": 126,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 201.329
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": -0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 164,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 198.61379999999997
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": 0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 202,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 198.61379999999997
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 240,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      },
+      {
+        "scale": 1.25,
+        "role": "Lg",
+        "logicalWidth": 1024,
+        "framebufferWidth": 1280,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Lg",
+            "dx": 0,
+            "dy": -0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 12,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 50,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Lg",
+            "dx": -0.5,
+            "dy": 0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 88,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 126,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 164,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 150.40519999999998
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Lg",
+            "dx": 0,
+            "dy": -0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 202,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 151.61780000000002
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Lg",
+            "dx": 0,
+            "dy": -0.25,
+            "bounds": {
+              "X": 30,
+              "Y": 240,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      },
+      {
+        "scale": 1.5,
+        "role": "Md",
+        "logicalWidth": 853,
+        "framebufferWidth": 1280,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Md",
+            "dx": -0.5820633059788918,
+            "dy": -1,
+            "bounds": {
+              "X": 30,
+              "Y": 12,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Md",
+            "dx": -0.08206330597889178,
+            "dy": -1,
+            "bounds": {
+              "X": 30,
+              "Y": 50,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Md",
+            "dx": -0.08206330597889178,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 88,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Md",
+            "dx": -0.08206330597889178,
+            "dy": -1,
+            "bounds": {
+              "X": 30,
+              "Y": 126,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 201.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Md",
+            "dx": 0.9179366940211082,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 164,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 198.61379999999997
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Md",
+            "dx": 0.9179366940211082,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 202,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 198.61379999999997
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Md",
+            "dx": -0.08206330597889178,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 240,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      },
+      {
+        "scale": 1.5,
+        "role": "Lg",
+        "logicalWidth": 853,
+        "framebufferWidth": 1280,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Lg",
+            "dx": -0.08206330597889178,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 12,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Lg",
+            "dx": -0.08206330597889178,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 50,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Lg",
+            "dx": 0.4179366940211082,
+            "dy": 0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 88,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Lg",
+            "dx": -0.08206330597889178,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 126,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Lg",
+            "dx": 0.4179366940211082,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 164,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 152.61780000000002
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Lg",
+            "dx": -0.08206330597889178,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 202,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 153.333
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Lg",
+            "dx": -0.08206330597889178,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 240,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      },
+      {
+        "scale": 2,
+        "role": "Md",
+        "logicalWidth": 640,
+        "framebufferWidth": 1280,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 12,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Md",
+            "dx": -0.5,
+            "dy": 0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 50,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 88,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 126,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": 0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 164,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": 0.5,
+            "bounds": {
+              "X": 30,
+              "Y": 202,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 240,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      },
+      {
+        "scale": 2,
+        "role": "Lg",
+        "logicalWidth": 640,
+        "framebufferWidth": 1280,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 12,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 50,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 88,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 126,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 164,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 155.61780000000002
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 202,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 157.5456
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Lg",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 30,
+              "Y": 240,
+              "Width": 220,
+              "Height": 30
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      }
+    ],
+    "layouts": [
+      {
+        "Name": "desktop",
+        "Width": 1280,
+        "Height": 720,
+        "profile": "Desktop",
+        "framebufferWidth": 1280,
+        "framebufferHeight": 720,
+        "textGlyphs": 723,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 4,
+        "visibleTracks": 4,
+        "frameMedianMs": 6.0175,
+        "frameP95Ms": 9.8394,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Sm",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 767,
+              "Y": 375,
+              "Width": 49,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Sm",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 818,
+              "Y": 375,
+              "Width": 49,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 494.5,
+              "Y": 336,
+              "Width": 64,
+              "Height": 26
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": -0.5,
+            "bounds": {
+              "X": 704.5,
+              "Y": 336,
+              "Width": 44,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 560.5,
+              "Y": 336,
+              "Width": 30,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 592.5,
+              "Y": 336,
+              "Width": 30,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      },
+      {
+        "Name": "desktop-wide",
+        "Width": 1920,
+        "Height": 1080,
+        "profile": "Desktop",
+        "framebufferWidth": 1920,
+        "framebufferHeight": 1080,
+        "textGlyphs": 819,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 3,
+        "visibleTracks": 4,
+        "frameMedianMs": 5.5184,
+        "frameP95Ms": 12.7047,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": -0.5,
+            "bounds": {
+              "X": 932,
+              "Y": 555,
+              "Width": 63,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": -0.5,
+            "bounds": {
+              "X": 997,
+              "Y": 555,
+              "Width": 62,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 1038,
+              "Y": 516,
+              "Width": 64,
+              "Height": 26
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Md",
+            "dx": 0,
+            "dy": -0.5,
+            "bounds": {
+              "X": 1248,
+              "Y": 516,
+              "Width": 44,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Md",
+            "dx": -0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 1104,
+              "Y": 516,
+              "Width": 30,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Md",
+            "dx": -0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 1136,
+              "Y": 516,
+              "Width": 30,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 1302,
+              "Y": 516,
+              "Width": 156,
+              "Height": 26
+            },
+            "threshold": 42.29468,
+            "peakContrast": 211.4734
+          }
+        ]
+      },
+      {
+        "Name": "desktop-1440",
+        "Width": 2560,
+        "Height": 1440,
+        "profile": "Desktop",
+        "framebufferWidth": 2560,
+        "framebufferHeight": 1421,
+        "textGlyphs": 847,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 3,
+        "visibleTracks": 4,
+        "frameMedianMs": 5.3173,
+        "frameP95Ms": 9.8174,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": -0.5,
+            "bounds": {
+              "X": 932,
+              "Y": 793,
+              "Width": 63,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": -0.5,
+            "bounds": {
+              "X": 997,
+              "Y": 793,
+              "Width": 62,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 1678,
+              "Y": 754,
+              "Width": 64,
+              "Height": 26
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Md",
+            "dx": 0,
+            "dy": -0.5,
+            "bounds": {
+              "X": 1888,
+              "Y": 754,
+              "Width": 44,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Md",
+            "dx": -0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 1744,
+              "Y": 754,
+              "Width": 30,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Md",
+            "dx": -0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 1776,
+              "Y": 754,
+              "Width": 30,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 1942,
+              "Y": 754,
+              "Width": 156,
+              "Height": 26
+            },
+            "threshold": 42.29468,
+            "peakContrast": 211.4734
+          }
+        ]
+      },
+      {
+        "Name": "vertical-tablet",
+        "Width": 768,
+        "Height": 1024,
+        "profile": "VerticalTablet",
+        "framebufferWidth": 768,
+        "framebufferHeight": 1024,
+        "textGlyphs": 434,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 2,
+        "visibleTracks": 4,
+        "frameMedianMs": 5.412,
+        "frameP95Ms": 7.0139,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0.5,
+            "bounds": {
+              "X": 160,
+              "Y": 652,
+              "Width": 63,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0.5,
+            "bounds": {
+              "X": 225,
+              "Y": 652,
+              "Width": 62,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "OutputProfile",
+            "label": "VIEW / SEQUENCE",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 598,
+              "Y": 344,
+              "Width": 156,
+              "Height": 26
+            },
+            "threshold": 42.29468,
+            "peakContrast": 211.4734
+          }
+        ]
+      },
+      {
+        "Name": "vertical-phone",
+        "Width": 390,
+        "Height": 844,
+        "profile": "VerticalPhone",
+        "framebufferWidth": 390,
+        "framebufferHeight": 844,
+        "textGlyphs": 389,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 2,
+        "visibleTracks": 3,
+        "frameMedianMs": 5.2696,
+        "frameP95Ms": 5.8804,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": -0.5,
+            "bounds": {
+              "X": 89,
+              "Y": 571,
+              "Width": 63,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Md",
+            "dx": 0,
+            "dy": -0.5,
+            "bounds": {
+              "X": 154,
+              "Y": 571,
+              "Width": 62,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 116,
+              "Y": 319,
+              "Width": 64,
+              "Height": 26
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0.5,
+            "bounds": {
+              "X": 326,
+              "Y": 319,
+              "Width": 44,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Md",
+            "dx": -0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 182,
+              "Y": 319,
+              "Width": 30,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Md",
+            "dx": -0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 214,
+              "Y": 319,
+              "Width": 30,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      },
+      {
+        "Name": "desktop-restored",
+        "Width": 1280,
+        "Height": 720,
+        "profile": "Desktop",
+        "framebufferWidth": 1280,
+        "framebufferHeight": 720,
+        "textGlyphs": 723,
+        "fallbackTextRuns": 0,
+        "atlasUploads": 3,
+        "visibleTracks": 4,
+        "frameMedianMs": 5.6188,
+        "frameP95Ms": 5.9304,
+        "buttonAlignment": [
+          {
+            "action": "Undo",
+            "label": "UNDO",
+            "role": "Sm",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 767,
+              "Y": 375,
+              "Width": 49,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "Redo",
+            "label": "REDO",
+            "role": "Sm",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 818,
+              "Y": 375,
+              "Width": 49,
+              "Height": 28
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "TogglePlay",
+            "label": "PLAY",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": 0,
+            "bounds": {
+              "X": 494.5,
+              "Y": 336,
+              "Width": 64,
+              "Height": 26
+            },
+            "threshold": 43.88104,
+            "peakContrast": 219.40519999999998
+          },
+          {
+            "action": "MarkOut",
+            "label": "OUT",
+            "role": "Md",
+            "dx": 0.5,
+            "dy": -0.5,
+            "bounds": {
+              "X": 704.5,
+              "Y": 336,
+              "Width": 44,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextFrame",
+            "label": ">",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 560.5,
+              "Y": 336,
+              "Width": 30,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          },
+          {
+            "action": "NextEdit",
+            "label": ">>",
+            "role": "Md",
+            "dx": 0,
+            "dy": 0,
+            "bounds": {
+              "X": 592.5,
+              "Y": 336,
+              "Width": 30,
+              "Height": 26
+            },
+            "threshold": 40.522760000000005,
+            "peakContrast": 202.6138
+          }
+        ]
+      }
+    ],
+    "semanticDocumentPreservedByResize": true,
+    "syntheticClips": 5000,
+    "visibleClips": 7,
+    "benchmarkFrames": 120,
+    "frameMedianMs": 5.5021,
+    "frameP95Ms": 6.6196,
+    "inputProposalMs": 29.2193,
+    "elapsedSeconds": 10.301556,
+    "unicodeFallbackExercised": true,
+    "physicalPointerActionsTested": false,
+    "nonWindowsDevicesTested": false
+  },
+  "nativePlayer": {
+    "outcome": "passed",
+    "avSkewSeconds": 0.08287500000000048,
+    "underrunFrames": 0,
+    "resize": true,
+    "pauseClockStable": true,
+    "gpuReadbackMatchesDecodedPixels": true
+  },
+  "nativeEditor": {
+    "outcome": "passed",
+    "avSkewSeconds": 0.07725000000000026,
+    "playbackElapsedSeconds": 9.7459169,
+    "sequenceDurationSeconds": 9.666666666666666,
+    "saveReopenSemanticEquality": true,
+    "staleGenerationsRejected": 1
+  },
+  "nativeScrubbing": {
+    "outcome": "passed",
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "runtime": "10.0.15",
+    "source": {
+      "Id": "d957e83f-5ba4-49c7-bc7a-97d24d00248d",
+      "Name": "av.mp4",
+      "SourcePath": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\fixtures\\av.mp4",
+      "Container": "mov,mp4,m4a,3gp,3g2,mj2",
+      "Streams": [
+        {
+          "Index": 0,
+          "Kind": 0,
+          "Codec": "h264",
+          "TimeBaseNumerator": 1,
+          "TimeBaseDenominator": 15360,
+          "Start": {
+            "Value": 0,
+            "Numerator": 1,
+            "Denominator": 15360
+          },
+          "End": {
+            "Value": 92160,
+            "Numerator": 1,
+            "Denominator": 15360
+          },
+          "Width": 640,
+          "Height": 360,
+          "SampleRate": null,
+          "Channels": null,
+          "FrameRate": {
+            "Numerator": 30,
+            "Denominator": 1
+          }
+        },
+        {
+          "Index": 1,
+          "Kind": 1,
+          "Codec": "aac",
+          "TimeBaseNumerator": 1,
+          "TimeBaseDenominator": 48000,
+          "Start": {
+            "Value": 0,
+            "Numerator": 1,
+            "Denominator": 48000
+          },
+          "End": {
+            "Value": 288000,
+            "Numerator": 1,
+            "Denominator": 48000
+          },
+          "Width": null,
+          "Height": null,
+          "SampleRate": 48000,
+          "Channels": 1,
+          "FrameRate": null
+        }
+      ],
+      "ProxyKey": null
+    },
+    "trials": 24,
+    "pointerMoves": 2400,
+    "callbackFailures": 0,
+    "injectedCallbackFailureReported": true,
+    "requestToDisplayedFrameMs": [
+      40.8295,
+      31.6089,
+      34.6072,
+      34.1856,
+      45.3502,
+      34.9953,
+      40.2871,
+      33.118,
+      36.8651,
+      36.1249,
+      37.2932,
+      34.0899,
+      34.987,
+      37.5058,
+      33.7936,
+      38.9208,
+      36.6153,
+      34.7473,
+      33.9326,
+      35.0893,
+      36.3303,
+      35.2666,
+      35.9528,
+      35.9041
+    ],
+    "sourceToTimelineSwitch": true,
+    "pauseCancelsPendingPlay": true,
+    "medianMs": 35.58535,
+    "p95Ms": 40.8295,
+    "seekRequests": 53,
+    "staleGenerationsRejected": 0,
+    "maximumAvSkewSeconds": 0.041854166666666665,
+    "underrunFrames": 0,
+    "validationAvailable": true,
+    "validationErrors": 0,
+    "revisionUnchanged": true,
+    "scope": "Native GPU/audio window; actual coordinate/capture handlers, synthetic events. Physical pointer drags qualified separately."
+  },
+  "independentExport": {
+    "outcome": "passed",
+    "decoder": "independent FFmpeg CLI",
+    "probe": {
+      "programs": [],
+      "stream_groups": [],
+      "streams": [
+        {
+          "codec_name": "h264",
+          "width": 1280,
+          "height": 720,
+          "r_frame_rate": "30/1"
+        },
+        {
+          "codec_name": "aac",
+          "sample_rate": "48000",
+          "r_frame_rate": "0/0"
+        }
+      ],
+      "format": {
+        "duration": "9.666667"
+      }
+    },
+    "earlySourceFrameError": 0.6464120370370371,
+    "postCutSourceFrameError": 0.6614583333333334,
+    "gapVideoMaximum": 0.0,
+    "secondSourceBlueMean": 252.0,
+    "gapAudioRms": 0.0,
+    "signalAudioRms": 0.08822027237194988
+  },
+  "shaderArtifacts": [
+    {
+      "name": "VideoQuad",
+      "sourceHash": "6226152F2E9408064D51F6383D14FDB33EFCD16A3EDCCCA35C5ED95550203C2B",
+      "artifactSha256": "10030E2B80F6C59DE3357493DC9B2ACC10A05F3CBB221BCC8FF4081CF43AC74D"
+    },
+    {
+      "name": "MsdfText",
+      "sourceHash": "27CB5BF9CACE066D975ED6978C57C4F9D8AAA94E33574527E772454D2EA0C362",
+      "artifactSha256": "A3FE0D2845530F39D023709486B959F5592C7CEA2EF9DE383994D2692EE49C4D"
+    },
+    {
+      "name": "AnalyticShape2D",
+      "sourceHash": "13C854ACA321B79929072599B285B1FA040579266D90E1A2797BC0F287D6DD0A",
+      "artifactSha256": "5C26B4EA73DF7218969FB487AA392D546DF5CB327DB7BDC3E542FC1AD508D3BF"
+    }
+  ],
+  "release": {
+    "executable": "artifacts/publish/win-x64/Valencia.App.exe",
+    "renderingDllSha256": "4D1A6C2F9121C5531B861FC9F1E44808B0E23AAA34FF5FCD9424B50FBC9631DE",
+    "machinaCoreSha256": "D9EEABE152623FAF0D524AA74BFE76ECE0D1A6CA27AC020F2C92BECF3C127FD1",
+    "changesCommitted": false,
+    "changesPushed": false
+  },
+  "limitations": [
+    "Framebuffer device scales were simulated in real Vulkan rendering; physical monitor DPI settings were not changed.",
+    "No subjective promise that MSDF improves tiny text: all-MSDF tiny-text trials were rejected in favor of the verified hinted path.",
+    "The earlier unisolated scrubber crash remains separate; current scrub and callback containment smokes pass.",
+    "Other application windows and unsaved work were not closed."
+  ]
+}

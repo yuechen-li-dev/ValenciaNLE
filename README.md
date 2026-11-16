@@ -1,6 +1,6 @@
 # Valencia
 
-Latest UI fixes: [button alignment and scrub stabilization](docs/UI_SCRUB_STABILIZATION.md).
+Latest UI fixes: [GPU text alignment and rendering](docs/UI_TEXT_RENDERING_FIX.md), following [scrub stabilization](docs/UI_SCRUB_STABILIZATION.md).
 Paused scrubbing uses reusable video-only decoding; input/seek diagnostics are saved under `%LOCALAPPDATA%\Valencia\Logs`.
 
 Current backend follow-up: [native rendering/A/V stabilization](docs/M2E_RENDER_STABILIZATION.md)
@@ -38,7 +38,7 @@ dotnet run --project src/Valencia.App -c Release -- "C:\Videos\recording.mp4"
 
 An initial media path is imported and placed on the timeline. With no argument, use **Import**, select a media item, position the playhead and click **Insert**. Use **Open** for `.valencia` projects. Drag clip bodies to move, or their edge handles to trim; a release commits one edit. Clips on separate tracks are independent. Video tracks with higher order cover lower ones; audible audio tracks mix.
 
-The UI uses pixel-snapped raster glyphs for its fixed type scale and analytic GPU widget geometry, with an MSDF path available for scaled text. Three explicit native profiles cover desktop/landscape tablet, portrait tablet, and portrait phone. Layout and rendering share font measurements; shortcut hints wrap on narrow layouts. Portrait Windows captures do not imply mobile-platform support.
+The UI uses hinted, pixel-aligned glyphs for small controls, shared Machina MSDF rendering for larger text, and analytic GPU widget geometry. Three explicit native profiles cover desktop/landscape tablet, portrait tablet, and portrait phone. Layout and rendering share font measurements; shortcut hints wrap on narrow layouts. Portrait Windows captures do not imply mobile-platform support.
 
 **OBS** opens connect/start/stop/pause/mark/import controls. Configure client credentials with `Valencia.Cli obs configure`, supplying `VALENCIA_OBS_PASSWORD` through the process environment. Stored client credentials use Windows CurrentUser DPAPI. Connecting does not change OBS settings; Start/Stop are explicit actions, and closing Valencia does not stop OBS. **Ctrl+Shift+M** records an approximate highlight observation. Import completed takes, then use Insert. See M2e for recording-root boundaries, CLI options and MCP control authorization.
 

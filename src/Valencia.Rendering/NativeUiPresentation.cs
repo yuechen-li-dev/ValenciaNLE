@@ -9,7 +9,7 @@ namespace Valencia.Rendering;
 
 /// <summary>
 /// Narrow realization of Valencia's flat Machina panels. Geometry remains vector intent;
-/// ASCII text uses Machina's existing MSDF font/atlas authority. Unicode text uses a
+/// Small ASCII text uses a pixel-aligned hinted atlas; larger text uses Machina's MSDF authority. Unicode text uses a
 /// pixel-sized Skia fallback, never a stretched 1280x720 bitmap. This is not a widget toolkit.
 /// </summary>
 internal sealed class NativeUiPresentation
@@ -47,7 +47,7 @@ internal sealed class NativeUiPresentation
                     if (clip.Width <= 0 || clip.Height <= 0) break;
                     if (text.Text.All(c => c is >= ' ' and <= '~' || char.IsWhiteSpace(c)))
                     {
-                        if (TypeScale.Raster)
+                        if (TypeScale.UsesRaster(text.Style.Size))
                         {
                             RasterText.Instance.Layout(text, clip, (float)(pixelWidth / frame.Viewport.Width), RasterGlyphs);
                             break;
@@ -55,9 +55,7 @@ internal sealed class NativeUiPresentation
                         var sized = new PositionedTextOperation(text.SourceId, text.Rect, text.Text,
                             text.Style with { Size = NativeUiText.Size(text.Style.Size) }, text.Color);
                         var qualified = NativeUiText.Font.Qualify(sized);
-                        int first = Glyphs.Count;
                         AurelianMsdfTextPresentationAdapter.AdaptInto(qualified, NativeUiText.Font.ResourceFor(qualified), atlas, Glyphs, clip);
-                        for (int i = first; i < Glyphs.Count; i++) Glyphs[i] = DarkStemCompensation(Glyphs[i]);
                     }
                     else fallback.Add((text, clip));
                     break;
@@ -118,20 +116,5 @@ internal sealed class NativeUiPresentation
     {
         double x = Math.Max(a.X, b.X), y = Math.Max(a.Y, b.Y);
         return new(x, y, Math.Max(0, Math.Min(a.X + a.Width, b.X + b.Width) - x), Math.Max(0, Math.Min(a.Y + a.Height, b.Y + b.Height) - y));
-    }
-
-    /// <summary>
-    /// Coverage is blended in linear space, which swells light-on-dark stems and thins dark-on-light ones. The shared
-    /// small-size threshold is tuned for light text; dark glyphs (ink on bone, paper or orange) get their edge moved
-    /// outward by about a third of a screen pixel instead, so 10-12 px ink labels read at full weight.
-    /// </summary>
-    internal static NativeMsdfQuadSubmission DarkStemCompensation(NativeMsdfQuadSubmission glyph)
-    {
-        var c = glyph.Color;
-        double luminance = .2126 * c.Red + .7152 * c.Green + .0722 * c.Blue;
-        if (luminance >= .25) return glyph;
-        float screenRange = Math.Max(.5f, glyph.Msdf.PixelRange * glyph.Msdf.FieldScale);
-        float threshold = Math.Max(.3f, glyph.Msdf.Threshold - Math.Min(.2f, .35f / screenRange));
-        return glyph with { Msdf = glyph.Msdf with { Threshold = threshold } };
     }
 }

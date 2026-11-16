@@ -10,13 +10,14 @@ public sealed class NativeUiText : ITextMeasurer
 {
     public static NativeUiText Instance { get; } = new();
     private static readonly Lazy<AurelianNativeUiFont> NativeFont = new(() =>
-        AurelianNativeUiFont.Create(TypeScale.Specs(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts"))));
+        AurelianNativeUiFont.Create(TypeScale.Specs(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts"))
+            .Where(spec => !TypeScale.UsesRaster(spec.Size))));
     internal static AurelianNativeUiFont Font => NativeFont.Value;
     internal static TextSize Size(TextSize size) => size;
     public IntrinsicSize MeasureText(string value, TextStyle style)
     {
         if (value.All(c => c is >= ' ' and <= '~' || char.IsWhiteSpace(c)))
-            return TypeScale.Raster ? RasterText.Instance.Measure(value, style.Size) : Font.MeasureText(value, style with { Size = Size(style.Size) });
+            return TypeScale.UsesRaster(style.Size) ? RasterText.Instance.Measure(value, style.Size) : Font.MeasureText(value, style with { Size = Size(style.Size) });
         // The pixel fallback's system-font coverage can differ. Reserve a full em per
         // non-ASCII scalar, including surrogate pairs, rather than measuring missing glyphs as zero.
         double em = TypeScale.Pixels(style.Size);
@@ -57,14 +58,14 @@ public sealed class NativeUiText : ITextMeasurer
 }
 
 /// <summary>
-/// Edge Code type scale: one MSDF atlas per Machina text size. Plex Mono carries data, Archivo Expanded carries
+/// Edge Code type scale: hinted small text and shared MSDF display sizes. Plex Mono carries data, Archivo Expanded carries
 /// commands (the default button size), and the extra-condensed Noto Serif Display carries titles and timecode.
 /// All three are SIL OFL 1.1 and ship in Assets/Fonts with their licenses.
 /// </summary>
 public static class TypeScale
 {
-    /// <summary>Fixed-size UI text is rasterized (hinted, pixel-snapped); MSDF remains available for scaled text.</summary>
-    public static bool Raster { get; } = true;
+    /// <summary>Hinted small text stays on the device pixel grid; larger/scaled text uses the shared MSDF path.</summary>
+    public static bool UsesRaster(TextSize size) => size is TextSize.Xs or TextSize.Sm or TextSize.Md;
     public const string Mono = "IBMPlexMono-Regular.ttf", Command = "Archivo-ExpandedBold.ttf", Display = "NotoSerifDisplay-ExtraCondensedBlack.ttf";
     public static int Pixels(TextSize size) => size switch
     {

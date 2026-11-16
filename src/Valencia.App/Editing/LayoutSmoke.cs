@@ -5,6 +5,14 @@ using Silk.NET.Maths;
 using Valencia.Core;
 using Valencia.Core.Editing;
 using Valencia.Core.Timeline;
+using Machina.Presentation;
+using Machina.Layout.Geometry;
+using Machina.Core.Authoring;
+using Machina.Core.Actions;
+using Machina.Core.Nodes;
+using Machina.Pipeline;
+using Machina.Standard.Authoring;
+using Valencia.Rendering;
 
 namespace Valencia.App.Editing;
 
@@ -72,6 +80,7 @@ internal sealed class LayoutSmoke(string directory)
             }
             if (++frames < 45) return;
             window.Capture(Path.Combine(directory, size.Name + ".png"));
+            var buttonAlignment = QualifyButtons(window);
             if (window.Graphics.TextGlyphCount < 100) throw new InvalidOperationException("Native text glyphs were not submitted.");
             if (!DocumentSemantics.Equal(original.Document, editor.Session.Snapshot.Document))
                 throw new InvalidOperationException("A layout change altered the editing document.");
@@ -81,7 +90,8 @@ internal sealed class LayoutSmoke(string directory)
                 framebufferWidth = window.Graphics.Window.FramebufferSize.X, framebufferHeight = window.Graphics.Window.FramebufferSize.Y,
                 textGlyphs = window.Graphics.TextGlyphCount, fallbackTextRuns = window.Graphics.PixelFallbackTextRuns,
                 atlasUploads = window.Graphics.AtlasUploadCount, visibleTracks = editor.Viewport.VisibleTracks,
-                frameMedianMs = measured[measured.Length / 2], frameP95Ms = measured[(int)(measured.Length * .95)] });
+                frameMedianMs = measured[measured.Length / 2], frameP95Ms = measured[(int)(measured.Length * .95)],
+                buttonAlignment });
             sizeIndex++; resizing = true; return;
         }
         if (stateIndex < States.Length)
@@ -124,16 +134,96 @@ internal sealed class LayoutSmoke(string directory)
         editor.Status = "剪辑 — résumé / native pixel fallback";
         window.Capture(Path.Combine(directory, "unicode.png"));
         if (window.Graphics.PixelFallbackTextRuns == 0) throw new InvalidOperationException("Unicode fallback was not exercised.");
+        var deviceScales = QualifyDeviceScales(window);
+        if (window.Graphics.ValidationErrorCount != 0) throw new InvalidOperationException("Vulkan validation errors during UI qualification.");
         File.WriteAllText(Path.Combine(directory, "result.json"), JsonSerializer.Serialize(new
         {
             outcome = "passed", gpu = window.Graphics.GpuName, runtime = Environment.Version.ToString(),
-            pipeline = "Machina -> analytic widget geometry + MSDF glyphs -> native Vulkan framebuffer",
+            pipeline = "Machina -> pixel-aligned hinted controls + shared MSDF headings -> Vulkan",
+            validationAvailable = window.Graphics.ValidationAvailable, validationErrors = window.Graphics.ValidationErrorCount,
+            deviceScales,
             layouts = results, semanticDocumentPreservedByResize = true, syntheticClips = 5000, visibleClips = visible.Length,
             benchmarkFrames = frames, frameMedianMs = times[times.Length / 2], frameP95Ms = times[(int)(times.Length * .95)],
             inputProposalMs = timer.Elapsed.TotalMilliseconds, elapsedSeconds = deadline.Elapsed.TotalSeconds,
             unicodeFallbackExercised = true, physicalPointerActionsTested = false, nonWindowsDevicesTested = false
         }, new JsonSerializerOptions { WriteIndented = true }));
         Finished = true;
+    }
+    private static IReadOnlyList<object> QualifyButtons(EditorWindow window)
+    {
+        byte[] pixels = window.Readback();
+        return QualifyButtons(window, pixels, window.Presentation);
+    }
+    private static IReadOnlyList<object> QualifyButtons(EditorWindow window, byte[] pixels, MachinaPreparedPresentation presentation)
+    {
+        int width = window.Graphics.Window.FramebufferSize.X, height = window.Graphics.Window.FramebufferSize.Y;
+        double scaleX = width / (double)presentation.PresentationFrame.Viewport.Width;
+        double scaleY = height / (double)presentation.PresentationFrame.Viewport.Height;
+        var results = new List<object>();
+        foreach (string action in new[] { "Undo", "Redo", "TogglePlay", "MarkOut", "NextFrame", "NextEdit", "OutputProfile" })
+        {
+            var entry = presentation.Lowering.Actions.FirstOrDefault(p => p.Value.Name == action);
+            if (entry.Value is null) continue;
+            Rect bounds = presentation.Resolved.Nodes[entry.Key].Rect;
+            var text = presentation.PresentationFrame.Operations.OfType<PositionedTextOperation>()
+                .FirstOrDefault(t => t.SourceId == entry.Key.Child("label").Value);
+            if (text is null) throw new InvalidOperationException($"No label operation for {action}.");
+            uint color = text.Color.Rgba;
+            double foreground = .2126 * (color >> 24) + .7152 * ((color >> 16) & 255) + .0722 * ((color >> 8) & 255);
+            int backgroundX = Math.Clamp((int)Math.Ceiling(bounds.X * scaleX) + 3, 0, width - 1);
+            int backgroundY = Math.Clamp((int)Math.Ceiling(bounds.Y * scaleY) + 3, 0, height - 1);
+            int backgroundOffset = (backgroundY * width + backgroundX) * 4;
+            double background = .2126 * pixels[backgroundOffset] + .7152 * pixels[backgroundOffset + 1] + .0722 * pixels[backgroundOffset + 2];
+            double direction = foreground < background ? -1 : 1;
+            double fullContrast = Math.Abs(foreground - background);
+            double threshold = Math.Max(12, fullContrast * .2); // include visible antialiased edges, not only near-opaque interiors
+            double peakContrast = 0;
+            int minX = width, minY = height, maxX = -1, maxY = -1;
+            for (int y = Math.Max(0, (int)Math.Ceiling(bounds.Y * scaleY) + 2); y < Math.Min(height, (int)Math.Floor((bounds.Y + bounds.Height) * scaleY) - 2); y++)
+            for (int x = Math.Max(0, (int)Math.Ceiling(bounds.X * scaleX) + 2); x < Math.Min(width, (int)Math.Floor((bounds.X + bounds.Width) * scaleX) - 2); x++)
+            {
+                int offset = (y * width + x) * 4;
+                double luminance = .2126 * pixels[offset] + .7152 * pixels[offset + 1] + .0722 * pixels[offset + 2];
+                double contrast = direction * (luminance - background);
+                peakContrast = Math.Max(peakContrast, contrast);
+                if (contrast < threshold) continue;
+                minX = Math.Min(minX, x); minY = Math.Min(minY, y); maxX = Math.Max(maxX, x); maxY = Math.Max(maxY, y);
+            }
+            if (maxX < minX) throw new InvalidOperationException($"No visible ink for {action}.");
+            if (peakContrast < fullContrast * .5) throw new InvalidOperationException($"Insufficient text contrast for {action}.");
+            double dx = (minX + maxX + 1) / 2.0 - (bounds.X + bounds.Width / 2) * scaleX;
+            double dy = (minY + maxY + 1) / 2.0 - (bounds.Y + bounds.Height / 2) * scaleY;
+            if (Math.Abs(dx) > 1.5 || Math.Abs(dy) > 1.5)
+                throw new InvalidOperationException($"{action} visible GPU ink is off-center: dx={dx:F2}, dy={dy:F2} framebuffer pixels.");
+            results.Add(new { action, label = text.Text, role = text.Style.Size.ToString(), dx, dy, bounds, threshold, peakContrast });
+        }
+        return results;
+    }
+    private static IReadOnlyList<object> QualifyDeviceScales(EditorWindow window)
+    {
+        var results = new List<object>();
+        window.Graphics.ClearVideo(); window.Graphics.Canvas = [];
+        foreach (double scale in new[] { 1.0, 1.25, 1.5, 2.0 })
+        foreach (var role in new[] { Machina.Core.Styling.TextSize.Md, Machina.Core.Styling.TextSize.Lg })
+        {
+            int width = (int)Math.Round(window.Graphics.Window.FramebufferSize.X / scale);
+            int height = (int)Math.Round(window.Graphics.Window.FramebufferSize.Y / scale);
+            var children = new List<UiNode>();
+            int row = 0;
+            foreach (var (label, action) in new[] { ("UNDO", "Undo"), ("REDO", "Redo"), ("PLAY", "TogglePlay"), ("OUT", "MarkOut"), (">", "NextFrame"), (">>", "NextEdit"), ("VIEW / SEQUENCE", "OutputProfile") })
+            {
+                var style = action == "TogglePlay" ? EditorView.Ui.Primary : EditorView.Ui.Plain;
+                children.Add(StandardUI.Button(label, UiAction.Named(action), 30, 12 + row++ * 38, 220, 30,
+                    style: style with { TextStyle = style.TextStyle with { Size = role } }));
+            }
+            var presentation = new MachinaPresentationPipeline().Prepare(UI.Surface(children: children), width, height,
+                new Machina.Core.Lowering.UiLoweringOptions(NativeUiText.Instance));
+            window.Graphics.UpdateUi(presentation.PresentationFrame);
+            var pixels = window.Graphics.Draw(true) ?? throw new InvalidOperationException("No scaled GPU readback.");
+            results.Add(new { scale, role = role.ToString(), logicalWidth = width, framebufferWidth = window.Graphics.Window.FramebufferSize.X,
+                buttonAlignment = QualifyButtons(window, pixels, presentation) });
+        }
+        return results;
     }
     private static SequenceTime T(int seconds) => new(seconds * SequenceTime.TicksPerSecond);
 }

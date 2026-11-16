@@ -8,6 +8,34 @@ namespace Valencia.Tests;
 
 public sealed class ButtonAlignmentTests
 {
+    [Theory]
+    [InlineData("UNDO")]
+    [InlineData("REDO")]
+    [InlineData("PLAY")]
+    [InlineData("OUT")]
+    [InlineData("VIEW / SEQUENCE")]
+    public void VisibleAtlasPixelsCenterRatherThanTransparentGlyphQuads(string label)
+    {
+        var raster = new RasterText();
+        var text = new PositionedTextOperation(new("probe.label"), new(10, 10, 200, 30), label,
+            new(Size: TextSize.Md, AlignX: TextAlignX.Center, AlignY: TextAlignY.Center), ColorToken.Hex(0xFFFFFFFF));
+        var quads = new List<RasterGlyphQuad>();
+        raster.Layout(text, text.Rect, 1, quads);
+        float left = float.PositiveInfinity, right = float.NegativeInfinity;
+        foreach (var quad in quads)
+        {
+            int u = (int)Math.Round(quad.Uv.U0 * RasterText.AtlasSize);
+            int v = (int)Math.Round(quad.Uv.V0 * RasterText.AtlasSize);
+            for (int y = 0; y < (int)quad.Destination.Height; y++)
+            for (int x = 0; x < (int)quad.Destination.Width; x++)
+            {
+                if (raster.Pixels[((v + y) * RasterText.AtlasSize + u + x) * 4 + 3] < 64) continue;
+                left = Math.Min(left, quad.Destination.X + x);
+                right = Math.Max(right, quad.Destination.X + x + 1);
+            }
+        }
+        Assert.InRange(Math.Abs((left + right) / 2 - 110), 0, 1);
+    }
     [Fact]
     public void SharedFontCachesSupportConcurrentMeasurementAndFaceWarmup()
     {

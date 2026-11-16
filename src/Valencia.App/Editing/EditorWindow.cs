@@ -195,12 +195,18 @@ internal sealed partial class EditorWindow : IDisposable
     }
     public void Capture(string path)
     {
-        Prepare(); var rgba = Graphics.Draw(true) ?? throw new InvalidOperationException("No GPU readback.");
+        var rgba = Readback();
         using var bitmap = new Bitmap(Graphics.Window.FramebufferSize.X, Graphics.Window.FramebufferSize.Y, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         for (int i = 0; i < rgba.Length; i += 4) (rgba[i], rgba[i + 2]) = (rgba[i + 2], rgba[i]);
         var data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), System.Drawing.Imaging.ImageLockMode.WriteOnly, bitmap.PixelFormat);
         try { Marshal.Copy(rgba, 0, data.Scan0, rgba.Length); } finally { bitmap.UnlockBits(data); }
         bitmap.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+    }
+    internal Machina.Pipeline.MachinaPreparedPresentation Presentation => view.Prepared ?? throw new InvalidOperationException("UI is not prepared.");
+    internal byte[] Readback()
+    {
+        Prepare();
+        return Graphics.Draw(true) ?? throw new InvalidOperationException("No GPU readback.");
     }
     public void Seek(SequenceTime position, bool play = false)
     {

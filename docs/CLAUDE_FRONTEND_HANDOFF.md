@@ -221,6 +221,8 @@ A separate Windows input check opened the creator project with Ctrl+O, sought on
 
 ## Suggested sequence
 
+The [GPU text rendering correction](UI_TEXT_RENDERING_FIX.md) supersedes the earlier CPU-only alignment qualification. UI/text shaders must preserve input clip positions exactly: never add a vertex/instance-ID positional bias to keep compiler builtins live. Those builtins have a separate compiler probe. Machina buttons/badges use explicit `TextNode.FillAvailableSpace` layout; IDs must not determine label bounds. Small controls use device-sized hinted glyphs, larger text uses MSDF with true-contour alignment, and the renderer converts MSDF field scale to framebuffer pixels. `--layout-smoke` now checks actual GPU ink against control bounds at six window sizes and simulated 1–2x device scales. Avoid application-level offsets to compensate for renderer defects.
+
 1. Media/stream roles, transport/focus, missing-media and persistent errors.
 2. Timeline trim/drag affordances, ruler/selection and navigation within three roots.
 3. Full transcript/source-evidence/diff inspection with explicit Apply/Cancel/undo.
