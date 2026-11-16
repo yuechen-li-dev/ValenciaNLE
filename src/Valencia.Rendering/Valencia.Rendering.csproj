@@ -15,5 +15,7 @@
     <None Include="$(CopelandRoot)/src/Aurelian/Aurelian.Shaders/Assets/Ui2D/*.v.ts" Link="Assets/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
     <None Include="Assets/MsdfText.json;Assets/AnalyticShape2D.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" Condition="Exists('Assets/MsdfText.json')" />
     <None Include="$(CopelandRoot)/src/Aurelian/Aurelian.Assets/Defaults/Fonts/*" Link="Assets/Fonts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <!-- Edge Code type system (SIL OFL 1.1; licenses in /licenses). -->
+    <None Include="Assets/Fonts/*.ttf" Link="Assets/Fonts/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

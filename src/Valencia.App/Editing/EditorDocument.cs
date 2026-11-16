@@ -19,6 +19,16 @@ internal sealed class EditorDocument
     /// <summary>Transient sequence In/Out marks (Premiere I/O); not saved with the project.</summary>
     public SequenceTime? MarkIn { get; set; }
     public SequenceTime? MarkOut { get; set; }
+    /// <summary>Timeline behavior toggles (transient UI preferences).</summary>
+    public bool Snapping { get; set; } = true;
+    public bool LinkedSelection { get; set; } = true;
+    public bool Magnetic { get; set; }
+    /// <summary>When set, the monitor shows this media instead of the sequence; Playhead is then source time.</summary>
+    public SourceView? Source { get; set; }
+    public SequenceTime ProgramPlayhead { get; set; }
+    public SequenceTime TimelinePlayhead => Source is null ? Playhead : ProgramPlayhead;
+    public SequenceTime MonitorDuration => Source?.Duration ?? Sequence.Duration;
+    public Dictionary<Guid, (SequenceTime? In, SequenceTime? Out)> SourceMarks { get; } = [];
     public ProjectDocument? SavedDocument { get; set; }
     public string? ProjectPath { get; set; }
     public bool Dirty => SavedDocument is null || !DocumentSemantics.Equal(SavedDocument, Session.Snapshot.Document);
@@ -32,7 +42,15 @@ internal sealed class EditorDocument
     public bool ObsMode { get; set; }
     public string ObsConnection { get; set; } = "Disconnected";
     public string ObsRecording { get; set; } = "No recording session";
+    /// <summary>OBS reports an active (not paused) recording; the monitor shows a REC badge.</summary>
+    public bool Recording { get; set; }
+    /// <summary>Full-monitor title card, shown until <see cref="CardUntil"/> (window clock seconds) or any key.</summary>
+    public TitleCard? Card { get; set; }
+    public double CardUntil { get; set; }
     public int TranscriptFirstWord { get; set; }
+    /// <summary>Words/assets the view fitted last frame; paging uses them so Prev/Next and the wheel move by a visible page.</summary>
+    public int TranscriptPageSize { get; set; } = 6;
+    public int MediaPageSize { get; set; } = 4;
     public int? TranscriptSelectionStart { get; set; }
     public int? TranscriptSelectionEnd { get; set; }
     public SequenceDocument Sequence => new TimelineQueries(Session.Snapshot).Sequence(SequenceId);
@@ -46,7 +64,7 @@ internal sealed class EditorDocument
         foreach (var (kind, name) in new[] { (TrackKind.Video, "V1"), (TrackKind.Video, "V2"), (TrackKind.Audio, "A1"), (TrackKind.Audio, "A2") })
             ops.Add(new AddTrack(SequenceId, Guid.NewGuid(), kind, ops.Count - 1, name));
         Commit(ops); Session = new(Session.Snapshot); // Required sequence/track setup is the baseline, not an undoable user edit.
-        SelectedClip = null; SelectedAsset = null; TargetTrack = null; FirstAsset = 0; Viewport.Reset(); Playhead = default; MarkIn = null; MarkOut = null; SavedDocument = Session.Snapshot.Document; ProjectPath = null;
+        SelectedClip = null; SelectedAsset = null; TargetTrack = null; FirstAsset = 0; Viewport.Reset(); Playhead = default; MarkIn = null; MarkOut = null; Source = null; SourceMarks.Clear(); SavedDocument = Session.Snapshot.Document; ProjectPath = null;
     }
     public void Open(ProjectSnapshot snapshot, string path)
     {
@@ -54,7 +72,7 @@ internal sealed class EditorDocument
         Waveforms.Clear(); ProposedCut = null; Transcript = null; ProposedTextCut = null; TranscriptMode = false;
         if (snapshot.Document.Sequences.IsDefaultOrEmpty) throw new InvalidDataException("Project has no sequence. Create a sequence before editing it.");
         Session = new(snapshot); SequenceId = snapshot.Document.Sequences[0].Id; SavedDocument = snapshot.Document; ProjectPath = path;
-        SelectedClip = null; SelectedAsset = snapshot.Document.Assets.FirstOrDefault()?.Id; TargetTrack = null; FirstAsset = 0; Viewport.Reset(); Playhead = default; MarkIn = null; MarkOut = null;
+        SelectedClip = null; SelectedAsset = snapshot.Document.Assets.FirstOrDefault()?.Id; TargetTrack = null; FirstAsset = 0; Viewport.Reset(); Playhead = default; MarkIn = null; MarkOut = null; Source = null; SourceMarks.Clear();
     }
     public EditResult Commit(params EditOperation[] operations) => Commit((IEnumerable<EditOperation>)operations);
     public EditResult Commit(IEnumerable<EditOperation> operations)
@@ -82,3 +100,15 @@ internal sealed class EditorDocument
         var result = redo ? Session.Redo(request) : Session.Undo(request); Status = result.Message ?? (redo ? "Redo" : "Undo"); return result;
     }
 }
+
+/// <summary>A transient one-asset sequence that the monitor plays in source mode; never part of the project.</summary>
+internal sealed record SourceView(Guid AssetId, string Name, ProjectSnapshot Snapshot, Guid SequenceId, SequenceTime Duration, ImportedAsset Imported);
+
+internal enum TitleCardKind { Export, Recording, Proposal }
+
+/// <summary>
+/// A title-card moment. Head is the large word; Tail the second line (newline-separated lines for a recording);
+/// Body one sentence; Data the edge-code lines; Stats the proposal figures (value, label, accent).
+/// </summary>
+internal sealed record TitleCard(TitleCardKind Kind, string Head, string Tail, string Body, IReadOnlyList<string> Data,
+    IReadOnlyList<(string Value, string Label, bool Accent)>? Stats = null);

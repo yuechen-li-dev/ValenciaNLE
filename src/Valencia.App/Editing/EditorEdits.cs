@@ -26,6 +26,10 @@ internal static class EditorEdits
         return [root, .. all.Where(x => x.Track.Id != root.Track.Id && !x.Track.State.Locked && LinkedTo(root.Clip, x.Clip))];
     }
 
+    /// <summary>The selection group honoring the Linked Selection toggle.</summary>
+    public static ImmutableArray<(TimelineTrack Track, TimelineClip Clip)> Group(EditorDocument editor, Guid clipId) =>
+        editor.LinkedSelection ? LinkedGroup(editor.Sequence, clipId) : [.. LinkedGroup(editor.Sequence, clipId).Take(1)];
+
     public static ImmutableArray<TimelineTrack> Unlocked(SequenceDocument sequence) => [.. sequence.Tracks.Where(t => !t.State.Locked)];
 
     public static ImmutableArray<long> EditPoints(SequenceDocument sequence) =>
@@ -66,8 +70,9 @@ internal static class EditorEdits
     public static EditResult? DeleteSelection(EditorDocument editor, bool ripple)
     {
         if (editor.Selection is not { } clip) return null;
+        ripple |= editor.Magnetic;
         var sequence = editor.Sequence;
-        var group = LinkedGroup(sequence, clip.Id);
+        var group = Group(editor, clip.Id);
         if (group[0].Track.State.Locked) return Refuse(editor, "Track is locked.");
         EditResult result;
         if (!ripple) result = editor.Commit(group.Select(g => (EditOperation)new DeleteClip(editor.SequenceId, g.Clip.Id)));
@@ -112,6 +117,7 @@ internal static class EditorEdits
     public static EditResult? RemoveMarked(EditorDocument editor, bool extract)
     {
         if (!MarkedRange(editor, out var start, out var end)) return Refuse(editor, "Set In (I) and/or Out (O) around media first.");
+        extract |= editor.Magnetic;
         var tracks = Unlocked(editor.Sequence);
         if (tracks.Length == 0) return Refuse(editor, "All tracks are locked.");
         List<EditOperation> operations = extract ? [RippleRange(editor.SequenceId, tracks, start, end)] : [.. LiftRange(editor.SequenceId, tracks, start, end)];
@@ -121,13 +127,18 @@ internal static class EditorEdits
         return result;
     }
 
-    /// <summary>"," insert (shift later media right on all unlocked tracks) or "." overwrite (replace media on the receiving tracks).</summary>
-    public static EditResult InsertAt(EditorDocument editor, ImportedAsset imported, bool overwrite)
+    /// <summary>
+    /// "," insert (shift later media right on all unlocked tracks) or "." overwrite (replace media on the receiving tracks)
+    /// at the timeline playhead. An optional source range (times on the asset's own placement) inserts only that part.
+    /// Magnetic mode turns overwrite into insert. The timeline playhead moves to the end of the edit, as in Premiere.
+    /// </summary>
+    public static EditResult InsertAt(EditorDocument editor, ImportedAsset imported, bool overwrite, (SequenceTime In, SequenceTime Out)? range = null)
     {
-        var sequence = editor.Sequence; var at = editor.Playhead;
+        overwrite &= !editor.Magnetic;
+        var sequence = editor.Sequence; var at = editor.TimelinePlayhead;
         var built = Valencia.Engine.InsertionCommands.Build(editor.Session.Snapshot, editor.SequenceId, imported, at, editor.TargetTrack);
-        var inserts = built.OfType<InsertClip>().ToArray();
-        if (inserts.Length == 0) return editor.Commit(built);
+        var inserts = built.OfType<InsertClip>().Select(i => range is { } r ? Trim(i, at, r) : i).OfType<InsertClip>().ToArray();
+        if (inserts.Length == 0) return editor.Commit(built.Where(o => o is not InsertClip));
         var end = new SequenceTime(inserts.Max(i => i.Clip.End.Ticks));
         var operations = new List<EditOperation>(built.OfType<AddTrack>());
         if (overwrite)
@@ -135,30 +146,47 @@ internal static class EditorEdits
             var receiving = inserts.Select(i => i.TrackId).ToHashSet();
             operations.AddRange(LiftRange(editor.SequenceId, sequence.Tracks.Where(t => receiving.Contains(t.Id)), at, end));
         }
-        else
-        {
-            long shift = end.Ticks - at.Ticks;
-            foreach (var track in Unlocked(sequence))
-            {
-                var moves = new List<(Guid Id, long Start)>();
-                foreach (var clip in track.Clips)
-                {
-                    if (clip.Start.Ticks >= at.Ticks) moves.Add((clip.Id, clip.Start.Ticks));
-                    else if (clip.End.Ticks > at.Ticks)
-                    {
-                        var right = Guid.NewGuid(); operations.Add(new SplitClip(editor.SequenceId, clip.Id, at, right));
-                        moves.Add((right, at.Ticks));
-                    }
-                }
-                // Latest first, so every intermediate document stays non-overlapping.
-                foreach (var (id, start) in moves.OrderByDescending(m => m.Start))
-                    operations.Add(new MoveClip(editor.SequenceId, id, track.Id, new(checked(start + shift))));
-            }
-        }
+        else operations.AddRange(ShiftFrom(editor.SequenceId, Unlocked(sequence), at, end.Ticks - at.Ticks));
         operations.AddRange(inserts);
         var result = editor.Commit(operations);
-        if (result.Success) editor.Status = overwrite ? "Overwrite edit." : "Insert edit.";
+        if (result.Success)
+        {
+            if (editor.Source is null) editor.Playhead = end; else editor.ProgramPlayhead = end;
+            editor.Status = overwrite ? "Overwrite edit." : "Insert edit.";
+        }
         return result;
+    }
+
+    /// <summary>Splits clips spanning <paramref name="at"/> and moves everything at or after it right by <paramref name="shift"/> ticks.</summary>
+    public static IEnumerable<EditOperation> ShiftFrom(Guid sequenceId, IEnumerable<TimelineTrack> tracks, SequenceTime at, long shift)
+    {
+        foreach (var track in tracks)
+        {
+            var moves = new List<(Guid Id, long Start)>();
+            foreach (var clip in track.Clips)
+            {
+                if (clip.Start.Ticks >= at.Ticks) moves.Add((clip.Id, clip.Start.Ticks));
+                else if (clip.End.Ticks > at.Ticks)
+                {
+                    var right = Guid.NewGuid(); yield return new SplitClip(sequenceId, clip.Id, at, right);
+                    moves.Add((right, at.Ticks));
+                }
+            }
+            // Latest first, so every intermediate document stays non-overlapping.
+            foreach (var (id, start) in moves.OrderByDescending(m => m.Start))
+                yield return new MoveClip(sequenceId, id, track.Id, new(checked(start + shift)));
+        }
+    }
+
+    /// <summary>Keeps the part of a placed clip that falls inside [In, Out) of the asset placement starting at <paramref name="at"/>.</summary>
+    private static InsertClip? Trim(InsertClip insert, SequenceTime at, (SequenceTime In, SequenceTime Out) range)
+    {
+        var c = insert.Clip;
+        long offset = c.Start.Ticks - at.Ticks, length = c.Duration.Ticks;
+        long a = Math.Max(offset, range.In.Ticks), b = Math.Min(offset + length, range.Out.Ticks);
+        if (b <= a) return null;
+        return insert with { Clip = c with { Start = new(checked(at.Ticks + a - range.In.Ticks)),
+            SourceIn = c.SourceIn.Shift(new(a - offset)), SourceOut = c.SourceIn.Shift(new(b - offset)) } };
     }
 
     private static string Linked(int count, string verb) => count > 1 ? $"{verb} {count} linked clips." : $"{verb} clip.";

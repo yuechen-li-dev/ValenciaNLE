@@ -36,6 +36,8 @@ public sealed class NativeVideoPresenter : IDisposable
     private Native2DTextureHandle uiTexture;
     private Native2DTextureHandle videoTexture;
     private Native2DTextureHandle whiteTexture;
+    private Native2DTextureHandle glyphTexture;
+    private int glyphVersion = -1;
     public bool EditorLayout { get; set; }
     public Rect? ProgramMonitor { get; set; }
     public IReadOnlyList<CanvasRectangle> Canvas { get; set; } = [];
@@ -122,6 +124,8 @@ public sealed class NativeVideoPresenter : IDisposable
     public long PresentedFrames { get; private set; }
     public long UploadedVideoFrames { get; private set; }
     public int MsdfGlyphCount => ui.Glyphs.Count;
+    /// <summary>Text glyph quads submitted this frame, raster and MSDF together.</summary>
+    public int TextGlyphCount => ui.Glyphs.Count + ui.RasterGlyphs.Count;
     public int PixelFallbackTextRuns => ui.FallbackTextRuns;
     public int AtlasUploadCount => atlas?.UploadCount ?? 0;
 
@@ -144,6 +148,13 @@ public sealed class NativeVideoPresenter : IDisposable
         ui.Prepare(uiFrame, atlas!, (int)target.Width, (int)target.Height);
         if (uiTexture.Value != 0) { renderer.DisposeTexture(uiTexture); uiTexture = default; }
         if (ui.FallbackPixels is { } pixels) uiTexture = renderer.CreateTexture(target.Width, target.Height, pixels);
+        var raster = RasterText.Instance;
+        if (raster.Version != glyphVersion)
+        {
+            if (glyphTexture.Value == 0) glyphTexture = renderer.CreateTexture(RasterText.AtlasSize, RasterText.AtlasSize, raster.Pixels);
+            else renderer.UpdateTexture(glyphTexture, RasterText.AtlasSize, RasterText.AtlasSize, raster.Pixels);
+            glyphVersion = raster.Version;
+        }
     }
 
     public void UpdateVideo(int width, int height, byte[] rgba)
@@ -217,6 +228,9 @@ public sealed class NativeVideoPresenter : IDisposable
             foreach (var r in Canvas)
                 quad.SubmitQuad(new NativeQuadSubmission(new Native2DRect(r.X, r.Y, r.Width, r.Height), Native2DUvRect.Full,
                     whiteTexture, new Native2DTint((r.Color >> 24) / 255f, ((r.Color >> 16) & 255) / 255f, ((r.Color >> 8) & 255) / 255f, (r.Color & 255) / 255f)));
+            // Raster UI text draws in this pass, after the canvas, so it sits above every fill and the picture.
+            if (glyphTexture.Value != 0)
+                foreach (var g in ui.RasterGlyphs) quad.SubmitQuad(new NativeQuadSubmission(g.Destination, g.Uv, glyphTexture, g.Color));
         });
         var textPass = frame.Present(textRenderer!, text =>
         {
@@ -273,6 +287,7 @@ public sealed class NativeVideoPresenter : IDisposable
         presenter.CaptureTimings = trace is not null;
         uiTexture = default;
         videoTexture = default;
+        glyphTexture = default; glyphVersion = -1;
         PrepareUi();
         if (lastVideo is not null)
         {

@@ -61,6 +61,7 @@ internal sealed partial class EditorWindow
         Editor.Status = Editor.ProposedCut is not null
             ? $"Proposed {proposal.Removed.Length} cuts; output {proposal.EstimatedDuration.TotalSeconds:0.###}s. Red ranges are removed. Apply or Cancel."
             : string.Join("; ", proposal.Diagnostics);
+        if (Editor.ProposedCut is not null) ShowProposal("Rough cut", proposal.Removed, proposal.EstimatedDuration.TotalSeconds);
         lastUi = -1;
     }
     internal async Task ApplyRoughCut()

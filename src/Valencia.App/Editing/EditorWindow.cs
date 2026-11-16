@@ -53,7 +53,7 @@ internal sealed partial class EditorWindow : IDisposable
     {
         SynchronizationContext.SetSynchronizationContext(context);
         Gesture = new(Editor); input = Graphics.Window.CreateInput(); Graphics.Window.Title = "Valencia — timeline editor";
-        foreach (var keyboard in input.Keyboards) { keyboard.KeyDown += (_, k, _) => keys.Record(k, true); keyboard.KeyUp += (_, k, _) => keys.Record(k, false); }
+        foreach (var keyboard in input.Keyboards) { keyboard.KeyDown += (_, k, _) => { keys.Record(k, true); Editor.Card = null; }; keyboard.KeyUp += (_, k, _) => keys.Record(k, false); }
         foreach (var mouse in input.Mice)
         {
             mouse.MouseDown += MouseDown; mouse.MouseUp += MouseUp; mouse.MouseMove += MouseMove;
@@ -61,7 +61,7 @@ internal sealed partial class EditorWindow : IDisposable
             {
                 var point = Point(m); var media = view.Layout.Media;
                 if (point.X >= media.X && point.X < media.X + media.Width && point.Y >= media.Y && point.Y < media.Y + media.Height)
-                    Editor.FirstAsset = Math.Clamp(Editor.FirstAsset - (int)wheel.Y, 0, Math.Max(0, Editor.Session.Snapshot.Document.Assets.Length - 4));
+                    Editor.FirstAsset = Math.Clamp(Editor.FirstAsset - (int)wheel.Y, 0, Math.Max(0, Editor.Session.Snapshot.Document.Assets.Length - Editor.MediaPageSize));
                 else if (keys.Control) Editor.Viewport.Zoom(Math.Pow(1.2, wheel.Y), Point(m).X);
                 else if (keys.Shift) Editor.Viewport.FirstTrack = Math.Clamp(Editor.Viewport.FirstTrack - (int)wheel.Y, 0, Math.Max(0, Editor.Sequence.Tracks.Length - Editor.Viewport.VisibleTracks));
                 else Editor.Viewport.Scroll(-wheel.Y * 90 - wheel.X * 90);
@@ -136,9 +136,12 @@ internal sealed partial class EditorWindow : IDisposable
         long preparedAt = Stopwatch.GetTimestamp();
         Editor.ObsConnection = Obs?.Recording.Client.Status.State.ToString() ?? "Disconnected";
         Editor.ObsRecording = Obs is { } obs ? obs.Recording.Snapshot.State + " / " + obs.Recording.Snapshot.Markers.Length + " markers" : "No recording session";
+        Editor.Recording = Obs?.Recording.Snapshot.State == "recording";
+        if (Editor.Card is { } card && (clock.Elapsed.TotalSeconds > Editor.CardUntil
+            || card.Kind == TitleCardKind.Proposal && Editor.ProposedCut is null && Editor.ProposedTextCut is null)) Editor.Card = null;
         var prepared = view.Prepare(Editor, Gesture, Playback?.IsPlaying == true, razor,
-            Math.Max(1, Graphics.Window.Size.X), Math.Max(1, Graphics.Window.Size.Y));
-        Graphics.ProgramMonitor = view.Layout.Monitor;
+            Math.Max(1, Graphics.Window.Size.X), Math.Max(1, Graphics.Window.Size.Y), job is not null);
+        Graphics.ProgramMonitor = view.HideVideo ? new(0, 0, 0, 0) : view.Layout.Monitor;
         Graphics.RecordCpuPhase("layoutAndPresentationBuildMs", Stopwatch.GetElapsedTime(preparedAt).TotalMilliseconds);
         long realizedAt = Stopwatch.GetTimestamp();
         Graphics.UpdateUi(prepared.PresentationFrame); Graphics.Canvas = view.Canvas; lastUi = clock.Elapsed.TotalSeconds;
@@ -146,6 +149,18 @@ internal sealed partial class EditorWindow : IDisposable
         Graphics.Window.Title = $"Valencia — {(Editor.Dirty ? "* " : "")}{Path.GetFileName(Editor.ProjectPath ?? "Untitled.valencia")}";
     }
     internal int CanvasCount => view.Canvas.Count;
+    /// <summary>Title-card moments last 900 ms; a sticky card (a pending proposal) stays until a key, Apply or Cancel.</summary>
+    internal void ShowCard(TitleCard card, bool sticky = false)
+    {
+        Editor.Card = card; Editor.CardUntil = sticky ? double.MaxValue : clock.Elapsed.TotalSeconds + .9; lastUi = -1;
+    }
+    internal void ShowProposal(string title, IReadOnlyList<Valencia.Engine.TimelineRemoval> removed, double resultingSeconds)
+    {
+        double seconds = removed.Sum(r => (r.End.Ticks - r.Start.Ticks) / (double)SequenceTime.TicksPerSecond);
+        ShowCard(new(TitleCardKind.Proposal, title.ToUpperInvariant(), "", "", ["ONE UNDO STEP / RED RANGES ON TIMELINE"],
+            [(removed.Count.ToString(System.Globalization.CultureInfo.InvariantCulture), "REMOVALS", false),
+             ("-" + Timecode.Duration(seconds), "REMOVED", true), (Timecode.Duration(Math.Max(0, resultingSeconds)), "RESULTING LENGTH", false)]), sticky: true);
+    }
     internal Task ExportQualification(string path)
     {
         Editor.Status = "Export starting";
@@ -170,7 +185,7 @@ internal sealed partial class EditorWindow : IDisposable
     }
     public void Seek(SequenceTime position, bool play = false)
     {
-        Editor.Playhead = new(Math.Clamp(position.Ticks, 0, Editor.Sequence.Duration.Ticks));
+        Editor.Playhead = new(Math.Clamp(position.Ticks, 0, Editor.MonitorDuration.Ticks));
         resume = play; generation++; SeekRequests++; desired = true;
         seekLatency.Restart();
         Playback?.Pause(); seekCancellation?.Cancel(); Graphics.ClearVideo(); lastUi = -1;
@@ -179,8 +194,8 @@ internal sealed partial class EditorWindow : IDisposable
     {
         desired = false; openingGeneration = generation; var old = Playback; Playback = null;
         var previousCancellation = seekCancellation; seekCancellation = new(); var token = seekCancellation.Token;
-        var snapshot = Editor.Session.Snapshot; var id = Editor.SequenceId; var position = Editor.Playhead;
-        var profile = Editor.Sequence.Creator?.Profiles.FirstOrDefault(p => p.Id == Editor.SelectedProfile);
+        var snapshot = Editor.Source?.Snapshot ?? Editor.Session.Snapshot; var id = Editor.Source?.SequenceId ?? Editor.SequenceId; var position = Editor.Playhead;
+        var profile = Editor.Source is null ? Editor.Sequence.Creator?.Profiles.FirstOrDefault(p => p.Id == Editor.SelectedProfile) : null;
         opening = Task.Run(async () =>
         {
             if (old is not null) await old.DisposeAsync(); previousCancellation?.Dispose();
@@ -267,6 +282,9 @@ internal sealed partial class EditorWindow : IDisposable
         {
             if (name == "Cancel") { CancelGesture(); jobCancellation?.Cancel(); Editor.ProposedCut = null; Editor.ProposedTextCut = null; return; }
             if (job is not null) return;
+            // Timeline edits act on the program playhead; leave source mode first (as clicking the timeline panel does in Premiere).
+            if (Editor.Source is not null && name is "Split" or "Delete" or "RippleDelete" or "RippleTrimPrevious" or "RippleTrimNext" or "Lift" or "Extract"
+                or "PreviousEdit" or "NextEdit" or "Undo" or "Redo" or "Insert" or "RazorTool" or "ZoomFit") ExitSource();
             switch (name)
             {
                 case "ObsMode": Editor.ObsMode = !Editor.ObsMode; break;
@@ -283,8 +301,8 @@ internal sealed partial class EditorWindow : IDisposable
                     Seek(Editor.Playhead); break;
                 case "Transcribe": RunJob(TranscribeSelected); break;
                 case "TranscriptMode": Editor.TranscriptMode = !Editor.TranscriptMode; break;
-                case "TranscriptPrev": Editor.TranscriptFirstWord = Math.Max(0, Editor.TranscriptFirstWord - 6); break;
-                case "TranscriptNext": Editor.TranscriptFirstWord = Math.Min(Math.Max(0, (Editor.Transcript?.Transcript?.Words.Length ?? 0) - 1), Editor.TranscriptFirstWord + 6); break;
+                case "TranscriptPrev": Editor.TranscriptFirstWord = Math.Max(0, Editor.TranscriptFirstWord - Editor.TranscriptPageSize); break;
+                case "TranscriptNext": Editor.TranscriptFirstWord = Math.Min(Math.Max(0, (Editor.Transcript?.Transcript?.Words.Length ?? 0) - 1), Editor.TranscriptFirstWord + Editor.TranscriptPageSize); break;
                 case "TranscriptFind": FindTranscript(); break;
                 case "TextRetain": RunJob(() => ProposeTextCut("retain")); break;
                 case "TextRemove": RunJob(() => ProposeTextCut("remove")); break;
@@ -313,7 +331,10 @@ internal sealed partial class EditorWindow : IDisposable
                     if (Pick(true, "MP4 video|*.mp4", "Export edited sequence") is { } output)
                     {
                         var snapshot = Editor.Session.Snapshot; var id = Editor.SequenceId;
-                        RunJob(async () => { await SequenceExport.RunAsync(snapshot, id, output, new Progress<ExportProgress>(p => Editor.Status = $"Export {p.Frames}/{p.TotalFrames}"), jobCancellation!.Token); Editor.Status = "Export complete: " + output; });
+                        RunJob(async () => { await SequenceExport.RunAsync(snapshot, id, output, new Progress<ExportProgress>(p => Editor.Status = $"Export {p.Frames}/{p.TotalFrames}"), jobCancellation!.Token); Editor.Status = "Export complete: " + output;
+                            long bytes = File.Exists(output) ? new FileInfo(output).Length : 0;
+                            ShowCard(new(TitleCardKind.Export, "EXPORT", "COMPLETE.", "Written to " + Path.GetFileName(output) + ".",
+                                [$"{Path.GetFileName(output).ToUpperInvariant()} / {Timecode.Format(snapshot.Document.Sequences.First(s => s.Id == id).Duration, Editor.Sequence.Video.FrameRate)} / {bytes / 1048576.0:0.#} MB"])); });
                     }
                     break;
                 case "Relink":
@@ -329,16 +350,51 @@ internal sealed partial class EditorWindow : IDisposable
                 case "Pause": Playback?.Pause(); break;
                 case "Play": StartPlaying(); break;
                 case "ReverseUnsupported": Playback?.Pause(); Editor.Status = "J: reverse/shuttle playback is not implemented; playback paused."; break;
+                case "MarkIn" or "MarkOut" or "ClearMarks" when Editor.Source is { } markSource:
+                {
+                    var current = Editor.SourceMarks.GetValueOrDefault(markSource.AssetId);
+                    current = name switch
+                    {
+                        "MarkIn" => (Editor.Playhead, current.Out is { } o && o.Ticks <= Editor.Playhead.Ticks ? null : current.Out),
+                        "MarkOut" => (current.In is { } i && i.Ticks >= Editor.Playhead.Ticks ? null : current.In, Editor.Playhead),
+                        _ => (null, null)
+                    };
+                    Editor.SourceMarks[markSource.AssetId] = current; Editor.Status = $"Source {name}"; break;
+                }
                 case "MarkIn": Editor.MarkIn = Editor.Playhead; if (Editor.MarkOut is { } markOut && markOut.Ticks <= Editor.Playhead.Ticks) Editor.MarkOut = null; Editor.Status = $"In {Editor.Playhead.TotalSeconds:0.000}s"; break;
                 case "MarkOut": Editor.MarkOut = Editor.Playhead; if (Editor.MarkIn is { } markIn && markIn.Ticks >= Editor.Playhead.Ticks) Editor.MarkIn = null; Editor.Status = $"Out {Editor.Playhead.TotalSeconds:0.000}s"; break;
                 case "ClearMarks": Editor.MarkIn = null; Editor.MarkOut = null; Editor.Status = "Cleared In/Out."; break;
                 case "PreviousEdit": if (EditorEdits.PreviousEdit(Editor.Sequence, Editor.Playhead) is { } previousEdit) Seek(previousEdit); break;
                 case "NextEdit": if (EditorEdits.NextEdit(Editor.Sequence, Editor.Playhead) is { } nextEdit) Seek(nextEdit); break;
                 case "GoToStart": Seek(default); break;
-                case "GoToEnd": Seek(Editor.Sequence.Duration); break;
+                case "GoToEnd": Seek(Editor.MonitorDuration); break;
                 case "RippleTrimPrevious": case "RippleTrimNext": Playback?.Pause(); if (EditorEdits.RippleTrim(Editor, name == "RippleTrimPrevious")?.Success == true) Seek(Editor.Playhead); break;
                 case "Lift": case "Extract": Playback?.Pause(); if (EditorEdits.RemoveMarked(Editor, name == "Extract")?.Success == true) Seek(Editor.Playhead); break;
-                case "InsertEdit": case "OverwriteEdit": Playback?.Pause(); InsertSelected(name == "InsertEdit" ? InsertMode.Insert : InsertMode.Overwrite); break;
+                case "InsertEdit": case "OverwriteEdit":
+                    Playback?.Pause();
+                    if (Editor.Source is { } insertSource)
+                    {
+                        var range = Editor.SourceMarks.GetValueOrDefault(insertSource.AssetId);
+                        var inserted = EditorEdits.InsertAt(Editor, insertSource.Imported, name == "OverwriteEdit", (range.In ?? default, range.Out ?? insertSource.Duration));
+                        if (!inserted.Success) Editor.Status = inserted.Message ?? inserted.Error.ToString();
+                    }
+                    else InsertSelected(name == "InsertEdit" ? InsertMode.Insert : InsertMode.Overwrite);
+                    break;
+                case "MonitorSource": OpenSelectedSource(); break;
+                case "MonitorProgram": ExitSource(); break;
+                case "ToggleSnap": Editor.Snapping = !Editor.Snapping; Editor.Status = Editor.Snapping ? "Snapping on." : "Snapping off."; break;
+                case "ToggleLink": Editor.LinkedSelection = !Editor.LinkedSelection; Editor.Status = Editor.LinkedSelection ? "Linked selection on: audio and video move together." : "Linked selection off: clips edit independently."; break;
+                case "ToggleMagnet": Editor.Magnetic = !Editor.Magnetic; Editor.Status = Editor.Magnetic ? "Magnetic timeline on: deletes ripple, same-track moves reorder, overwrite inserts." : "Magnetic timeline off."; break;
+                case "Tab:Media": Editor.TranscriptMode = false; Editor.ObsMode = false; break;
+                case "Tab:Transcript": Editor.TranscriptMode = true; Editor.ObsMode = false; break;
+                case "Tab:Record": Editor.ObsMode = true; Editor.TranscriptMode = false; break;
+                case "ZoomFit":
+                {
+                    int firstTrack = Editor.Viewport.FirstTrack; double span = Math.Max(1, Editor.Sequence.Duration.TotalSeconds);
+                    Editor.Viewport.Reset(); Editor.Viewport.FirstTrack = firstTrack;
+                    Editor.Viewport.Zoom((Editor.Viewport.ClipRight - Editor.Viewport.ClipLeft - 16) / (span * Editor.Viewport.PixelsPerSecond), Editor.Viewport.ClipLeft);
+                    break;
+                }
                 case "SelectTool": razor = false; break;
                 case "RazorTool": razor = true; break;
                 case "Split": if (Editor.Split()?.Success == true) Seek(Editor.Playhead); break;
@@ -352,7 +408,7 @@ internal sealed partial class EditorWindow : IDisposable
                     Editor.Commit(new AddTrack(Editor.SequenceId, Guid.NewGuid(), name == "AddVideo" ? TrackKind.Video : TrackKind.Audio, Editor.Sequence.Tracks.Length, name == "AddVideo" ? "Video" : "Audio")); break;
                 default:
                     if (name.StartsWith("TranscriptWord:", StringComparison.Ordinal)) { SelectTranscriptWord(int.Parse(name[15..])); break; }
-                    if (name.StartsWith("Asset:", StringComparison.Ordinal)) Editor.SelectedAsset = Guid.Parse(name[6..]);
+                    if (name.StartsWith("Asset:", StringComparison.Ordinal)) { Editor.SelectedAsset = Guid.Parse(name[6..]); if (Editor.Source is not null) OpenSelectedSource(); }
                     else if (name.StartsWith("Target:", StringComparison.Ordinal)) Editor.TargetTrack = Guid.Parse(name[7..]);
                     else if (name.StartsWith("Lock:", StringComparison.Ordinal) || name.StartsWith("State:", StringComparison.Ordinal))
                     {
@@ -367,16 +423,16 @@ internal sealed partial class EditorWindow : IDisposable
         catch (Exception e) { Editor.Status = "ERROR: " + e.Message; Console.Error.WriteLine(e); }
         lastUi = -1;
     }
-    private void StartPlaying() { if (opening is not null || desired) resume = true; else if (Editor.Playhead.Ticks >= Editor.Sequence.Duration.Ticks) Seek(default, true); else if (Playback is null) Seek(Editor.Playhead, true); else Playback.Play(); }
+    private void StartPlaying() { if (opening is not null || desired) resume = true; else if (Editor.Playhead.Ticks >= Editor.MonitorDuration.Ticks) Seek(default, true); else if (Playback is null) Seek(Editor.Playhead, true); else Playback.Play(); }
     private static (double X, double Y) Point(IMouse mouse) => (mouse.Position.X, mouse.Position.Y);
     private void MouseDown(IMouse mouse, MouseButton button)
     {
         if (button != MouseButton.Left || job is not null) return;
         var p = pointerPosition ?? Point(mouse);
         var viewport = Editor.Viewport;
-        if (p.X >= viewport.ClipLeft && p.X <= viewport.ClipRight && p.Y >= view.Layout.RulerY && p.Y < viewport.TrackTop + viewport.VisibleTracks * TimelineViewport.RowHeight)
+        if (p.X >= viewport.ClipLeft && p.X <= viewport.ClipRight && p.Y >= view.Layout.RulerY && p.Y < viewport.TrackTop + viewport.VisibleTracks * viewport.Row)
         {
-            Playback?.Pause();
+            Playback?.Pause(); ExitSource();
             if (Editor.Viewport.Hit(Editor.Sequence, p.X, p.Y) is { } hit && p.Y >= viewport.TrackTop)
             {
                 Editor.SelectedClip = hit.Clip.Id;
@@ -388,7 +444,46 @@ internal sealed partial class EditorWindow : IDisposable
         }
         pointer.Press(view.Prepared?.HitTest.HitTest(new PointerPoint(p.X, p.Y)));
     }
-    private SequenceTime Snap(double x) => TimelineTime.SnapToFrame(Editor.Viewport.Time(x), Editor.Sequence.Video.FrameRate, TimeRounding.NearestAwayFromZero);
+    private SequenceTime Snap(double x)
+    {
+        var time = Editor.Viewport.Time(x);
+        if (Editor.Snapping)
+        {
+            long threshold = (long)(TimelineGesture.SnapPixels / Editor.Viewport.PixelsPerSecond * SequenceTime.TicksPerSecond);
+            var points = EditorEdits.EditPoints(Editor.Sequence).Concat(new[] { Editor.MarkIn?.Ticks, Editor.MarkOut?.Ticks }.OfType<long>());
+            long nearest = points.OrderBy(p => Math.Abs(p - time.Ticks)).DefaultIfEmpty(-1).First();
+            if (nearest >= 0 && Math.Abs(nearest - time.Ticks) <= threshold) return new(nearest);
+        }
+        return TimelineTime.SnapToFrame(time, Editor.Sequence.Video.FrameRate, TimeRounding.NearestAwayFromZero);
+    }
+    private void OpenSelectedSource()
+    {
+        if (Editor.SelectedAsset is not { } id) { Editor.Status = "Select media in the Media tab to view it in the source monitor."; return; }
+        if (!imports.TryGetValue(id, out var imported))
+        {
+            var asset = Editor.Session.Snapshot.Document.Assets.First(a => a.Id == id);
+            RunJob(async () => { imports[id] = await Task.Run(() => MediaAssetProbe.Import(id, asset.SourcePath)); OpenSelectedSource(); }); return;
+        }
+        // A transient one-asset sequence built with the same placement rules as Insert; it never enters the project.
+        var sequence = Editor.Sequence; var sourceId = Guid.NewGuid();
+        var document = Editor.Session.Snapshot.Document with { Sequences = [new SequenceDocument(sourceId, "Source", sequence.Video, sequence.AudioSampleRate, [])] };
+        var session = new EditingSession(new ProjectSnapshot(document, 0));
+        var operations = Valencia.Engine.InsertionCommands.Build(session.Snapshot, sourceId, imported, default);
+        var built = session.Execute(new EditTransaction(Guid.NewGuid(), 1, 0, [.. operations.Select(o => new EditCommand(Guid.NewGuid(), 1, o))]));
+        if (!built.Success) { Editor.Status = "Cannot open source: " + (built.Message ?? built.Error.ToString()); return; }
+        if (Editor.Source is null) Editor.ProgramPlayhead = Editor.Playhead;
+        Editor.Source = new(id, imported.Asset.Name, built.Snapshot, sourceId, new TimelineQueries(built.Snapshot).Duration(sourceId), imported);
+        Editor.Status = "Source: " + imported.Asset.Name + ". I/O mark, , insert, . overwrite at the timeline playhead.";
+        // Start on the first picture: recordings often begin audio a few ms before video (OBS AAC starts at -21 ms).
+        var firstVideo = new TimelineQueries(built.Snapshot).Sequence(sourceId).Tracks.Where(t => t.Kind == TrackKind.Video).SelectMany(t => t.Clips).Select(c => c.Start).DefaultIfEmpty().Min(t => t.Ticks);
+        Seek(Editor.SourceMarks.GetValueOrDefault(id).In ?? new SequenceTime(firstVideo));
+    }
+    private void ExitSource()
+    {
+        if (Editor.Source is null) return;
+        Editor.Source = null; Seek(Editor.ProgramPlayhead);
+    }
+
     private void MouseMove(IMouse mouse, System.Numerics.Vector2 position)
     {
         var p = (X: (double)position.X, Y: (double)position.Y);

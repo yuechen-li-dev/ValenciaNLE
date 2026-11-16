@@ -16,12 +16,13 @@ internal sealed class NativeUiPresentation
 {
     public List<NativeAnalyticShapeSubmission> Shapes { get; } = [];
     public List<NativeMsdfQuadSubmission> Glyphs { get; } = [];
+    public List<RasterGlyphQuad> RasterGlyphs { get; } = [];
     public byte[]? FallbackPixels { get; private set; }
     public int FallbackTextRuns { get; private set; }
 
     public void Prepare(MachinaPresentationFrame frame, AurelianMsdfAtlasCache atlas, int pixelWidth, int pixelHeight)
     {
-        Shapes.Clear(); Glyphs.Clear(); FallbackPixels = null; FallbackTextRuns = 0;
+        Shapes.Clear(); Glyphs.Clear(); RasterGlyphs.Clear(); FallbackPixels = null; FallbackTextRuns = 0;
         var clips = new Stack<Rect>();
         clips.Push(new(0, 0, frame.Viewport.Width, frame.Viewport.Height));
         List<(PositionedTextOperation Text, Rect Clip)> fallback = [];
@@ -46,11 +47,17 @@ internal sealed class NativeUiPresentation
                     if (clip.Width <= 0 || clip.Height <= 0) break;
                     if (text.Text.All(c => c is >= ' ' and <= '~' || char.IsWhiteSpace(c)))
                     {
-                        // Compact controls use the existing monospace atlas. Headings retain H1.
+                        if (TypeScale.Raster)
+                        {
+                            RasterText.Instance.Layout(text, clip, (float)(pixelWidth / frame.Viewport.Width), RasterGlyphs);
+                            break;
+                        }
                         var sized = new PositionedTextOperation(text.SourceId, text.Rect, text.Text,
                             text.Style with { Size = NativeUiText.Size(text.Style.Size) }, text.Color);
                         var qualified = NativeUiText.Font.Qualify(sized);
+                        int first = Glyphs.Count;
                         AurelianMsdfTextPresentationAdapter.AdaptInto(qualified, NativeUiText.Font.ResourceFor(qualified), atlas, Glyphs, clip);
+                        for (int i = first; i < Glyphs.Count; i++) Glyphs[i] = DarkStemCompensation(Glyphs[i]);
                     }
                     else fallback.Add((text, clip));
                     break;
@@ -65,10 +72,10 @@ internal sealed class NativeUiPresentation
             using var canvas = new SKCanvas(bitmap);
             canvas.Clear(SKColors.Transparent);
             canvas.Scale((float)(pixelWidth / frame.Viewport.Width), (float)(pixelHeight / frame.Viewport.Height));
-            using var typeface = SKTypeface.FromFile(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts", "SpaceMono-Regular.ttf"));
+            using var typeface = SKTypeface.FromFile(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts", TypeScale.Mono));
             foreach (var (text, clip) in fallback)
             {
-                using var font = new SKFont(typeface, text.Style.Size == TextSize.H1 ? 30 : 12);
+                using var font = new SKFont(typeface, TypeScale.Pixels(text.Style.Size));
                 using var paint = new SKPaint { IsAntialias = true, Color = new((byte)(text.Color.Rgba >> 24),
                     (byte)(text.Color.Rgba >> 16), (byte)(text.Color.Rgba >> 8), (byte)text.Color.Rgba) };
                 // Font fallback is per scalar, with explicit ownership. Complex script shaping
@@ -111,5 +118,20 @@ internal sealed class NativeUiPresentation
     {
         double x = Math.Max(a.X, b.X), y = Math.Max(a.Y, b.Y);
         return new(x, y, Math.Max(0, Math.Min(a.X + a.Width, b.X + b.Width) - x), Math.Max(0, Math.Min(a.Y + a.Height, b.Y + b.Height) - y));
+    }
+
+    /// <summary>
+    /// Coverage is blended in linear space, which swells light-on-dark stems and thins dark-on-light ones. The shared
+    /// small-size threshold is tuned for light text; dark glyphs (ink on bone, paper or orange) get their edge moved
+    /// outward by about a third of a screen pixel instead, so 10-12 px ink labels read at full weight.
+    /// </summary>
+    internal static NativeMsdfQuadSubmission DarkStemCompensation(NativeMsdfQuadSubmission glyph)
+    {
+        var c = glyph.Color;
+        double luminance = .2126 * c.Red + .7152 * c.Green + .0722 * c.Blue;
+        if (luminance >= .25) return glyph;
+        float screenRange = Math.Max(.5f, glyph.Msdf.PixelRange * glyph.Msdf.FieldScale);
+        float threshold = Math.Max(.3f, glyph.Msdf.Threshold - Math.Min(.2f, .35f / screenRange));
+        return glyph with { Msdf = glyph.Msdf with { Threshold = threshold } };
     }
 }

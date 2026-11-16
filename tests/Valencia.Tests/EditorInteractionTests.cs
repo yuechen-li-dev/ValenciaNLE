@@ -36,9 +36,12 @@ public sealed class EditorInteractionTests
         Assert.NotNull(editor.Viewport.Hit(editor.Sequence, layout.ClipLeft + 20, layout.TrackTop + 20));
         Assert.Null(editor.Viewport.Hit(editor.Sequence, layout.ClipLeft - 1, layout.TrackTop + 20));
         Assert.Null(editor.Viewport.Hit(editor.Sequence, layout.ClipLeft + 20, layout.TrackBottom));
-        double left = layout.Portrait ? 18 : 226;
-        double cell = (width - left - 18) / layout.HeaderColumns;
-        Assert.Equal("Save", prepared.HitTest.HitTest(new PointerPoint(left + 2.5 * cell, layout.Portrait ? 63 : 27))?.Action.Name);
+        // Save is the third header command: a wrapped row under the wordmark on narrow roots, beside it otherwise.
+        double gap = EditorLayout.HeaderCommandGap;
+        double cell = layout.HeaderRows == 2 ? (width - 2 * EditorLayout.Gap - 5 * gap) / 6.0 : EditorLayout.HeaderCommandWidth;
+        double saveX = (layout.HeaderRows == 2 ? EditorLayout.Gap : EditorLayout.HeaderCommandsLeft) + 2 * (cell + gap) + cell / 2;
+        double saveY = layout.HeaderRows == 2 ? EditorLayout.HeaderRowHeight + 18 : 20;
+        Assert.Equal("Save", prepared.HitTest.HitTest(new PointerPoint(saveX, saveY))?.Action.Name);
 
         var texts = prepared.PresentationFrame.Operations.OfType<PositionedTextOperation>().ToArray();
         foreach (var text in texts)
@@ -48,7 +51,9 @@ public sealed class EditorInteractionTests
             Assert.True(text.Rect.Y + text.Rect.Height <= height, $"{text.Text} extends below the window");
         }
         Assert.Contains(texts, t => t.Text == "VALENCIA");
-        Assert.Contains(texts, t => t.Text.Contains("Shift+wheel tracks", StringComparison.Ordinal));
+        if (!layout.Portrait) Assert.Contains(texts, t => t.Text.Contains("I/O mark", StringComparison.Ordinal));
+        Assert.True(layout.Monitor.Y + layout.Monitor.Height <= layout.Transport.Y && layout.Transport.Y + layout.Transport.Height <= layout.RulerY,
+            "Monitor, transport and timeline must not overlap.");
     }
 
     [Fact]
@@ -66,7 +71,7 @@ public sealed class EditorInteractionTests
         }
         string shortened = NativeUiText.Ellipsize("A lengthy project status that should fit without a partial glyph", 180);
         Assert.EndsWith("...", shortened); Assert.True(NativeUiText.Width(shortened) <= 180);
-        Assert.Equal("VALENCIA", NativeUiText.Ellipsize("VALENCIA", 200, TextSize.H1));
+        Assert.Equal("VALENCIA", NativeUiText.Ellipsize("VALENCIA", 200, TextSize.Xl)); // the header wordmark role
     }
 
     [Theory]
@@ -131,7 +136,7 @@ public sealed class EditorInteractionTests
         Assert.NotNull(editor.Viewport.Hit(editor.Sequence, 180, 420));
         var view = new EditorView(); view.Prepare(editor, new(editor), false, false);
         Assert.Equal(visible.Length, view.VisibleClips);
-        Assert.InRange(view.Canvas.Count, 10, 50);
+        Assert.InRange(view.Canvas.Count, 10, 80); // clips, rows, ruler ticks and panel fills; never one quad set per off-screen clip
         Assert.True(watch.Elapsed < TimeSpan.FromSeconds(2)); // generous failure guard; detailed measurements are recorded by native smoke
     }
     [Fact]

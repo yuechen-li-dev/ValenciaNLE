@@ -13,11 +13,44 @@ internal sealed class LayoutSmoke(string directory)
 {
     private readonly Stopwatch deadline = Stopwatch.StartNew();
     private readonly (int Width, int Height, string Name)[] sizes =
-        [(1280, 720, "desktop"), (1920, 1080, "desktop-wide"), (768, 1024, "vertical-tablet"),
+        [(1280, 720, "desktop"), (1920, 1080, "desktop-wide"), (2560, 1440, "desktop-1440"), (768, 1024, "vertical-tablet"),
          (390, 844, "vertical-phone"), (1280, 720, "desktop-restored")];
     private readonly List<object> results = [];
     private int sizeIndex, frames, frameStart;
-    private bool resizing = true, benchmark;
+    private bool resizing = true, benchmark, stateApplied;
+    private int stateIndex;
+    // Transient UI states captured at the restored desktop size; none of them edits the document.
+    private static readonly (string Name, Action<EditorWindow> Apply)[] States =
+    [
+        ("panel-transcript", w => { w.Editor.TranscriptMode = true; w.Editor.ObsMode = false; }),
+        ("panel-record", w => { w.Editor.ObsMode = true; w.Editor.TranscriptMode = false; }),
+        ("editing-selection", w =>
+        {
+            var e = w.Editor; e.ObsMode = false; e.TranscriptMode = false; e.Magnetic = true;
+            e.SelectedClip = e.Sequence.Tracks.First(t => t.Kind == TrackKind.Video && t.Clips.Length > 0).Clips[0].Id;
+            e.MarkIn = T(1); e.MarkOut = T(3);
+        }),
+        ("source-monitor", w => { w.Editor.SelectedClip = null; w.Editor.Magnetic = false; w.Action("MonitorSource"); }),
+        // Title-card moments, held open (sticky) for the capture.
+        ("card-export", w =>
+        {
+            w.Action("MonitorProgram"); var e = w.Editor;
+            w.ShowCard(new(TitleCardKind.Export, "EXPORT", "COMPLETE.", "Written to layout-smoke.mp4.",
+                [$"LAYOUT-SMOKE.MP4 / {Timecode.Format(e.Sequence.Duration, e.Sequence.Video.FrameRate)} / 0 MB"]), sticky: true);
+        }),
+        ("card-recording", w => w.ShowCard(new(TitleCardKind.Recording, "REC", "RECORDING\n12:00:00",
+            "OBS is recording. Mark highlight drops a marker without stopping.", ["OBS DISCONNECTED"]), sticky: true)),
+        ("card-proposal", w =>
+        {
+            var e = w.Editor;
+            System.Collections.Immutable.ImmutableArray<Valencia.Engine.TimelineRemoval> removed = [new(T(1), T(2)), new(new(T(3).Ticks + SequenceTime.TicksPerSecond / 2), T(4))];
+            var estimated = new SequenceTime(e.Sequence.Duration.Ticks - 3 * SequenceTime.TicksPerSecond / 2);
+            e.ProposedCut = new(1, true, "layout-smoke", null, null, [], removed, estimated, null, []);
+            w.ShowProposal("Rough cut", removed, estimated.TotalSeconds);
+        }),
+        // Last: an empty project shows the monitor's resting state. The benchmark below reopens the original document.
+        ("no-signal", w => { w.Editor.Card = null; w.Editor.ProposedCut = null; w.Editor.New(); }),
+    ];
     private ProjectSnapshot? original;
     public bool Finished { get; private set; }
 
@@ -39,17 +72,26 @@ internal sealed class LayoutSmoke(string directory)
             }
             if (++frames < 45) return;
             window.Capture(Path.Combine(directory, size.Name + ".png"));
-            if (window.Graphics.MsdfGlyphCount < 100) throw new InvalidOperationException("Native MSDF text was not submitted.");
+            if (window.Graphics.TextGlyphCount < 100) throw new InvalidOperationException("Native text glyphs were not submitted.");
             if (!DocumentSemantics.Equal(original.Document, editor.Session.Snapshot.Document))
                 throw new InvalidOperationException("A layout change altered the editing document.");
             var measured = window.FrameMilliseconds.Skip(frameStart + 5).Order().ToArray();
             var layout = EditorLayout.For(window.Graphics.Window.Size.X, window.Graphics.Window.Size.Y);
             results.Add(new { size.Name, size.Width, size.Height, profile = layout.Profile.ToString(),
                 framebufferWidth = window.Graphics.Window.FramebufferSize.X, framebufferHeight = window.Graphics.Window.FramebufferSize.Y,
-                msdfGlyphs = window.Graphics.MsdfGlyphCount, fallbackTextRuns = window.Graphics.PixelFallbackTextRuns,
+                textGlyphs = window.Graphics.TextGlyphCount, fallbackTextRuns = window.Graphics.PixelFallbackTextRuns,
                 atlasUploads = window.Graphics.AtlasUploadCount, visibleTracks = editor.Viewport.VisibleTracks,
                 frameMedianMs = measured[measured.Length / 2], frameP95Ms = measured[(int)(measured.Length * .95)] });
             sizeIndex++; resizing = true; return;
+        }
+        if (stateIndex < States.Length)
+        {
+            if (!stateApplied) { States[stateIndex].Apply(window); stateApplied = true; frames = 0; return; }
+            if (++frames < 60) return;
+            window.Capture(Path.Combine(directory, States[stateIndex].Name + ".png"));
+            stateIndex++; stateApplied = false;
+            if (stateIndex == States.Length) { editor.Card = null; editor.ProposedCut = null; editor.Open(original!, "layout-fixture.valencia"); window.Action("MonitorProgram"); editor.SelectedClip = null; editor.MarkIn = null; editor.MarkOut = null; editor.Playhead = default; editor.ObsMode = false; editor.TranscriptMode = false; }
+            return;
         }
         if (!benchmark)
         {
@@ -68,7 +110,9 @@ internal sealed class LayoutSmoke(string directory)
         window.Capture(Path.Combine(directory, "5000-clips.png"));
         var trackWithClips = editor.Sequence.Tracks.First(t => t.Clips.Length == 5000);
         var visible = editor.Viewport.Visible(trackWithClips).ToArray();
-        if (visible.Length > 10) throw new InvalidOperationException("Visible-range culling failed.");
+        // Clips are 1 s long every 2 s: anything beyond the visible span's share (plus edges) means culling failed.
+        double span = editor.Viewport.Time(editor.Viewport.ClipRight).TotalSeconds - editor.Viewport.Origin.TotalSeconds;
+        if (visible.Length > (int)Math.Ceiling(span / 2) + 2) throw new InvalidOperationException("Visible-range culling failed.");
         var clip = visible[1];
         var timer = Stopwatch.StartNew();
         double x = editor.Viewport.X(clip.Start) + 20;

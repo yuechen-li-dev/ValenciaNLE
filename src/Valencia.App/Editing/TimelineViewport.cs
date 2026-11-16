@@ -10,11 +10,15 @@ internal sealed class TimelineViewport
     public double ClipRight { get; private set; } = Right;
     public double TrackTop { get; private set; } = Top;
     public double TrackBottom { get; private set; } = 645;
-    public int VisibleTracks => Math.Max(0, (int)((TrackBottom - TrackTop) / RowHeight));
-    public void Configure(EditorLayout layout)
+    /// <summary>Current track row height: rows grow to fill the timeline when there are few tracks (up to MaxRowHeight).</summary>
+    public double Row { get; private set; } = RowHeight;
+    public const double MaxRowHeight = 120;
+    public int VisibleTracks => Math.Max(0, (int)((TrackBottom - TrackTop) / Row));
+    public void Configure(EditorLayout layout, int trackCount = 0)
     {
         ClipLeft = layout.ClipLeft; ClipRight = layout.ClipRight;
         TrackTop = layout.TrackTop; TrackBottom = layout.TrackBottom;
+        Row = trackCount <= 0 ? RowHeight : Math.Clamp(Math.Floor((TrackBottom - TrackTop) / trackCount), RowHeight, MaxRowHeight);
     }
     public SequenceTime Origin { get; private set; }
     public double PixelsPerSecond { get; private set; } = 90;
@@ -39,7 +43,7 @@ internal sealed class TimelineViewport
     }
     public (TimelineTrack Track, TimelineClip Clip, int Edge)? Hit(SequenceDocument sequence, double x, double y)
     {
-        int visibleRow = (int)Math.Floor((y - TrackTop) / RowHeight);
+        int visibleRow = (int)Math.Floor((y - TrackTop) / Row);
         int row = visibleRow + FirstTrack;
         if (x < ClipLeft || x > ClipRight || y < TrackTop || visibleRow >= VisibleTracks || row < 0 || row >= sequence.Tracks.Length) return null;
         var track = sequence.Tracks[row];

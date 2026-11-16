@@ -55,11 +55,16 @@ internal sealed class EditorSmoke(string directory)
             case 0:
                 e.SelectedClip = null; e.Playhead = T(2); Require(e.Split()?.Success == true, "Split both streams failed.");
                 Require(e.History(false).Success && e.History(true).Success, "Undo/redo failed.");
-                foreach (var movingTrack in e.Sequence.Tracks.Where(t => t.Clips.Length > 1))
+                // Linked selection moves the split right-hand video and audio together; drag each track's current right clip once.
+                var moved = new HashSet<Guid>();
+                foreach (var trackId in e.Sequence.Tracks.Where(t => t.Clips.Length > 1).Select(t => t.Id).ToArray())
                 {
+                    var movingTrack = e.Sequence.Tracks.First(t => t.Id == trackId);
                     var right = movingTrack.Clips[1]; double dragX = e.Viewport.X(right.Start) + 40;
-                    window.Gesture.Begin(right, 0, dragX); window.Gesture.Move(dragX + 180, TimelineViewport.Top + movingTrack.Order * 49 + 20);
-                    Require(window.Gesture.Release(), "Drag commit failed.");
+                    if (!moved.Add(right.Id)) continue;
+                    foreach (var linked in EditorEdits.Group(e, right.Id)) moved.Add(linked.Clip.Id);
+                    window.Gesture.Begin(right, 0, dragX); window.Gesture.Move(dragX + 180, e.Viewport.TrackTop + (movingTrack.Order - e.Viewport.FirstTrack) * e.Viewport.Row + 20);
+                    Require(window.Gesture.Release(), "Drag commit failed: " + e.Status);
                 }
                 window.Seek(T(3)); phase = 1; break;
             case 1:
@@ -75,7 +80,7 @@ internal sealed class EditorSmoke(string directory)
                 // Trim the tail of the last video through the same gesture code as the native handles.
                 var track = e.Sequence.Tracks.First(t => t.Kind == TrackKind.Video);
                 var clip = track.Clips[^1]; double x = e.Viewport.X(clip.End);
-                window.Gesture.Begin(clip, 1, x); window.Gesture.Move(x - 30, TimelineViewport.Top + 20); Require(window.Gesture.Release(), "Trim failed.");
+                window.Gesture.Begin(clip, 1, x); window.Gesture.Move(x - 30, e.Viewport.TrackTop + 20); Require(window.Gesture.Release(), "Trim failed.");
                 var trimmedState = e.Session.Snapshot.Document;
                 e.SelectedClip = clip.Id; window.Action("Delete");
                 Require(e.Selection is null, "Delete selection failed."); window.Action("Undo");
@@ -102,9 +107,9 @@ internal sealed class EditorSmoke(string directory)
                 if (!benchStarted)
                 {
                     var latency = Stopwatch.StartNew(); e.Viewport.Scroll(800 * 90); e.Viewport.Zoom(1.2, 700);
-                    var visible = e.Viewport.Visible(e.Sequence.Tracks[0]).First(c => e.Viewport.X(c.Start) >= TimelineViewport.Left);
+                    var visible = e.Viewport.Visible(e.Sequence.Tracks[0]).First(c => e.Viewport.X(c.Start) >= e.Viewport.ClipLeft);
                     window.Gesture.Begin(visible, 0, e.Viewport.X(visible.Start) + 20);
-                    window.Gesture.Move(e.Viewport.X(visible.Start) + 24, 420);
+                    window.Gesture.Move(e.Viewport.X(visible.Start) + 24, e.Viewport.TrackTop + 20);
                     Require(window.Gesture.Valid, "Synthetic input proposal failed validation."); window.Gesture.Cancel();
                     largeInputMs = latency.Elapsed.TotalMilliseconds; window.FrameMilliseconds.Clear(); benchStarted = true;
                 }

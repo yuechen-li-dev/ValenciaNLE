@@ -26,3 +26,11 @@ M2c adds **Whisper.net 1.9.1** and **Whisper.net.Runtime 1.9.1** (MIT), includin
 Whisper model weights are not bundled. The explicit downloader fetches original Whisper GGML conversions from `ggerganov/whisper.cpp` at revision `5359861c739e955e79d9a303bcbc70fb988958b1` and verifies SHA-256. [OpenAI Whisper](https://github.com/openai/whisper) publishes its code and model weights under MIT; [whisper.cpp](https://github.com/ggml-org/whisper.cpp) is MIT. Retain upstream attribution when distributing models. See `docs/M2C.md` for exact model identities, byte sizes, hashes and redistribution boundaries. No model or speech dataset is silently downloaded by the application or tests.
 
 M2e adds **System.Security.Cryptography.ProtectedData 10.0.0** (Microsoft, MIT, https://github.com/dotnet/dotnet) for Windows CurrentUser DPAPI. Rendering also explicitly references the existing SkiaSharp/Win32 3.119.1 packages for native-pixel fallback text. **Space Mono Regular** and **Crimson Text Regular** retain their supplied SIL Open Font License notices in `licenses/SpaceMono-OFL.txt`, `licenses/CrimsonText-OFL.txt` and published `Assets/Fonts`. Installed Windows fallback fonts are not redistributed. OBS Studio is not shipped as a Valencia product dependency; the installed build is copied only into ignored qualification artifacts for an isolated fixture. User OBS profiles are untouched.
+
+The Edge Code UI style ships three SIL Open Font License 1.1 families in `src/Valencia.Rendering/Assets/Fonts` (published to `Assets/Fonts`), rasterized at runtime by SkiaSharp:
+
+- **IBM Plex Mono** Regular and Medium, Copyright IBM Corp., unmodified files (Plex carries the Reserved Font Name "Plex"). `licenses/IBMPlexMono-OFL.txt`.
+- **Archivo Expanded Bold**, Copyright The Archivo Project Authors. A static instance (wdth 125, wght 700) of the Archivo variable font, renamed; no Reserved Font Name. `licenses/Archivo-OFL.txt`.
+- **Noto Serif Display ExtraCondensed Black**, Copyright Google LLC / The Noto Project Authors. A static instance (wdth 62.5, wght 900) of the Noto Serif Display variable font, renamed. `licenses/NotoSerifDisplay-OFL.txt`.
+
+The instances were made with fontTools `instancer`; the modified fonts remain under the OFL and are not sold by themselves.

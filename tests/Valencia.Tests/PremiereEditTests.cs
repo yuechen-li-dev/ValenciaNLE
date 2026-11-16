@@ -152,4 +152,83 @@ public sealed class PremiereEditTests
         Assert.Equal(T(4), EditorEdits.PreviousEdit(editor.Sequence, T(8)));
         Assert.Null(EditorEdits.NextEdit(editor.Sequence, T(8)));
     }
+
+    // Gesture tests use the unconfigured default viewport: clips start at x = 166, 90 px per second, rows 49 px from y = 398.
+    private static double X(double seconds) => TimelineViewport.Left + seconds * 90;
+    private const double V1 = TimelineViewport.Top + 20;
+
+    [Fact]
+    public void DraggingVideoMovesItsLinkedAudioInOneUndoStep()
+    {
+        var (editor, _) = Fixture((0, 4), (8, 2));
+        var clip = Track(editor, "V1").Clips[0]; long revision = editor.Session.Snapshot.Revision;
+        var gesture = new TimelineGesture(editor); gesture.Begin(clip, 0, X(1)); gesture.Move(X(2), V1);
+        Assert.True(gesture.Valid); Assert.True(gesture.Release());
+        Assert.Equal(T(1).Ticks, Track(editor, "V1").Clips[0].Start.Ticks);
+        Assert.Equal(T(1).Ticks, Track(editor, "A1").Clips[0].Start.Ticks);
+        Assert.Equal(revision + 1, editor.Session.Snapshot.Revision);
+        editor.LinkedSelection = false;
+        gesture.Begin(Track(editor, "V1").Clips[0], 0, X(2)); gesture.Move(X(3), V1); Assert.True(gesture.Release());
+        Assert.Equal(T(2).Ticks, Track(editor, "V1").Clips[0].Start.Ticks);
+        Assert.Equal(T(1).Ticks, Track(editor, "A1").Clips[0].Start.Ticks);
+    }
+
+    [Fact]
+    public void DraggedEdgesSnapToNeighbouringEditPoints()
+    {
+        var (editor, _) = Fixture((0, 4), (8, 2));
+        var gesture = new TimelineGesture(editor); gesture.Begin(Track(editor, "V1").Clips[0], 0, X(1));
+        gesture.Move(X(1 + 3.95), V1); // end lands 0.05 s (4.5 px) before the next clip
+        Assert.Equal(T(8), gesture.SnapLine);
+        Assert.True(gesture.Release());
+        Assert.Equal(T(4).Ticks, Track(editor, "V1").Clips[0].Start.Ticks);
+        editor.Snapping = false;
+        gesture.Begin(Track(editor, "V1").Clips[0], 0, X(5)); gesture.Move(X(5 - 0.05), V1);
+        Assert.Null(gesture.SnapLine); Assert.True(gesture.Release());
+        Assert.NotEqual(T(4).Ticks, Track(editor, "V1").Clips[0].Start.Ticks);
+    }
+
+    [Fact]
+    public void MagneticMoveReordersAndClosesTheGap()
+    {
+        var (editor, _) = Fixture((0, 4), (4, 4), (8, 4));
+        var ids = Track(editor, "V1").Clips.Select(c => c.Id).ToArray();
+        editor.Magnetic = true;
+        var gesture = new TimelineGesture(editor); gesture.Begin(Track(editor, "V1").Clips[0], 0, X(1));
+        gesture.Move(X(10), V1);
+        Assert.True(gesture.Valid, gesture.Reason); Assert.True(gesture.Release());
+        Assert.Equal(new[] { ids[1], ids[0], ids[2] }, Track(editor, "V1").Clips.Select(c => c.Id).ToArray());
+        Assert.Equal(new long[] { T(0).Ticks, T(4).Ticks, T(8).Ticks }, Starts(editor, "V1"));
+        Assert.Equal(Starts(editor, "V1"), Starts(editor, "A1"));
+        Assert.Equal(T(12), editor.Sequence.Duration);
+    }
+
+    [Fact]
+    public void MagneticTrimRipplesLaterMediaAndDeleteRipples()
+    {
+        var (editor, _) = Fixture((0, 4), (4, 4));
+        editor.Magnetic = true;
+        var gesture = new TimelineGesture(editor); gesture.Begin(Track(editor, "V1").Clips[0], 1, X(4));
+        gesture.Move(X(3), V1);
+        Assert.True(gesture.Valid, gesture.Reason); Assert.True(gesture.Release());
+        Assert.Equal(new long[] { T(0).Ticks, T(3).Ticks }, Starts(editor, "V1"));
+        Assert.Equal(Starts(editor, "V1"), Starts(editor, "A1"));
+        Assert.Equal(T(7), editor.Sequence.Duration);
+        editor.SelectedClip = Track(editor, "V1").Clips[0].Id;
+        Assert.True(editor.Delete(ripple: false)!.Success); // magnetic: plain delete still closes the gap
+        Assert.Equal(new long[] { T(0).Ticks }, Starts(editor, "V1"));
+    }
+
+    [Fact]
+    public void SourceRangeInsertsOnlyTheMarkedPartAndAdvancesThePlayhead()
+    {
+        var (editor, asset) = Fixture((0, 10));
+        var imported = new ImportedAsset(asset, T(600), Zero);
+        editor.Playhead = T(4);
+        Assert.True(EditorEdits.InsertAt(editor, imported, overwrite: false, (T(1), T(2))).Success);
+        Assert.Equal(new long[] { T(0).Ticks, T(4).Ticks, T(5).Ticks }, Starts(editor, "V1"));
+        Assert.Equal(T(1).Ticks, Track(editor, "V1").Clips[1].Duration.Ticks);
+        Assert.Equal(T(11), editor.Sequence.Duration);
+        Assert.Equal(T(5), editor.Playhead);
+    }
 }

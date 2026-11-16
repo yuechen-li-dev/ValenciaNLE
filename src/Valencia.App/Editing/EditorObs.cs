@@ -1,3 +1,4 @@
+using Valencia.Core;
 using Valencia.Engine;
 using Valencia.Obs;
 
@@ -49,7 +50,11 @@ internal sealed partial class EditorWindow
         var token = jobCancellation?.Token ?? default;
         switch (action)
         {
-            case "start": await workflow.StartAsync(token); break;
+            case "start":
+                await workflow.StartAsync(token);
+                ShowCard(new(TitleCardKind.Recording, "REC", "RECORDING\n" + DateTime.Now.ToString("HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture),
+                    "OBS is recording. Mark highlight drops a marker without stopping.", ["OBS " + Editor.ObsConnection.ToUpperInvariant()]));
+                break;
             case "stop": await workflow.StopAsync(token); break;
             case "pause":
                 var status = await ObsDiscoveryService.RecordStatusAsync(workflow.Recording.Client, token);

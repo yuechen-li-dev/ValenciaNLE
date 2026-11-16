@@ -1,3 +1,4 @@
+using Valencia.Core;
 using System.Collections.Immutable;
 using Valencia.Core.Timeline;
 using Valencia.Engine;
@@ -80,6 +81,8 @@ internal sealed partial class EditorWindow
         Editor.ProposedTextCut = proposal;
         Editor.ProposedCut = null;
         Editor.Status = "Text edit preview: red ranges will be removed. Apply or Cancel.";
+        double removedSeconds = proposal.Removed.Sum(r => (r.End.Ticks - r.Start.Ticks) / (double)SequenceTime.TicksPerSecond);
+        ShowProposal("Text edit", proposal.Removed, Editor.Sequence.Duration.TotalSeconds - removedSeconds);
         lastUi = -1;
     }
     internal async Task ApplyTextCut()
