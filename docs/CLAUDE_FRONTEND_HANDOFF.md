@@ -1,5 +1,21 @@
 # Claude native frontend handoff
 
+## MSDF and UI failure follow-up (2026-11-16)
+
+See [MSDF_RESULT_FIX.md](MSDF_RESULT_FIX.md) and [validation/msdf-result-fix.json](validation/msdf-result-fix.json).
+Valencia now builds with .NET 11 / C# 15; adjacent shared libraries retain their existing targets.
+MSDF pixel range must be converted to outline units during generation. Normalize atlas UVs **before**
+clipping: reversing the V interval afterward clips the opposite edge and shifts glyphs with different padding.
+Use the shared font's kerning/metrics for both measurement and presentation; do not raise Q independently.
+
+Native resize callbacks must only invalidate/cancel transient input; prepare the new layout on the event loop.
+Below 320x480 client units, show the noninteractive compact placeholder. Zero-sized windows skip preparation.
+`EditorView.TryPrepare` returns `Result<MachinaPreparedPresentation, EditorFailure>` and retains the previous
+frame/hit-test tree on failure. UI jobs and input/continuation boundaries likewise translate legacy exceptions
+to typed failures and diagnostics. Do not swallow errors as successful edits, discard the current project,
+or put these result wrappers on the media-buffer path. EditingSession's existing EditResult/transactions remain authoritative.
+Native device/process faults are not made recoverable by this union. No new security or exception sandbox is claimed.
+
 ## Rendering and playback stabilization status
 
 [M2E_RENDER_STABILIZATION.md](M2E_RENDER_STABILIZATION.md) supersedes the earlier

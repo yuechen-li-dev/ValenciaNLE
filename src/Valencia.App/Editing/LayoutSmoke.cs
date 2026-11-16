@@ -22,7 +22,8 @@ internal sealed class LayoutSmoke(string directory)
     private readonly Stopwatch deadline = Stopwatch.StartNew();
     private readonly (int Width, int Height, string Name)[] sizes =
         [(1280, 720, "desktop"), (1920, 1080, "desktop-wide"), (2560, 1440, "desktop-1440"), (768, 1024, "vertical-tablet"),
-         (390, 844, "vertical-phone"), (1280, 720, "desktop-restored")];
+         (390, 844, "vertical-phone"), (1, 1, "tiny"), (20, 720, "narrow"),
+         (320, 200, "short"), (2559, 1, "flat"), (1280, 720, "desktop-restored")];
     private readonly List<object> results = [];
     private int sizeIndex, frames, frameStart;
     private bool resizing = true, benchmark, stateApplied;
@@ -81,7 +82,8 @@ internal sealed class LayoutSmoke(string directory)
             if (++frames < 45) return;
             window.Capture(Path.Combine(directory, size.Name + ".png"));
             var buttonAlignment = QualifyButtons(window);
-            if (window.Graphics.TextGlyphCount < 100) throw new InvalidOperationException("Native text glyphs were not submitted.");
+            bool compact = size.Width < 320 || size.Height < 480;
+            if (!compact && window.Graphics.TextGlyphCount < 100) throw new InvalidOperationException("Native text glyphs were not submitted.");
             if (!DocumentSemantics.Equal(original.Document, editor.Session.Snapshot.Document))
                 throw new InvalidOperationException("A layout change altered the editing document.");
             var measured = window.FrameMilliseconds.Skip(frameStart + 5).Order().ToArray();

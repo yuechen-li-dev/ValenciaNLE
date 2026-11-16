@@ -1,4 +1,4 @@
-param([string]$AppPath = 'src/Valencia.App/bin/Release/net10.0-windows/Valencia.App.exe')
+param([string]$AppPath = 'src/Valencia.App/bin/Release/net11.0-windows/Valencia.App.exe')
 $ErrorActionPreference = 'Stop'
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 Push-Location $repositoryRoot

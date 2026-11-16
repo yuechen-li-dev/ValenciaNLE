@@ -78,7 +78,7 @@ public sealed class CopelandScriptHost : IDisposable
         {
             SourcePath = path,
             ProjectRoot = Path.GetDirectoryName(path),
-            BackendTarget = CopelandBackendTarget.Create("csharp", "ryujit", "net10.0"),
+            BackendTarget = CopelandBackendTarget.Create("csharp", "ryujit", "net11.0"),
             ClrReferences = [new(null, typeof(ScriptApi).Assembly)]
         });
         if (!compilation.Success)

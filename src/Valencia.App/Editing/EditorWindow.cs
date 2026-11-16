@@ -32,12 +32,13 @@ internal sealed partial class EditorWindow : IDisposable
     private CancellationTokenSource? seekCancellation, jobCancellation;
     private Task<SequencePlayback?>? opening;
     private readonly SequencePreview pausedPreview = new(); // touched only by the serialized opening worker
-    private Task? job;
+    private Task<Result<Completed, EditorFailure>>? job;
     public SequencePlayback? Playback { get; private set; }
     private long generation, openingGeneration;
     private bool desired, resume, razor, scrubbing, focused = true;
     private SequenceTime? pendingScrub;
     private double lastUi = -1, lastTick;
+    private string? lastReportedFailure;
     private readonly Stopwatch seekLatency = new();
     public List<double> SeekLatenciesMs { get; } = [];
     private readonly EditorSmoke? smoke;
@@ -60,14 +61,14 @@ internal sealed partial class EditorWindow : IDisposable
         AppDomain.CurrentDomain.UnhandledException += UnhandledException;
         Gesture = new(Editor); input = Graphics.Window.CreateInput(); Graphics.Window.Title = "Valencia — timeline editor";
         diagnostics.Record("window-created", generation, 0, $"gpu={Graphics.GpuName};hwnd={WindowHandle};size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}");
-        foreach (var keyboard in input.Keyboards) { keyboard.KeyDown += (_, k, _) => { keys.Record(k, true); Editor.Card = null; }; keyboard.KeyUp += (_, k, _) => keys.Record(k, false); }
+        foreach (var keyboard in input.Keyboards) { keyboard.KeyDown += (_, k, _) => HandlePointer(() => { keys.Record(k, true); Editor.Card = null; }); keyboard.KeyUp += (_, k, _) => HandlePointer(() => keys.Record(k, false)); }
         foreach (var mouse in input.Mice)
         {
             // Exceptions escaping GLFW callbacks terminate Windows with 0xc000041d before Main can report them.
             mouse.MouseDown += (m, b) => HandlePointer(() => MouseDown(m, b));
             mouse.MouseUp += (m, b) => HandlePointer(() => MouseUp(m, b));
             mouse.MouseMove += (m, p) => HandlePointer(() => MouseMove(m, p));
-            mouse.Scroll += (m, wheel) =>
+            mouse.Scroll += (m, wheel) => HandlePointer(() =>
             {
                 var point = Point(m); var media = view.Layout.Media;
                 if (point.X >= media.X && point.X < media.X + media.Width && point.Y >= media.Y && point.Y < media.Y + media.Height)
@@ -76,11 +77,13 @@ internal sealed partial class EditorWindow : IDisposable
                 else if (keys.Shift) Editor.Viewport.FirstTrack = Math.Clamp(Editor.Viewport.FirstTrack - (int)wheel.Y, 0, Math.Max(0, Editor.Sequence.Tracks.Length - Editor.Viewport.VisibleTracks));
                 else Editor.Viewport.Scroll(-wheel.Y * 90 - wheel.X * 90);
                 lastUi = -1;
-            };
+            });
         }
-        Graphics.Window.FocusChanged += value => { focused = value; if (!value) CancelGesture(); keys.Reset(); };
-        Graphics.Window.Resize += _ => { diagnostics.Record("resize", generation, Editor.Playhead.Ticks, $"size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}"); CancelGesture(); Prepare(); };
-        Graphics.Window.Closing += () => { if (smoke is null && analysisSmoke is null && transcriptSmoke is null && creatorSmoke is null && qualificationSmoke is null && layoutSmoke is null && scrubSmoke is null && !DiscardAllowed()) { Graphics.Window.IsClosing = false; return; } jobCancellation?.Cancel(); seekCancellation?.Cancel(); Gesture.Cancel(); };
+        Graphics.Window.FocusChanged += value => HandlePointer(() => { focused = value; if (!value) CancelGesture(); keys.Reset(); });
+        // Native callbacks only invalidate state. Layout/font realization runs on the
+        // normal event loop, never across GLFW's unmanaged callback boundary.
+        Graphics.Window.Resize += _ => HandlePointer(() => { diagnostics.Record("resize", generation, Editor.Playhead.Ticks, $"size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}"); CancelGesture(); });
+        Graphics.Window.Closing += () => HandlePointer(() => { if (smoke is null && analysisSmoke is null && transcriptSmoke is null && creatorSmoke is null && qualificationSmoke is null && layoutSmoke is null && scrubSmoke is null && !DiscardAllowed()) { Graphics.Window.IsClosing = false; return; } jobCancellation?.Cancel(); seekCancellation?.Cancel(); Gesture.Cancel(); });
         if (smokeDirectory is not null)
         {
             if (scrubTest) scrubSmoke = new(smokeDirectory);
@@ -101,11 +104,16 @@ internal sealed partial class EditorWindow : IDisposable
     {
         while (!Graphics.Window.IsClosing)
         {
-            var frameClock = Stopwatch.StartNew(); Graphics.Window.DoEvents(); context.Pump();
+            var frameClock = Stopwatch.StartNew(); Graphics.Window.DoEvents(); context.Pump(ReportFailure);
             double now = clock.Elapsed.TotalSeconds;
             if (focused) foreach (var action in keys.Read(now - lastTick)) Action(action.ToString()); lastTick = now;
             if ((Gesture.Active || scrubbing) && GetCapture() != WindowHandle) CancelGesture();
-            if (job?.IsCompleted == true) { try { job.GetAwaiter().GetResult(); } catch (Exception e) { Editor.Status = "ERROR: " + e.Message; Console.Error.WriteLine(e); } job = null; lastUi = -1; }
+            if (job?.IsCompleted == true)
+            {
+                if (job.GetAwaiter().GetResult() is Err<EditorFailure> failed) ReportFailure(failed.Error);
+                job = null;
+                lastUi = -1;
+            }
             CompleteSeek();
             // At most one decode plus one latest pointer position. Continuous movement cannot repeatedly
             // cancel every frame before it is ready, nor build an unbounded queue of obsolete seeks.
@@ -152,18 +160,28 @@ internal sealed partial class EditorWindow : IDisposable
     }
     private void Prepare()
     {
+        lastUi = clock.Elapsed.TotalSeconds;
+        if (Graphics.Window.Size.X <= 0 || Graphics.Window.Size.Y <= 0) return;
         long preparedAt = Stopwatch.GetTimestamp();
         Editor.ObsConnection = Obs?.Recording.Client.Status.State.ToString() ?? "Disconnected";
         Editor.ObsRecording = Obs is { } obs ? obs.Recording.Snapshot.State + " / " + obs.Recording.Snapshot.Markers.Length + " markers" : "No recording session";
         Editor.Recording = Obs?.Recording.Snapshot.State == "recording";
         if (Editor.Card is { } card && (clock.Elapsed.TotalSeconds > Editor.CardUntil
             || card.Kind == TitleCardKind.Proposal && Editor.ProposedCut is null && Editor.ProposedTextCut is null)) Editor.Card = null;
-        var prepared = view.Prepare(Editor, Gesture, Playback?.IsPlaying == true || resume && (opening is not null || desired), razor,
-            Math.Max(1, Graphics.Window.Size.X), Math.Max(1, Graphics.Window.Size.Y), job is not null);
+        var result = view.TryPrepare(Editor, Gesture, Playback?.IsPlaying == true || resume && (opening is not null || desired), razor,
+            Graphics.Window.Size.X, Graphics.Window.Size.Y, job is not null);
+        if (result is not Ok<Machina.Pipeline.MachinaPreparedPresentation> ready)
+        {
+            if (result is Err<EditorFailure> failed) ReportFailure(failed.Error);
+            else ReportFailure(new("layout", "Uninitialized preparation result.", false, null));
+            return; // Retain the last valid frame and hit-test tree.
+        }
+        var prepared = ready.Value;
         Graphics.ProgramMonitor = view.HideVideo ? new(0, 0, 0, 0) : view.Layout.Monitor;
         Graphics.RecordCpuPhase("layoutAndPresentationBuildMs", Stopwatch.GetElapsedTime(preparedAt).TotalMilliseconds);
         long realizedAt = Stopwatch.GetTimestamp();
         Graphics.UpdateUi(prepared.PresentationFrame); Graphics.Canvas = view.Canvas; lastUi = clock.Elapsed.TotalSeconds;
+        lastReportedFailure = null;
         Graphics.RecordCpuPhase("nativeUiPreparationMs", Stopwatch.GetElapsedTime(realizedAt).TotalMilliseconds);
         Graphics.Window.Title = $"Valencia — {(Editor.Dirty ? "* " : "")}{Path.GetFileName(Editor.ProjectPath ?? "Untitled.valencia")}";
     }
@@ -301,7 +319,7 @@ internal sealed partial class EditorWindow : IDisposable
     private void RunJob(Func<Task> action)
     {
         if (job is not null) { Editor.Status = "A job is running. Cancel or wait."; return; }
-        jobCancellation?.Dispose(); jobCancellation = new(); job = action();
+        jobCancellation?.Dispose(); jobCancellation = new(); job = EditorOperation.TryAsync("job", action);
     }
     private string? Pick(bool save, string filter, string title)
     {
@@ -483,6 +501,7 @@ internal sealed partial class EditorWindow : IDisposable
     internal double RulerY => view.Layout.RulerY;
     internal void PointerDown((double X, double Y) p)
     {
+        if (view.Prepared is null || view.IsCompact) return;
         diagnostics.Record("pointer-down", generation, Editor.Playhead.Ticks, $"x={p.X};y={p.Y}");
         diagnostics.Save(); // persist the last gesture even if a native fault prevents managed unwinding
         var viewport = Editor.Viewport;
@@ -578,18 +597,30 @@ internal sealed partial class EditorWindow : IDisposable
     private void ReleasePointer() { if (WindowHandle != 0 && GetCapture() == WindowHandle) ReleaseCapture(); }
     internal void HandlePointer(Action action)
     {
-        try { action(); }
-        catch (Exception error)
+        var result = EditorOperation.Try("input", () => { action(); return new Completed(); });
+        if (result is Err<EditorFailure> failed)
         {
             InputFailures++;
             CancelGesture();
-            Editor.Status = "Timeline input error: " + error.Message;
+            var error = failed.Error.Cause;
+            Editor.Status = "Timeline input error: " + failed.Error.Message;
             Console.Error.WriteLine(error);
             string directory = diagnostics.DirectoryPath;
-            try { Directory.CreateDirectory(directory); File.WriteAllText(Path.Combine(directory, "last-input-error.txt"), error.ToString()); }
+            try { Directory.CreateDirectory(directory); File.WriteAllText(Path.Combine(directory, "last-input-error.txt"), error?.ToString() ?? failed.Error.Message); }
             catch (IOException) { } catch (UnauthorizedAccessException) { }
-            diagnostics.Record("pointer-error", generation, Editor.Playhead.Ticks, error.ToString()); diagnostics.Save(error);
+            diagnostics.Record("pointer-error", generation, Editor.Playhead.Ticks, error?.ToString()); diagnostics.Save(error);
         }
+    }
+    private void ReportFailure(EditorFailure error)
+    {
+        Editor.Status = error.Cancelled ? "Cancelled." : $"{error.Operation} error: {error.Message}";
+        string identity = error.Operation + ": " + (error.Cause?.ToString() ?? error.Message);
+        if (lastReportedFailure == identity) return;
+        lastReportedFailure = identity;
+        if (error.Cause is not null && !error.Cancelled) Console.Error.WriteLine(error.Cause);
+        diagnostics.Record(error.Cancelled ? "operation-cancelled" : "operation-error", generation,
+            Editor.Playhead.Ticks, error.Cause?.ToString() ?? error.Message);
+        diagnostics.Save(error.Cancelled ? null : error.Cause);
     }
     private void UnhandledException(object sender, UnhandledExceptionEventArgs args) => diagnostics.Save(args.ExceptionObject as Exception);
     [DllImport("user32.dll")] private static extern nint SetCapture(nint window);

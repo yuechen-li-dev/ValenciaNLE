@@ -1,6 +1,6 @@
 # Valencia
 
-Latest UI fixes: [GPU text alignment and rendering](docs/UI_TEXT_RENDERING_FIX.md), following [scrub stabilization](docs/UI_SCRUB_STABILIZATION.md).
+Latest UI fixes: [MSDF edges/baselines and recoverable UI errors](docs/MSDF_RESULT_FIX.md), following [GPU text alignment](docs/UI_TEXT_RENDERING_FIX.md) and [scrub stabilization](docs/UI_SCRUB_STABILIZATION.md).
 Paused scrubbing uses reusable video-only decoding; input/seek diagnostics are saved under `%LOCALAPPDATA%\Valencia\Logs`.
 
 Current backend follow-up: [native rendering/A/V stabilization](docs/M2E_RENDER_STABILIZATION.md)
@@ -8,7 +8,7 @@ adds clock-paced preview and post-presentation timing checks. Current native tes
 pass; the historical 250 ms draw incident remains unexplained rather than being
 attributed to an unverified GPU fix.
 
-A native C#/.NET 10 video editor in development. **M2e adds native OBS integration, controlled 1080p60/1440p60 qualification, and a native frontend handoff.** Editing, trusted Copeland scripts, CLI and optional local MCP share the same engine. Product transcription remains CPU-based.
+A native C#/.NET 11 video editor in development. **M2e adds native OBS integration, controlled 1080p60/1440p60 qualification, and a native frontend handoff.** Editing, trusted Copeland scripts, CLI and optional local MCP share the same engine. Product transcription remains CPU-based.
 
 Start with [M2E.md](docs/M2E.md), [qualification and limitations](docs/M2E_REAL_WORLD_QUALIFICATION.md), and the [frontend handoff](docs/CLAUDE_FRONTEND_HANDOFF.md). The controlled OBS-to-export PoC works; human editorial quality and broader footage remain unqualified. [Native Int64 and audio-seek fixes](docs/INT64_AUDIO_SEEK_FIX.md) add exact native scripting and fast indexed audio seeks; initial sample-count indexing still has a cold cost. [M2D.md](docs/M2D.md) retains creator commands and historical coverage.
 
@@ -114,7 +114,7 @@ $env:VALENCIA_MODEL_DIR = "$PWD\artifacts\local\m2c\models"
 
 Requirements:
 
-- Windows x64, .NET 10 Desktop Runtime, Vulkan-capable graphics/driver.
+- Windows x64, .NET 11 Desktop Runtime, Vulkan-capable graphics/driver.
 - Source builds use sibling checkouts `../Copeland`, `../InputMan`, `../Deliverance`. Project-reference locations can be overridden with MSBuild properties `CopelandRoot`, `InputManRoot`, `DeliveranceRoot`; the supplied solution groups the default sibling paths under `Infrastructure`. The published application does not require these checkouts.
 - **FFmpeg 7.1 shared DLLs**, matching FFmpeg.AutoGen 7.1.1: `avformat-61.dll`, `avcodec-61.dll`, `avutil-59.dll`, `swscale-8.dll`, `swresample-5.dll`, plus that distribution's runtime dependencies. Set `VALENCIA_FFMPEG_DIR` to their directory, put that directory on PATH, or place the libraries in an adjacent `native` directory. A static `ffmpeg.exe` alone does not provide the DLLs.
 - Export, proxies and loudness analysis also require **ffmpeg.exe** on PATH (or `VALENCIA_FFMPEG_EXE`), with `libx264`, AAC, `loudnorm` and `afftdn`. Native cleanup requires the matching **avfilter-10.dll** alongside the existing FFmpeg 7 DLLs. Native FFmpeg binaries are not bundled. Validation scripts additionally use `ffprobe`. Caption rendering uses pinned SkiaSharp and installed Windows Arial/Consolas fonts, with explicit failure for unavailable fonts/glyphs.

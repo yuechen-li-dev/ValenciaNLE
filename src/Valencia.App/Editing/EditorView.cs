@@ -27,6 +27,7 @@ internal sealed class EditorView
     public EditorLayout Layout { get; private set; } = EditorLayout.For(1280, 720);
     /// <summary>True when the monitor shows a title card or the empty state instead of the picture.</summary>
     public bool HideVideo { get; private set; }
+    public bool IsCompact { get; private set; }
 
     /// <summary>Edge Code palette and button styles.</summary>
     internal static class Ui
@@ -55,10 +56,46 @@ internal sealed class EditorView
     private enum PanelTab { Media, Transcript, Record }
     private static readonly string[] TabNames = ["Media", "Transcript", "Record"];
 
+    public Result<MachinaPreparedPresentation, EditorFailure> TryPrepare(EditorDocument editor,
+        TimelineGesture gesture, bool playing, bool razor, int width, int height, bool jobRunning = false)
+    {
+        if (width <= 0 || height <= 0)
+        {
+            return Result<MachinaPreparedPresentation, EditorFailure>.Failure(
+                new("layout", "Window has no drawable client area.", false, null));
+        }
+        int firstTrack = editor.Viewport.FirstTrack;
+        int visibleClips = VisibleClips;
+        var result = EditorOperation.Try("layout", () => Prepare(editor, gesture, playing, razor, width, height, jobRunning));
+        if (result is Err<EditorFailure>)
+        {
+            editor.Viewport.Configure(Layout, editor.Sequence.Tracks.Length);
+            editor.Viewport.FirstTrack = firstTrack;
+            VisibleClips = visibleClips;
+        }
+        return result;
+    }
+
     public MachinaPreparedPresentation Prepare(EditorDocument editor, TimelineGesture gesture, bool playing, bool razor,
         int width = 1280, int height = 720, bool jobRunning = false)
     {
-        var layout = Layout = EditorLayout.For(width, height);
+        var layout = EditorLayout.For(width, height);
+        // GLFW may report a tiny client area during minimize/live resize. Such a
+        // window cannot contain the editing controls. Do not construct negative
+        // button widths or change the timeline viewport while it is unusable.
+        if (width < 320 || height < 480)
+        {
+            var compact = pipeline.Prepare(UI.Surface(color: ColorToken.Hex(Ui.Ink), children:
+                [Text("Enlarge window to edit", 0, 0, Math.Max(1, width), 24)]),
+                width, height, new Machina.Core.Lowering.UiLoweringOptions(NativeUiText.Instance));
+            Layout = layout;
+            IsCompact = true;
+            HideVideo = true;
+            VisibleClips = 0;
+            Canvas = [];
+            Prepared = compact;
+            return compact;
+        }
         var sequence = editor.Sequence;
         var viewport = editor.Viewport;
         viewport.Configure(layout, sequence.Tracks.Length);
@@ -72,7 +109,7 @@ internal sealed class EditorView
         children.Add(StandardUI.Frame(layout.Panel.X, layout.Panel.Y, layout.Panel.Width, layout.Panel.Height,
             Panel(editor, layout.Panel, layout.Profile == EditorLayoutProfile.VerticalPhone)));
         Fill(children, layout.Monitor, Ui.Monitor);
-        HideVideo = Monitor(children, quads, editor, layout);
+        bool hideVideo = Monitor(children, quads, editor, layout);
         Transport(children, editor, layout, playing);
         if (layout.HasInspector)
         {
@@ -83,10 +120,14 @@ internal sealed class EditorView
         Timeline(children, quads, editor, gesture, layout);
         Status(children, editor, layout);
 
-        Canvas = quads;
-        Prepared = pipeline.Prepare(UI.Surface(color: ColorToken.Hex(Ui.Ink), children: children), width, height,
+        var prepared = pipeline.Prepare(UI.Surface(color: ColorToken.Hex(Ui.Ink), children: children), width, height,
             new Machina.Core.Lowering.UiLoweringOptions(NativeUiText.Instance));
-        return Prepared;
+        Layout = layout;
+        IsCompact = false;
+        HideVideo = hideVideo;
+        Canvas = quads;
+        Prepared = prepared;
+        return prepared;
     }
 
     // ---------------------------------------------------------------- header
