@@ -154,7 +154,7 @@ internal sealed class NativeWidgetGallery : IDisposable
             width: 260, contentHeight: 60), 720, 358, 260, 110);
         Add(w.Combobox("combo", Options, comboValue, comboQuery, open.Contains("combo"), "Search options"), 720, 490, 240);
         Add(w.ScrollArea("scroll", UI.Column(Enumerable.Range(0, 12).Select(index =>
-            w.Button("scroll-row-" + index, "Shared row " + index, width: 240)).ToArray(), gap: 8),
+            w.Button("scroll-row-" + index, "Shared row " + index, width: 240 - WidgetBuilder.ScrollbarGutter)).ToArray(), gap: 8),
             528, height: 90), 720, 540, 240, 90);
         return UI.Rect(UI.Layer(children: children), width: width, height: height, style: new(ClipToBounds: true));
     }
