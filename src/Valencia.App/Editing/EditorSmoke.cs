@@ -31,6 +31,7 @@ internal sealed class EditorSmoke(string directory)
         switch (phase)
         {
             case -2:
+                window.VerifyPointerFeedback(directory);
                 saved = e.Session.Snapshot.Document;
                 string script = Path.Combine(directory, "native-script.ts");
                 File.WriteAllText(script, """
@@ -122,6 +123,7 @@ internal sealed class EditorSmoke(string directory)
                 {
                     outcome = window.MaximumAvSkew <= .15 ? "passed" : "failed", gpu = window.Graphics.GpuName, runtime = Environment.Version.ToString(),
                     elapsedSeconds = deadline.Elapsed.TotalSeconds, maximumAvSkewSeconds = window.MaximumAvSkew,
+                    pointerFeedbackMilliseconds = window.PointerFeedbackMilliseconds,
                     realPlaybackSeconds = exportDuration.TotalSeconds, exportDurationSeconds = exportDuration.TotalSeconds,
                     playbackElapsedSeconds = playbackElapsed.Elapsed.TotalSeconds,
                     exportDurationTicks = exportDuration.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture), seekRequests = window.SeekRequests,

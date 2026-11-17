@@ -1,5 +1,6 @@
 using Valencia.Core;
 using Valencia.Core.Timeline;
+using Machina.Core.Semantics;
 
 namespace Valencia.App.Editing;
 
@@ -52,6 +53,18 @@ internal sealed class TimelineViewport
             double left = Math.Max(ClipLeft, X(clip.Start)), right = Math.Min(ClipRight, X(clip.End));
             if (x >= left && x <= right) return (track, clip, Math.Abs(x - X(clip.Start)) <= 7 ? -1 : Math.Abs(x - X(clip.End)) <= 7 ? 1 : 0);
         }
+        return null;
+    }
+
+    public UiCursor? Cursor(SequenceDocument sequence, double x, double y, double rulerY, bool razor)
+    {
+        if (Hit(sequence, x, y) is { } hit)
+        {
+            if (hit.Track.State.Locked) return UiCursor.NotAllowed;
+            if (razor) return UiCursor.Crosshair;
+            return hit.Edge == 0 ? UiCursor.Move : UiCursor.ResizeHorizontal;
+        }
+        if (x >= ClipLeft && x < ClipRight && y >= rulerY && y < TrackTop) return UiCursor.Hand;
         return null;
     }
 }

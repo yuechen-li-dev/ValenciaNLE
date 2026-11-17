@@ -34,7 +34,20 @@ internal sealed record EditorLayout(EditorLayoutProfile Profile, int Width, int 
     public double TrackBottom => Math.Max(TrackTop, StatusY - 2);
     public bool HasInspector => Inspector.Width > 0;
 
-    public static EditorLayout For(int width, int height) => width >= 600 && width >= height
+    public static EditorLayout For(int width, int height, int captionHeight = 0)
+    {
+        var layout = Content(width, Math.Max(1, height - captionHeight));
+        if (captionHeight == 0) return layout;
+        Rect Shift(Rect box) => box with { Y = box.Y + captionHeight };
+        return layout with
+        {
+            Height = height, Header = Shift(layout.Header), Panel = Shift(layout.Panel),
+            Monitor = Shift(layout.Monitor), Transport = Shift(layout.Transport), Toolbar = Shift(layout.Toolbar),
+            Inspector = Shift(layout.Inspector), RulerY = layout.RulerY + captionHeight
+        };
+    }
+
+    private static EditorLayout Content(int width, int height) => width >= 600 && width >= height
         ? DesktopRoot(width, height) : width switch
     {
         < 600 => Stacked(EditorLayoutProfile.VerticalPhone, width, height),

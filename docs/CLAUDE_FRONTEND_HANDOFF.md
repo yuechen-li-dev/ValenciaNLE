@@ -1,5 +1,29 @@
 # Claude native frontend handoff
 
+## Pointer feedback and client title bar (2026-11-16)
+
+**Remaining hardware blocker:** rapid scrubbing now reproduces the historical
+approximately 250 ms swapchain acquisition/fence wait in current and pre-change
+executables. Current traced skew is 255 ms versus the unchanged 150 ms contract.
+See POINTER_FEEDBACK.md and validation/pointer-feedback.json; do not assume all
+native timing qualification passes. GPU passes and layout are short in the
+stalled frames; the underlying WSI cause remains unknown.
+
+See [POINTER_FEEDBACK.md](POINTER_FEEDBACK.md) and its machine-readable evidence.
+Use shared `WidgetSession.Cursor` / `IsPressed` and Aurelian's native cursor adapter.
+Existing StandardUI controls can use `UiPointerFeedback` plus
+`MachinaPointerPresentation.Apply` on the original prepared frame: hover-only
+repaint must not wait for the periodic 100 ms layout refresh or mutate the project.
+Native position sampling also handles movement into non-client caption regions.
+
+`AurelianWindowChrome` and `WindowTitleBar` own the optional Windows caption boundary.
+Reserve its height through `EditorLayout.For(..., captionHeight: 32)`; ordinary
+editing panels start below it. Caption drawing/hit testing share one geometry.
+Close must remain an ordinary system close reaching the existing Closing/dirty
+project policy. Dispose chrome and cursor before destroying the native window/input.
+Do not draw or invoke the media/editing engine inside the native subclass callback.
+Physical Snap interaction and mixed-DPI multi-monitor drag are still manual checks.
+
 ## MSDF and UI failure follow-up (2026-11-16)
 
 See [MSDF_RESULT_FIX.md](MSDF_RESULT_FIX.md) and [validation/msdf-result-fix.json](validation/msdf-result-fix.json).

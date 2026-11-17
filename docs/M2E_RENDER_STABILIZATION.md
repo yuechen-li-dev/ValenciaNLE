@@ -1,5 +1,13 @@
 # M2e rendering and A/V stabilization — 2026-11-15
 
+> **2026-11-16 recurrence:** the pointer-feedback qualification reproduced the
+> historical approximately 250 ms stall in current and pre-change executables.
+> The blocked phase is swapchain acquisition/fence waiting, not the measured GPU
+> draw passes. Rapid-scrub A/V qualification fails. See
+> [POINTER_FEEDBACK.md](POINTER_FEEDBACK.md#isolated-existing-presentation-blocker)
+> and [current evidence](validation/pointer-feedback.json). The historical
+> "not reproduced" statements below describe that earlier run, not current status.
+
 ## Outcome and qualification boundary
 
 **Verified synchronization correction; historical GPU-stall cause remains unconfirmed.**

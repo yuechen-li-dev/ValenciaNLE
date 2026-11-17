@@ -12,6 +12,8 @@ using Machina.Pipeline;
 using Machina.Runtime.Input;
 using Machina.Standard.Authoring;
 using Machina.Standard.Widgets;
+using Machina.Standard.Windowing;
+using Machina.Core.Semantics;
 using Valencia.Rendering;
 
 namespace Valencia.App;
@@ -21,6 +23,8 @@ internal sealed class NativeWidgetGallery : IDisposable
 {
     private readonly NativeVideoPresenter graphics;
     private readonly AurelianWidgetInput input;
+    private readonly AurelianWindowChrome chrome;
+    private long chromeRevision;
     private readonly WidgetSession session;
     private readonly MachinaWidgetPipeline pipeline = new();
     private readonly Stopwatch clock = Stopwatch.StartNew();
@@ -38,6 +42,8 @@ internal sealed class NativeWidgetGallery : IDisposable
     private decimal number = 42;
     private string status = "Tab / arrows / Enter / Space. Text supports selection, clipboard and local undo.";
     private int commits;
+    private ColorToken? idleButton, hoverButton;
+    private uint idlePixel, hoverPixel, pressedPixel;
     private static readonly WidgetOption[] Options = [new("one", "First"), new("two", "Disabled", true), new("three", "Third")];
 
     private NativeWidgetGallery(string? directory)
@@ -47,6 +53,7 @@ internal sealed class NativeWidgetGallery : IDisposable
         graphics = new(tracePath: directory is null ? null : Path.Combine(directory, "frames.json"));
         graphics.Window.Title = "Machina native component gallery";
         input = new(graphics.Window);
+        chrome = new(graphics.Window);
         session = new() { Clipboard = input };
     }
 
@@ -63,11 +70,14 @@ internal sealed class NativeWidgetGallery : IDisposable
         while (!graphics.Window.IsClosing)
         {
             graphics.Window.DoEvents();
+            chrome.Update();
+            if (chromeRevision != chrome.VisualRevision) { dirty = true; chromeRevision = chrome.VisualRevision; }
             foreach (var item in input.Poll().Events)
             {
                 Apply(session.Handle(item, clock.Elapsed));
                 dirty = true;
             }
+            input.SetCursor(session.Cursor);
             if (graphics.Window.Size.X <= 0 || graphics.Window.Size.Y <= 0) { Thread.Sleep(8); continue; }
             if (directory is not null && clock.Elapsed.TotalSeconds > 90) throw new TimeoutException("Widget smoke timed out.");
             if (dirty || frame is null)
@@ -83,12 +93,12 @@ internal sealed class NativeWidgetGallery : IDisposable
             long drawAt = Stopwatch.GetTimestamp();
             graphics.Draw();
             drawTimes.Add(Stopwatch.GetElapsedTime(drawAt).TotalMilliseconds);
-            if (directory is not null && stage >= 27) idleDrawTimes.Add(drawTimes[^1]);
+            if (directory is not null && stage >= 34) idleDrawTimes.Add(drawTimes[^1]);
             if (drawTimes.Count > 1024) drawTimes.RemoveAt(0);
             if (prepareTimes.Count > 1024) prepareTimes.RemoveAt(0);
             if (directory is not null)
             {
-                if (stage < 27) { SmokeStep(stage++); dirty = true; }
+                if (stage < 34) { SmokeStep(stage++); dirty = true; }
                 else if (++idle >= 120)
                 {
                     SavePixels(Path.Combine(directory, "gallery.png"));
@@ -99,6 +109,8 @@ internal sealed class NativeWidgetGallery : IDisposable
                     {
                         outcome = "passed", gpu = graphics.GpuName, runtime = Environment.Version.ToString(), checks, commits,
                         input.CallbackFailures, input.DroppedBatches, graphics.ValidationAvailable, graphics.ValidationErrorCount,
+                        cursorChanges = input.CursorChanges, chromeCallbackFailures = chrome.CallbackFailures,
+                        feedbackPixels = new { idlePixel, hoverPixel, pressedPixel },
                         presentedFrames = graphics.PresentedFrames, cachedDrawSamples = stats.Length,
                         drawCpuMedianMs = stats[stats.Length / 2], drawCpuP95Ms = stats[(int)(stats.Length * .95)],
                         drawCpuP99Ms = stats[(int)(stats.Length * .99)], drawCpuMaximumMs = stats[^1],
@@ -118,11 +130,15 @@ internal sealed class NativeWidgetGallery : IDisposable
     private UiNode View(WidgetBuilder w)
     {
         int width = graphics.Window.Size.X, height = graphics.Window.Size.Y;
+        var titleBar = WindowTitleBar.Create("window.gallery", chrome.Layout, "Machina native components", chrome.IsMaximized,
+            chrome.Hovered, chrome.Pressed, ColorToken.Hex(0x18181BFF), ColorToken.White);
         if (width < 1000 || height < 650)
-            return UI.Rect(UI.Text("Enlarge the gallery window to 1000 x 650.", size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF)), width: width, height: height);
+            return UI.Rect(UI.Layer(children: [titleBar, StandardUI.Place(UI.Text("Enlarge the gallery window to 1000 x 650.",
+                size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF)), 10, 40, Math.Max(1, width - 20), 40)]), width: width, height: height);
         var children = new List<UiNode>
         {
-            StandardUI.Label("MACHINA / NATIVE COMPONENTS", 20, 8, 800, 40, size: TextSize.Xl),
+            titleBar,
+            StandardUI.Label("MACHINA / NATIVE COMPONENTS", 20, 34, 800, 30, size: TextSize.Lg),
             StandardUI.Label(status, 20, height - 40, width - 40, 32, size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF))
         };
         void Add(UiNode node, double x, double y, double nodeWidth, double nodeHeight = 36) =>
@@ -251,8 +267,141 @@ internal sealed class NativeWidgetGallery : IDisposable
                 Require(row.Y >= viewport.Y && row.Y + row.Height <= viewport.Y + viewport.Height, "Scroll focus was not visible.");
                 checks.Add("scroll area keyboard navigation");
                 break;
+            case 27:
+                idleButton = frame!.Lowering.Styles[new NodeId("toggle")].Background;
+                idlePixel = ControlPixel("toggle");
+                Hover("toggle");
+                Require(session.Cursor == UiCursor.Hand && input.NativeCursorShape == Silk.NET.Input.StandardCursor.Hand,
+                    "Native hand cursor was not selected.");
+                checks.Add("native hand cursor");
+                break;
+            case 28:
+                hoverButton = frame!.Lowering.Styles[new NodeId("toggle")].Background;
+                Require(hoverButton != idleButton, "Hover did not change the button surface.");
+                hoverPixel = ControlPixel("toggle");
+                Require(hoverPixel != idlePixel, "Vulkan hover pixels did not change.");
+                SavePixels(Path.Combine(directory!, "hover.png"));
+                var toggleBounds = frame.Resolved.Nodes[new NodeId("toggle")].Rect;
+                Pointer(toggleBounds.X + 10, toggleBounds.Y + 10, true);
+                break;
+            case 29:
+                Require(frame!.Lowering.Styles[new NodeId("toggle")].Background != hoverButton, "Press did not change the button surface.");
+                pressedPixel = ControlPixel("toggle");
+                Require(pressedPixel != hoverPixel, "Vulkan pressed pixels did not change.");
+                SavePixels(Path.Combine(directory!, "pressed.png"));
+                Pointer(2, 70, false);
+                Require(!toggle, "Releasing outside activated the button.");
+                Hover("name");
+                Require(session.Cursor == UiCursor.IBeam && input.NativeCursorShape == Silk.NET.Input.StandardCursor.IBeam,
+                    "Native I-beam cursor was not selected.");
+                checks.Add("hover/pressed surfaces and drag-off cancellation");
+                checks.Add("native I-beam cursor");
+                break;
+            case 30:
+                Hover("radio.two");
+                Require(session.Cursor == UiCursor.Arrow, "Disabled control advertised a click.");
+                Hover("slider");
+                Require(session.Cursor == UiCursor.ResizeHorizontal, "Slider resize cursor missing.");
+                Apply(session.Handle(new UiFocusChanged(false)));
+                input.SetCursor(session.Cursor);
+                Require(input.NativeCursorShape == Silk.NET.Input.StandardCursor.Arrow, "Focus loss left a stale cursor.");
+                checks.Add("disabled/slider/focus-loss cursor policy");
+                break;
+            case 31:
+                var layout = chrome.Layout;
+                Require(NativeHit(300, 16) == 2 && NativeHit(1, 300) == 10, "Native caption drag or edge resize hit test failed.");
+                var max = layout.Button(WindowCaptionButton.Maximize);
+                Require(NativeHit((int)(max.X + max.Width / 2), 16) == 9, "HTMAXBUTTON/Snap hit target is missing.");
+                checks.Add("native drag/resize/maximize hit tests");
+                CaptionClick(WindowCaptionButton.Maximize, cancel: true);
+                Require(!chrome.IsMaximized, "Dragging off a caption button still activated it.");
+                CaptionClick(WindowCaptionButton.Maximize);
+                PumpUntil(() => chrome.IsMaximized, "Maximize did not occur.");
+                break;
+            case 32:
+                Require(chrome.IsMaximized, "Maximized state was lost.");
+                SavePixels(Path.Combine(directory!, "maximized.png"));
+                chrome.Restore();
+                PumpUntil(() => !chrome.IsMaximized, "Restore did not occur.");
+                CaptionClick(WindowCaptionButton.Minimize);
+                PumpUntil(() => graphics.Window.WindowState == Silk.NET.Windowing.WindowState.Minimized, "Minimize did not occur.");
+                chrome.Restore();
+                PumpUntil(() => graphics.Window.WindowState == Silk.NET.Windowing.WindowState.Normal, "Restore after minimize did not occur.");
+                checks.Add("native maximize/restore/minimize/restore");
+                break;
+            case 33:
+                Require(chrome.CallbackFailures == 0, "Native chrome callback failed.");
+                // Closing is cancellable through the host's ordinary Closing event.
+                bool closeReceived = false;
+                void RejectClose() { closeReceived = true; graphics.Window.IsClosing = false; }
+                graphics.Window.Closing += RejectClose;
+                try
+                {
+                    CaptionClick(WindowCaptionButton.Close);
+                    PumpUntil(() => closeReceived, "Native close request did not reach the host.");
+                    Require(!graphics.Window.IsClosing, "The host could not reject closing.");
+                }
+                finally { graphics.Window.Closing -= RejectClose; }
+                checks.Add("native close respects host cancellation");
+                break;
         }
     }
+
+    private void Hover(NodeId id)
+    {
+        var rect = frame!.Resolved.Nodes[id].Rect;
+        Apply(session.Handle(new UiPointerMoved(new(rect.X + rect.Width / 2, rect.Y + rect.Height / 2), null, default), clock.Elapsed));
+        input.SetCursor(session.Cursor);
+    }
+
+    private uint ControlPixel(NodeId id)
+    {
+        var rect = frame!.Resolved.Nodes[id].Rect;
+        byte[] rgba = graphics.Draw(true) ?? throw new InvalidOperationException("No Vulkan readback.");
+        int x = (int)((rect.X + 6) * graphics.Window.FramebufferSize.X / graphics.Window.Size.X);
+        int y = (int)((rect.Y + 6) * graphics.Window.FramebufferSize.Y / graphics.Window.Size.Y);
+        int offset = (y * graphics.Window.FramebufferSize.X + x) * 4;
+        return BitConverter.ToUInt32(rgba, offset);
+    }
+
+    private int NativeHit(int x, int y)
+    {
+        var point = new NativePoint { X = x, Y = y };
+        nint handle = graphics.Window.Native?.Win32?.Hwnd ?? 0;
+        ClientToScreen(handle, ref point);
+        nint packed = (nint)(((point.Y & 0xFFFF) << 16) | (point.X & 0xFFFF));
+        return (int)SendMessage(handle, 0x0084, 0, packed);
+    }
+
+    private void CaptionClick(WindowCaptionButton button, bool cancel = false)
+    {
+        nint handle = graphics.Window.Native?.Win32?.Hwnd ?? 0;
+        var rect = chrome.Layout.Button(button);
+        int x = (int)(rect.X + rect.Width / 2), y = 16;
+        var point = new NativePoint { X = x, Y = y };
+        ClientToScreen(handle, ref point);
+        int hit = NativeHit(x, y);
+        SendMessage(handle, 0x00A1, (nuint)hit, (nint)(((point.Y & 0xFFFF) << 16) | (point.X & 0xFFFF)));
+        Require(chrome.Pressed == button, "Native caption press was not captured.");
+        SendMessage(handle, 0x0202, 0, (nint)(((cancel ? 100 : y) << 16) | (cancel ? 100 : x)));
+        Require(chrome.Pressed == WindowCaptionButton.None, "Native caption capture was not released.");
+    }
+
+    private void PumpUntil(Func<bool> condition, string failure)
+    {
+        long started = Stopwatch.GetTimestamp();
+        while (!condition())
+        {
+            if (Stopwatch.GetElapsedTime(started).TotalSeconds > 3) throw new InvalidOperationException(failure);
+            graphics.Window.DoEvents();
+            Thread.Sleep(1);
+        }
+        chrome.Update();
+    }
+
+    [StructLayout(LayoutKind.Sequential)] private struct NativePoint { public int X, Y; }
+    [DllImport("user32.dll")] private static extern bool ClientToScreen(nint handle, ref NativePoint point);
+    [DllImport("user32.dll")] private static extern nint SendMessage(nint handle, uint message, nuint wParam, nint lParam);
 
     private void NativeText(string text)
     {
@@ -319,5 +468,5 @@ internal sealed class NativeWidgetGallery : IDisposable
         bitmap.Save(path, System.Drawing.Imaging.ImageFormat.Png);
     }
 
-    public void Dispose() { session.Dispose(); input.Dispose(); graphics.Dispose(); }
+    public void Dispose() { session.Dispose(); chrome.Dispose(); input.Dispose(); graphics.Dispose(); }
 }

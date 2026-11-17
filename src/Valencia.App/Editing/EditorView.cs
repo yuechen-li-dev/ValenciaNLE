@@ -11,6 +11,8 @@ using Machina.Standard.Theme;
 using Valencia.Core;
 using Valencia.Core.Timeline;
 using Valencia.Rendering;
+using Aurelian.Machina;
+using Machina.Standard.Windowing;
 
 namespace Valencia.App.Editing;
 
@@ -21,6 +23,7 @@ namespace Valencia.App.Editing;
 internal sealed class EditorView
 {
     private readonly MachinaPresentationPipeline pipeline = new();
+    public AurelianWindowChrome? Chrome { get; set; }
     public MachinaPreparedPresentation? Prepared { get; private set; }
     public IReadOnlyList<CanvasRectangle> Canvas { get; private set; } = [];
     public int VisibleClips { get; private set; }
@@ -79,7 +82,7 @@ internal sealed class EditorView
     public MachinaPreparedPresentation Prepare(EditorDocument editor, TimelineGesture gesture, bool playing, bool razor,
         int width = 1280, int height = 720, bool jobRunning = false)
     {
-        var layout = EditorLayout.For(width, height);
+        var layout = EditorLayout.For(width, height, Chrome is null ? 0 : (int)Chrome.Layout.Height);
         // GLFW may report a tiny client area during minimize/live resize. Such a
         // window cannot contain the editing controls. Do not construct negative
         // button widths or change the timeline viewport while it is unusable.
@@ -102,8 +105,16 @@ internal sealed class EditorView
         viewport.FirstTrack = Math.Clamp(viewport.FirstTrack, 0, Math.Max(0, sequence.Tracks.Length - viewport.VisibleTracks));
         var children = new List<UiNode>();
         var quads = new List<CanvasRectangle>();
+        if (Chrome is { } chrome)
+            children.Add(StandardUI.Place(WindowTitleBar.Create("window.titlebar", chrome.Layout,
+                "Valencia  /  " + (editor.Dirty ? "* " : "") + Path.GetFileName(editor.ProjectPath ?? "Untitled.valencia"),
+                chrome.IsMaximized, chrome.Hovered, chrome.Pressed,
+                ColorToken.Hex(Ui.Panel), ColorToken.Hex(Ui.Bone)), 0, 0, width, chrome.Layout.Height));
 
-        Header(children, editor, layout, jobRunning);
+        var headerChildren = new List<UiNode>();
+        Header(headerChildren, editor, layout, jobRunning);
+        if (layout.Header.Y == 0) children.AddRange(headerChildren);
+        else children.Add(StandardUI.Frame(0, layout.Header.Y, width, layout.Header.Height, headerChildren));
         // Fills that sit under widgets must be widgets too: canvas quads draw above widget geometry (and above video).
         Fill(children, layout.Panel, Ui.Panel);
         children.Add(StandardUI.Frame(layout.Panel.X, layout.Panel.Y, layout.Panel.Width, layout.Panel.Height,
@@ -148,7 +159,7 @@ internal sealed class EditorView
         {
             children.Add(Button(label, action, x, y, cell, 28, action == "Export" ? Ui.Primary : Ui.Outline)); x += cell + gap;
         }
-        children.Add(Box(0, layout.Header.Y + layout.Header.Height - 1, width, 1, Ui.Rule));
+        children.Add(Box(0, layout.Header.Height - 1, width, 1, Ui.Rule));
 
         double right = width - 14;
         if (jobRunning) { children.Add(Button("Cancel job", "Cancel", right - 112, 6, 112, 28, Ui.Danger)); right -= 122; }

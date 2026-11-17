@@ -9,6 +9,10 @@ using Valencia.Media;
 using Valencia.Persistence;
 using Valencia.Rendering;
 using PointerPoint = Machina.Runtime.Input.PointerPoint;
+using Aurelian.Machina;
+using Machina.Core.Semantics;
+using Machina.Core.Styling;
+using Machina.Pipeline;
 
 namespace Valencia.App.Editing;
 
@@ -21,6 +25,12 @@ internal sealed partial class EditorWindow : IDisposable
     private readonly EditorKeymap keys = new();
     private readonly EditorView view = new();
     private readonly UiPointerActivation pointer = new();
+    private readonly UiPointerFeedback feedback = new();
+    private readonly AurelianCursor cursor;
+    private readonly AurelianWindowChrome chrome;
+    private long chromeRevision;
+    private bool feedbackDirty;
+    private System.Numerics.Vector2? observedNativePointer;
     public TimelineGesture Gesture { get; }
     private readonly ProjectFile files = new();
     private readonly Valencia.Scripting.CopelandScriptHost scriptHost = new();
@@ -60,6 +70,9 @@ internal sealed partial class EditorWindow : IDisposable
         diagnostics = new(smokeDirectory is null ? null : Path.Combine(Path.GetFullPath(smokeDirectory), "editor-diagnostics.json"));
         AppDomain.CurrentDomain.UnhandledException += UnhandledException;
         Gesture = new(Editor); input = Graphics.Window.CreateInput(); Graphics.Window.Title = "Valencia — timeline editor";
+        cursor = new(input);
+        chrome = new(Graphics.Window);
+        view.Chrome = chrome;
         diagnostics.Record("window-created", generation, 0, $"gpu={Graphics.GpuName};hwnd={WindowHandle};size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}");
         foreach (var keyboard in input.Keyboards) { keyboard.KeyDown += (_, k, _) => HandlePointer(() => { keys.Record(k, true); Editor.Card = null; }); keyboard.KeyUp += (_, k, _) => HandlePointer(() => keys.Record(k, false)); }
         foreach (var mouse in input.Mice)
@@ -79,7 +92,7 @@ internal sealed partial class EditorWindow : IDisposable
                 lastUi = -1;
             });
         }
-        Graphics.Window.FocusChanged += value => HandlePointer(() => { focused = value; if (!value) CancelGesture(); keys.Reset(); });
+        Graphics.Window.FocusChanged += value => HandlePointer(() => { focused = value; if (!value) { CancelGesture(); feedbackDirty |= feedback.Clear(); } keys.Reset(); });
         // Native callbacks only invalidate state. Layout/font realization runs on the
         // normal event loop, never across GLFW's unmanaged callback boundary.
         Graphics.Window.Resize += _ => HandlePointer(() => { diagnostics.Record("resize", generation, Editor.Playhead.Ticks, $"size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}"); CancelGesture(); });
@@ -105,6 +118,8 @@ internal sealed partial class EditorWindow : IDisposable
         while (!Graphics.Window.IsClosing)
         {
             var frameClock = Stopwatch.StartNew(); Graphics.Window.DoEvents(); context.Pump(ReportFailure);
+            chrome.Update();
+            if (chromeRevision != chrome.VisualRevision) { chromeRevision = chrome.VisualRevision; lastUi = -1; }
             double now = clock.Elapsed.TotalSeconds;
             if (focused) foreach (var action in keys.Read(now - lastTick)) Action(action.ToString()); lastTick = now;
             if ((Gesture.Active || scrubbing) && GetCapture() != WindowHandle) CancelGesture();
@@ -144,7 +159,23 @@ internal sealed partial class EditorWindow : IDisposable
             qualificationSmoke?.Tick(this);
             layoutSmoke?.Tick(this);
             scrubSmoke?.Tick(this);
+            if (input.Mice.Count > 0)
+            {
+                var point = input.Mice[0].Position;
+                if (observedNativePointer != point)
+                {
+                    observedNativePointer = point;
+                    PointerMove((point.X, point.Y));
+                }
+                if (point.X < 0 || point.Y < 0 || point.X >= Graphics.Window.Size.X || point.Y >= Graphics.Window.Size.Y)
+                {
+                    feedbackDirty |= feedback.Clear();
+                    pointerPosition = null;
+                }
+            }
             if (now - lastUi >= .1) Prepare();
+            else if (feedbackDirty) RefreshFeedback();
+            cursor.Set(PointerCursor());
             Graphics.Draw();
             if (!desired && opening is null && Playback is { IsPlaying: true, Current: { } presentedFrame } presentedPlayback)
             {
@@ -180,7 +211,9 @@ internal sealed partial class EditorWindow : IDisposable
         Graphics.ProgramMonitor = view.HideVideo ? new(0, 0, 0, 0) : view.Layout.Monitor;
         Graphics.RecordCpuPhase("layoutAndPresentationBuildMs", Stopwatch.GetElapsedTime(preparedAt).TotalMilliseconds);
         long realizedAt = Stopwatch.GetTimestamp();
-        Graphics.UpdateUi(prepared.PresentationFrame); Graphics.Canvas = view.Canvas; lastUi = clock.Elapsed.TotalSeconds;
+        feedback.Refresh(prepared.HitTest);
+        RefreshFeedback();
+        Graphics.Canvas = view.Canvas; lastUi = clock.Elapsed.TotalSeconds;
         lastReportedFailure = null;
         Graphics.RecordCpuPhase("nativeUiPreparationMs", Stopwatch.GetElapsedTime(realizedAt).TotalMilliseconds);
         Graphics.Window.Title = $"Valencia — {(Editor.Dirty ? "* " : "")}{Path.GetFileName(Editor.ProjectPath ?? "Untitled.valencia")}";
@@ -347,6 +380,18 @@ internal sealed partial class EditorWindow : IDisposable
     {
         try
         {
+            if (name.StartsWith("window.", StringComparison.Ordinal))
+            {
+                var button = name switch
+                {
+                    "window.minimize" => Machina.Standard.Windowing.WindowCaptionButton.Minimize,
+                    "window.maximize" => Machina.Standard.Windowing.WindowCaptionButton.Maximize,
+                    "window.close" => Machina.Standard.Windowing.WindowCaptionButton.Close,
+                    _ => Machina.Standard.Windowing.WindowCaptionButton.None
+                };
+                chrome.Invoke(button);
+                return;
+            }
             if (name == "Cancel") { CancelGesture(); jobCancellation?.Cancel(); Editor.ProposedCut = null; Editor.ProposedTextCut = null; return; }
             if (job is not null) return;
             // Timeline edits act on the program playhead; leave source mode first (as clicking the timeline panel does in Premiere).
@@ -501,6 +546,8 @@ internal sealed partial class EditorWindow : IDisposable
     internal double RulerY => view.Layout.RulerY;
     internal void PointerDown((double X, double Y) p)
     {
+        pointerPosition = new(p.X, p.Y);
+        feedbackDirty |= feedback.Press(new(p.X, p.Y));
         if (view.Prepared is null || view.IsCompact) return;
         diagnostics.Record("pointer-down", generation, Editor.Playhead.Ticks, $"x={p.X};y={p.Y}");
         diagnostics.Save(); // persist the last gesture even if a native fault prevents managed unwinding
@@ -561,10 +608,13 @@ internal sealed partial class EditorWindow : IDisposable
 
     private void MouseMove(IMouse mouse, System.Numerics.Vector2 position)
     {
+        observedNativePointer = position;
         PointerMove((position.X, position.Y));
     }
     internal void PointerMove((double X, double Y) p)
     {
+        feedbackDirty |= feedback.Move(new(p.X, p.Y));
+        pointerPosition = new(p.X, p.Y);
         if (Gesture.Active) { Gesture.Move(p.X, p.Y); lastUi = -1; } else if (scrubbing) pendingScrub = Snap(p.X);
     }
     private void MouseUp(IMouse mouse, MouseButton button)
@@ -574,6 +624,8 @@ internal sealed partial class EditorWindow : IDisposable
     }
     internal void PointerUp((double X, double Y) p)
     {
+        pointerPosition = new(p.X, p.Y);
+        feedbackDirty |= feedback.Release(new(p.X, p.Y));
         diagnostics.Record("pointer-up", generation, Editor.Playhead.Ticks);
         if (Gesture.Active) { Gesture.Move(p.X, p.Y); if (Gesture.Release()) Seek(Editor.Playhead); ReleasePointer(); }
         else if (scrubbing)
@@ -586,7 +638,7 @@ internal sealed partial class EditorWindow : IDisposable
         lastUi = -1;
         diagnostics.Save();
     }
-    private void CancelGesture() { Gesture.Cancel(); scrubbing = false; pendingScrub = null; pointer.Reset(); ReleasePointer(); lastUi = -1; }
+    private void CancelGesture() { Gesture.Cancel(); scrubbing = false; pendingScrub = null; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
     private nint WindowHandle => Graphics.Window.Native?.Win32?.Hwnd ?? 0;
     private void CapturePointer()
     {
@@ -638,7 +690,7 @@ internal sealed partial class EditorWindow : IDisposable
         pausedPreview.Dispose();
         qualificationSmoke?.Dispose();
         obsEngine?.DisposeAsync().AsTask().GetAwaiter().GetResult();
-        scriptHost.Dispose(); input.Dispose(); Graphics.Dispose(); seekCancellation?.Dispose(); jobCancellation?.Dispose();
+        scriptHost.Dispose(); chrome.Dispose(); cursor.Dispose(); input.Dispose(); Graphics.Dispose(); seekCancellation?.Dispose(); jobCancellation?.Dispose();
         SynchronizationContext.SetSynchronizationContext(previousContext);
     }
 }

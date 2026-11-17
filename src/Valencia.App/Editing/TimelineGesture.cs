@@ -30,6 +30,7 @@ internal sealed class TimelineGesture
     public bool Valid { get; private set; }
     public string? Reason { get; private set; }
     public bool Active => original is not null;
+    public int Edge => edge;
     public TimelineGesture(EditorDocument editor) => this.editor = editor;
 
     public void Begin(TimelineClip clip, int edge, double x)

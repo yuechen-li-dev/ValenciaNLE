@@ -1,5 +1,8 @@
 # Valencia
 
+[Native cursor, hover/pressed feedback and custom title bar](docs/POINTER_FEEDBACK.md)
+are integrated into the editor and shared Machina component gallery.
+
 [Shared native widget gallery](docs/NATIVE_WIDGETS.md) exercises the new reusable
 Machina.Standard controls (`--widget-gallery`), with Base UI behavior as a reference.
 

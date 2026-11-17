@@ -15,6 +15,46 @@ namespace Valencia.Tests;
 
 public sealed class EditorInteractionTests
 {
+    [Fact]
+    public void TimelineCursorTracksTrimMoveRazorLockAndRulerWithoutMutatingTheDocument()
+    {
+        var editor = Document();
+        var layout = EditorLayout.For(1280, 720, 32);
+        editor.Viewport.Configure(layout, editor.Sequence.Tracks.Length);
+        var before = editor.Session.Snapshot;
+        var clip = editor.Sequence.Tracks[0].Clips[0];
+        double left = editor.Viewport.X(clip.Start), y = editor.Viewport.TrackTop + 20;
+        Assert.Equal(Machina.Core.Semantics.UiCursor.ResizeHorizontal,
+            editor.Viewport.Cursor(editor.Sequence, left + 1, y, layout.RulerY, false));
+        Assert.Equal(Machina.Core.Semantics.UiCursor.Move,
+            editor.Viewport.Cursor(editor.Sequence, left + 20, y, layout.RulerY, false));
+        Assert.Equal(Machina.Core.Semantics.UiCursor.Crosshair,
+            editor.Viewport.Cursor(editor.Sequence, left + 20, y, layout.RulerY, true));
+        var locked = editor.Sequence with { Tracks = editor.Sequence.Tracks.SetItem(0,
+            editor.Sequence.Tracks[0] with { State = new(Locked: true) }) };
+        Assert.Equal(Machina.Core.Semantics.UiCursor.NotAllowed,
+            editor.Viewport.Cursor(locked, left + 20, y, layout.RulerY, false));
+        Assert.Equal(Machina.Core.Semantics.UiCursor.Hand,
+            editor.Viewport.Cursor(editor.Sequence, left + 20, layout.RulerY + 2, layout.RulerY, false));
+        Assert.Null(editor.Viewport.Cursor(editor.Sequence, 0, 0, layout.RulerY, false));
+        Assert.Same(before, editor.Session.Snapshot);
+    }
+
+    [Theory]
+    [InlineData(390, 844)]
+    [InlineData(768, 1024)]
+    [InlineData(1280, 720)]
+    public void CustomCaptionReservesClientSpaceWithoutOverlappingEditingPanels(int width, int height)
+    {
+        var layout = EditorLayout.For(width, height, 32);
+        Assert.Equal(32, layout.Header.Y);
+        Assert.Equal(height, layout.Height);
+        Assert.True(layout.Panel.Y >= layout.Header.Y + layout.Header.Height);
+        Assert.True(layout.Monitor.Y >= layout.Header.Y + layout.Header.Height);
+        Assert.True(layout.RulerY >= layout.Toolbar.Y + layout.Toolbar.Height);
+        Assert.True(layout.TrackBottom <= height - EditorLayout.StatusHeight);
+    }
+
     [Theory]
     [InlineData(390, 844, EditorLayoutProfile.VerticalPhone)]
     [InlineData(599, 1000, EditorLayoutProfile.VerticalPhone)]
