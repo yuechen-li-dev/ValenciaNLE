@@ -33,7 +33,8 @@ internal sealed class NativeWidgetGallery : IDisposable
     private bool check, switched, toggle;
     private string name = "Native components", radio = "one", selected = "one", tab = "video";
     private string comboQuery = "", comboValue = "";
-    private ImmutableArray<string> alignment = ["left"], expanded = [];
+    // Separate models: the checkbox group is multi-valued, the alignment toggle group is single-valued.
+    private ImmutableArray<string> alignment = ["left"], flags = [], expanded = [];
     private decimal number = 42;
     private string status = "Tab / arrows / Enter / Space. Text supports selection, clipboard and local undo.";
     private int commits;
@@ -134,7 +135,7 @@ internal sealed class NativeWidgetGallery : IDisposable
         Add(w.Slider("slider", number, "Level", step: .5m), 20, 300, 240);
         Add(w.Progress("progress", number, "Progress"), 20, 358, 240, 12);
         Add(w.Meter("meter", number, "Meter"), 20, 390, 240, 12);
-        Add(w.CheckboxGroup("flags", Options, alignment), 20, 430, 260, 124);
+        Add(w.CheckboxGroup("flags", Options, flags), 20, 430, 260, 124);
         Add(w.RadioGroup("radio", Options, radio), 330, 70, 260, 124);
         Add(w.ToggleGroup("align", [new("left", "Left"), new("center", "Center"), new("right", "Right")], alignment), 330, 208, 320);
         Add(w.Tabs("tabs", [new("video", "Video", UI.Text("Native video settings", size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF))),
@@ -185,7 +186,8 @@ internal sealed class NativeWidgetGallery : IDisposable
                     if (change.Target.Value == "radio") radio = first;
                     else if (change.Target.Value == "select") selected = first;
                     else if (change.Target.Value == "tabs") tab = first;
-                    else if (change.Target.Value is "align" or "flags") alignment = item.Keys;
+                    else if (change.Target.Value == "align") alignment = item.Keys;
+                    else if (change.Target.Value == "flags") flags = item.Keys;
                     else if (change.Target.Value == "accordion") expanded = item.Keys;
                     else if (change.Target.Value == "combo") comboValue = first;
                     break;

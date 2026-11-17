@@ -43,3 +43,17 @@ The gallery checks real Vulkan rendering and native WM_CHAR transport plus
 scripted semantic interactions. Physical input and OS accessibility are not
 claimed as qualified. The editor/export smoke independently verifies that
 existing playback/export still works with the updated shared libraries.
+
+## Presenter layering (2026-11-17)
+
+`NativeVideoPresenter` draws all fills, then video/canvas quads, then all text. Text therefore used to show
+through popup panels (a tooltip over a button label displayed both). `NativeUiPresentation` now restores
+painter order for text on the CPU: glyph quads are split against later opaque fills and recolored through later
+translucent fills (exact for a uniform overlay such as a modal backdrop, composited in linear light). Video and
+canvas quads are **not** occluded by widget fills: a dialog over the program monitor must hide the picture the
+way the editor's title cards do (`ProgramMonitor` set to an empty rect), and canvas quads must not sit under popups.
+
+Hosts that adopt widgets in the editor should map `WidgetSession.KeyboardScope` onto the InputMan action-map
+stack (for example a TextEntry map that disables unmodified editor shortcuts, a Modal map that disables all of
+them) and keep routing input through the session first.
+
