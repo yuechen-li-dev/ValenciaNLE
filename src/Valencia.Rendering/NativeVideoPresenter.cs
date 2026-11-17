@@ -122,6 +122,10 @@ public sealed class NativeVideoPresenter : IDisposable
     public string GpuName { get; }
     public bool ValidationAvailable { get; }
     public long PresentedFrames { get; private set; }
+    /// <summary>Frames skipped because no swapchain image was free (composition throttled); nothing waited.</summary>
+    public long SkippedFrames { get; private set; }
+    /// <summary>True when the last <see cref="Draw"/> reached the display; media skew is only meaningful then.</summary>
+    public bool LastDrawPresented { get; private set; }
     public long UploadedVideoFrames { get; private set; }
     public int MsdfGlyphCount => ui.Glyphs.Count;
     /// <summary>Text glyph quads submitted this frame, raster and MSDF together.</summary>
@@ -207,6 +211,23 @@ public sealed class NativeVideoPresenter : IDisposable
             RecreateSurface();
             resize = false;
         }
+        // Never block the window loop on the compositor. When Windows throttles composition (display asleep,
+        // locked session) no swapchain image is free for long stretches; waiting for one used to stall input,
+        // seeks and media pacing to the compositor's ~4 Hz. Skip the frame instead; a capture still renders.
+        var readiness = presenter!.PollImage();
+        if (readiness == NativePresentReadiness.OutOfDate)
+        {
+            resize = true;
+            LastDrawPresented = false;
+            return null;
+        }
+        bool present = readiness == NativePresentReadiness.Ready;
+        if (!present)
+        {
+            SkippedFrames++;
+            LastDrawPresented = false;
+            if (!capture) return null;
+        }
         using VulkanNativeFrameSession frame = target!.BeginFrame(new NativeFrameClearColor(0.04f, 0.05f, 0.07f, 1));
         var shapePass = frame.Present(shapeRenderer!, shapes =>
         {
@@ -240,13 +261,16 @@ public sealed class NativeVideoPresenter : IDisposable
             frame.Present(renderer!, quad => quad.SubmitQuad(new NativeQuadSubmission(
                 new(0, 0, (float)logicalWidth, (float)logicalHeight), Native2DUvRect.Full, uiTexture, Native2DTint.White)));
         VulkanNativeFrameResult result = frame.EndFrame(captureReadback: capture);
-        if (!presenter!.TryPresent(frameId++))
+        LastDrawPresented = false;
+        if (!present) frameId++;
+        else if (!presenter.TryPresent(frameId++))
         {
             resize = true;
         }
         else
         {
             PresentedFrames++;
+            LastDrawPresented = true;
         }
         trace?.Frame(frameId - 1, started, [shapePass, videoPass, textPass], presenter.LastTimings, AtlasUploadCount, UploadedVideoFrames);
         return result.Pixels;

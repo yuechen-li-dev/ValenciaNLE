@@ -68,7 +68,25 @@ Current-source results on the Ryzen 7 7700X / RTX 3070, driver 610.88:
 The existing A/V acceptance remains 150 ms; this task does not loosen it or alter
 offline export timing. Cursor/hover work creates no editing revisions or undo entries.
 
-## Isolated existing presentation blocker
+## Presentation blocker: update (2026-11-17)
+
+The ~250 ms waits were a 4 Hz compositor cadence for the whole run, not isolated stalls: every frame after the
+first three swapchain images waited about 240 ms to acquire. Both the current and the pre-change executables
+failed the same way in the same minutes, and both pass at other times on the same fixture (current: 35 ms median
+scrub latency, 41-46 ms maximum skew, 0.03 ms acquire). The failing runs started about five minutes after a session
+unlock, matching the 300 s display timeout, but forcing the monitor off, cloaking or off-screening the window, and
+eight minutes of real idle did not reproduce the throttle; the trigger remains unproven.
+
+Valencia no longer blocks on it. `VulkanNativeSwapchainPresenter.PollImage` acquires with a zero timeout into a fence
+that persists across polls and reports Ready, NotReady or OutOfDate; `NativeVideoPresenter.Draw` skips the frame on
+NotReady (captures still render) and records `SkippedFrames`. A/V skew is observed only for frames that reached the
+display. The skip path has not been observed in a run yet, because no run since has been throttled.
+`artifacts/local/claude-review/idle-qualify.ps1` waits for real idle time and runs the scrub smoke on both builds.
+
+Every `seek-request` diagnostic now names its caller (`from=Member:line`). That attribution exposed a scrub-smoke
+failure caused by a temporary diagnostic edit that also started the editor smoke; the edit is gone.
+
+## Isolated existing presentation blocker (historical)
 
 The recurring approximately 250 ms stall is now reproduced and phase-isolated.
 In current trace frame 59, Draw took 241.91 ms, including 234.88 ms of swapchain

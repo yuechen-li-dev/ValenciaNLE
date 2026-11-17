@@ -36,7 +36,7 @@ internal sealed class NativeWidgetGallery : IDisposable
     private MachinaPreparedPresentation? frame;
     private bool check, switched, toggle;
     private string name = "Native components", radio = "one", selected = "one", tab = "video";
-    private string comboQuery = "", comboValue = "";
+    private string comboQuery = "", comboValue = "", invoked = "";
     // Separate models: the checkbox group is multi-valued, the alignment toggle group is single-valued.
     private ImmutableArray<string> alignment = ["left"], flags = [], expanded = [];
     private decimal number = 42;
@@ -143,32 +143,38 @@ internal sealed class NativeWidgetGallery : IDisposable
         };
         void Add(UiNode node, double x, double y, double nodeWidth, double nodeHeight = 36) =>
             children.Add(StandardUI.Place(node, x, y, nodeWidth, nodeHeight));
-        Add(w.Checkbox("check", "Checkbox", check), 20, 70, 260);
-        Add(w.Switch("switch", "Switch", switched), 20, 116, 260);
-        Add(w.Toggle("toggle", "Toggle", toggle), 20, 162, 112);
-        Add(w.Input("name", name, "Project name"), 20, 208, 240);
-        Add(w.NumberField("number", number, "Exact decimal", 0, 100, .5m), 20, 254, 160);
-        Add(w.Slider("slider", number, "Level", step: .5m), 20, 300, 240);
+        // Every control is bound: its value and where its proposals go are one declaration (no routing switch).
+        var nameBinding = Bind.Value(() => name, v => name = v);
+        Add(w.Checkbox("check", "Checkbox", Bind.Value(() => check, v => check = v)), 20, 70, 260);
+        Add(w.Switch("switch", "Switch", Bind.Value(() => switched, v => switched = v)), 20, 116, 260);
+        Add(w.Toggle("toggle", "Toggle", Bind.Value(() => toggle, v => toggle = v)), 20, 162, 112);
+        Add(w.Input("name", nameBinding, "Project name"), 20, 208, 240);
+        Add(w.NumberField("number", Bind.Value(() => number, v => { number = v; commits++; }), "Exact decimal", 0, 100, .5m), 20, 254, 160);
+        Add(w.Slider("slider", Bind.Edit(() => number, preview: v => number = v, commit: v => { number = v; commits++; }), "Level", step: .5m), 20, 300, 240);
         Add(w.Progress("progress", number, "Progress"), 20, 358, 240, 12);
         Add(w.Meter("meter", number, "Meter"), 20, 390, 240, 12);
-        Add(w.CheckboxGroup("flags", Options, flags), 20, 430, 260, 124);
-        Add(w.RadioGroup("radio", Options, radio), 330, 70, 260, 124);
-        Add(w.ToggleGroup("align", [new("left", "Left"), new("center", "Center"), new("right", "Right")], alignment), 330, 208, 320);
+        Add(w.CheckboxGroup("flags", Options, Bind.Value(() => flags, v => flags = v)), 20, 430, 260, 124);
+        Add(w.RadioGroup("radio", Options, Bind.Value<string?>(() => radio, v => radio = v ?? radio)), 330, 70, 260, 124);
+        Add(w.ToggleGroup("align", [new("left", "Left"), new("center", "Center"), new("right", "Right")],
+            Bind.Value(() => alignment, v => alignment = v)), 330, 208, 320);
         Add(w.Tabs("tabs", [new("video", "Video", UI.Text("Native video settings", size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF))),
-            new("audio", "Audio", UI.Text("Native audio settings", size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF)))], tab,
+            new("audio", "Audio", UI.Text("Native audio settings", size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF)))],
+            Bind.Value<string?>(() => tab, v => tab = v ?? tab),
             activation: WidgetActivation.Manual, width: 320, contentHeight: 76), 330, 264, 320, 124);
         Add(w.Accordion("accordion", [new("details", "Details", UI.Text("Reusable disclosure content", size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF)))],
-            expanded, width: 320, panelHeight: 64), 330, 410, 320, 120);
-        Add(w.Toolbar("tools", [new("select", "Select"), new("split", "Split"), new("move", "Move")], width: 320), 330, 550, 320);
-        Add(w.Select("select", Options, selected, open.Contains("select")), 720, 70, 240);
-        Add(w.Menu("menu", "Project menu", [new("open", "Open"), new("save", "Save"), new("export", "Export")], open.Contains("menu")), 720, 116, 220);
-        Add(w.Dialog("dialog", "Open dialog", "Project options", w.Input("dialog-name", name, "Project name"), open.Contains("dialog")), 720, 162, 180);
-        Add(w.Dialog("alert", "Open alert", "Confirm action", w.Button("confirm", "Confirm"), open.Contains("alert"), alert: true), 720, 208, 180);
-        Add(w.Popover("popover", "Open popover", UI.Text("Anchored native content", size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF)), open.Contains("popover")), 720, 254, 180);
+            Bind.Value(() => expanded, v => expanded = v), width: 320, panelHeight: 64), 330, 410, 320, 120);
+        Add(w.Toolbar("tools", [new("select", "Select"), new("split", "Split"), new("move", "Move")], key => invoked = "tool " + key, width: 320), 330, 550, 320);
+        Add(w.Select("select", Options, Bind.Value<string?>(() => selected, v => selected = v ?? selected), Open("select")), 720, 70, 240);
+        Add(w.Menu("menu", "Project menu", [new("open", "Open"), new("save", "Save"), new("export", "Export")], Open("menu"),
+            key => invoked = "menu " + key), 720, 116, 220);
+        Add(w.Dialog("dialog", "Open dialog", "Project options", w.Input("dialog-name", nameBinding, "Project name"), Open("dialog")), 720, 162, 180);
+        Add(w.Dialog("alert", "Open alert", "Confirm action", w.Button("confirm", "Confirm", () => invoked = "confirm"), Open("alert"), alert: true), 720, 208, 180);
+        Add(w.Popover("popover", "Open popover", UI.Text("Anchored native content", size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF)), Open("popover")), 720, 254, 180);
         Add(w.Tooltip("tooltip", "Focus / hover me", "Native tooltip content"), 720, 300, 180);
-        Add(w.Collapsible("details", "Collapsible", open.Contains("details"), UI.Text("Shared native widget behavior", size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF)),
+        Add(w.Collapsible("details", "Collapsible", Open("details"), UI.Text("Shared native widget behavior", size: TextSize.Sm, color: ColorToken.Hex(0x18181BFF)),
             width: 260, contentHeight: 60), 720, 358, 260, 110);
-        Add(w.Combobox("combo", Options, comboValue, comboQuery, open.Contains("combo"), "Search options"), 720, 490, 240);
+        Add(w.Combobox("combo", Options, Bind.Value<string?>(() => comboValue, v => comboValue = v ?? ""),
+            Bind.Value(() => comboQuery, v => comboQuery = v), Open("combo"), "Search options"), 720, 490, 240);
         Add(w.ScrollArea("scroll", UI.Column(Enumerable.Range(0, 12).Select(index =>
             w.Button("scroll-row-" + index, "Shared row " + index, width: 240 - WidgetBuilder.ScrollbarGutter)).ToArray(), gap: 8),
             528, height: 90), 720, 540, 240, 90);
@@ -183,35 +189,17 @@ internal sealed class NativeWidgetGallery : IDisposable
 
     private void ApplyChanges(IEnumerable<WidgetChange> changes)
     {
-        foreach (var change in changes)
-        {
-            switch (change)
-            {
-                case WidgetCheckedChanged item:
-                    if (change.Target.Value == "check") check = item.Checked;
-                    else if (change.Target.Value == "switch") switched = item.Checked;
-                    else if (change.Target.Value == "toggle") toggle = item.Checked;
-                    break;
-                case WidgetTextChanged item:
-                    if (item.Target.Value == "combo") comboQuery = item.Text;
-                    else name = item.Text;
-                    break;
-                case WidgetNumberChanged item: number = item.Value; if (item.Phase == WidgetEditPhase.Commit) commits++; break;
-                case WidgetSelectionChanged item:
-                    string first = item.Keys.FirstOrDefault() ?? "";
-                    if (change.Target.Value == "radio") radio = first;
-                    else if (change.Target.Value == "select") selected = first;
-                    else if (change.Target.Value == "tabs") tab = first;
-                    else if (change.Target.Value == "align") alignment = item.Keys;
-                    else if (change.Target.Value == "flags") flags = item.Keys;
-                    else if (change.Target.Value == "accordion") expanded = item.Keys;
-                    else if (change.Target.Value == "combo") comboValue = first;
-                    break;
-                case WidgetOpenChanged item: if (item.Open) open.Add(change.Target); else open.Remove(change.Target); break;
-            }
+        var all = changes.ToArray();
+        foreach (var change in all)
             status = change is WidgetOperationFailed failure ? failure.Message : change.GetType().Name + " / " + change.Target.Value;
-        }
+        var unbound = session.Apply(all);
+        // Every control is bound, so only tooltip dismissals (no model) and operation failures may remain.
+        if (directory is not null)
+            Require(unbound.All(change => change is WidgetOperationFailed or WidgetOpenChanged { Action: null }),
+                "Unbound widget proposal: " + string.Join(", ", unbound.Select(change => change.Target.Value)));
     }
+
+    private Bound<bool> Open(NodeId id) => Bind.Value(() => open.Contains(id), value => { if (value) open.Add(id); else open.Remove(id); });
 
     private void SmokeStep(int stage)
     {
@@ -242,7 +230,7 @@ internal sealed class NativeWidgetGallery : IDisposable
             case 13: Click("popover.trigger"); break;
             case 14: Key(UiKey.Escape); checks.Add("popover escape"); break;
             case 15: Click("menu.trigger"); break;
-            case 16: Key(UiKey.End); Key(UiKey.Enter); Require(!open.Contains("menu"), "Menu did not close."); checks.Add("menu selection"); break;
+            case 16: Key(UiKey.End); Key(UiKey.Enter); Require(!open.Contains("menu") && invoked == "menu export", "Menu did not invoke and close through its binding."); checks.Add("menu selection"); break;
             case 17: Click("accordion.details.trigger"); Require(expanded.Contains("details"), "Accordion did not expand."); checks.Add("accordion"); break;
             case 18: session.Focus("tooltip.trigger"); break;
             case 19: SavePixels(Path.Combine(directory!, "tooltip.png")); graphics.Window.Size = new(768, 480); break;

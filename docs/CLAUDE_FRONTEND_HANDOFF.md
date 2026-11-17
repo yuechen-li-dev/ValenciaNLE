@@ -58,6 +58,10 @@ qualified synchronization correction, not closure of the historical GPU incident
 
 ### Rules the frontend must preserve
 
+* Never block the window loop on swapchain acquisition. Call `PollImage` (via `NativeVideoPresenter.Draw`) and skip
+  frames while the compositor has no free image; input, seeks and media clocks must keep running. Observe A/V skew
+  only when `LastDrawPresented` is true.
+
 * `NativeVideoPresenter`, Machina realization and every Vulkan resource remain on
   the window thread. Media/analysis/export workers prepare CPU data and never call
   graphics methods. Avoid synchronous file/model/index work in UI callbacks.

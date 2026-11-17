@@ -177,7 +177,9 @@ internal sealed partial class EditorWindow : IDisposable
             else if (feedbackDirty) RefreshFeedback();
             cursor.Set(PointerCursor());
             Graphics.Draw();
-            if (!desired && opening is null && Playback is { IsPlaying: true, Current: { } presentedFrame } presentedPlayback)
+            // A/V skew is a property of what reached the display: frames skipped because composition is throttled
+            // are not observations. The loop itself keeps running at full rate either way.
+            if (Graphics.LastDrawPresented && !desired && opening is null && Playback is { IsPlaying: true, Current: { } presentedFrame } presentedPlayback)
             {
                 double observedClock = presentedPlayback.Position.TotalSeconds;
                 Graphics.ObservePresentationClock(presentedFrame.Time.TotalSeconds, observedClock);
@@ -185,7 +187,8 @@ internal sealed partial class EditorWindow : IDisposable
             }
             if (FrameMilliseconds.Count < 10000) FrameMilliseconds.Add(frameClock.Elapsed.TotalMilliseconds);
             if (smoke?.Finished == true || analysisSmoke?.Finished == true || transcriptSmoke?.Finished == true || creatorSmoke?.Finished == true || qualificationSmoke?.Finished == true || layoutSmoke?.Finished == true || scrubSmoke?.Finished == true) return;
-            Thread.Sleep(1);
+            // While composition is throttled there is nothing to present; poll gently instead of spinning.
+            Thread.Sleep(Graphics.LastDrawPresented ? 1 : 4);
         }
         if (smoke is not null || analysisSmoke is not null || transcriptSmoke is not null || creatorSmoke is not null || qualificationSmoke is not null || layoutSmoke is not null || scrubSmoke is not null) throw new InvalidOperationException("Editor smoke closed before completing its assertions.");
     }
@@ -259,11 +262,13 @@ internal sealed partial class EditorWindow : IDisposable
         Prepare();
         return Graphics.Draw(true) ?? throw new InvalidOperationException("No GPU readback.");
     }
-    public void Seek(SequenceTime position, bool play = false)
+    public void Seek(SequenceTime position, bool play = false,
+        [System.Runtime.CompilerServices.CallerMemberName] string caller = "", [System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
     {
         Editor.Playhead = new(Math.Clamp(position.Ticks, 0, Editor.MonitorDuration.Ticks));
         resume = play; generation++; SeekRequests++; desired = true;
-        diagnostics.Record("seek-request", generation, Editor.Playhead.Ticks, $"play={play};scrubbing={scrubbing}");
+        // The caller makes every seek attributable in diagnostics (a seek's origin is otherwise invisible).
+        diagnostics.Record("seek-request", generation, Editor.Playhead.Ticks, $"play={play};scrubbing={scrubbing};from={caller}:{line}");
         seekLatency.Restart();
         Playback?.Pause(); seekCancellation?.Cancel();
         // Keep the last confirmed picture during a drag instead of destroying/reallocating its texture per mouse event.
