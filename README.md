@@ -1,5 +1,8 @@
 # Valencia
 
+[Shared native widget gallery](docs/NATIVE_WIDGETS.md) exercises the new reusable
+Machina.Standard controls (`--widget-gallery`), with Base UI behavior as a reference.
+
 Latest UI fixes: [MSDF edges/baselines and recoverable UI errors](docs/MSDF_RESULT_FIX.md), following [GPU text alignment](docs/UI_TEXT_RENDERING_FIX.md) and [scrub stabilization](docs/UI_SCRUB_STABILIZATION.md).
 Paused scrubbing uses reusable video-only decoding; input/seek diagnostics are saved under `%LOCALAPPDATA%\Valencia\Logs`.
 

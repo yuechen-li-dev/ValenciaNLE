@@ -11,7 +11,7 @@ internal static class Program
         if (args.Contains("--render-probe")) return RenderProbe.Run(args);
         if (args.Contains("--help"))
         {
-            Console.WriteLine("Valencia [media.mp4|project.valencia] (timeline editor)\nValencia --player video.mp4 (direct M0 player)\nValencia --smoke video.mp4 --output artifacts/local/smoke\nValencia --editor-smoke video.mp4 --output artifacts/local/m1b-smoke\nEditor: Ctrl+I import, Ctrl+O open project, Ctrl+S save, Ctrl+E export, Ctrl+K split, Ctrl+Z undo, Ctrl+Shift+Z redo.");
+            Console.WriteLine("Valencia [media.mp4|project.valencia] (timeline editor)\nValencia --player video.mp4 (direct M0 player)\nValencia --smoke video.mp4 --output artifacts/local/smoke\nValencia --editor-smoke video.mp4 --output artifacts/local/m1b-smoke\nValencia --widget-gallery (shared native Machina controls)\nValencia --widgets-smoke --output artifacts/local/widgets-smoke\nEditor: Ctrl+I import, Ctrl+O open project, Ctrl+S save, Ctrl+E export, Ctrl+K split, Ctrl+Z undo, Ctrl+Shift+Z redo.");
             return 0;
         }
         if (args.Contains("--prepare-shaders"))
@@ -28,11 +28,14 @@ internal static class Program
                 return 1;
             }
         }
+        bool widgetSmoke = args.Contains("--widgets-smoke");
         bool typographySmoke = args.Contains("--typography-smoke");
         bool scrubSmoke = args.Contains("--scrub-smoke");
-        bool smoke = typographySmoke || scrubSmoke || args.Contains("--smoke") || args.Contains("--editor-smoke") || args.Contains("--analysis-smoke") || args.Contains("--transcript-smoke") || args.Contains("--creator-smoke") || args.Contains("--qualification-smoke") || args.Contains("--layout-smoke");
+        bool smoke = widgetSmoke || typographySmoke || scrubSmoke || args.Contains("--smoke") || args.Contains("--editor-smoke") || args.Contains("--analysis-smoke") || args.Contains("--transcript-smoke") || args.Contains("--creator-smoke") || args.Contains("--qualification-smoke") || args.Contains("--layout-smoke");
         try
         {
+            if (widgetSmoke || args.Contains("--widget-gallery"))
+                return NativeWidgetGallery.Run(widgetSmoke ? Path.GetFullPath(ValueAfter(args, "--output") ?? "artifacts/local/widgets-smoke") : null);
             if (typographySmoke)
                 return TypographySmoke.Run(Path.GetFullPath(ValueAfter(args, "--output") ?? "artifacts/local/typography-smoke"));
             bool analysisSmoke = args.Contains("--analysis-smoke");
