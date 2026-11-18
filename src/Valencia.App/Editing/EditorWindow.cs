@@ -22,7 +22,7 @@ internal sealed partial class EditorWindow : IDisposable
     public EditorDocument Editor { get; } = new();
     public NativeVideoPresenter Graphics { get; } = new() { EditorLayout = true };
     private readonly IInputContext input;
-    private readonly EditorKeymap keys = new();
+    private readonly EditorKeymap keys = EditorKeymap.ForUser();
     private readonly EditorView view = new();
     private readonly UiPointerActivation pointer = new();
     private readonly UiPointerFeedback feedback = new();
@@ -115,6 +115,7 @@ internal sealed partial class EditorWindow : IDisposable
     }
     public void Run()
     {
+        if (keys.LoadWarning is { } shortcutWarning) Editor.Status = shortcutWarning;
         while (!Graphics.Window.IsClosing)
         {
             var frameClock = Stopwatch.StartNew(); Graphics.Window.DoEvents(); context.Pump(ReportFailure);

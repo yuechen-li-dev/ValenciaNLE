@@ -116,7 +116,8 @@ Codex owns semantic/timing/media/persistence/OBS correctness and backend qualifi
 | `EditorDocument.cs` | Current EditingSession/saved-state comparison; transient selection, playhead, viewport, profile and analysis state |
 | `EditorView.cs`, `EditorLayout.cs` | Machina declaration, shared local panels, three explicit native roots |
 | `TimelineViewport.cs`, `TimelineGesture.cs` | Local-time pixels, visible culling, validated drag/trim ghost, one release commit |
-| `EditorKeymap.cs` | InputMan maps, modifiers, focus reset, explicit unsupported reverse behavior |
+| `EditorKeymap.cs` | Silk adapter for the editor's single InputMan profile: left/right modifier folding, one tick per key transition, focus reset |
+| `EditorShortcuts.cs` | Command-to-shortcut table (Premiere Pro Windows defaults), per-command user overrides from `%APPDATA%\Valencia\keybindings.json`, conflict checks |
 | `Valencia.Rendering/NativeVideoPresenter.cs` | Window-thread Vulkan, MSDF/analytic shapes, monitor upload, canvas/readback |
 | `NativeUiText.cs`, `NativeUiPresentation.cs` | Shared font metrics, wrapping/ellipsis and native realization/fallback |
 | `Valencia.Core/Timeline`, `/Editing` | Immutable model, exact mapping/queries/captions, validation/commands/transactions/history |
@@ -273,3 +274,12 @@ The [GPU text rendering correction](UI_TEXT_RENDERING_FIX.md) supersedes the ear
 4. Existing creator/caption/profile/audio settings through native inspectors.
 5. OBS preflight/take/marker review and export profiles in one recording-to-export flow.
 6. Accessibility/device/DPI qualification, then polish. Preserve the text metric fix.
+
+
+## Keyboard shortcuts
+
+- Every editor shortcut lives in `EditorShortcuts.PremiereDefaults`. Add a command there, never as a special case in the keymap.
+- Matching is InputMan's `ExclusiveModifiers`: a shortcut is a key plus an exact Ctrl/Shift/Alt set, so `K`, `Ctrl+K` and `Alt+K` are three different shortcuts. The Windows key blocks all editor shortcuts.
+- Premiere's defaults are the adoption default, not a constraint. Users override per command with an InputMan profile at `%APPDATA%\Valencia\keybindings.json` (the format InputMan's `RebindingManager` saves). A command named in the file takes exactly the file's shortcuts; commands the file does not mention keep their defaults. A file with unknown commands, non-keyboard controls or conflicts is ignored whole and the reason is shown in the status bar.
+- A settings screen should run an InputMan rebind session on `EditorKeymap.Engine` with `AllowChord`, `ModifierControls = EditorShortcuts.Modifiers`, conflict policy `Reject` (or `ReplaceExisting` for swaps), then save with `EditorShortcuts.Save`.
+- Known Premiere gaps that need features rather than keys: J reverse shuttle, M sequence markers (Ctrl+Shift+M is Valencia's OBS highlight marker), Ctrl+D/Ctrl+Shift+D transitions, Ctrl+R speed, T titles, B/N/R/Y/U trim tools, A track select.

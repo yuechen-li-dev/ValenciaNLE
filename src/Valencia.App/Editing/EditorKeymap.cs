@@ -1,73 +1,91 @@
 using InputMan.Core;
 using Silk.NET.Input;
-using Input = InputMan.Core.Input;
 
 namespace Valencia.App.Editing;
 
 internal enum EditorAction { TogglePlay, Pause, Play, ReverseUnsupported, Split, Delete, RippleDelete, Undo, Redo, Save, SaveAs, Open, Import, New, Export, SelectTool, RazorTool, Cancel, PreviousFrame, NextFrame, ObsMarker,
-    MarkIn, MarkOut, ClearMarks, PreviousEdit, NextEdit, GoToStart, GoToEnd, RippleTrimPrevious, RippleTrimNext, InsertEdit, OverwriteEdit, Lift, Extract }
+    MarkIn, MarkOut, ClearMarks, PreviousEdit, NextEdit, GoToStart, GoToEnd, RippleTrimPrevious, RippleTrimNext, InsertEdit, OverwriteEdit, Lift, Extract,
+    ToggleSnap, ZoomIn, ZoomOut, ZoomFit }
+
+/// <summary>
+/// Silk keyboard adapter for the editor's InputMan profile. All shortcuts come from one data-driven profile
+/// (<see cref="EditorShortcuts"/>); exact modifier matching is InputMan's, not hand-switched maps.
+/// </summary>
 internal sealed class EditorKeymap
 {
     private readonly InputManEngine engine;
     private readonly Queue<(Key Key, bool Down)> transitions = [];
-    private readonly Dictionary<Key, bool> physical = [];
+    private readonly HashSet<Key> held = [];
     private double time;
-    private static readonly Dictionary<Key, KeyboardKey> Keys = new()
+    private static readonly Dictionary<Key, KeyboardKey> Keys = BuildKeys();
+
+    public EditorKeymap() : this(EditorShortcuts.Default()) { }
+    public EditorKeymap(InputProfile profile, string? loadWarning = null)
     {
-        [Key.Space] = KeyboardKey.Space, [Key.J] = KeyboardKey.J, [Key.K] = KeyboardKey.K, [Key.L] = KeyboardKey.L,
-        [Key.C] = KeyboardKey.C, [Key.V] = KeyboardKey.V, [Key.Z] = KeyboardKey.Z, [Key.S] = KeyboardKey.S,
-        [Key.O] = KeyboardKey.O, [Key.N] = KeyboardKey.N, [Key.E] = KeyboardKey.E, [Key.I] = KeyboardKey.I, [Key.M] = KeyboardKey.M,
-        [Key.Delete] = (KeyboardKey)76, [Key.Escape] = KeyboardKey.Escape, [Key.Left] = KeyboardKey.ArrowLeft, [Key.Right] = KeyboardKey.ArrowRight
-    };
-    public bool Control => Down(Key.ControlLeft) || Down(Key.ControlRight);
-    public bool Shift => Down(Key.ShiftLeft) || Down(Key.ShiftRight);
-    public EditorKeymap()
-    {
-        var normal = Map("Normal", (Key.Space, EditorAction.TogglePlay), (Key.J, EditorAction.ReverseUnsupported), (Key.K, EditorAction.Pause),
-            (Key.L, EditorAction.Play), (Key.C, EditorAction.RazorTool), (Key.V, EditorAction.SelectTool), (Key.Delete, EditorAction.Delete),
-            (Key.Escape, EditorAction.Cancel), (Key.Left, EditorAction.PreviousFrame), (Key.Right, EditorAction.NextFrame));
-        var control = Map("Control", (Key.K, EditorAction.Split), (Key.Z, EditorAction.Undo), (Key.S, EditorAction.Save), (Key.O, EditorAction.Open),
-            (Key.N, EditorAction.New), (Key.E, EditorAction.Export), (Key.I, EditorAction.Import));
-        var both = Map("Both", (Key.Z, EditorAction.Redo), (Key.S, EditorAction.SaveAs), (Key.M, EditorAction.ObsMarker));
-        var shift = Map("Shift", (Key.Delete, EditorAction.RippleDelete));
-        engine = new(Input.Profile([normal, control, both, shift])); engine.SetMaps(new ActionMapId("Normal"));
+        Profile = profile; LoadWarning = loadWarning;
+        engine = new(profile); engine.SetMaps(EditorShortcuts.Map);
     }
-    private static ActionMapDefinition Map(string name, params (Key Key, EditorAction Action)[] items) => Input.Map(new ActionMapId(name), 0,
-        [.. items.Select(i => Bind.Action(Controls.Key(Keys[i.Key]), new ActionId(i.Action.ToString())))]);
+    public static EditorKeymap ForUser(string? path = null)
+    {
+        var (profile, warning) = EditorShortcuts.Load(path ?? EditorShortcuts.DefaultUserPath);
+        return new(profile, warning);
+    }
+
+    public InputProfile Profile { get; }
+    /// <summary>Set when the user's shortcuts file was rejected and defaults are in use.</summary>
+    public string? LoadWarning { get; }
+    /// <summary>The live engine, for an InputMan rebinding session in a settings screen.</summary>
+    public IInputMan Engine => engine;
+    public bool Control => held.Contains(Key.ControlLeft) || held.Contains(Key.ControlRight);
+    public bool Shift => held.Contains(Key.ShiftLeft) || held.Contains(Key.ShiftRight);
+
     public void Record(Key key, bool down) => transitions.Enqueue((key, down));
-    private bool Down(Key key) => physical.GetValueOrDefault(key);
+
     public IReadOnlyList<EditorAction> Read(double elapsed)
     {
         time += elapsed; var result = new List<EditorAction>();
         while (transitions.TryDequeue(out var transition))
         {
-            bool wasDown = Down(transition.Key);
-            physical[transition.Key] = transition.Down;
-            // Premiere editing keys outside InputMan's key enum are matched directly on the key-down edge.
-            if (transition.Down && !wasDown && Direct(transition.Key) is { } direct) result.Add(direct);
-            engine.SetMaps(new ActionMapId(Control ? Shift ? "Both" : "Control" : Shift ? "Shift" : "Normal"));
-            var state = Keys.ToDictionary(k => Controls.Key(k.Value), k => Down(k.Key));
-            engine.Tick(new InputSnapshot(state), 0, (float)time);
-            foreach (var action in Enum.GetValues<EditorAction>()) if (engine.CurrentFrame.WasPressed(new(action.ToString()))) result.Add(action);
+            // One InputMan tick per key transition, so fast chords inside one frame keep their order.
+            if (transition.Down) held.Add(transition.Key); else held.Remove(transition.Key);
+            engine.Tick(Snapshot(), 0, (float)time);
+            foreach (var action in Enum.GetValues<EditorAction>())
+                if (engine.CurrentFrame.WasPressed(new(action.ToString()))) result.Add(action);
         }
         return result;
     }
-    private EditorAction? Direct(Key key) => (key, Control, Shift) switch
+
+    /// <summary>Left and right modifiers fold onto InputMan's left control, so either Ctrl satisfies Ctrl+K.</summary>
+    private InputSnapshot Snapshot()
     {
-        (Key.I, false, false) => EditorAction.MarkIn,
-        (Key.O, false, false) => EditorAction.MarkOut,
-        (Key.X, true, true) => EditorAction.ClearMarks,
-        (Key.Q, false, false) => EditorAction.RippleTrimPrevious,
-        (Key.W, false, false) => EditorAction.RippleTrimNext,
-        (Key.Up, false, false) => EditorAction.PreviousEdit,
-        (Key.Down, false, false) => EditorAction.NextEdit,
-        (Key.Home, false, false) => EditorAction.GoToStart,
-        (Key.End, false, false) => EditorAction.GoToEnd,
-        (Key.Comma, false, false) => EditorAction.InsertEdit,
-        (Key.Period, false, false) => EditorAction.OverwriteEdit,
-        (Key.Semicolon, false, false) => EditorAction.Lift,
-        (Key.Apostrophe, false, false) => EditorAction.Extract,
-        _ => null
-    };
-    public void Reset() { transitions.Clear(); physical.Clear(); engine.ResetOnFocusLoss(); }
+        var state = new Dictionary<ControlKey, bool>();
+        foreach (var key in held)
+            if (Keys.TryGetValue(key, out var mapped)) state[Controls.Key(mapped)] = true;
+        return new InputSnapshot(state);
+    }
+
+    public void Reset()
+    {
+        transitions.Clear(); held.Clear();
+        engine.ResetOnFocusLoss();
+        engine.Tick(InputSnapshot.Empty, 0, (float)time);
+    }
+
+    private static Dictionary<Key, KeyboardKey> BuildKeys()
+    {
+        var keys = new Dictionary<Key, KeyboardKey>();
+        // Letters, digits and F-keys share names between Silk and InputMan.
+        foreach (var key in Enum.GetValues<Key>())
+            if (Enum.TryParse<KeyboardKey>(key.ToString(), out var same) && same != KeyboardKey.Unknown) keys[key] = same;
+        foreach (var (silk, portable) in new (Key, KeyboardKey)[]
+        {
+            (Key.Up, KeyboardKey.ArrowUp), (Key.Down, KeyboardKey.ArrowDown), (Key.Left, KeyboardKey.ArrowLeft), (Key.Right, KeyboardKey.ArrowRight),
+            (Key.BackSlash, KeyboardKey.Backslash), (Key.GraveAccent, KeyboardKey.Grave), (Key.KeypadEnter, KeyboardKey.Enter),
+            (Key.ControlLeft, KeyboardKey.LeftControl), (Key.ControlRight, KeyboardKey.LeftControl),
+            (Key.ShiftLeft, KeyboardKey.LeftShift), (Key.ShiftRight, KeyboardKey.LeftShift),
+            (Key.AltLeft, KeyboardKey.LeftAlt), (Key.AltRight, KeyboardKey.LeftAlt),
+            (Key.SuperLeft, KeyboardKey.LeftMeta), (Key.SuperRight, KeyboardKey.LeftMeta),
+        }) keys[silk] = portable;
+        return keys;
+    }
 }
