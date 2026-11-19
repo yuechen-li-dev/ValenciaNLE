@@ -105,9 +105,72 @@ internal static class EditorShortcuts
         (EditorAction.SaveAs, new(KeyboardKey.S, Ctrl | Shift)),
         (EditorAction.Import, new(KeyboardKey.I, Ctrl)),
         (EditorAction.Export, new(KeyboardKey.M, Ctrl)),
+        (EditorAction.KeyboardShortcuts, new(KeyboardKey.K, Ctrl | Alt)),
         // Valencia-only (no Premiere equivalent)
         (EditorAction.ObsMarker, new(KeyboardKey.M, Ctrl | Shift)),
     ];
+
+    public static readonly ImmutableArray<string> Groups = ["Transport", "Marking", "Editing", "View", "Project", "Recording"];
+
+    /// <summary>Settings-screen group and label. Labels follow Premiere's command names where one exists.</summary>
+    public static (string Group, string Label) Describe(EditorAction action) => action switch
+    {
+        EditorAction.TogglePlay => ("Transport", "Play / stop"),
+        EditorAction.ReverseUnsupported => ("Transport", "Shuttle left (not yet supported)"),
+        EditorAction.Pause => ("Transport", "Shuttle stop"),
+        EditorAction.Play => ("Transport", "Shuttle right"),
+        EditorAction.PreviousFrame => ("Transport", "Step back one frame"),
+        EditorAction.NextFrame => ("Transport", "Step forward one frame"),
+        EditorAction.PreviousEdit => ("Transport", "Go to previous edit point"),
+        EditorAction.NextEdit => ("Transport", "Go to next edit point"),
+        EditorAction.GoToStart => ("Transport", "Go to sequence start"),
+        EditorAction.GoToEnd => ("Transport", "Go to sequence end"),
+        EditorAction.MarkIn => ("Marking", "Mark In"),
+        EditorAction.MarkOut => ("Marking", "Mark Out"),
+        EditorAction.ClearMarks => ("Marking", "Clear In and Out"),
+        EditorAction.InsertEdit => ("Marking", "Insert"),
+        EditorAction.OverwriteEdit => ("Marking", "Overwrite"),
+        EditorAction.Lift => ("Marking", "Lift"),
+        EditorAction.Extract => ("Marking", "Extract"),
+        EditorAction.SelectTool => ("Editing", "Selection tool"),
+        EditorAction.RazorTool => ("Editing", "Razor tool"),
+        EditorAction.Split => ("Editing", "Add edit"),
+        EditorAction.Delete => ("Editing", "Clear"),
+        EditorAction.RippleDelete => ("Editing", "Ripple delete"),
+        EditorAction.RippleTrimPrevious => ("Editing", "Ripple trim previous edit to playhead"),
+        EditorAction.RippleTrimNext => ("Editing", "Ripple trim next edit to playhead"),
+        EditorAction.Undo => ("Editing", "Undo"),
+        EditorAction.Redo => ("Editing", "Redo"),
+        EditorAction.Cancel => ("Editing", "Cancel gesture or job"),
+        EditorAction.ToggleSnap => ("View", "Snap in timeline"),
+        EditorAction.ZoomIn => ("View", "Zoom in"),
+        EditorAction.ZoomOut => ("View", "Zoom out"),
+        EditorAction.ZoomFit => ("View", "Zoom to sequence"),
+        EditorAction.New => ("Project", "New project"),
+        EditorAction.Open => ("Project", "Open project"),
+        EditorAction.Save => ("Project", "Save"),
+        EditorAction.SaveAs => ("Project", "Save as"),
+        EditorAction.Import => ("Project", "Import"),
+        EditorAction.Export => ("Project", "Export media"),
+        EditorAction.KeyboardShortcuts => ("Project", "Keyboard shortcuts"),
+        EditorAction.ObsMarker => ("Recording", "Mark OBS highlight"),
+        _ => ("Other", action.ToString()),
+    };
+
+    /// <summary>The shortcuts currently bound to each slot of a profile, by binding name.</summary>
+    public static IReadOnlyList<(string Slot, EditorAction Action, Shortcut Shortcut)> Slots(InputProfile profile)
+    {
+        var slots = new List<(string, EditorAction, Shortcut)>();
+        foreach (var binding in profile.Maps.GetValueOrDefault(MapName)?.Bindings ?? [])
+            if (binding.Output is ActionOutput output && Enum.TryParse<EditorAction>(output.Action.Name, out var action)
+                && Shortcut.TryFrom(binding.Trigger, out var shortcut)) slots.Add((binding.Name, action, shortcut));
+        return slots;
+    }
+
+    public static bool IsDefault(EditorAction action, Shortcut shortcut) => PremiereDefaults.Contains((action, shortcut));
+
+    public static Shortcut FromCapture(ControlKey control, IEnumerable<ControlKey>? modifiers) =>
+        Shortcut.TryFrom(new BindingTrigger { Control = control, Modifiers = [.. modifiers ?? []] }, out var shortcut) ? shortcut : default;
 
     public static string DefaultUserPath =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Valencia", "keybindings.json");

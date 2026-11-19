@@ -27,6 +27,8 @@ internal sealed partial class EditorWindow : IDisposable
     private readonly UiPointerActivation pointer = new();
     private readonly UiPointerFeedback feedback = new();
     private readonly AurelianCursor cursor;
+    private readonly AurelianWidgetInput widgetInput;
+    internal SettingsPage Settings { get; }
     private readonly AurelianWindowChrome chrome;
     private long chromeRevision;
     private bool feedbackDirty;
@@ -71,6 +73,8 @@ internal sealed partial class EditorWindow : IDisposable
         AppDomain.CurrentDomain.UnhandledException += UnhandledException;
         Gesture = new(Editor); input = Graphics.Window.CreateInput(); Graphics.Window.Title = "Valencia — timeline editor";
         cursor = new(input);
+        widgetInput = new(Graphics.Window, input, cursor);
+        Settings = new(keys, () => Graphics.GpuName, widgetInput);
         chrome = new(Graphics.Window);
         view.Chrome = chrome;
         diagnostics.Record("window-created", generation, 0, $"gpu={Graphics.GpuName};hwnd={WindowHandle};size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}");
@@ -78,11 +82,12 @@ internal sealed partial class EditorWindow : IDisposable
         foreach (var mouse in input.Mice)
         {
             // Exceptions escaping GLFW callbacks terminate Windows with 0xc000041d before Main can report them.
-            mouse.MouseDown += (m, b) => HandlePointer(() => MouseDown(m, b));
-            mouse.MouseUp += (m, b) => HandlePointer(() => MouseUp(m, b));
-            mouse.MouseMove += (m, p) => HandlePointer(() => MouseMove(m, p));
+            mouse.MouseDown += (m, b) => HandlePointer(() => { if (!Settings.IsOpen) MouseDown(m, b); });
+            mouse.MouseUp += (m, b) => HandlePointer(() => { if (!Settings.IsOpen) MouseUp(m, b); });
+            mouse.MouseMove += (m, p) => HandlePointer(() => { if (!Settings.IsOpen) MouseMove(m, p); });
             mouse.Scroll += (m, wheel) => HandlePointer(() =>
             {
+                if (Settings.IsOpen) return;
                 var point = Point(m); var media = view.Layout.Media;
                 if (point.X >= media.X && point.X < media.X + media.Width && point.Y >= media.Y && point.Y < media.Y + media.Height)
                     Editor.FirstAsset = Math.Clamp(Editor.FirstAsset - (int)wheel.Y, 0, Math.Max(0, Editor.Session.Snapshot.Document.Assets.Length - Editor.MediaPageSize));
@@ -122,7 +127,12 @@ internal sealed partial class EditorWindow : IDisposable
             chrome.Update();
             if (chromeRevision != chrome.VisualRevision) { chromeRevision = chrome.VisualRevision; lastUi = -1; }
             double now = clock.Elapsed.TotalSeconds;
-            if (focused) foreach (var action in keys.Read(now - lastTick)) Action(action.ToString()); lastTick = now;
+            // Widget input is polled every iteration so the shared transport never accumulates stale events.
+            foreach (var item in widgetInput.Poll().Events)
+                if (Settings.IsOpen) widgetInput.SetPointerCapture(Settings.Handle(item, clock.Elapsed));
+            // The keymap keeps running under Settings: it feeds InputMan's rebind capture. Commands are dropped there.
+            if (focused) foreach (var action in keys.Read(now - lastTick)) if (!Settings.IsOpen) Action(action.ToString()); lastTick = now;
+            if (Settings.TakeDirty()) lastUi = -1;
             if ((Gesture.Active || scrubbing) && GetCapture() != WindowHandle) CancelGesture();
             if (job?.IsCompleted == true)
             {
@@ -160,7 +170,7 @@ internal sealed partial class EditorWindow : IDisposable
             qualificationSmoke?.Tick(this);
             layoutSmoke?.Tick(this);
             scrubSmoke?.Tick(this);
-            if (input.Mice.Count > 0)
+            if (input.Mice.Count > 0 && !Settings.IsOpen)
             {
                 var point = input.Mice[0].Position;
                 if (observedNativePointer != point)
@@ -176,7 +186,7 @@ internal sealed partial class EditorWindow : IDisposable
             }
             if (now - lastUi >= .1) Prepare();
             else if (feedbackDirty) RefreshFeedback();
-            cursor.Set(PointerCursor());
+            cursor.Set(Settings.IsOpen ? Settings.Cursor : PointerCursor());
             Graphics.Draw();
             // A/V skew is a property of what reached the display: frames skipped because composition is throttled
             // are not observations. The loop itself keeps running at full rate either way.
@@ -203,6 +213,7 @@ internal sealed partial class EditorWindow : IDisposable
         Editor.Recording = Obs?.Recording.Snapshot.State == "recording";
         if (Editor.Card is { } card && (clock.Elapsed.TotalSeconds > Editor.CardUntil
             || card.Kind == TitleCardKind.Proposal && Editor.ProposedCut is null && Editor.ProposedTextCut is null)) Editor.Card = null;
+        if (Settings.IsOpen) { PrepareSettings(); return; }
         var result = view.TryPrepare(Editor, Gesture, Playback?.IsPlaying == true || resume && (opening is not null || desired), razor,
             Graphics.Window.Size.X, Graphics.Window.Size.Y, job is not null);
         if (result is not Ok<Machina.Pipeline.MachinaPreparedPresentation> ready)
@@ -221,6 +232,20 @@ internal sealed partial class EditorWindow : IDisposable
         lastReportedFailure = null;
         Graphics.RecordCpuPhase("nativeUiPreparationMs", Stopwatch.GetElapsedTime(realizedAt).TotalMilliseconds);
         Graphics.Window.Title = $"Valencia — {(Editor.Dirty ? "* " : "")}{Path.GetFileName(Editor.ProjectPath ?? "Untitled.valencia")}";
+    }
+    private void PrepareSettings()
+    {
+        var frame = Settings.Prepare(Graphics.Window.Size.X, Graphics.Window.Size.Y, chrome);
+        Graphics.ProgramMonitor = new(0, 0, 0, 0);
+        Graphics.Canvas = [];
+        Graphics.UpdateUi(frame.PresentationFrame);
+        lastUi = clock.Elapsed.TotalSeconds;
+        Graphics.Window.Title = "Valencia - Settings";
+    }
+    internal void OpenSettings(SettingsSection section = SettingsSection.Shortcuts)
+    {
+        PauseTransport(); CancelGesture(); keys.Reset();
+        Settings.Open(section); lastUi = -1;
     }
     internal int CanvasCount => view.Canvas.Count;
     /// <summary>Title-card moments last 900 ms; a sticky card (a pending proposal) stays until a key, Apply or Cancel.</summary>
@@ -405,6 +430,8 @@ internal sealed partial class EditorWindow : IDisposable
                 or "PreviousEdit" or "NextEdit" or "Undo" or "Redo" or "Insert" or "RazorTool" or "ZoomFit") ExitSource();
             switch (name)
             {
+                case "Settings": case "KeyboardShortcuts": OpenSettings(); return;
+                case "About": OpenSettings(SettingsSection.About); return;
                 case "ObsMode": Editor.ObsMode = !Editor.ObsMode; break;
                 case "ObsConnect": RunJob(ConnectObs); break;
                 case "ObsStart": RunJob(() => ObsAction("start")); break;
@@ -693,6 +720,7 @@ internal sealed partial class EditorWindow : IDisposable
         if (job is not null) try { job.GetAwaiter().GetResult(); } catch (OperationCanceledException) { } catch (Exception e) { Console.Error.WriteLine(e); }
         if (opening is not null) try { opening.GetAwaiter().GetResult()?.DisposeAsync().AsTask().GetAwaiter().GetResult(); } catch (OperationCanceledException) { } catch (Exception e) { Console.Error.WriteLine(e); }
         Playback?.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        widgetInput.Dispose();
         pausedPreview.Dispose();
         qualificationSmoke?.Dispose();
         obsEngine?.DisposeAsync().AsTask().GetAwaiter().GetResult();

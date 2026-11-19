@@ -1,11 +1,12 @@
 using InputMan.Core;
+using InputMan.Core.Rebind;
 using Silk.NET.Input;
 
 namespace Valencia.App.Editing;
 
 internal enum EditorAction { TogglePlay, Pause, Play, ReverseUnsupported, Split, Delete, RippleDelete, Undo, Redo, Save, SaveAs, Open, Import, New, Export, SelectTool, RazorTool, Cancel, PreviousFrame, NextFrame, ObsMarker,
     MarkIn, MarkOut, ClearMarks, PreviousEdit, NextEdit, GoToStart, GoToEnd, RippleTrimPrevious, RippleTrimNext, InsertEdit, OverwriteEdit, Lift, Extract,
-    ToggleSnap, ZoomIn, ZoomOut, ZoomFit }
+    ToggleSnap, ZoomIn, ZoomOut, ZoomFit, KeyboardShortcuts }
 
 /// <summary>
 /// Silk keyboard adapter for the editor's InputMan profile. All shortcuts come from one data-driven profile
@@ -22,7 +23,7 @@ internal sealed class EditorKeymap
     public EditorKeymap() : this(EditorShortcuts.Default()) { }
     public EditorKeymap(InputProfile profile, string? loadWarning = null)
     {
-        Profile = profile; LoadWarning = loadWarning;
+        LoadWarning = loadWarning;
         engine = new(profile); engine.SetMaps(EditorShortcuts.Map);
     }
     public static EditorKeymap ForUser(string? path = null)
@@ -31,7 +32,9 @@ internal sealed class EditorKeymap
         return new(profile, warning);
     }
 
-    public InputProfile Profile { get; }
+    /// <summary>The live profile, including completed rebinds.</summary>
+    public InputProfile Profile => engine.ExportProfile();
+    public bool Rebinding => engine.IsRebinding;
     /// <summary>Set when the user's shortcuts file was rejected and defaults are in use.</summary>
     public string? LoadWarning { get; }
     /// <summary>The live engine, for an InputMan rebinding session in a settings screen.</summary>
@@ -62,6 +65,38 @@ internal sealed class EditorKeymap
         foreach (var key in held)
             if (Keys.TryGetValue(key, out var mapped)) state[Controls.Key(mapped)] = true;
         return new InputSnapshot(state);
+    }
+
+    /// <summary>
+    /// Captures the next key (with Ctrl/Shift/Alt) for one binding slot through InputMan's rebind session.
+    /// Escape is reserved for cancelling; a shortcut another command already owns is rejected and named in the result.
+    /// </summary>
+    public IRebindSession StartRebind(string slot, Action<RebindResult> completed)
+    {
+        var modifiers = EditorShortcuts.Modifiers.Take(3).ToHashSet();
+        var candidates = Enum.GetValues<KeyboardKey>()
+            .Where(k => k is not (KeyboardKey.Unknown or KeyboardKey.Escape or KeyboardKey.LeftMeta or KeyboardKey.RightMeta
+                or KeyboardKey.RightControl or KeyboardKey.RightShift or KeyboardKey.RightAlt))
+            .Select(Controls.Key).ToArray();
+        var session = engine.StartRebind(new RebindRequest
+        {
+            Map = EditorShortcuts.Map, BindingNameOrSlot = slot,
+            CandidateButtons = candidates, AllowChord = true, ModifierControls = modifiers, MaxModifiers = 3,
+            AllowedDevices = new HashSet<DeviceKind> { DeviceKind.Keyboard },
+            ForbiddenControls = new HashSet<ControlKey> { Controls.Key(KeyboardKey.Escape) },
+            ConflictPolicy = RebindConflictPolicy.Reject, Timeout = TimeSpan.FromHours(1),
+        });
+        session.OnCompleted += completed;
+        // Seed immediately: InputMan treats keys held on the session's first tick as "already down", and this
+        // keymap only ticks on key transitions, so the first real press must not be the seeding tick.
+        engine.Tick(Snapshot(), 0, (float)time);
+        return session;
+    }
+
+    public void Replace(InputProfile profile)
+    {
+        engine.ImportProfile(profile);
+        engine.SetMaps(EditorShortcuts.Map);
     }
 
     public void Reset()

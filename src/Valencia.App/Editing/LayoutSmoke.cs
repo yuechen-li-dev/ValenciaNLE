@@ -57,8 +57,15 @@ internal sealed class LayoutSmoke(string directory)
             e.ProposedCut = new(1, true, "layout-smoke", null, null, [], removed, estimated, null, []);
             w.ShowProposal("Rough cut", removed, estimated.TotalSeconds);
         }),
+        // Settings: the shortcut list mid-capture, then About.
+        ("settings-shortcuts", w =>
+        {
+            w.Editor.Card = null; w.Editor.ProposedCut = null;
+            w.OpenSettings(); w.Settings.BeginCapture("TogglePlay");
+        }),
+        ("settings-about", w => w.OpenSettings(SettingsSection.About)),
         // Last: an empty project shows the monitor's resting state. The benchmark below reopens the original document.
-        ("no-signal", w => { w.Editor.Card = null; w.Editor.ProposedCut = null; w.Editor.New(); }),
+        ("no-signal", w => { w.Settings.Close(); w.Editor.New(); }),
     ];
     private ProjectSnapshot? original;
     public bool Finished { get; private set; }

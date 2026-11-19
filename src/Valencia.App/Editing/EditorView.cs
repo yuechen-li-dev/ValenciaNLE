@@ -151,7 +151,7 @@ internal sealed class EditorView
         children.Add(TextIn("VALENCIA", 14, 0, mark + 4, rowH, TextSize.Xl));
         if (!two && 14 + mark + 10 + NativeUiText.Width("NLE", TextSize.Xs) < EditorLayout.HeaderCommandsLeft - 8)
             children.Add(TextIn("NLE", 14 + mark + 10, 2, 40, rowH, TextSize.Xs, Ui.Mute));
-        var commands = new[] { ("New", "New"), ("Open", "Open"), ("Save", "Save"), ("Save as", "SaveAs"), ("Import", "Import"), ("Export", "Export") };
+        var commands = new[] { ("New", "New"), ("Open", "Open"), ("Save", "Save"), ("Save as", "SaveAs"), ("Import", "Import"), ("Export", "Export"), ("Settings", "Settings") };
         double gap = EditorLayout.HeaderCommandGap;
         double x = two ? Gap : EditorLayout.HeaderCommandsLeft, y = two ? rowH + 4 : 6;
         double cell = two ? (width - 2 * Gap - (commands.Length - 1) * gap) / commands.Length : EditorLayout.HeaderCommandWidth;
