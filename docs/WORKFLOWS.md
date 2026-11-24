@@ -56,8 +56,8 @@ transport and selection state. **M** adds a marker at the program playhead.
 Markers have stable IDs and fixed sequence timestamps. Trimming or ripple
 edits leave their coordinates fixed. Markers beyond the current end become
 navigable again when the sequence grows past them. OBS highlight markers use
-**Alt+Shift+M** and remain attached to recordings. **J** still pauses with an
-unsupported message. Reverse transport needs a separate playback implementation.
+**Alt+Shift+M** and remain attached to recordings. **J**, **K**, and **L**
+play backward, pause, and play forward.
 
 ## Verification
 

@@ -26,7 +26,9 @@ internal sealed class EditorDocument
     /// <summary>When set, the monitor shows this media instead of the sequence; Playhead is then source time.</summary>
     public SourceView? Source { get; set; }
     public SequenceTime ProgramPlayhead { get; set; }
-    public SequenceTime TimelinePlayhead => Source is null ? Playhead : ProgramPlayhead;
+    public SequenceTime? ScrubTarget { get; set; }
+    public SequenceTime TimelinePlayhead => ScrubTarget ?? (Source is null ? Playhead : ProgramPlayhead);
+    public bool Reversing { get; set; }
     public SequenceTime MonitorDuration => Source?.Duration ?? Sequence.Duration;
     public Dictionary<Guid, (SequenceTime? In, SequenceTime? Out)> SourceMarks { get; } = [];
     public ProjectDocument? SavedDocument { get; set; }

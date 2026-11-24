@@ -8,6 +8,57 @@ namespace Valencia.Tests;
 public sealed class SequencePreviewTests(TimelineFixture fixture) : IClassFixture<TimelineFixture>
 {
     [Fact]
+    public void BackwardDragConsumesRetainedPicturesWithoutRepeatedKeyframeDecoding()
+    {
+        using var history = new SequenceEvaluator(fixture.Snapshot, TimelineFixture.Id(4), retainVideoHistory: true);
+        using var reference = new SequenceEvaluator(fixture.Snapshot, TimelineFixture.Id(4));
+        var high = TimelineFixture.F(24);
+        history.Video(high, default);
+        long initialDecode = history.ActiveVideoDecodedFrames;
+        for (int index = 23; index >= 10; index--)
+        {
+            var time = TimelineFixture.F(index);
+            var expected = reference.Video(time, default);
+            var actual = history.Video(time, default);
+            Assert.Equal(expected.Rgba, actual.Rgba);
+            Assert.Equal(expected.SourceTimestamps!.Value.ToArray(), actual.SourceTimestamps!.Value.ToArray());
+        }
+        Assert.Equal(initialDecode, history.ActiveVideoDecodedFrames);
+        Assert.Equal(14, history.ActiveVideoHistoryHits);
+        Assert.Equal(0, history.ActiveVideoSeeks);
+        Assert.True(reference.ActiveVideoDecodedFrames > initialDecode * 3);
+
+        // Seek below the retained GOP, then move forward again.
+        foreach (int index in new[] { 0, 3, 12, 8, 19, 45, 44, 29, 74 })
+        {
+            var time = TimelineFixture.F(index);
+            Assert.Equal(reference.Video(time, default).Rgba, history.Video(time, default).Rgba);
+        }
+    }
+
+    [Fact]
+    public void ReverseAudioPreservesStereoPairsAndForwardMixAcrossCutsAndGaps()
+    {
+        using var ascending = new SequenceEvaluator(fixture.Snapshot, TimelineFixture.Id(4));
+        using var descending = new SequenceEvaluator(fixture.Snapshot, TimelineFixture.Id(4));
+        int end = (int)TimelineTime.SampleIndex(TimelineFixture.F(75), 48000, TimeRounding.Ceiling);
+        var expected = ascending.Audio(default, 0, end, default);
+        Assert.True(Math.Abs(expected[400] - expected[401]) > 0.005f);
+        for (int remaining = end; remaining > 0;)
+        {
+            int count = Math.Min(48000, remaining);
+            var actual = descending.ReverseAudio(remaining, count, default);
+            for (int index = 0; index < actual.Length / 2; index++)
+            {
+                int reference = (remaining - 1 - index) * 2;
+                Assert.InRange(Math.Abs(actual[index * 2] - expected[reference]), 0, 0.00001f);
+                Assert.InRange(Math.Abs(actual[index * 2 + 1] - expected[reference + 1]), 0, 0.00001f);
+            }
+            remaining -= count;
+        }
+    }
+
+    [Fact]
     public void PrerollRetainsNativeFramesAndConvertsOnlyTheSelectedPicture()
     {
         using var evaluator = new SequenceEvaluator(fixture.Snapshot, TimelineFixture.Id(4));

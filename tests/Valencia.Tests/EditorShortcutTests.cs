@@ -16,6 +16,7 @@ public sealed class EditorShortcutTests
 
     public static readonly TheoryData<Key[], string[]> PremiereChords = new()
     {
+        { [Key.J], ["PlayReverse"] },
         { [Key.K], ["Pause"] },
         { [Key.ControlLeft, Key.K], ["Split"] },
         { [Key.Z], [] },

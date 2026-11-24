@@ -26,7 +26,7 @@ public sealed class TimelineFixture : IAsyncLifetime
         string font = "C\\:/Windows/Fonts/consola.ttf";
         foreach (var (path, hue, hz) in new[] { (A, 0, 440), (B, 100, 880) })
             await Run("-f", "lavfi", "-i", $"testsrc2=size=160x90:rate=30000/1001:duration=4,hue=h={hue},drawtext=fontfile='{font}':text='%{{n}}':x=4:y=4:fontsize=16:fontcolor=white:box=1:boxcolor=black",
-                "-f", "lavfi", "-i", $"aevalsrc=0.08*sin(2*PI*{hz}*t)+if(lt(mod(t\\,0.5)\\,0.01)\\,0.4*sin(2*PI*220*t)\\,0):s=48000:d=4",
+                "-f", "lavfi", "-i", $"aevalsrc=0.08*sin(2*PI*{hz}*t)+if(lt(mod(t\\,0.5)\\,0.01)\\,0.4*sin(2*PI*220*t)\\,0)|0.055*sin(2*PI*{hz}*t+0.5):s=48000:d=4",
                 "-c:v", "libx264", "-pix_fmt", "yuv420p", "-g", "30", "-bf", "2", "-c:a", "aac", path);
         var assets = new[] { MediaAssetProbe.Read(Id(2), A), MediaAssetProbe.Read(Id(3), B) };
         TimelineClip Clip(int id, int asset, TrackKind kind, long start, long source, long frames)

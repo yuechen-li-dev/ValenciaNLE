@@ -223,8 +223,7 @@ internal sealed class SettingsPage
                 if (changed) rows.Add(Box(0, y + RowHeight / 2 - 3, 6, 6, Ui.Orange));
                 string label = NativeUiText.Ellipsize(EditorShortcuts.Describe(action).Label, LabelWidth, TextSize.Sm);
                 double labelHeight = Line(label, TextSize.Sm);
-                rows.Add(Text(label, 14, y + 2 + (32 - labelHeight) / 2, LabelWidth, TextSize.Sm,
-                    action == EditorAction.ReverseUnsupported ? Ui.Mute : Ui.Bone));
+                rows.Add(Text(label, 14, y + 2 + (32 - labelHeight) / 2, LabelWidth, TextSize.Sm, Ui.Bone));
                 double sx = LabelWidth + 24;
                 foreach (var slot in mine)
                 {

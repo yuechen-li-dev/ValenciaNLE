@@ -26,14 +26,17 @@ public sealed class SequencePlayback : IAsyncDisposable
     public SequenceTime Start { get; }
     public SequenceFrame? Current { get; private set; }
     public bool IsPlaying { get; private set; }
+    public bool IsReverse { get; }
     /// <summary>Paused video-only seeks must reopen at the requested timestamp before starting audio playback.</summary>
     public bool CanPlay { get; }
     public Exception? Failure => Volatile.Read(ref failure);
     public long UnderrunFrames => audio.UnderrunFrames;
-    private SequencePlayback(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start, CancellationToken cancellation, OutputProfile? profile, SequenceFrame? preview = null)
+    private SequencePlayback(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start, CancellationToken cancellation,
+        OutputProfile? profile, SequenceFrame? preview = null, bool reverse = false)
     {
         Snapshot = snapshot; queries = new(snapshot); Sequence = queries.Sequence(sequenceId);
         Start = start; lastPosition = start;
+        IsReverse = reverse;
         this.profile = profile;
         stopping = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
         int capacity = Math.Clamp(32 * 1024 * 1024 / checked((profile?.Width ?? Sequence.Video.Width) * (profile?.Height ?? Sequence.Video.Height) * 4), 1, 4);
@@ -59,9 +62,10 @@ public sealed class SequencePlayback : IAsyncDisposable
     public static SequencePlayback OpenPreview(SequencePreview preview, ProjectSnapshot snapshot, Guid sequenceId,
         SequenceTime start, CancellationToken cancellation = default, OutputProfile? profile = null) =>
         new(snapshot, sequenceId, start, cancellation, profile, preview.Video(snapshot, sequenceId, start, cancellation, profile));
-    public static async Task<SequencePlayback> OpenAsync(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start, CancellationToken cancellation = default, OutputProfile? profile = null)
+    public static async Task<SequencePlayback> OpenAsync(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start,
+        CancellationToken cancellation = default, OutputProfile? profile = null, bool reverse = false)
     {
-        var session = new SequencePlayback(snapshot, sequenceId, start, cancellation, profile);
+        var session = new SequencePlayback(snapshot, sequenceId, start, cancellation, profile, reverse: reverse);
         try
         {
             await session.video.Reader.WaitToReadAsync(cancellation).ConfigureAwait(false);
@@ -87,9 +91,13 @@ public sealed class SequencePlayback : IAsyncDisposable
             lock (clockGate)
             {
                 long played = output is null ? 0 : audio.MediaFramesAtDevicePosition(output.GetPosition() / audio.WaveFormat.BlockAlign);
-                long ticks = checked(Start.Ticks + TimelineTime.FromSamples(played, Sequence.AudioSampleRate).Ticks);
-                if (IsPlaying && audio.Ended && output?.PlaybackState == PlaybackState.Stopped) ticks = Sequence.Duration.Ticks;
-                lastPosition = new(Math.Clamp(Math.Max(lastPosition.Ticks, ticks), Start.Ticks, Sequence.Duration.Ticks));
+                long elapsed = TimelineTime.FromSamples(played, Sequence.AudioSampleRate).Ticks;
+                long ticks = IsReverse ? Start.Ticks - elapsed : checked(Start.Ticks + elapsed);
+                if (IsPlaying && audio.Ended && output?.PlaybackState == PlaybackState.Stopped)
+                    ticks = IsReverse ? 0 : Sequence.Duration.Ticks;
+                lastPosition = IsReverse
+                    ? new(Math.Clamp(Math.Min(lastPosition.Ticks, ticks), 0, Start.Ticks))
+                    : new(Math.Clamp(Math.Max(lastPosition.Ticks, ticks), Start.Ticks, Sequence.Duration.Ticks));
                 return lastPosition;
             }
         }
@@ -107,36 +115,52 @@ public sealed class SequencePlayback : IAsyncDisposable
         while (true)
         {
             if (pending is null && !video.Reader.TryRead(out pending)) break;
-            if (Current is not null && pending.Time.Ticks > position.Ticks) break;
+            if (!IsReverse && Current is not null && pending.Time.Ticks > position.Ticks) break;
             Current = pending; pending = null; changed = true;
         }
         if (Current is { } current)
         {
-            var active = queries.Evaluate(Sequence.Id, position).Where(a => a.Kind == TrackKind.Video).Select(a => a.Clip.Id);
+            var sampleTime = IsReverse ? ReverseBoundary(position) : position;
+            var active = queries.Evaluate(Sequence.Id, sampleTime).Where(a => a.Kind == TrackKind.Video).Select(a => a.Clip.Id);
             if (!active.SequenceEqual(current.VideoClips))
             {
                 Current = new(position, current.Width, current.Height, new byte[current.Rgba.Length], [.. active]);
                 changed = true; // black while a newly required cut frame is unavailable; never display the obsolete source
             }
         }
-        if (IsPlaying && position.Ticks >= Sequence.Duration.Ticks) Pause();
+        if (IsPlaying && (IsReverse ? position.Ticks == 0 : position.Ticks >= Sequence.Duration.Ticks)) Pause();
         return changed;
     }
     private async Task ProduceVideo(Guid sequenceId)
     {
         try
         {
-            using var evaluator = new SequenceEvaluator(Snapshot, sequenceId, profile, useProxies: true);
-            await video.Writer.WriteAsync(evaluator.Video(Start, stopping.Token), stopping.Token);
+            using var evaluator = new SequenceEvaluator(Snapshot, sequenceId, profile, useProxies: true, retainVideoHistory: IsReverse);
+            var initial = IsReverse ? ReverseBoundary(Start) : Start;
+            await video.Writer.WriteAsync(evaluator.Video(initial, stopping.Token), stopping.Token);
             var frameRate = profile?.FrameRate ?? Sequence.Video.FrameRate;
-            long first = TimelineTime.FrameIndex(Start, frameRate, TimeRounding.Floor) + 1;
-            for (long i = first; ; i++)
+            long initialFrame = TimelineTime.FrameIndex(initial, frameRate, TimeRounding.Floor);
+            if (IsReverse)
             {
-                var time = TimelineTime.FromFrames(i, frameRate);
-                if (time.Ticks >= Sequence.Duration.Ticks) break;
-                var frame = evaluator.Video(time, stopping.Token);
-                await presentationClock.WaitUntilDueAsync(time.Ticks, stopping.Token).ConfigureAwait(false);
-                await video.Writer.WriteAsync(frame, stopping.Token).ConfigureAwait(false);
+                for (long i = initialFrame - 1; i >= 0; i--)
+                {
+                    var due = TimelineTime.FromFrames(i + 1, frameRate);
+                    var time = TimelineTime.FromFrames(i, frameRate);
+                    var frame = evaluator.Video(time, stopping.Token);
+                    await presentationClock.WaitUntilDueAsync(due.Ticks, stopping.Token, reverse: true).ConfigureAwait(false);
+                    await video.Writer.WriteAsync(frame, stopping.Token).ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                for (long i = initialFrame + 1; ; i++)
+                {
+                    var time = TimelineTime.FromFrames(i, frameRate);
+                    if (time.Ticks >= Sequence.Duration.Ticks) break;
+                    var frame = evaluator.Video(time, stopping.Token);
+                    await presentationClock.WaitUntilDueAsync(time.Ticks, stopping.Token).ConfigureAwait(false);
+                    await video.Writer.WriteAsync(frame, stopping.Token).ConfigureAwait(false);
+                }
             }
             video.Writer.TryComplete();
         }
@@ -148,14 +172,32 @@ public sealed class SequencePlayback : IAsyncDisposable
         try
         {
             using var evaluator = new SequenceEvaluator(Snapshot, sequenceId);
-            long samples = TimelineTime.SampleIndex(new(Sequence.Duration.Ticks - Start.Ticks), Sequence.AudioSampleRate, TimeRounding.Ceiling);
-            for (long i = 0; i < samples; i += AudioStreamBuffer.BlockFrames)
-                await audio.WriteAsync(evaluator.Audio(Start, i, (int)Math.Min(AudioStreamBuffer.BlockFrames, samples - i), stopping.Token), stopping.Token);
+            int rate = Sequence.AudioSampleRate;
+            if (IsReverse)
+            {
+                long end = TimelineTime.SampleIndex(Start, rate, TimeRounding.Ceiling);
+                while (end > 0)
+                {
+                    // Evaluate a bounded range forward so FFmpeg/resampling and
+                    // the normal mixing rules still see contiguous source samples.
+                    int count = (int)Math.Min(end, rate);
+                    var block = evaluator.ReverseAudio(end, count, stopping.Token);
+                    await audio.WriteAsync(block, stopping.Token).ConfigureAwait(false);
+                    end -= count;
+                }
+            }
+            else
+            {
+                long samples = TimelineTime.SampleIndex(new(Sequence.Duration.Ticks - Start.Ticks), rate, TimeRounding.Ceiling);
+                for (long i = 0; i < samples; i += AudioStreamBuffer.BlockFrames)
+                    await audio.WriteAsync(evaluator.Audio(Start, i, (int)Math.Min(AudioStreamBuffer.BlockFrames, samples - i), stopping.Token), stopping.Token);
+            }
             audio.Complete();
         }
         catch (OperationCanceledException) when (stopping.IsCancellationRequested) { audio.Complete(); }
         catch (Exception error) { Interlocked.CompareExchange(ref failure, error, null); audio.Complete(error); }
     }
+    private static SequenceTime ReverseBoundary(SequenceTime position) => new(Math.Max(0, position.Ticks - 1));
     public async ValueTask DisposeAsync()
     {
         try

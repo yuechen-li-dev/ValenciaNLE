@@ -21,6 +21,12 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
     private bool finished;
     private bool disposed;
     private double lastReadMilliseconds;
+    private const long VideoHistoryBudget = 64 * 1024 * 1024;
+    private const int MaximumHistoryFrames = 64;
+    private readonly Queue<HistoryPicture> videoHistory = new();
+    private long videoHistoryBytes;
+    private VideoFrame? convertedHistory;
+    private readonly record struct HistoryPicture(nint Frame, MediaTimestamp Timestamp, long Bytes);
 
     public FfmpegDecoder(MediaInfo info, int streamIndex, double seekSeconds)
     {
@@ -154,6 +160,74 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
             }
         }
         return false;
+    }
+
+    // Reuse the demux/codec/scaler allocation after a discontinuous video query.
+    // The caller can reopen codecs/containers that cannot seek back to the start.
+    public void SeekVideo(SourcePosition target)
+    {
+        AVStream* stream = format->streams[streamIndex];
+        var timeBase = stream->time_base;
+        long pts = TimelineTime.Rebase(target, timeBase.num, timeBase.den, TimeRounding.Floor).Value;
+        if (stream->start_time != ffmpeg.AV_NOPTS_VALUE) pts = Math.Max(pts, stream->start_time);
+        FfmpegRuntime.Check(ffmpeg.av_seek_frame(format, streamIndex, pts, ffmpeg.AVSEEK_FLAG_BACKWARD), "Seek video history");
+        ffmpeg.avcodec_flush_buffers(codec);
+        ffmpeg.av_frame_unref(frame);
+        if (retainedVideo != null) ffmpeg.av_frame_unref(retainedVideo);
+        draining = finished = false;
+        ClearHistory();
+    }
+
+    // Retain source pictures by reference. Only the selected picture travels
+    // through swscale. Evict by actual referenced buffer bytes and frame count.
+    public void RememberVideo(MediaTimestamp timestamp)
+    {
+        long bytes = 0;
+        for (uint index = 0; index < 8; index++)
+            if (frame->buf[index] is var buffer && buffer != null) bytes += checked((long)buffer->size);
+        for (int index = 0; index < frame->nb_extended_buf; index++)
+            bytes += checked((long)frame->extended_buf[index]->size);
+        if (bytes <= 0 || bytes > VideoHistoryBudget)
+        {
+            ClearHistory();
+            return;
+        }
+        while (videoHistory.Count >= MaximumHistoryFrames || videoHistoryBytes > VideoHistoryBudget - bytes)
+            FreeOldestPicture();
+        AVFrame* owned = ffmpeg.av_frame_clone(frame);
+        if (owned == null) throw new OutOfMemoryException("FFmpeg video history allocation failed.");
+        if (convertedHistory?.SourceTimestamp == timestamp) convertedHistory = null;
+        videoHistory.Enqueue(new((nint)owned, timestamp, bytes));
+        videoHistoryBytes += bytes;
+    }
+
+    public VideoFrame? HistoryAt(SourcePosition target, out bool converted)
+    {
+        converted = false;
+        HistoryPicture? selected = null;
+        foreach (var picture in videoHistory)
+        {
+            if (new SourcePosition(picture.Timestamp).CompareTo(target) > 0) break;
+            selected = picture;
+        }
+        if (selected is not { } value) return null;
+        if (convertedHistory?.SourceTimestamp == value.Timestamp) return convertedHistory;
+        converted = true;
+        return convertedHistory = CopyVideo((AVFrame*)value.Frame, 0);
+    }
+
+    private void FreeOldestPicture()
+    {
+        var picture = videoHistory.Dequeue();
+        videoHistoryBytes -= picture.Bytes;
+        AVFrame* owned = (AVFrame*)picture.Frame;
+        ffmpeg.av_frame_free(&owned);
+    }
+
+    private void ClearHistory()
+    {
+        while (videoHistory.Count > 0) FreeOldestPicture();
+        convertedHistory = null;
     }
 
     public MediaTimestamp Timestamp => TimestampOf(frame);
@@ -318,6 +392,7 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
             return;
         }
         disposed = true;
+        ClearHistory();
         ffmpeg.sws_freeContext(scaler);
         SwrContext* ownedResampler = resampler;
         AVFrame* ownedFrame = frame;

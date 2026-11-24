@@ -24,20 +24,25 @@ public sealed class SequenceEvaluator : IDisposable
     private readonly SKTypeface? captionFont;
     private readonly CaptionIndex captionIndex;
     private readonly bool useProxies;
+    private readonly bool retainVideoHistory;
     private SequenceTime? audioThrough;
     /// <summary>Diagnostic work count for currently retained cursors, including frames skipped during seek.</summary>
     public long ActiveVideoDecodedFrames => videos.Values.Sum(v => v.DecodedFrames);
     public long ActiveVideoConvertedFrames => videos.Values.Sum(v => v.ConvertedFrames);
+    public long ActiveVideoHistoryHits => videos.Values.Sum(v => v.HistoryHits);
+    public long ActiveVideoSeeks => videos.Values.Sum(v => v.Seeks);
     /// <summary>Cursor decode work since the last discontinuous seek; excludes progressive index construction.</summary>
     public long ActiveAudioDecodedFrames => audios.Values.Sum(a => a.DecodedFrames);
     public SequenceDocument Sequence { get; }
-    public SequenceEvaluator(ProjectSnapshot snapshot, Guid sequenceId, OutputProfile? profile = null, bool useProxies = false)
+    public SequenceEvaluator(ProjectSnapshot snapshot, Guid sequenceId, OutputProfile? profile = null,
+        bool useProxies = false, bool retainVideoHistory = false)
     {
         DocumentValidator.Validate(snapshot.Document);
         FfmpegRuntime.Initialize();
         queries = new(snapshot); this.sequenceId = sequenceId; Sequence = queries.Sequence(sequenceId);
         this.profile = profile;
         this.useProxies = useProxies;
+        this.retainVideoHistory = retainVideoHistory;
         captionIndex = new(Sequence);
         if (Sequence.Creator is { Words.IsEmpty: false } creator) captionFont = CreatorRenderer.OpenFont(creator.CaptionStyle.Font);
         if (Sequence.AudioSampleRate is < 8000 or > 192000) throw new NotSupportedException("M1b audio supports sample rates from 8 kHz through 192 kHz.");
@@ -60,7 +65,8 @@ public sealed class SequenceEvaluator : IDisposable
         foreach (var a in active) // higher track order is on top
         {
             cancellation.ThrowIfCancellationRequested();
-            if (!videos.TryGetValue(a.Clip.Id, out var cursor)) videos.Add(a.Clip.Id, cursor = new(a, Sequence.AudioSampleRate, useProxies));
+            if (!videos.TryGetValue(a.Clip.Id, out var cursor))
+                videos.Add(a.Clip.Id, cursor = new(a, Sequence.AudioSampleRate, useProxies, retainVideoHistory));
             var source = cursor.At(a.SourcePosition, cancellation);
             if (source is not null)
             {
@@ -132,6 +138,19 @@ public sealed class SequenceEvaluator : IDisposable
         return output;
     }
 
+    /// <summary>Render the forward sample range ending just before endSample, then reverse stereo frames.</summary>
+    internal float[] ReverseAudio(long endSample, int count, CancellationToken cancellation)
+    {
+        if (count < 0 || endSample < count) throw new ArgumentOutOfRangeException(nameof(count));
+        var samples = Audio(default, endSample - count, count, cancellation);
+        for (int left = 0, right = samples.Length - 2; left < right; left += 2, right -= 2)
+        {
+            (samples[left], samples[right]) = (samples[right], samples[left]);
+            (samples[left + 1], samples[right + 1]) = (samples[right + 1], samples[left + 1]);
+        }
+        return samples;
+    }
+
     private static void Composite(byte[] output, int width, int height, VideoFrame source, float opacity)
     {
         if (opacity <= 0) return;
@@ -163,9 +182,11 @@ public sealed class SequenceEvaluator : IDisposable
         private readonly ActiveClip clip;
         private readonly int rate;
         private ProxySource? proxy;
-        public VideoCursor(ActiveClip clip, int rate, bool useProxy)
+        private readonly bool retainHistory;
+        public VideoCursor(ActiveClip clip, int rate, bool useProxy, bool retainHistory)
         {
             this.clip = clip; this.rate = rate;
+            this.retainHistory = retainHistory;
             proxy = useProxy ? MediaProxy.Resolve(clip.Asset, clip.Stream) : null;
             try { decoder = new(proxy?.Asset ?? clip.Asset, proxy?.Stream ?? clip.Stream, clip.SourcePosition, rate); }
             catch (Exception error) when (proxy is not null && error is IOException or InvalidOperationException or NotSupportedException)
@@ -178,6 +199,8 @@ public sealed class SequenceEvaluator : IDisposable
         private SourcePosition? requested;
         public long DecodedFrames { get; private set; }
         public long ConvertedFrames { get; private set; }
+        public long HistoryHits { get; private set; }
+        public long Seeks { get; private set; }
         public VideoFrame? At(SourcePosition target, CancellationToken cancellation)
         {
             try { return ReadAt(target, cancellation); }
@@ -193,7 +216,20 @@ public sealed class SequenceEvaluator : IDisposable
         {
             if (requested is { } previous && (target.CompareTo(previous) < 0 || target.Since(previous).Ticks > SequenceTime.TicksPerSecond))
             {
-                decoder.Dispose(); decoder = new(proxy?.Asset ?? clip.Asset, proxy?.Stream ?? clip.Stream, target, rate);
+                cancellation.ThrowIfCancellationRequested();
+                if (retainHistory && target.CompareTo(previous) < 0 && decoder.HistoryAt(target, out bool converted) is { } historic)
+                {
+                    HistoryHits++;
+                    if (converted) ConvertedFrames++;
+                    return historic.SourceTimestamp == current?.SourceTimestamp ? WithinDecodedStream(historic, target) : historic;
+                }
+                Seeks++;
+                try { decoder.SeekVideo(target); }
+                catch (InvalidDataException)
+                {
+                    decoder.Dispose();
+                    decoder = new(proxy?.Asset ?? clip.Asset, proxy?.Stream ?? clip.Stream, target, rate);
+                }
                 current = null; nextTimestamp = null; retainedDirty = false; ended = false;
             }
             requested = target;
@@ -206,15 +242,20 @@ public sealed class SequenceEvaluator : IDisposable
                 if (nextTimestamp is null || new SourcePosition(nextTimestamp.Value).CompareTo(target) > 0)
                 {
                     if (retainedDirty) { current = decoder.CopyRetainedVideo(); ConvertedFrames++; retainedDirty = false; }
-                    if (ended && current?.Duration is { } length)
-                    {
-                        var end = new MediaTimestamp(checked(current.SourceTimestamp.Value + length.Value), length.Numerator, length.Denominator);
-                        if (new SourcePosition(end).CompareTo(target) <= 0) return null;
-                    }
-                    return current;
+                    return WithinDecodedStream(current, target);
                 }
+                if (retainHistory) decoder.RememberVideo(nextTimestamp.Value);
                 decoder.RetainVideo(); retainedDirty = true; nextTimestamp = null;
             }
+        }
+        private VideoFrame? WithinDecodedStream(VideoFrame? picture, SourcePosition target)
+        {
+            if (ended && picture?.Duration is { } length)
+            {
+                var end = new MediaTimestamp(checked(picture.SourceTimestamp.Value + length.Value), length.Numerator, length.Denominator);
+                if (new SourcePosition(end).CompareTo(target) <= 0) return null;
+            }
+            return picture;
         }
         public void Dispose() => decoder.Dispose();
     }

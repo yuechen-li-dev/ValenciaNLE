@@ -64,7 +64,7 @@ internal static class EditorShortcuts
     [
         // Transport
         (EditorAction.TogglePlay, new(KeyboardKey.Space)),
-        (EditorAction.ReverseUnsupported, new(KeyboardKey.J)),
+        (EditorAction.PlayReverse, new(KeyboardKey.J)),
         (EditorAction.Pause, new(KeyboardKey.K)),
         (EditorAction.Play, new(KeyboardKey.L)),
         (EditorAction.PreviousFrame, new(KeyboardKey.ArrowLeft)),
@@ -121,7 +121,7 @@ internal static class EditorShortcuts
     public static (string Group, string Label) Describe(EditorAction action) => action switch
     {
         EditorAction.TogglePlay => ("Transport", "Play / stop"),
-        EditorAction.ReverseUnsupported => ("Transport", "Shuttle left (not yet supported)"),
+        EditorAction.PlayReverse => ("Transport", "Play backward"),
         EditorAction.Pause => ("Transport", "Shuttle stop"),
         EditorAction.Play => ("Transport", "Shuttle right"),
         EditorAction.PreviousFrame => ("Transport", "Step back one frame"),
@@ -213,7 +213,8 @@ internal static class EditorShortcuts
         var table = ImmutableArray.CreateBuilder<(EditorAction, Shortcut)>();
         foreach (var binding in profile.Maps.GetValueOrDefault(MapName)?.Bindings ?? [])
         {
-            if (binding.Output is not ActionOutput { Action.Name: var name } || !Enum.TryParse<EditorAction>(name, out var action))
+            if (binding.Output is not ActionOutput { Action.Name: var name } ||
+                !Enum.TryParse<EditorAction>(name == "ReverseUnsupported" ? nameof(EditorAction.PlayReverse) : name, out var action))
                 problems?.Add($"unknown command '{(binding.Output as ActionOutput)?.Action.Name ?? binding.Name}'");
             else if (!Shortcut.TryFrom(binding.Trigger, out var shortcut))
                 problems?.Add($"{action}: only keyboard keys with Ctrl/Shift/Alt can be bound");

@@ -43,6 +43,7 @@ internal sealed class EditorView
         // Signals: orange is "now" (playhead, selection, active, record); ultramarine is picture and In/Out;
         // cyan is snapping and drag ghosts; alert is destructive, lock and removals.
         public const uint Orange = 0xFF5A1FFF, CardOrange = 0xE8440AFF, Ultramarine = 0x2E4BFFFF, Cyan = 0x39E1FFFF, Alert = 0xFF3B4AFF;
+        public const uint Reverse = 0xC3A3FFFF;
         public const uint Removal = 0xFF3B4A59, Ghost = 0x39E1FFB0, GhostInvalid = 0xFF3B4AB0, Backing = 0x0B0C0EC8;
 
         private static StandardButtonStyle Style(uint? background, uint foreground, uint? border = null, TextSize size = TextSize.Md) =>
@@ -335,7 +336,7 @@ internal sealed class EditorView
         children.Add(Button("Program", "MonitorProgram", left0, rowY, program, 26, source ? Ui.Outline : Ui.Active));
         children.Add(Button("Source", "MonitorSource", left0 + program, rowY, sourceWidth, 26, source ? Ui.Marked : Ui.Outline));
         double x = left0 + program + sourceWidth + 10;
-        string timecode = Timecode.Format(editor.Playhead, rate), duration = "/ " + Timecode.Format(editor.MonitorDuration, rate);
+        string timecode = Timecode.Format(editor.ScrubTarget ?? editor.Playhead, rate), duration = "/ " + Timecode.Format(editor.MonitorDuration, rate);
         var tcSize = Fit(timecode, TextSize.Xl, Math.Max(0, right0 - x - NativeUiText.Width(duration) - 8), 48);
         double tcWidth = NativeUiText.Width(timecode, tcSize);
         children.Add(TextIn(timecode, x, t.Y, tcWidth + 2, rowH, tcSize));
@@ -355,7 +356,8 @@ internal sealed class EditorView
         var buttons = new List<(string Label, string Action, double Width, StandardButtonStyle Style, bool GroupStart)>
         {
             ("|<", "GoToStart", 30, Ui.Plain, false), ("<<", "PreviousEdit", 30, Ui.Plain, false), ("<", "PreviousFrame", 30, Ui.Plain, false),
-            (playing ? "Pause" : "Play", "TogglePlay", 64, Ui.Primary, false), (">", "NextFrame", 30, Ui.Plain, false), (">>", "NextEdit", 30, Ui.Plain, false),
+            (editor.Reversing ? "Rev" : playing ? "Pause" : "Play", "TogglePlay", 64, editor.Reversing ? Ui.Marked : Ui.Primary, false),
+            (">", "NextFrame", 30, Ui.Plain, false), (">>", "NextEdit", 30, Ui.Plain, false),
             (">|", "GoToEnd", 30, Ui.Plain, false),
             ("In", "MarkIn", 38, marks.In is null ? Ui.Plain : Ui.Marked, true), ("Out", "MarkOut", 44, marks.Out is null ? Ui.Plain : Ui.Marked, false),
         };
@@ -422,23 +424,32 @@ internal sealed class EditorView
     {
         var sequence = editor.Sequence; var viewport = editor.Viewport;
         double rulerY = layout.RulerY, rulerLeft = viewport.ClipLeft, rulerWidth = viewport.ClipRight - viewport.ClipLeft;
-        // Ruler: panel strip, film sprockets along the top edge, ticks and labels below them.
+        // Subdivisions use timeline time so they move with scrolling and zooming.
         children.Add(Box(rulerLeft, rulerY, rulerWidth, EditorLayout.RulerHeight, Ui.Panel));
         children.Add(Box(rulerLeft, rulerY + EditorLayout.RulerHeight - 1, rulerWidth, 1, Ui.Rule));
-        for (double sx = rulerLeft + 3; sx + 4 <= rulerLeft + rulerWidth; sx += 14) children.Add(Box(sx, rulerY + 3, 4, 3, Ui.Rule));
         // A "nice" step that keeps labels at least ~90 px apart.
         double[] steps = [1, 2, 5, 10, 15, 30, 60, 120, 300, 600, 900, 1800, 3600, 7200];
         double step = steps.FirstOrDefault(s => s * viewport.PixelsPerSecond >= 90, steps[^1]);
-        double first = Math.Ceiling(viewport.Origin.TotalSeconds / step) * step;
+        double origin = viewport.Origin.TotalSeconds;
+        double first = Math.Floor(origin / step) * step;
         double end = viewport.Time(viewport.ClipRight).TotalSeconds;
         int labels = 0;
         for (double second = first; second < end && labels < 200; second += step, labels++)
         {
+            for (int division = 1; division < 4; division++)
+            {
+                double minor = second + step * division / 4;
+                if (minor < origin || minor >= end) continue;
+                float minorX = (float)viewport.X(new((long)(minor * SequenceTime.TicksPerSecond)));
+                quads.Add(new(minorX, (float)(rulerY + EditorLayout.RulerHeight - 6), 1, 5, Ui.Rule));
+            }
+            if (second < origin) continue;
             float x = (float)viewport.X(new((long)(second * SequenceTime.TicksPerSecond)));
             quads.Add(new(x, (float)rulerY + 9, 1, (float)EditorLayout.RulerHeight - 10, Ui.Tick));
             children.Add(Text(Timecode.Ruler(second), x + 4, rulerY + 8, 80, 14, TextSize.Xs, Ui.Mute));
         }
-        children.Add(TextIn(Timecode.Format(editor.TimelinePlayhead, sequence.Video.FrameRate), Gap + 2, rulerY, layout.ClipLeft - Gap - 6, EditorLayout.RulerHeight, TextSize.Lg, Ui.Orange));
+        uint playheadColor = editor.ScrubTarget is not null ? Ui.Cyan : editor.Reversing ? Ui.Reverse : Ui.Orange;
+        children.Add(TextIn(Timecode.Format(editor.TimelinePlayhead, sequence.Video.FrameRate), Gap + 2, rulerY, layout.ClipLeft - Gap - 6, EditorLayout.RulerHeight, TextSize.Lg, playheadColor));
         foreach (var marker in sequence.Markers)
         {
             double x = viewport.X(marker.At);
@@ -507,13 +518,6 @@ internal sealed class EditorView
             float snapX = (float)viewport.X(snap);
             if (snapX >= viewport.ClipLeft && snapX <= viewport.ClipRight) quads.Add(new(snapX - 1, (float)rulerY, 2, (float)(viewport.TrackBottom - rulerY), Ui.Cyan));
         }
-        float playhead = (float)viewport.X(editor.TimelinePlayhead);
-        if (playhead >= viewport.ClipLeft && playhead <= viewport.ClipRight)
-        {
-            quads.Add(new(playhead - 5, (float)rulerY, 12, 8, Ui.Orange));
-            quads.Add(new(playhead, (float)rulerY, 2, (float)(viewport.TrackBottom - rulerY), Ui.Orange));
-        }
-
         void ClipRect(TimelineClip c, float y, uint color, bool ring)
         {
             float left = (float)Math.Clamp(viewport.X(c.Start), viewport.ClipLeft, viewport.ClipRight), right = (float)Math.Clamp(viewport.X(c.End), viewport.ClipLeft, viewport.ClipRight);

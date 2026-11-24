@@ -22,7 +22,7 @@ public sealed class SequencePreview : IDisposable
         if (!ReferenceEquals(this.snapshot, snapshot) || this.sequenceId != sequenceId || this.profile != profile)
         {
             Dispose();
-            evaluator = new(snapshot, sequenceId, profile, useProxies: true);
+            evaluator = new(snapshot, sequenceId, profile, useProxies: true, retainVideoHistory: true);
             this.snapshot = snapshot; this.sequenceId = sequenceId; this.profile = profile;
         }
         try

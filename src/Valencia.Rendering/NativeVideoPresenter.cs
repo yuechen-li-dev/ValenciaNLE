@@ -41,6 +41,7 @@ public sealed class NativeVideoPresenter : IDisposable
     public bool EditorLayout { get; set; }
     public Rect? ProgramMonitor { get; set; }
     public IReadOnlyList<CanvasRectangle> Canvas { get; set; } = [];
+    public IReadOnlyList<CanvasRectangle> CanvasOverlay { get; set; } = [];
     private int videoWidth;
     private int videoHeight;
     private byte[]? lastVideo;
@@ -246,9 +247,14 @@ public sealed class NativeVideoPresenter : IDisposable
                 quad.SubmitQuad(new NativeQuadSubmission(new Native2DRect(areaX + (areaWidth - width) / 2, areaY + (areaHeight - height) / 2, width, height),
                     Native2DUvRect.Full, videoTexture, Native2DTint.White));
             }
-            foreach (var r in Canvas)
-                quad.SubmitQuad(new NativeQuadSubmission(new Native2DRect(r.X, r.Y, r.Width, r.Height), Native2DUvRect.Full,
-                    whiteTexture, new Native2DTint((r.Color >> 24) / 255f, ((r.Color >> 16) & 255) / 255f, ((r.Color >> 8) & 255) / 255f, (r.Color & 255) / 255f)));
+            SubmitRectangles(Canvas);
+            SubmitRectangles(CanvasOverlay);
+            void SubmitRectangles(IReadOnlyList<CanvasRectangle> rectangles)
+            {
+                foreach (var r in rectangles)
+                    quad.SubmitQuad(new NativeQuadSubmission(new Native2DRect(r.X, r.Y, r.Width, r.Height), Native2DUvRect.Full,
+                        whiteTexture, new Native2DTint((r.Color >> 24) / 255f, ((r.Color >> 16) & 255) / 255f, ((r.Color >> 8) & 255) / 255f, (r.Color & 255) / 255f)));
+            }
             // Raster UI text draws in this pass, after the canvas, so it sits above every fill and the picture.
             if (glyphTexture.Value != 0)
                 foreach (var g in ui.RasterGlyphs) quad.SubmitQuad(new NativeQuadSubmission(g.Destination, g.Uv, glyphTexture, g.Color));

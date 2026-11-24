@@ -48,6 +48,9 @@ internal sealed partial class EditorWindow : IDisposable
     public SequencePlayback? Playback { get; private set; }
     private long generation, openingGeneration;
     private bool desired, resume, razor, scrubbing, focused = true;
+    private bool reverseRequested;
+    private long[]? scrubSnapPoints;
+    private readonly List<CanvasRectangle> playheadOverlay = new(16);
     private SequenceTime? pendingScrub;
     private double lastUi = -1, lastTick;
     private string? lastReportedFailure;
@@ -77,10 +80,13 @@ internal sealed partial class EditorWindow : IDisposable
         Settings = new(keys, () => Graphics.GpuName, widgetInput);
         chrome = new(Graphics.Window);
         view.Chrome = chrome;
+        if (scrubTest && smokeDirectory is not null) scrubSmoke = new(smokeDirectory);
         diagnostics.Record("window-created", generation, 0, $"gpu={Graphics.GpuName};hwnd={WindowHandle};size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}");
         foreach (var keyboard in input.Keyboards) { keyboard.KeyDown += (_, k, _) => HandlePointer(() => { keys.Record(k, true); Editor.Card = null; }); keyboard.KeyUp += (_, k, _) => HandlePointer(() => keys.Record(k, false)); }
         foreach (var mouse in input.Mice)
         {
+            // The scrub smoke drives these same handlers with scripted coordinates.
+            if (scrubSmoke is not null) break;
             // Exceptions escaping GLFW callbacks terminate Windows with 0xc000041d before Main can report them.
             mouse.MouseDown += (m, b) => HandlePointer(() => { if (!Settings.IsOpen) MouseDown(m, b); });
             mouse.MouseUp += (m, b) => HandlePointer(() => { if (!Settings.IsOpen) MouseUp(m, b); });
@@ -102,10 +108,9 @@ internal sealed partial class EditorWindow : IDisposable
         // normal event loop, never across GLFW's unmanaged callback boundary.
         Graphics.Window.Resize += _ => HandlePointer(() => { diagnostics.Record("resize", generation, Editor.Playhead.Ticks, $"size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}"); CancelGesture(); });
         Graphics.Window.Closing += () => HandlePointer(() => { if (smoke is null && analysisSmoke is null && transcriptSmoke is null && creatorSmoke is null && qualificationSmoke is null && layoutSmoke is null && scrubSmoke is null && !DiscardAllowed()) { Graphics.Window.IsClosing = false; return; } jobCancellation?.Cancel(); seekCancellation?.Cancel(); Gesture.Cancel(); });
-        if (smokeDirectory is not null)
+        if (smokeDirectory is not null && scrubSmoke is null)
         {
-            if (scrubTest) scrubSmoke = new(smokeDirectory);
-            else if (resizeSmoke) layoutSmoke = new(smokeDirectory);
+            if (resizeSmoke) layoutSmoke = new(smokeDirectory);
             else if (qualifySmoke) qualificationSmoke = new(smokeDirectory);
             else if (createSmoke) creatorSmoke = new(smokeDirectory);
             else if (transcribeSmoke) transcriptSmoke = new(smokeDirectory);
@@ -170,7 +175,7 @@ internal sealed partial class EditorWindow : IDisposable
             qualificationSmoke?.Tick(this);
             layoutSmoke?.Tick(this);
             scrubSmoke?.Tick(this);
-            if (input.Mice.Count > 0 && !Settings.IsOpen)
+            if (scrubSmoke is null && input.Mice.Count > 0 && !Settings.IsOpen)
             {
                 var point = input.Mice[0].Position;
                 if (observedNativePointer != point)
@@ -184,9 +189,12 @@ internal sealed partial class EditorWindow : IDisposable
                     pointerPosition = null;
                 }
             }
+            Editor.Reversing = resume && reverseRequested && (opening is not null || desired)
+                || Playback is { IsPlaying: true, IsReverse: true };
             if (now - lastUi >= .1) Prepare();
             else if (feedbackDirty) RefreshFeedback();
             cursor.Set(Settings.IsOpen ? Settings.Cursor : PointerCursor());
+            UpdatePlayheadOverlay();
             Graphics.Draw();
             // A/V skew is a property of what reached the display: frames skipped because composition is throttled
             // are not observations. The loop itself keeps running at full rate either way.
@@ -286,20 +294,25 @@ internal sealed partial class EditorWindow : IDisposable
     internal byte[] Readback()
     {
         Prepare();
+        UpdatePlayheadOverlay();
         return Graphics.Draw(true) ?? throw new InvalidOperationException("No GPU readback.");
     }
     public void Seek(SequenceTime position, bool play = false,
-        [System.Runtime.CompilerServices.CallerMemberName] string caller = "", [System.Runtime.CompilerServices.CallerLineNumber] int line = 0)
+        [System.Runtime.CompilerServices.CallerMemberName] string caller = "", [System.Runtime.CompilerServices.CallerLineNumber] int line = 0,
+        bool reverse = false)
     {
         Editor.Playhead = new(Math.Clamp(position.Ticks, 0, Editor.MonitorDuration.Ticks));
-        resume = play; generation++; SeekRequests++; desired = true;
+        resume = play; reverseRequested = reverse; generation++; SeekRequests++; desired = true;
         // The caller makes every seek attributable in diagnostics (a seek's origin is otherwise invisible).
-        diagnostics.Record("seek-request", generation, Editor.Playhead.Ticks, $"play={play};scrubbing={scrubbing};from={caller}:{line}");
+        diagnostics.Record("seek-request", generation, Editor.Playhead.Ticks, $"play={play};reverse={reverse};scrubbing={scrubbing};from={caller}:{line}");
         seekLatency.Restart();
         Playback?.Pause(); seekCancellation?.Cancel();
         // Keep the last confirmed picture during a drag instead of destroying/reallocating its texture per mouse event.
-        if (!scrubbing) Graphics.ClearVideo();
-        lastUi = -1;
+        if (!scrubbing)
+        {
+            Graphics.ClearVideo();
+            lastUi = -1;
+        }
     }
     private void BeginSeek()
     {
@@ -309,11 +322,13 @@ internal sealed partial class EditorWindow : IDisposable
         var snapshot = Editor.Source?.Snapshot ?? Editor.Session.Snapshot; var id = Editor.Source?.SequenceId ?? Editor.SequenceId; var position = Editor.Playhead;
         var profile = Editor.Source is null ? Editor.Sequence.Creator?.Profiles.FirstOrDefault(p => p.Id == Editor.SelectedProfile) : null;
         bool prepareAudio = resume;
+        bool reverse = reverseRequested;
         opening = Task.Run(async () =>
         {
             if (old is not null) await old.DisposeAsync(); previousCancellation?.Dispose();
             if (new TimelineQueries(snapshot).Duration(id).Ticks == 0) return null;
-            return prepareAudio ? await SequencePlayback.OpenAsync(snapshot, id, position, token, profile)
+            if (prepareAudio) pausedPreview.Dispose();
+            return prepareAudio ? await SequencePlayback.OpenAsync(snapshot, id, position, token, profile, reverse)
                 : SequencePlayback.OpenPreview(pausedPreview, snapshot, id, position, token, profile);
         });
     }
@@ -342,7 +357,7 @@ internal sealed partial class EditorWindow : IDisposable
                 }
                 if (resume && opened is not null)
                 {
-                    if (opened.CanPlay) opened.Play(); else Seek(Editor.Playhead, true);
+                    if (opened.CanPlay) opened.Play(); else Seek(Editor.Playhead, true, reverse: reverseRequested);
                 }
             }
         }
@@ -540,7 +555,7 @@ internal sealed partial class EditorWindow : IDisposable
                 case "TogglePlay": if (Playback?.IsPlaying == true || resume && (opening is not null || desired)) PauseTransport(); else StartPlaying(); break;
                 case "Pause": PauseTransport(); break;
                 case "Play": StartPlaying(); break;
-                case "ReverseUnsupported": PauseTransport(); Editor.Status = "J: reverse/shuttle playback is not implemented; playback paused."; break;
+                case "PlayReverse": StartPlaying(reverse: true); break;
                 case "MarkIn" or "MarkOut" or "ClearMarks" when Editor.Source is { } markSource:
                 {
                     var current = Editor.SourceMarks.GetValueOrDefault(markSource.AssetId);
@@ -614,7 +629,26 @@ internal sealed partial class EditorWindow : IDisposable
         catch (Exception e) { Editor.Status = "ERROR: " + e.Message; Console.Error.WriteLine(e); }
         lastUi = -1;
     }
-    private void StartPlaying() { if (opening is not null || desired) resume = true; else if (Editor.Playhead.Ticks >= Editor.MonitorDuration.Ticks) Seek(default, true); else if (Playback is null || !Playback.CanPlay) Seek(Editor.Playhead, true); else Playback.Play(); }
+    private void StartPlaying(bool reverse = false)
+    {
+        if (reverse && Editor.Playhead.Ticks <= 0)
+        {
+            PauseTransport();
+            return;
+        }
+        if (opening is not null || desired)
+        {
+            if (reverseRequested != reverse) Seek(Editor.Playhead, true, reverse: reverse);
+            else resume = true;
+            return;
+        }
+        if (!reverse && Editor.Playhead.Ticks >= Editor.MonitorDuration.Ticks)
+            Seek(default, true);
+        else if (Playback is null || !Playback.CanPlay || Playback.IsReverse != reverse)
+            Seek(Editor.Playhead, true, reverse: reverse);
+        else
+            Playback.Play();
+    }
     private void PauseTransport() { resume = false; Playback?.Pause(); lastUi = -1; }
     private static (double X, double Y) Point(IMouse mouse) => (mouse.Position.X, mouse.Position.Y);
     private void MouseDown(IMouse mouse, MouseButton button)
@@ -640,7 +674,14 @@ internal sealed partial class EditorWindow : IDisposable
                 if (razor) { Seek(Snap(p.X)); Editor.Split(); Seek(Editor.Playhead); }
                 else { Gesture.Begin(hit.Clip, hit.Edge, p.X); CapturePointer(); }
             }
-            else { Editor.SelectedClip = null; scrubbing = true; CapturePointer(); Seek(Snap(p.X)); }
+            else
+            {
+                Editor.SelectedClip = null;
+                scrubSnapPoints = Editor.Snapping ? CollectSnapPoints() : null;
+                scrubbing = true;
+                CapturePointer();
+                UpdateScrubTarget(p.X);
+            }
             lastUi = -1; return;
         }
         pointer.Press(view.Prepared?.HitTest.HitTest(new PointerPoint(p.X, p.Y)));
@@ -651,13 +692,26 @@ internal sealed partial class EditorWindow : IDisposable
         if (Editor.Snapping)
         {
             long threshold = (long)(TimelineGesture.SnapPixels / Editor.Viewport.PixelsPerSecond * SequenceTime.TicksPerSecond);
-            var points = EditorEdits.EditPoints(Editor.Sequence)
-                .Concat(Editor.Sequence.Markers.Select(marker => marker.At.Ticks))
-                .Concat(new[] { Editor.MarkIn?.Ticks, Editor.MarkOut?.Ticks }.OfType<long>());
-            long nearest = points.OrderBy(p => Math.Abs(p - time.Ticks)).DefaultIfEmpty(-1).First();
-            if (nearest >= 0 && Math.Abs(nearest - time.Ticks) <= threshold) return new(nearest);
+            var points = scrubSnapPoints ?? CollectSnapPoints();
+            int index = Array.BinarySearch(points, time.Ticks);
+            if (index >= 0) return time;
+            index = ~index;
+            long before = index > 0 ? time.Ticks - points[index - 1] : long.MaxValue;
+            long after = index < points.Length ? points[index] - time.Ticks : long.MaxValue;
+            if (before <= after && before <= threshold) return new(points[index - 1]);
+            if (after <= threshold) return new(points[index]);
         }
         return TimelineTime.SnapToFrame(time, Editor.Sequence.Video.FrameRate, TimeRounding.NearestAwayFromZero);
+    }
+    private long[] CollectSnapPoints() => EditorEdits.EditPoints(Editor.Sequence)
+        .Concat(Editor.Sequence.Markers.Select(marker => marker.At.Ticks))
+        .Concat(new[] { Editor.MarkIn?.Ticks, Editor.MarkOut?.Ticks }.OfType<long>())
+        .Distinct().Order().ToArray();
+
+    private void UpdateScrubTarget(double x)
+    {
+        var time = Snap(x);
+        Editor.ScrubTarget = pendingScrub = new SequenceTime(Math.Clamp(time.Ticks, 0, Editor.MonitorDuration.Ticks));
     }
     private void OpenSelectedSource()
     {
@@ -696,7 +750,7 @@ internal sealed partial class EditorWindow : IDisposable
     {
         feedbackDirty |= feedback.Move(new(p.X, p.Y));
         pointerPosition = new(p.X, p.Y);
-        if (Gesture.Active) { Gesture.Move(p.X, p.Y); lastUi = -1; } else if (scrubbing) pendingScrub = Snap(p.X);
+        if (Gesture.Active) { Gesture.Move(p.X, p.Y); lastUi = -1; } else if (scrubbing) UpdateScrubTarget(p.X);
     }
     private void MouseUp(IMouse mouse, MouseButton button)
     {
@@ -711,15 +765,23 @@ internal sealed partial class EditorWindow : IDisposable
         if (Gesture.Active) { Gesture.Move(p.X, p.Y); if (Gesture.Release()) Seek(Editor.Playhead); ReleasePointer(); }
         else if (scrubbing)
         {
-            var target = Snap(p.X);
-            scrubbing = false; pendingScrub = null; ReleasePointer();
+            UpdateScrubTarget(p.X);
+            var target = Editor.ScrubTarget!.Value;
+            ClearScrub();
+            ReleasePointer();
             if (target != Editor.Playhead) Seek(target);
         }
         else { if (pointer.Release(view.Prepared?.HitTest.HitTest(new PointerPoint(p.X, p.Y)))?.Name is { } name) Action(name); }
         lastUi = -1;
         diagnostics.Save();
     }
-    private void CancelGesture() { Gesture.Cancel(); scrubbing = false; pendingScrub = null; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
+    private void ClearScrub()
+    {
+        scrubbing = false;
+        Editor.ScrubTarget = pendingScrub = null;
+        scrubSnapPoints = null;
+    }
+    private void CancelGesture() { Gesture.Cancel(); ClearScrub(); pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
     private nint WindowHandle => Graphics.Window.Native?.Win32?.Hwnd ?? 0;
     private void CapturePointer()
     {

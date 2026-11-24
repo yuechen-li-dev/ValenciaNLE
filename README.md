@@ -53,7 +53,7 @@ Editor controls:
 | Input | Action |
 |---|---|
 | Space / K / L | Toggle playback / pause / play at 1× |
-| J | Pause and report that reverse/shuttle playback is unsupported |
+| J / K / L | Play backward at 1× / pause / play forward |
 | Left / Right | Step one sequence frame |
 | V / C | Select tool / razor tool (click a clip to split) |
 | Ctrl+K | Split selected clip, or active unlocked clips when nothing is selected |
@@ -180,6 +180,6 @@ Core/persistence tests and the headless demonstration need no codecs, graphics o
 
 The editor defaults to a 1280×720/30 fps, stereo 48 kHz sequence. Existing project sequence settings are honored; there is no format-settings panel yet. M1b supports SDR, even sequence dimensions up to 8,294,400 pixels and audio rates from 8–192 kHz, with at most eight simultaneous clips of each media kind. CPU composition/software decode and RGBA uploads are intentional initial paths. Video layers use letterboxing and opacity; audio uses gain, mute and final hard limiting. Waveforms, transforms and effects are deferred.
 
-Known HDR PQ/HLG inputs are rejected. Full color management, display rotation/non-square pixels, arbitrary timestamp discontinuities, audio-device hot swapping, proxies and reverse/shuttle playback are not implemented. Long OBS recordings and heavy 4K layer stacks remain unqualified. Scripting is trusted local CLR execution with cooperative cancellation; schema authoring deliberately supports a finite structural subset. The Machina controls use the existing bitmap text rasterizer; timeline rectangles are native Aurelian GPU quads. See [M0](docs/M0.md), [M1a](docs/M1A.md), [M1b](docs/M1B.md) and [M2a](docs/M2A.md).
+Known HDR PQ/HLG inputs are rejected. Full color management, display rotation/non-square pixels, arbitrary timestamp discontinuities and audio-device hot swapping are outside current playback support. J plays in reverse at 1× with audio. Reverse playback on long OBS recordings and heavy 4K layer stacks needs further qualification. Scripting is trusted local CLR execution with cooperative cancellation. Schema authoring supports a finite structural subset. Timeline geometry and the playhead use native Aurelian GPU quads. See [M0](docs/M0.md), [M1a](docs/M1A.md), [M1b](docs/M1B.md), [M2a](docs/M2A.md) and [Reverse playback](docs/REVERSE_PLAYBACK.md).
 
 M2b supports independently selected mono/stereo audio streams. Rough cuts require an unlocked, aligned, ordered single-source sequence; they preserve existing gaps. Analysis discontinuities are retained as separate epochs, and automated editing across them is rejected. Waveform resolution adapts to a fixed bucket budget. Analysis cache data is regenerable and is excluded from `.valencia` project files.
