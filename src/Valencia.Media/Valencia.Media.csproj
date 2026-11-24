@@ -2,6 +2,10 @@
   <PropertyGroup><AllowUnsafeBlocks>true</AllowUnsafeBlocks></PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Valencia.Core/Valencia.Core.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/src/Aurelian/Aurelian.Graphics/Aurelian.Graphics.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/src/Aurelian/Aurelian.Shaders/Aurelian.Shaders.csproj" />
+    <EmbeddedResource Include="Assets/ClipEffects.v.ts" />
+    <EmbeddedResource Include="Assets/ClipEffects.json" Condition="Exists('Assets/ClipEffects.json')" />
     <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
     <PackageReference Include="NAudio.WinMM" Version="3.3.0" />
     <PackageReference Include="SkiaSharp" Version="3.119.1" />

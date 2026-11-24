@@ -1,10 +1,25 @@
 using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 
 namespace Valencia.Core.Timeline;
 
 public sealed record VideoEffects(double Exposure = 0, double Contrast = 1, double Saturation = 1, double Temperature = 0,
     double X = .5, double Y = .5, double Scale = 1, double CropLeft = 0, double CropTop = 0, double CropRight = 0, double CropBottom = 0,
-    long FadeInTicks = 0, long FadeOutTicks = 0);
+    long FadeInTicks = 0, long FadeOutTicks = 0, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RegionEffect? Region = null);
+/// <summary>One source-relative rectangle. Size is the blur radius or pixel block size in source pixels.</summary>
+public sealed record RegionEffect(string Mode, double Left, double Top, double Right, double Bottom, int Size = 8);
+public sealed record ColorPatch(
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? Exposure = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? Contrast = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? Saturation = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] double? Temperature = null)
+{
+    public VideoEffects Apply(VideoEffects video) => video with
+    {
+        Exposure = Exposure ?? video.Exposure, Contrast = Contrast ?? video.Contrast,
+        Saturation = Saturation ?? video.Saturation, Temperature = Temperature ?? video.Temperature
+    };
+}
 public sealed record AudioEffects(long FadeInTicks = 0, long FadeOutTicks = 0, double NoiseReductionDb = 0);
 public sealed record GainPoint(SequenceTime Time, double GainDb);
 public sealed record TrackAudio(Guid TrackId, double GainDb, ImmutableArray<GainPoint> Envelope);
@@ -80,6 +95,10 @@ public static class CreatorSemantics
                 && v.Exposure is >= -5 and <= 5 && v.Contrast is >= 0 and <= 4 && v.Saturation is >= 0 and <= 4 && v.Temperature is >= -1 and <= 1
                 && v.Scale is >= .1 and <= 10 && Unit(v.X) && Unit(v.Y) && Unit(v.CropLeft) && Unit(v.CropTop) && Unit(v.CropRight) && Unit(v.CropBottom)
                 && v.CropLeft + v.CropRight < 1 && v.CropTop + v.CropBottom < 1 && v.FadeInTicks >= 0 && v.FadeOutTicks >= 0, "Invalid video effects.");
+        if (properties.Video?.Region is { } r)
+            DocumentValidator.Require(r.Mode is "blur" or "pixelate" or "cover" && r.Size is >= 1 and <= 64
+                && Unit(r.Left) && Unit(r.Top) && Unit(r.Right) && Unit(r.Bottom) && r.Left < r.Right && r.Top < r.Bottom,
+                "Invalid region effect. Use blur, pixelate or cover and a nonempty source rectangle in [0, 1].");
         if (properties.Audio is { } a)
             DocumentValidator.Require(a.FadeInTicks >= 0 && a.FadeOutTicks >= 0 && double.IsFinite(a.NoiseReductionDb) && a.NoiseReductionDb is >= 0 and <= 40, "Invalid audio effects.");
     }

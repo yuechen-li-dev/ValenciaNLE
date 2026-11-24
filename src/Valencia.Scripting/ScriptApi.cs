@@ -175,6 +175,7 @@ public sealed class ScriptApi
         return new(snapshot.Document.Id, EngineJson.Exact(snapshot.Revision), Guid.Parse(sequence));
     }
     public string Validate(PlanBuilder plan) { Check(); return EngineJson.Write(engine.Plan(plan.Build(), false, cancellation)); }
+    public string ListEffects() { Check(); return EngineJson.Write(new { version = EffectCatalog.Version, effects = EffectCatalog.Effects }); }
     public string Apply(PlanBuilder plan)
     {
         Check();
@@ -374,6 +375,11 @@ public sealed class PlanBuilder(Guid projectId, string revision, Guid sequence)
     public void Move(string clipId, string trackId, string start) => operations.Add(new MovePlan(Guid.Parse(clipId), Guid.Parse(trackId), start));
     public void Move(string clipId, string trackId, long start) => Move(clipId, trackId, EngineJson.Exact(start));
     public void Delete(string clipId) => operations.Add(new DeletePlan(Guid.Parse(clipId)));
+    public void BasicColor(string clipId, double exposure, double contrast, double saturation, double temperature) =>
+        operations.Add(new ColorPlan(Guid.Parse(clipId), new(exposure, contrast, saturation, temperature)));
+    public void Region(string clipId, string mode, double left, double top, double right, double bottom, int size) =>
+        operations.Add(new RegionPlan(Guid.Parse(clipId), new(mode, left, top, right, bottom, size)));
+    public void ClearRegion(string clipId) => operations.Add(new RegionPlan(Guid.Parse(clipId)));
     public void AddTrack(string trackId, string kind, int order, string name) => operations.Add(new AddTrackPlan(Guid.Parse(trackId), Enum.Parse<TrackKind>(kind, true), order, name));
     public string ToJson() => EngineJson.Write(Build());
     public EditPlan Build() => new(1, projectId, revision, sequence, [.. operations]);

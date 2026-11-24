@@ -32,9 +32,16 @@ internal static class Program
         bool typographySmoke = args.Contains("--typography-smoke");
         bool scrubSmoke = args.Contains("--scrub-smoke");
         bool fullscreenSmoke = args.Contains("--fullscreen-smoke");
-        bool smoke = widgetSmoke || typographySmoke || scrubSmoke || fullscreenSmoke || args.Contains("--smoke") || args.Contains("--editor-smoke") || args.Contains("--analysis-smoke") || args.Contains("--transcript-smoke") || args.Contains("--creator-smoke") || args.Contains("--qualification-smoke") || args.Contains("--layout-smoke");
+        bool effectSmoke = args.Contains("--effects-smoke");
+        bool smoke = widgetSmoke || typographySmoke || scrubSmoke || fullscreenSmoke || effectSmoke || args.Contains("--smoke") || args.Contains("--editor-smoke") || args.Contains("--analysis-smoke") || args.Contains("--transcript-smoke") || args.Contains("--creator-smoke") || args.Contains("--qualification-smoke") || args.Contains("--layout-smoke");
         try
         {
+            if (effectSmoke)
+            {
+                EffectSmoke.Run(ValueAfter(args, "--effects-smoke") ?? throw new ArgumentException("Effects smoke requires a project."),
+                    Path.GetFullPath(ValueAfter(args, "--output") ?? "artifacts/local/effects-smoke"));
+                return 0;
+            }
             if (widgetSmoke || args.Contains("--widget-gallery"))
                 return NativeWidgetGallery.Run(widgetSmoke ? Path.GetFullPath(ValueAfter(args, "--output") ?? "artifacts/local/widgets-smoke") : null);
             if (typographySmoke)

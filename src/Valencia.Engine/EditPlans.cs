@@ -29,6 +29,8 @@ public sealed record ClipDto(Guid Id, Guid AssetId, int StreamIndex, string Star
 [JsonDerivedType(typeof(AddTrackPlan), "addTrack")]
 [JsonDerivedType(typeof(CreatorPlan), "creator")]
 [JsonDerivedType(typeof(PropertiesPlan), "properties")]
+[JsonDerivedType(typeof(ColorPlan), "color")]
+[JsonDerivedType(typeof(RegionPlan), "region")]
 public abstract record PlanOperation
 {
     public abstract EditOperation ToCore(Guid sequenceId);
@@ -72,6 +74,14 @@ public sealed record CreatorPlan(CreatorSettings Settings) : PlanOperation
 public sealed record PropertiesPlan(Guid ClipId, ClipProperties Properties) : PlanOperation
 {
     public override EditOperation ToCore(Guid sequenceId) => new SetClipProperties(sequenceId, ClipId, Properties);
+}
+public sealed record ColorPlan(Guid ClipId, ColorPatch Color) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new PatchClipColor(sequenceId, ClipId, Color);
+}
+public sealed record RegionPlan(Guid ClipId, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RegionEffect? Region = null) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new SetClipRegion(sequenceId, ClipId, Region);
 }
 public sealed record SourcePrecondition(Guid AssetId, string Fingerprint);
 public sealed record EditPlan(int SchemaVersion, Guid ProjectId, string ProjectRevision, Guid SequenceId,

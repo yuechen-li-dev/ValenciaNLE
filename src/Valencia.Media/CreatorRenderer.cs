@@ -8,9 +8,10 @@ namespace Valencia.Media;
 internal static class CreatorRenderer
 {
     private static readonly VideoEffects IdentityEffects = new();
-    public static void Composite(byte[] output, int width, int height, VideoFrame source, float opacity,
-        VideoEffects effects, OutputProfile? profile, SequenceTime time)
+    public static void Composite(byte[] output, int width, int height, VideoFrame source, AssetStream stream, float opacity,
+        VideoEffects effects, OutputProfile? profile, SequenceTime time, VulkanClipEffects? gpu, CancellationToken cancellation)
     {
+        if (opacity <= 0) return;
         var framing = Framing(profile, time);
         double cropW = source.Width * (1 - effects.CropLeft - effects.CropRight);
         double cropH = source.Height * (1 - effects.CropTop - effects.CropBottom);
@@ -25,34 +26,18 @@ internal static class CreatorRenderer
             source.Rgba.CopyTo(output, 0);
             return;
         }
-        if (effects.Exposure == 0 && effects.Contrast == 1 && effects.Saturation == 1 && effects.Temperature == 0)
+        bool hasColor = ClipEffectFrame.HasColor(effects);
+        if (!hasColor && effects.Region is null)
         {
             Geometry(output, width, height, source, opacity, effects, cropW, cropH, left, top, w, h);
             return;
         }
-        double exposure = Math.Pow(2, effects.Exposure);
-        for (int y = 0; y < height; y++)
-        for (int x = 0; x < width; x++)
-        {
-            int destination = (y * width + x) * 4;
-            bool inside = x >= left && x < left + w && y >= top && y < top + h;
-            double r = 0, g = 0, b = 0;
-            if (inside)
-            {
-                int sx = Math.Clamp((int)((x - left) / scale + effects.CropLeft * source.Width), 0, source.Width - 1);
-                int sy = Math.Clamp((int)((y - top) / scale + effects.CropTop * source.Height), 0, source.Height - 1);
-                int input = (sy * source.Width + sx) * 4;
-                r = source.Rgba[input] / 255.0; g = source.Rgba[input + 1] / 255.0; b = source.Rgba[input + 2] / 255.0;
-                r = (r * exposure * (1 + .2 * effects.Temperature) - .5) * effects.Contrast + .5;
-                g = (g * exposure - .5) * effects.Contrast + .5;
-                b = (b * exposure * (1 - .2 * effects.Temperature) - .5) * effects.Contrast + .5;
-                double luma = .2126 * r + .7152 * g + .0722 * b;
-                r = luma + effects.Saturation * (r - luma); g = luma + effects.Saturation * (g - luma); b = luma + effects.Saturation * (b - luma);
-            }
-            output[destination] = Blend(r, output[destination], opacity);
-            output[destination + 1] = Blend(g, output[destination + 1], opacity);
-            output[destination + 2] = Blend(b, output[destination + 2], opacity);
-        }
+        // Keep the old grading path's sample convention for existing projects.
+        var pass = new ClipEffectFrame(source, stream, effects, opacity,
+            ClipEffectFrame.Axis(width, source.Width, left, w, scale, effects.CropLeft, centers: !hasColor),
+            ClipEffectFrame.Axis(height, source.Height, top, h, scale, effects.CropTop, centers: !hasColor));
+        if (gpu is null) pass.Composite(output, cancellation);
+        else gpu.Composite(pass, output, cancellation);
     }
 
     private static unsafe void Geometry(byte[] output, int width, int height, VideoFrame source, float opacity, VideoEffects effects,
@@ -80,7 +65,6 @@ internal static class CreatorRenderer
             canvas.Flush();
         }
     }
-    private static byte Blend(double value, byte previous, float opacity) => (byte)Math.Clamp(value * 255 * opacity + previous * (1 - opacity), 0, 255);
 
     private static (double X, double Y, double Scale) Framing(OutputProfile? profile, SequenceTime time)
     {

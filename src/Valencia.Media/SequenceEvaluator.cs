@@ -25,6 +25,8 @@ public sealed class SequenceEvaluator : IDisposable
     private readonly CaptionIndex captionIndex;
     private readonly bool useProxies;
     private readonly bool retainVideoHistory;
+    private readonly bool gpuEffects;
+    private VulkanClipEffects? effectDevice;
     private SequenceTime? audioThrough;
     /// <summary>Diagnostic work count for currently retained cursors, including frames skipped during seek.</summary>
     public long ActiveVideoDecodedFrames => videos.Values.Sum(v => v.DecodedFrames);
@@ -34,8 +36,12 @@ public sealed class SequenceEvaluator : IDisposable
     /// <summary>Cursor decode work since the last discontinuous seek; excludes progressive index construction.</summary>
     public long ActiveAudioDecodedFrames => audios.Values.Sum(a => a.DecodedFrames);
     public SequenceDocument Sequence { get; }
+    public string? EffectGpu => effectDevice?.DeviceName;
+    public bool EffectValidationAvailable => effectDevice?.ValidationAvailable == true;
+    public int EffectValidationErrors => effectDevice?.ValidationErrors ?? 0;
+    public static void PrepareEffectShader(string path) => ClipEffectShader.Prepare(path);
     public SequenceEvaluator(ProjectSnapshot snapshot, Guid sequenceId, OutputProfile? profile = null,
-        bool useProxies = false, bool retainVideoHistory = false)
+        bool useProxies = false, bool retainVideoHistory = false, bool? useVulkanEffects = null)
     {
         DocumentValidator.Validate(snapshot.Document);
         FfmpegRuntime.Initialize();
@@ -43,6 +49,7 @@ public sealed class SequenceEvaluator : IDisposable
         this.profile = profile;
         this.useProxies = useProxies;
         this.retainVideoHistory = retainVideoHistory;
+        gpuEffects = useVulkanEffects ?? string.Equals(Environment.GetEnvironmentVariable("VALENCIA_EFFECTS_BACKEND"), "vulkan", StringComparison.OrdinalIgnoreCase);
         captionIndex = new(Sequence);
         if (Sequence.Creator is { Words.IsEmpty: false } creator) captionFont = CreatorRenderer.OpenFont(creator.CaptionStyle.Font);
         if (Sequence.AudioSampleRate is < 8000 or > 192000) throw new NotSupportedException("M1b audio supports sample rates from 8 kHz through 192 kHz.");
@@ -75,7 +82,12 @@ public sealed class SequenceEvaluator : IDisposable
                 float opacity = (float)a.Clip.Properties.Opacity;
                 if (effects is not null) opacity *= (float)CaptionEvaluation.Fade(time.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks, effects.FadeInTicks, effects.FadeOutTicks);
                 if (effects is null && profile is null) Composite(pixels, width, height, source, opacity);
-                else CreatorRenderer.Composite(pixels, width, height, source, opacity, effects ?? new(), profile, time);
+                else
+                {
+                    var device = gpuEffects && opacity > 0 && effects is not null && (effects.Region is not null || ClipEffectFrame.HasColor(effects))
+                        ? effectDevice ??= new VulkanClipEffects() : null;
+                    CreatorRenderer.Composite(pixels, width, height, source, a.Stream, opacity, effects ?? new(), profile, time, device, cancellation);
+                }
             }
         }
         if (Sequence.Creator is { } creator && captionIndex.At(evaluated) is { } line)
@@ -174,7 +186,7 @@ public sealed class SequenceEvaluator : IDisposable
         var keep = active.ToHashSet();
         foreach (var id in cursors.Keys.Where(k => !keep.Contains(k)).ToArray()) { cursors[id].Dispose(); cursors.Remove(id); }
     }
-    public void Dispose() { foreach (var v in videos.Values) v.Dispose(); foreach (var a in audios.Values) a.Dispose(); videos.Clear(); audios.Clear(); captionFont?.Dispose(); }
+    public void Dispose() { foreach (var v in videos.Values) v.Dispose(); foreach (var a in audios.Values) a.Dispose(); videos.Clear(); audios.Clear(); captionFont?.Dispose(); effectDevice?.Dispose(); }
 
     private sealed class VideoCursor : IDisposable
     {

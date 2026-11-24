@@ -15,7 +15,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
     private static readonly string[] ToolNames = ["project_info", "timeline_query", "validate_edit_plan", "apply_edit_plan", "run_export", "export_status", "cancel_export",
         "start_analysis", "analysis_status", "analysis_result", "cancel_analysis", "create_roughcut", "transcript_query", "create_textedit",
         "start_creator", "creator_status", "cancel_creator", "apply_creator", "caption_plan", "correct_transcript",
-        "obs_connect", "obs_status", "obs_record", "obs_marker", "obs_import"];
+        "obs_connect", "obs_status", "obs_record", "obs_marker", "obs_import", "effects_list"];
 
     public async Task RunAsync(TextReader input, TextWriter output, CancellationToken cancellation)
     {
@@ -79,6 +79,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
             {
                 "project_info" => BoundedQuery(ProjectInfo(arguments)),
                 "timeline_query" => BoundedQuery(Query(arguments)),
+                "effects_list" => new { version = EffectCatalog.Version, effects = EffectCatalog.Effects },
                 "validate_edit_plan" or "apply_edit_plan" => Plan(arguments, name == "apply_edit_plan"),
                 "run_export" => new { jobId = StartExport(arguments) },
                 "export_status" => engine.Exports.Status(Guid.Parse(arguments.GetProperty("jobId").GetString()!)),

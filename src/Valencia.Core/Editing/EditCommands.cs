@@ -27,6 +27,8 @@ public sealed record RippleDelete(Guid SequenceId, ImmutableArray<Guid> TrackIds
 public sealed record SetTrackState(Guid SequenceId, Guid TrackId, TrackState State) : EditOperation;
 public sealed record SetCreatorSettings(Guid SequenceId, CreatorSettings Settings) : EditOperation;
 public sealed record SetClipProperties(Guid SequenceId, Guid ClipId, ClipProperties Properties) : EditOperation;
+public sealed record PatchClipColor(Guid SequenceId, Guid ClipId, ColorPatch Color) : EditOperation;
+public sealed record SetClipRegion(Guid SequenceId, Guid ClipId, RegionEffect? Region) : EditOperation;
 
 public sealed record EditCommand(Guid Id, int SchemaVersion, EditOperation Operation, long? ExpectedRevision = null)
 {

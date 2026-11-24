@@ -23,6 +23,7 @@ internal static class EditReducer
             TrimClip x => x.SequenceId, SplitClip x => x.SequenceId, DeleteClip x => x.SequenceId,
             RippleDelete x => x.SequenceId, SetTrackState x => x.SequenceId,
             SetCreatorSettings x => x.SequenceId, SetClipProperties x => x.SequenceId,
+            PatchClipColor x => x.SequenceId, SetClipRegion x => x.SequenceId,
             SetSequenceMarker x => x.SequenceId, RemoveSequenceMarker x => x.SequenceId,
             _ => throw new ArgumentException("Unsupported operation.")
         };
@@ -73,7 +74,7 @@ internal static class EditReducer
                 Guid clipId = operation switch
                 {
                     MoveClip x => x.ClipId, TrimClip x => x.ClipId, SplitClip x => x.ClipId, DeleteClip x => x.ClipId,
-                    SetClipProperties x => x.ClipId,
+                    SetClipProperties x => x.ClipId, PatchClipColor x => x.ClipId, SetClipRegion x => x.ClipId,
                     _ => throw new ArgumentException("Unsupported clip operation.")
                 };
                 int ti = Index(tracks, t => t.Clips.Any(c => c.Id == clipId), "clip");
@@ -115,6 +116,22 @@ internal static class EditReducer
                     case SetClipProperties x:
                         clips = clips.SetItem(ci, clip with { Properties = x.Properties });
                         break;
+                    case PatchClipColor x:
+                    {
+                        DocumentValidator.Require(track.Kind == TrackKind.Video && x.Color is not null, "Basic Color requires a video clip and color parameters.");
+                        var video = x.Color!.Apply(clip.Properties.Video ?? new());
+                        clips = clips.SetItem(ci, clip with { Properties = clip.Properties with
+                            { Video = clip.Properties.Video is null && video == new VideoEffects() ? null : video } });
+                        break;
+                    }
+                    case SetClipRegion x:
+                    {
+                        DocumentValidator.Require(track.Kind == TrackKind.Video, "Region Effects require a video clip.");
+                        var video = (clip.Properties.Video ?? new()) with { Region = x.Region };
+                        clips = clips.SetItem(ci, clip with { Properties = clip.Properties with
+                            { Video = clip.Properties.Video is null && video == new VideoEffects() ? null : video } });
+                        break;
+                    }
                 }
                 tracks = tracks.SetItem(ti, WithClips(track, clips));
                 break;

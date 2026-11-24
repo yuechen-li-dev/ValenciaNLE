@@ -87,6 +87,8 @@ undo entry. Other Copeland scripts use the direct execution path. Use local code
 you trust because scripts run with ordinary CLR privileges. Escape requests
 cooperative cancellation. See [workflow examples and API](docs/WORKFLOWS.md).
 
+Discover Basic Color, blur, pixelation and cover with `effects list` or MCP `effects_list`. See [Clip Effects 1](docs/EFFECT_PACK.md) for a Copeland workflow and how to enable the Vulkan backend.
+
 ```powershell
 $cli = '.\artifacts\publish\cli-win-x64\Valencia.Cli.exe'
 & $cli project info project.valencia

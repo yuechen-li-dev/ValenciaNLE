@@ -23,6 +23,7 @@ public static class Program
                 Console.WriteLine("Valencia.Cli project info|create <project> [--media file]\nValencia.Cli timeline list <project>\nValencia.Cli script run <script.ts> --project <project> [--save-as file]\nValencia.Cli plan validate|apply <plan.json|plan.obj.ts> --project <project> [--save-as file]\nValencia.Cli schema export\nValencia.Cli export <project> --sequence <id> --output <file>\nValencia.Cli mcp --root <directory> --project <relative.valencia>");
                 Console.WriteLine("Valencia.Cli analyze waveform|silence|activity|scenes|audio <project> --asset <id> --stream <index> [--settings file.obj.ts]\nValencia.Cli roughcut plan <project> --analysis <key> [--sequence <id>] [--policy file.obj.ts] [--output plan.json]\nValencia.Cli roughcut apply <project> --plan <file> [--save-as <file>]\nValencia.Cli schema export --analysis");
                 Console.WriteLine("Valencia.Cli workflow preview|run <file.ts> --project <project> [--sequence <id>] [--revision <number>] [--args <json>] [--entry name] [--save-as file (run only)]");
+                Console.WriteLine("Valencia.Cli effects list");
                 Console.WriteLine("Valencia.Cli transcribe <project> --asset <id> --stream <index> [--model tiny.en|large-v3] [--language en]\nValencia.Cli transcript show|search <project> --analysis <key> [--query phrase]\nValencia.Cli textedit plan <project> --analysis <key> --query <phrase> --mode retain|remove [--occurrence <id>] [--output plan.json]\nValencia.Cli textedit apply <project> --plan <file> [--save-as <file>]");
                 Console.WriteLine("Valencia.Cli creator run <project> --asset <id> --stream <index> --output-dir <directory> [--keywords phrase] [--proxy] [--commit --verify-history]\nValencia.Cli creator plan <project> --request <file.obj.ts> --output <plan.json>\nValencia.Cli creator apply <project> --plan <plan.json> [--save-as file]\nValencia.Cli creator export <project> --output-dir <directory>\nValencia.Cli outputs list <project>\nValencia.Cli proxy create|index build|loudness analyze <project> --asset <id> --stream <index>\nValencia.Cli captions generate <project> --analysis <key> --output <plan.json>\nValencia.Cli transcript correct <project> --edits <file.obj.ts>\nTranscription alignment: --alignment native|dtw. Trusted Copeland scripts only; MCP exposes validated plans, never arbitrary code.");
                 return 0;
@@ -33,6 +34,16 @@ public static class Program
                 return 0;
             }
             if (args[0] == "obs") return await ObsCli.RunAsync(args, cancellation.Token);
+            if (args is ["effects", "list"])
+            {
+                Console.WriteLine(EngineJson.Write(new { version = EffectCatalog.Version, effects = EffectCatalog.Effects }));
+                return 0;
+            }
+            if (args is ["effects", "prepare-shader", var shaderPath])
+            {
+                SequenceEvaluator.PrepareEffectShader(shaderPath);
+                return 0;
+            }
             if (args[0] == "mcp")
             {
                 var policy = new WorkspacePolicy(Required(args, "--root"));

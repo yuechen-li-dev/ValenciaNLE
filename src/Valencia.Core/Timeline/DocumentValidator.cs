@@ -72,6 +72,7 @@ public static class DocumentValidator
                     Require(clip.Properties is not null && clip.Properties.Name is not null && clip.Properties.Opacity is >= 0m and <= 1m
                         && clip.Properties.Gain >= 0m, "Invalid clip properties.");
                     CreatorSemantics.ValidateEffects(clip.Properties!);
+                    Require(clip.Properties!.Video?.Region is null || track.Kind == TrackKind.Video, "Region Effects require a video clip.");
                     Require(assets.TryGetValue(clip.AssetId, out var asset), "Clip references an unknown asset.");
                     var stream = asset!.Streams.FirstOrDefault(s => s.Index == clip.StreamIndex);
                     Require(stream is not null && stream.Kind == track.Kind, "Clip references an unknown or incompatible stream.");
