@@ -24,8 +24,9 @@ internal static class EditReducer
             RippleDelete x => x.SequenceId, SetTrackState x => x.SequenceId,
             SetCreatorSettings x => x.SequenceId, SetClipProperties x => x.SequenceId,
             SetOutputFraming x => x.SequenceId,
-            PatchClipColor x => x.SequenceId, SetClipRegion x => x.SequenceId,
+            PatchClipColor x => x.SequenceId, SetClipRegion x => x.SequenceId, SetClipMotion x => x.SequenceId,
             SetSequenceMarker x => x.SequenceId, RemoveSequenceMarker x => x.SequenceId,
+            SetTitle x => x.SequenceId, RemoveTitle x => x.SequenceId,
             _ => throw new ArgumentException("Unsupported operation.")
         };
         int si = Index(document.Sequences, s => s.Id == sequenceId, "sequence");
@@ -45,6 +46,19 @@ internal static class EditReducer
         }
         if (operation is SetCreatorSettings settings)
             return document with { Sequences = document.Sequences.SetItem(si, sequence with { Creator = settings.Settings }) };
+        if (operation is SetTitle title)
+        {
+            ArgumentNullException.ThrowIfNull(title.Cue);
+            DocumentValidator.Require(title.Cue.End.Ticks <= sequence.Duration.Ticks, "Place titles within the current sequence duration.");
+            var titles = sequence.Titles.Where(cue => cue.Id != title.Cue.Id).Append(title.Cue)
+                .OrderBy(cue => cue.Start.Ticks).ThenBy(cue => cue.Id);
+            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Titles = [.. titles] }) };
+        }
+        if (operation is RemoveTitle removeTitle)
+        {
+            int index = Index(sequence.Titles, cue => cue.Id == removeTitle.TitleId, "title");
+            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Titles = sequence.Titles.RemoveAt(index) }) };
+        }
         if (operation is SetOutputFraming framing)
         {
             var creator = sequence.Creator ?? new CreatorSettings(1, [], new(), [], []);
@@ -92,7 +106,7 @@ internal static class EditReducer
                 Guid clipId = operation switch
                 {
                     MoveClip x => x.ClipId, TrimClip x => x.ClipId, SplitClip x => x.ClipId, DeleteClip x => x.ClipId,
-                    SetClipProperties x => x.ClipId, PatchClipColor x => x.ClipId, SetClipRegion x => x.ClipId,
+                    SetClipProperties x => x.ClipId, PatchClipColor x => x.ClipId, SetClipRegion x => x.ClipId, SetClipMotion x => x.ClipId,
                     _ => throw new ArgumentException("Unsupported clip operation.")
                 };
                 int ti = Index(tracks, t => t.Clips.Any(c => c.Id == clipId), "clip");
@@ -148,6 +162,14 @@ internal static class EditReducer
                         var video = (clip.Properties.Video ?? new()) with { Region = x.Region };
                         clips = clips.SetItem(ci, clip with { Properties = clip.Properties with
                             { Video = clip.Properties.Video is null && video == new VideoEffects() ? null : video } });
+                        break;
+                    }
+                    case SetClipMotion x:
+                    {
+                        DocumentValidator.Require(track.Kind == TrackKind.Video, "Clip motion requires a video clip.");
+                        var video = (clip.Properties.Video ?? new()) with { Motion = x.Motion };
+                        clips = clips.SetItem(ci, clip with { Properties = clip.Properties with
+                            { Video = x.Motion is null && video == new VideoEffects() ? null : video } });
                         break;
                     }
                 }

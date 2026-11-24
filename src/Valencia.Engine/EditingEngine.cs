@@ -154,17 +154,20 @@ public sealed partial class EditingEngine : IAsyncDisposable
             var after = result.Snapshot;
             var changes = Diff(before.Document, after.Document);
             var outputProfiles = DiffOutputFraming(plan, before, after);
+            var titles = DiffTitles(plan, before, after);
             var affected = changes.SelectMany(c => new[] { c.ClipId, c.BeforeTrack ?? Guid.Empty, c.AfterTrack ?? Guid.Empty })
                 .Concat(plan.Operations.OfType<TrackStatePlan>().Select(o => o.TrackId))
                 .Concat(plan.Operations.OfType<AddTrackPlan>().Select(o => o.TrackId))
                 .Concat(plan.Operations.OfType<CreatorPlan>().Select(_ => plan.SequenceId))
                 .Concat(outputProfiles.SelectMany(change => new[] { plan.SequenceId, change.ProfileId }))
+                .Concat(titles.SelectMany(change => new[] { plan.SequenceId, change.TitleId }))
                 .Where(id => id != Guid.Empty).Distinct().Order().ToImmutableArray();
             long resulting = commit ? result.Revision : checked(revision + 1);
             var current = Session.Snapshot;
             return new(1, true, commit, plan.ProjectRevision, EngineJson.Exact(resulting), EngineJson.Exact(current.Revision),
                 !commit && current.Revision == revision && current.Document.Id == plan.ProjectId, affected, changes,
-                new TimelineQueries(after).Duration(plan.SequenceId), [], outputProfiles.IsEmpty ? null : outputProfiles);
+                new TimelineQueries(after).Duration(plan.SequenceId), [], outputProfiles.IsEmpty ? null : outputProfiles,
+                titles.IsEmpty ? null : titles);
         }
         catch (Exception error) when (error is ArgumentException or OverflowException or FormatException or System.Text.Json.JsonException or InvalidOperationException or IOException)
         {
@@ -172,6 +175,16 @@ public sealed partial class EditingEngine : IAsyncDisposable
         }
         PlanResult Invalid(string message) => new(1, false, false, plan.ProjectRevision, EngineJson.Exact(Session.Snapshot.Revision),
             EngineJson.Exact(Session.Snapshot.Revision), false, [], [], null, [message]);
+    }
+    private static ImmutableArray<TitleChange> DiffTitles(EditPlan plan, ProjectSnapshot before, ProjectSnapshot after)
+    {
+        var ids = plan.Operations.OfType<TitlePlan>().Select(operation => operation.TitleId)
+            .Concat(plan.Operations.OfType<RemoveTitlePlan>().Select(operation => operation.TitleId)).Distinct().Order().ToArray();
+        if (ids.Length == 0) return [];
+        var left = new TimelineQueries(before).Sequence(plan.SequenceId).Titles;
+        var right = new TimelineQueries(after).Sequence(plan.SequenceId).Titles;
+        return [.. ids.Select(id => new TitleChange(id, left.FirstOrDefault(cue => cue.Id == id), right.FirstOrDefault(cue => cue.Id == id)))
+            .Where(change => change.Before != change.After)];
     }
     private static ImmutableArray<OutputProfileChange> DiffOutputFraming(EditPlan plan, ProjectSnapshot before, ProjectSnapshot after)
     {

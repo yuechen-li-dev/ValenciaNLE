@@ -32,6 +32,9 @@ public sealed record ClipDto(Guid Id, Guid AssetId, int StreamIndex, string Star
 [JsonDerivedType(typeof(ColorPlan), "color")]
 [JsonDerivedType(typeof(RegionPlan), "region")]
 [JsonDerivedType(typeof(OutputFramingPlan), "outputFraming")]
+[JsonDerivedType(typeof(TitlePlan), "title")]
+[JsonDerivedType(typeof(RemoveTitlePlan), "removeTitle")]
+[JsonDerivedType(typeof(ClipMotionPlan), "clipMotion")]
 public abstract record PlanOperation
 {
     public abstract EditOperation ToCore(Guid sequenceId);
@@ -89,14 +92,31 @@ public sealed record OutputFramingPlan(Guid ProfileId, string? Name = null, int?
 {
     public override EditOperation ToCore(Guid sequenceId) => new SetOutputFraming(sequenceId, ProfileId, Name, Width, Height, Fit, FocalX, FocalY);
 }
+public sealed record TitlePlan(Guid TitleId, string Text, long Start, long End, string Motion = "static",
+    long EntranceTicks = 0, long ExitTicks = 0, double X = .5, double Y = .5, double Size = .11,
+    uint Color = 0xFFFFFFFF, uint Outline = 0x101015FF) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) =>
+        new SetTitle(sequenceId, new(TitleId, Text, new(Start), new(End), Motion, EntranceTicks, ExitTicks, X, Y, Size, Color, Outline));
+}
+public sealed record RemoveTitlePlan(Guid TitleId) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new RemoveTitle(sequenceId, TitleId);
+}
+public sealed record ClipMotionPlan(Guid ClipId, ClipMotion? Motion = null) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new SetClipMotion(sequenceId, ClipId, Motion);
+}
 public sealed record SourcePrecondition(Guid AssetId, string Fingerprint);
 public sealed record EditPlan(int SchemaVersion, Guid ProjectId, string ProjectRevision, Guid SequenceId,
     ImmutableArray<PlanOperation> Operations, string? Note = null, ImmutableArray<SourcePrecondition>? SourcePreconditions = null);
 public sealed record ClipChange(string Kind, Guid ClipId, Guid? BeforeTrack, Guid? AfterTrack, TimelineClip? Before, TimelineClip? After);
 public sealed record OutputProfileChange(Guid ProfileId, OutputProfile? Before, OutputProfile? After);
+public sealed record TitleChange(Guid TitleId, TitleCue? Before, TitleCue? After);
 public sealed record PlanResult(int ApiVersion, bool Valid, bool Committed, string ExpectedRevision, string ResultingRevision,
     string CurrentRevision, bool CanCommit, ImmutableArray<Guid> AffectedIds, ImmutableArray<ClipChange> Changes,
-    SequenceTime? ResultingDuration, ImmutableArray<string> Diagnostics, ImmutableArray<OutputProfileChange>? OutputProfiles = null);
+    SequenceTime? ResultingDuration, ImmutableArray<string> Diagnostics, ImmutableArray<OutputProfileChange>? OutputProfiles = null,
+    ImmutableArray<TitleChange>? Titles = null);
 
 public static class EditPlanSchema
 {

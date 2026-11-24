@@ -87,7 +87,9 @@ undo entry. Other Copeland scripts use the direct execution path. Use local code
 you trust because scripts run with ordinary CLR privileges. Escape requests
 cooperative cancellation. See [workflow examples and API](docs/WORKFLOWS.md).
 
-Discover Basic Color, blur, pixelation and cover with `effects list` or MCP `effects_list`. See [Clip Effects 1](docs/EFFECT_PACK.md) for a Copeland workflow and how to enable the Vulkan backend.
+Right-click the timeline for context actions. Clip menus offer split, delete, ripple delete and seek. Ruler and gap menus offer seek and marker placement.
+
+Discover color, region effects, animated titles and clip motion with `effects list` or MCP `effects_list`. See [Clip Effects 1](docs/EFFECT_PACK.md) for Vulkan rendering and [Animation Presets](docs/ANIMATION_PRESETS.md) for an editable Copeland montage.
 
 ```powershell
 $cli = '.\artifacts\publish\cli-win-x64\Valencia.Cli.exe'

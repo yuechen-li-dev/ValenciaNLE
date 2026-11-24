@@ -47,6 +47,7 @@ public sealed record SequenceDocument(Guid Id, string Name, VideoFormat Video, i
     ImmutableArray<TimelineTrack> Tracks, CreatorSettings? Creator = null)
 {
     public ImmutableArray<SequenceMarker> Markers { get; init; } = [];
+    public ImmutableArray<TitleCue> Titles { get; init; } = [];
     [JsonIgnore] public SequenceTime Duration => new(Tracks.SelectMany(t => t.Clips).Select(c => c.End.Ticks).DefaultIfEmpty(0).Max());
 }
 public sealed record ProjectDocument(Guid Id, int SchemaVersion, string Name,
@@ -66,7 +67,8 @@ public static class DocumentSemantics
         a.Assets.Length == b.Assets.Length && a.Assets.Zip(b.Assets).All(p =>
             p.First with { Streams = p.Second.Streams } == p.Second && p.First.Streams.SequenceEqual(p.Second.Streams)) &&
         a.Sequences.Length == b.Sequences.Length && a.Sequences.Zip(b.Sequences).All(p =>
-            p.First with { Tracks = p.Second.Tracks, Creator = p.Second.Creator, Markers = p.Second.Markers } == p.Second &&
+            p.First with { Tracks = p.Second.Tracks, Creator = p.Second.Creator, Markers = p.Second.Markers, Titles = p.Second.Titles } == p.Second &&
+            p.First.Titles.SequenceEqual(p.Second.Titles) &&
             p.First.Markers.SequenceEqual(p.Second.Markers) && CreatorSemantics.Equal(p.First.Creator, p.Second.Creator) && p.First.Tracks.Length == p.Second.Tracks.Length &&
             p.First.Tracks.Zip(p.Second.Tracks).All(t => t.First with { Clips = t.Second.Clips } == t.Second &&
                 t.First.Clips.SequenceEqual(t.Second.Clips)));

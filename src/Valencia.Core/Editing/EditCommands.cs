@@ -26,11 +26,14 @@ public sealed record RippleDelete(Guid SequenceId, ImmutableArray<Guid> TrackIds
 /// <summary>Permitted on a locked track, so it can be unlocked; other edits cannot bypass the lock.</summary>
 public sealed record SetTrackState(Guid SequenceId, Guid TrackId, TrackState State) : EditOperation;
 public sealed record SetCreatorSettings(Guid SequenceId, CreatorSettings Settings) : EditOperation;
+public sealed record SetTitle(Guid SequenceId, TitleCue Cue) : EditOperation;
+public sealed record RemoveTitle(Guid SequenceId, Guid TitleId) : EditOperation;
 public sealed record SetOutputFraming(Guid SequenceId, Guid ProfileId, string? Name = null, int? Width = null, int? Height = null,
     string? Fit = null, double? FocalX = null, double? FocalY = null) : EditOperation;
 public sealed record SetClipProperties(Guid SequenceId, Guid ClipId, ClipProperties Properties) : EditOperation;
 public sealed record PatchClipColor(Guid SequenceId, Guid ClipId, ColorPatch Color) : EditOperation;
 public sealed record SetClipRegion(Guid SequenceId, Guid ClipId, RegionEffect? Region) : EditOperation;
+public sealed record SetClipMotion(Guid SequenceId, Guid ClipId, ClipMotion? Motion) : EditOperation;
 
 public sealed record EditCommand(Guid Id, int SchemaVersion, EditOperation Operation, long? ExpectedRevision = null)
 {

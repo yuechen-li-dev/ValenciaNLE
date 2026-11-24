@@ -223,6 +223,11 @@ public sealed class ScriptApi
     }
     private void Check() => cancellation.ThrowIfCancellationRequested();
     public string OutputProfiles(string sequence) { Check(); return EngineJson.Write(engine.Query().Sequence(Guid.Parse(sequence)).Creator?.Profiles ?? []); }
+    public string Titles(string sequence)
+    {
+        Check();
+        return EngineJson.Write(engine.Query().Sequence(Guid.Parse(sequence)).Titles);
+    }
     public string ExportProfile(string sequence, string profile, string output) { RequireDirectScript(); return engine.Exports.Start(Guid.Parse(sequence), output, Guid.Parse(profile)).ToString(); }
     public string ExportOutputs(string sequence, string directory) { RequireDirectScript(); return EngineJson.Write(engine.ExportProfilesAsync(Guid.Parse(sequence), directory, cancellation).GetAwaiter().GetResult()); }
     public string TranscribeAligned(string asset, int stream, string model)
@@ -384,6 +389,16 @@ public sealed class PlanBuilder(Guid projectId, string revision, Guid sequence)
         operations.Add(new OutputFramingPlan(Guid.Parse(profileId), name, width, height, fit, focalX, focalY));
     public void OutputFocalPoint(string profileId, double x, double y) =>
         operations.Add(new OutputFramingPlan(Guid.Parse(profileId), FocalX: x, FocalY: y));
+    public void Title(string titleId, string text, long start, long end, string motion, long entrance, long exit) =>
+        operations.Add(new TitlePlan(Guid.Parse(titleId), text, start, end, motion, entrance, exit));
+    public void StyledTitle(string titleId, string text, long start, long end, string motion, long entrance, long exit,
+        double x, double y, double size, long color, long outline) =>
+        operations.Add(new TitlePlan(Guid.Parse(titleId), text, start, end, motion, entrance, exit, x, y, size,
+            checked((uint)color), checked((uint)outline)));
+    public void RemoveTitle(string titleId) => operations.Add(new RemoveTitlePlan(Guid.Parse(titleId)));
+    public void ClipMotion(string clipId, string preset, long duration, double strength) =>
+        operations.Add(new ClipMotionPlan(Guid.Parse(clipId), new(preset, duration, strength)));
+    public void ClearClipMotion(string clipId) => operations.Add(new ClipMotionPlan(Guid.Parse(clipId)));
     public void AddTrack(string trackId, string kind, int order, string name) => operations.Add(new AddTrackPlan(Guid.Parse(trackId), Enum.Parse<TrackKind>(kind, true), order, name));
     public string ToJson() => EngineJson.Write(Build());
     public EditPlan Build() => new(1, projectId, revision, sequence, [.. operations]);

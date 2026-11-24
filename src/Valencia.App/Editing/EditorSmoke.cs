@@ -16,6 +16,7 @@ internal sealed class EditorSmoke(string directory)
     private ProjectDocument? saved;
     private bool capturedPlayback;
     private double largeInputMs;
+    private double[] contextMenuPreparationMs = [];
     private bool benchStarted;
     private SequenceTime exportDuration;
     private readonly Stopwatch playbackElapsed = new();
@@ -32,6 +33,7 @@ internal sealed class EditorSmoke(string directory)
         {
             case -2:
                 window.VerifyPointerFeedback(directory);
+                contextMenuPreparationMs = window.VerifyContextMenu(directory);
                 saved = e.Session.Snapshot.Document;
                 string script = Path.Combine(directory, "native-script.ts");
                 File.WriteAllText(script, """
@@ -151,6 +153,7 @@ internal sealed class EditorSmoke(string directory)
                     outcome = window.MaximumAvSkew <= .15 ? "passed" : "failed", gpu = window.Graphics.GpuName, runtime = Environment.Version.ToString(),
                     elapsedSeconds = deadline.Elapsed.TotalSeconds, maximumAvSkewSeconds = window.MaximumAvSkew,
                     pointerFeedbackMilliseconds = window.PointerFeedbackMilliseconds,
+                    contextMenuPreparationMs,
                     realPlaybackSeconds = exportDuration.TotalSeconds, exportDurationSeconds = exportDuration.TotalSeconds,
                     playbackElapsedSeconds = playbackElapsed.Elapsed.TotalSeconds,
                     exportDurationTicks = exportDuration.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture), seekRequests = window.SeekRequests,

@@ -15,6 +15,7 @@ public sealed record SequenceFrame(SequenceTime Time, int Width, int Height, byt
 /// <summary>Worker-confined source resolution shared verbatim by preview and offline export. Owns at most 8 active cursors of each kind.</summary>
 public sealed class SequenceEvaluator : IDisposable
 {
+    private static readonly VideoEffects IdentityEffects = new();
     private readonly TimelineQueries queries;
     private readonly Guid sequenceId;
     private readonly long[] boundaries;
@@ -23,6 +24,7 @@ public sealed class SequenceEvaluator : IDisposable
     private readonly OutputProfile? profile;
     private readonly SKTypeface? captionFont;
     private readonly CaptionIndex captionIndex;
+    private TitleRenderer? titleRenderer;
     private readonly bool useProxies;
     private readonly bool retainVideoHistory;
     private readonly bool gpuEffects;
@@ -81,17 +83,24 @@ public sealed class SequenceEvaluator : IDisposable
                 var effects = a.Clip.Properties.Video;
                 float opacity = (float)a.Clip.Properties.Opacity;
                 if (effects is not null) opacity *= (float)CaptionEvaluation.Fade(time.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks, effects.FadeInTicks, effects.FadeOutTicks);
+                if (effects?.Motion is { } motion)
+                {
+                    var animated = motion.Apply(effects with { Motion = null }, time.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks);
+                    effects = animated == IdentityEffects ? null : animated;
+                }
                 if (effects is null && profile is null) Composite(pixels, width, height, source, opacity);
                 else
                 {
                     var device = gpuEffects && opacity > 0 && effects is not null && (effects.Region is not null || ClipEffectFrame.HasColor(effects))
                         ? effectDevice ??= new VulkanClipEffects() : null;
-                    CreatorRenderer.Composite(pixels, width, height, source, a.Stream, opacity, effects ?? new(), profile, time, device, cancellation);
+                    CreatorRenderer.Composite(pixels, width, height, source, a.Stream, opacity, effects ?? IdentityEffects, profile, time, device, cancellation);
                 }
             }
         }
         if (Sequence.Creator is { } creator && captionIndex.At(evaluated) is { } line)
             CreatorRenderer.Captions(pixels, width, height, line, creator.CaptionStyle, profile?.CaptionY, captionFont!);
+        if (Sequence.Titles.Any(title => title.Start.Ticks <= time.Ticks && time.Ticks < title.End.Ticks))
+            (titleRenderer ??= new TitleRenderer()).Draw(pixels, width, height, time, Sequence.Titles, cancellation);
         return new(time, width, height, pixels, [.. active.Select(a => a.Clip.Id)], timestamps.ToImmutable())
         {
             ReadyHostTicks = System.Diagnostics.Stopwatch.GetTimestamp(),
@@ -186,7 +195,16 @@ public sealed class SequenceEvaluator : IDisposable
         var keep = active.ToHashSet();
         foreach (var id in cursors.Keys.Where(k => !keep.Contains(k)).ToArray()) { cursors[id].Dispose(); cursors.Remove(id); }
     }
-    public void Dispose() { foreach (var v in videos.Values) v.Dispose(); foreach (var a in audios.Values) a.Dispose(); videos.Clear(); audios.Clear(); captionFont?.Dispose(); effectDevice?.Dispose(); }
+    public void Dispose()
+    {
+        foreach (var video in videos.Values) video.Dispose();
+        foreach (var audio in audios.Values) audio.Dispose();
+        videos.Clear();
+        audios.Clear();
+        captionFont?.Dispose();
+        titleRenderer?.Dispose();
+        effectDevice?.Dispose();
+    }
 
     private sealed class VideoCursor : IDisposable
     {

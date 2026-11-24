@@ -18,6 +18,12 @@ public static class EffectCatalog
         new("region", "region", "videoClip", "Set or clear one rectangle in original source coordinates. Cover fills it with black.",
         [new("left", "sourceFraction", 0, 0, 1), new("top", "sourceFraction", 0, 0, 1),
             new("right", "sourceFraction", 1, 0, 1), new("bottom", "sourceFraction", 1, 0, 1), new("size", "sourcePixels", 8, 1, 64)],
-        ["blur", "pixelate", "cover"])
+        ["blur", "pixelate", "cover"]),
+        new("animated-title", "title", "sequence", "Layer one line of outlined text above video and captions for an exact sequence range.",
+        [new("x", "outputFraction", .5, 0, 1), new("y", "outputFraction", .5, 0, 1),
+            new("size", "outputHeightFraction", .11, .03, .34)],
+        ["static", "fade", "slideUp", "pop", "impact"]),
+        new("clip-motion", "clipMotion", "videoClip", "Apply clip-local entry motion or clear it while preserving the underlying placement and grade.",
+        [new("strength", "ratio", 1, 0, 1)], ["punchIn", "shake"])
     ];
 }

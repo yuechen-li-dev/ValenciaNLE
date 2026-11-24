@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Deliverance.Core.Serialization;
+using Valencia.Core.Timeline;
 
 namespace Valencia.Persistence;
 
@@ -12,8 +14,15 @@ public sealed class ProjectJsonSerializer : ISaveSerializer
         RespectRequiredConstructorParameters = true,
         RespectNullableAnnotations = true,
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
+        TypeInfoResolver = new DefaultJsonTypeInfoResolver { Modifiers = { OmitEmptyTitles } },
         Converters = { new JsonStringEnumConverter(allowIntegerValues: false) }
     };
+    private static void OmitEmptyTitles(JsonTypeInfo typeInfo)
+    {
+        if (typeInfo.Type != typeof(SequenceDocument)) return;
+        typeInfo.Properties.Single(property => property.Name == nameof(SequenceDocument.Titles)).ShouldSerialize =
+            (sequence, _) => !((SequenceDocument)sequence).Titles.IsEmpty;
+    }
     public byte Id => 42;
     public string Name => "valencia-json-v1";
     public byte[] Serialize<T>(T value) => JsonSerializer.SerializeToUtf8Bytes(value, Options);

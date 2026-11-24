@@ -96,7 +96,7 @@ internal sealed partial class EditorWindow : IDisposable
             mouse.MouseMove += (m, p) => HandlePointer(() => { if (!Settings.IsOpen) MouseMove(m, p); });
             mouse.Scroll += (m, wheel) => HandlePointer(() =>
             {
-                if (Settings.IsOpen) return;
+                if (Settings.IsOpen || contextMenu is not null) return;
                 if (IsFullscreen) { if (wheel.Y != 0) Action(wheel.Y > 0 ? "VolumeUp" : "VolumeDown"); return; }
                 var point = Point(m); var media = view.Layout.Media;
                 if (point.X >= media.X && point.X < media.X + media.Width && point.Y >= media.Y && point.Y < media.Y + media.Height)
@@ -137,10 +137,14 @@ internal sealed partial class EditorWindow : IDisposable
             if (chromeRevision != chrome.VisualRevision) { chromeRevision = chrome.VisualRevision; lastUi = -1; }
             double now = clock.Elapsed.TotalSeconds;
             // Widget input is polled every iteration so the shared transport never accumulates stale events.
+            bool menuOwnsKeys = contextMenu is not null;
             foreach (var item in widgetInput.Poll().Events)
+            {
                 if (Settings.IsOpen) widgetInput.SetPointerCapture(Settings.Handle(item, clock.Elapsed));
+                else if (contextMenu is not null) HandlePointer(() => HandleContextMenu(item));
+            }
             // The keymap keeps running under Settings: it feeds InputMan's rebind capture. Commands are dropped there.
-            if (focused) foreach (var action in keys.Read(now - lastTick)) if (!Settings.IsOpen) Action(action.ToString()); lastTick = now;
+            if (focused) foreach (var action in keys.Read(now - lastTick)) if (!Settings.IsOpen && !menuOwnsKeys) Action(action.ToString()); lastTick = now;
             ApplyFullscreenToggle();
             if (Settings.TakeDirty()) lastUi = -1;
             if ((Gesture.Active || scrubbing) && GetCapture() != WindowHandle) CancelGesture();
@@ -181,7 +185,7 @@ internal sealed partial class EditorWindow : IDisposable
             layoutSmoke?.Tick(this);
             scrubSmoke?.Tick(this);
             fullscreenSmoke?.Tick(this);
-            if (!ScriptedPointer && input.Mice.Count > 0 && !Settings.IsOpen)
+            if (!ScriptedPointer && input.Mice.Count > 0 && !Settings.IsOpen && contextMenu is null)
             {
                 var point = input.Mice[0].Position;
                 if (observedNativePointer != point)
@@ -200,6 +204,7 @@ internal sealed partial class EditorWindow : IDisposable
             UpdateFullscreenControls(now);
             if (now - lastUi >= .1) Prepare();
             else if (feedbackDirty) RefreshFeedback();
+            if (contextDirty || contextMenu is not null) HandlePointer(() => RefreshContextMenu());
             cursor.Set(Settings.IsOpen ? Settings.Cursor : PointerCursor());
             UpdatePlayheadOverlay();
             Graphics.Draw();
@@ -303,6 +308,7 @@ internal sealed partial class EditorWindow : IDisposable
     internal byte[] Readback()
     {
         Prepare();
+        RefreshContextMenu();
         UpdatePlayheadOverlay();
         return Graphics.Draw(true) ?? throw new InvalidOperationException("No GPU readback.");
     }
@@ -672,12 +678,18 @@ internal sealed partial class EditorWindow : IDisposable
     private static (double X, double Y) Point(IMouse mouse) => (mouse.Position.X, mouse.Position.Y);
     private void MouseDown(IMouse mouse, MouseButton button)
     {
+        if (button == MouseButton.Right)
+        {
+            OpenContextMenu(Point(mouse));
+            return;
+        }
         if (button != MouseButton.Left || job is not null) return;
         PointerDown(Point(mouse));
     }
     internal double RulerY => view.Layout.RulerY;
     internal void PointerDown((double X, double Y) p)
     {
+        if (contextMenu is not null) return;
         pointerPosition = new(p.X, p.Y);
         feedbackDirty |= feedback.Press(new(p.X, p.Y));
         if (IsFullscreen) { FullscreenPointerDown(p); return; }
@@ -789,6 +801,7 @@ internal sealed partial class EditorWindow : IDisposable
     }
     internal void PointerMove((double X, double Y) p)
     {
+        if (contextMenu is not null) return;
         feedbackDirty |= feedback.Move(new(p.X, p.Y));
         pointerPosition = new(p.X, p.Y);
         if (IsFullscreen)
@@ -806,6 +819,7 @@ internal sealed partial class EditorWindow : IDisposable
     }
     internal void PointerUp((double X, double Y) p)
     {
+        if (contextMenu is not null) return;
         pointerPosition = new(p.X, p.Y);
         feedbackDirty |= feedback.Release(new(p.X, p.Y));
         if (IsFullscreen) { FullscreenPointerUp(p); return; }
@@ -829,7 +843,7 @@ internal sealed partial class EditorWindow : IDisposable
         Editor.ScrubTarget = pendingScrub = null;
         scrubSnapPoints = null;
     }
-    private void CancelGesture() { Gesture.Cancel(); ClearScrub(); fullscreenVideoPressed = false; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
+    private void CancelGesture() { CloseContextMenu(); Gesture.Cancel(); ClearScrub(); fullscreenVideoPressed = false; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
     private nint WindowHandle => Graphics.Window.Native?.Win32?.Hwnd ?? 0;
     private void CapturePointer()
     {
@@ -878,6 +892,7 @@ internal sealed partial class EditorWindow : IDisposable
         if (job is not null) try { job.GetAwaiter().GetResult(); } catch (OperationCanceledException) { } catch (Exception e) { Console.Error.WriteLine(e); }
         if (opening is not null) try { opening.GetAwaiter().GetResult()?.DisposeAsync().AsTask().GetAwaiter().GetResult(); } catch (OperationCanceledException) { } catch (Exception e) { Console.Error.WriteLine(e); }
         Playback?.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        CloseContextMenu();
         widgetInput.Dispose();
         pausedPreview.Dispose();
         qualificationSmoke?.Dispose();

@@ -25,6 +25,7 @@ public sealed class NativeVideoPresenter : IDisposable
     private readonly CompiledGraphicsProgram textShader;
     private readonly CompiledGraphicsProgram shapeShader;
     private readonly NativeUiPresentation ui = new();
+    private readonly NativeUiPresentation overlayUi = new();
     private AurelianVulkanSurface? surface;
     private AurelianVulkanSwapchain? swapchain;
     private VulkanNativeFrameTarget? target;
@@ -34,6 +35,7 @@ public sealed class NativeVideoPresenter : IDisposable
     private AurelianMsdfAtlasCache? atlas;
     private VulkanNativeSwapchainPresenter? presenter;
     private Native2DTextureHandle uiTexture;
+    private Native2DTextureHandle overlayTexture;
     private Native2DTextureHandle videoTexture;
     private Native2DTextureHandle whiteTexture;
     private Native2DTextureHandle glyphTexture;
@@ -47,6 +49,7 @@ public sealed class NativeVideoPresenter : IDisposable
     private int videoHeight;
     private byte[]? lastVideo;
     private MachinaPresentationFrame? uiFrame;
+    private MachinaPresentationFrame? overlayFrame;
     private double logicalWidth = LogicalWidth, logicalHeight = LogicalHeight;
     private bool resize;
     private ulong frameId;
@@ -154,11 +157,36 @@ public sealed class NativeVideoPresenter : IDisposable
         ui.Prepare(uiFrame, atlas!, (int)target.Width, (int)target.Height);
         if (uiTexture.Value != 0) { renderer.DisposeTexture(uiTexture); uiTexture = default; }
         if (ui.FallbackPixels is { } pixels) uiTexture = renderer.CreateTexture(target.Width, target.Height, pixels);
+        UploadRasterGlyphs();
+    }
+
+    /// <summary>Prepares a transparent UI layer drawn above the video and timeline.</summary>
+    public void UpdateOverlay(MachinaPresentationFrame? frame)
+    {
+        overlayFrame = frame;
+        if (renderer is not null && !resize) PrepareOverlay();
+    }
+
+    private void PrepareOverlay()
+    {
+        if (overlayTexture.Value != 0)
+        {
+            renderer!.DisposeTexture(overlayTexture);
+            overlayTexture = default;
+        }
+        if (overlayFrame is null) return;
+        overlayUi.Prepare(overlayFrame, atlas!, (int)target!.Width, (int)target.Height);
+        if (overlayUi.FallbackPixels is { } pixels) overlayTexture = renderer!.CreateTexture(target.Width, target.Height, pixels);
+        UploadRasterGlyphs();
+    }
+
+    private void UploadRasterGlyphs()
+    {
         var raster = RasterText.Instance;
         if (raster.Version != glyphVersion)
         {
-            if (glyphTexture.Value == 0) glyphTexture = renderer.CreateTexture(RasterText.AtlasSize, RasterText.AtlasSize, raster.Pixels);
-            else renderer.UpdateTexture(glyphTexture, RasterText.AtlasSize, RasterText.AtlasSize, raster.Pixels);
+            if (glyphTexture.Value == 0) glyphTexture = renderer!.CreateTexture(RasterText.AtlasSize, RasterText.AtlasSize, raster.Pixels);
+            else renderer!.UpdateTexture(glyphTexture, RasterText.AtlasSize, RasterText.AtlasSize, raster.Pixels);
             glyphVersion = raster.Version;
         }
     }
@@ -251,6 +279,26 @@ public sealed class NativeVideoPresenter : IDisposable
         if (uiTexture.Value != 0)
             frame.Present(renderer!, quad => quad.SubmitQuad(new NativeQuadSubmission(
                 new(0, 0, (float)logicalWidth, (float)logicalHeight), Native2DUvRect.Full, uiTexture, Native2DTint.White)));
+        if (overlayFrame is not null)
+        {
+            frame.Present(shapeRenderer!, shapes =>
+            {
+                foreach (var shape in overlayUi.Shapes) shapes.SubmitAnalyticShape(shape);
+            });
+            if (overlayUi.RasterGlyphs.Count != 0 || overlayTexture.Value != 0)
+                frame.Present(renderer!, quad =>
+                {
+                    SubmitRasterGlyphs(quad, overlayUi);
+                    if (overlayTexture.Value != 0)
+                        quad.SubmitQuad(new NativeQuadSubmission(new(0, 0, (float)logicalWidth, (float)logicalHeight),
+                            Native2DUvRect.Full, overlayTexture, Native2DTint.White));
+                });
+            if (overlayUi.Glyphs.Count != 0)
+                frame.Present(textRenderer!, text =>
+                {
+                    foreach (var glyph in overlayUi.Glyphs) text.SubmitMsdfQuad(glyph);
+                });
+        }
         VulkanNativeFrameResult result = frame.EndFrame(captureReadback: capture);
         LastDrawPresented = false;
         if (!present) frameId++;
@@ -278,8 +326,14 @@ public sealed class NativeVideoPresenter : IDisposable
                         whiteTexture, new Native2DTint((r.Color >> 24) / 255f, ((r.Color >> 16) & 255) / 255f, ((r.Color >> 8) & 255) / 255f, (r.Color & 255) / 255f)));
             }
             // Raster UI text draws in this pass, after the canvas, so it sits above every fill and the picture.
-            if (glyphTexture.Value != 0)
-                foreach (var g in ui.RasterGlyphs) quad.SubmitQuad(new NativeQuadSubmission(g.Destination, g.Uv, glyphTexture, g.Color));
+            SubmitRasterGlyphs(quad, ui);
+        }
+
+        void SubmitRasterGlyphs(VulkanOrderedQuadRenderer quad, NativeUiPresentation layer)
+        {
+            if (glyphTexture.Value == 0) return;
+            foreach (var glyph in layer.RasterGlyphs)
+                quad.SubmitQuad(new NativeQuadSubmission(glyph.Destination, glyph.Uv, glyphTexture, glyph.Color));
         }
 
         void SubmitVideo(VulkanOrderedQuadRenderer quad)
@@ -329,9 +383,11 @@ public sealed class NativeVideoPresenter : IDisposable
         presenter = new VulkanNativeSwapchainPresenter(plant, target, swapchain);
         presenter.CaptureTimings = trace is not null;
         uiTexture = default;
+        overlayTexture = default;
         videoTexture = default;
         glyphTexture = default; glyphVersion = -1;
         PrepareUi();
+        PrepareOverlay();
         if (lastVideo is not null)
         {
             UpdateVideo(videoWidth, videoHeight, lastVideo);

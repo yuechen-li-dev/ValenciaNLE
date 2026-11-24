@@ -55,6 +55,22 @@ public static class DocumentValidator
                 Require(marker.At.Ticks >= 0 && marker.Label is { Length: > 0 and <= 256 }
                     && !string.IsNullOrWhiteSpace(marker.Label) && !marker.Label.Any(char.IsControl), "Invalid sequence marker.");
             }
+            Require(!sequence.Titles.IsDefault && sequence.Titles.Length <= 2000, "A sequence supports up to 2,000 titles.");
+            foreach (var title in sequence.Titles)
+            {
+                Require(title is not null, "Null title.");
+                AddId(title!.Id);
+                Require(title.Start.Ticks >= 0 && title.End.Ticks > title.Start.Ticks
+                    && title.EntranceTicks >= 0 && title.ExitTicks >= 0
+                    && title.EntranceTicks <= title.End.Ticks - title.Start.Ticks
+                    && title.ExitTicks <= title.End.Ticks - title.Start.Ticks - title.EntranceTicks,
+                    "Title timing requires a positive range and entrance/exit durations within it.");
+                Require(title.Text is { Length: > 0 and <= 120 } && !string.IsNullOrWhiteSpace(title.Text)
+                    && !title.Text.Any(char.IsControl) && !title.Text.Contains('\u2028') && !title.Text.Contains('\u2029'),
+                    "Title text requires one line of 1..120 characters.");
+                Require(TitleMotion.IsSupported(title.Motion) && CreatorSemantics.Unit(title.X) && CreatorSemantics.Unit(title.Y)
+                    && title.Size is >= .03 and <= .34, "Invalid title motion, placement or size.");
+            }
             for (int order = 0; order < sequence.Tracks.Length; order++)
             {
                 var track = sequence.Tracks[order];
@@ -73,6 +89,7 @@ public static class DocumentValidator
                         && clip.Properties.Gain >= 0m, "Invalid clip properties.");
                     CreatorSemantics.ValidateEffects(clip.Properties!);
                     Require(clip.Properties!.Video?.Region is null || track.Kind == TrackKind.Video, "Region Effects require a video clip.");
+                    Require(clip.Properties.Video?.Motion is null || track.Kind == TrackKind.Video, "Clip motion requires a video clip.");
                     Require(assets.TryGetValue(clip.AssetId, out var asset), "Clip references an unknown asset.");
                     var stream = asset!.Streams.FirstOrDefault(s => s.Index == clip.StreamIndex);
                     Require(stream is not null && stream.Kind == track.Kind, "Clip references an unknown or incompatible stream.");

@@ -6,6 +6,8 @@
 |---|---|
 | `color` | `clipId` and a `color` object. Omit any color parameter to leave it at its current value. Exposure is measured in stops, contrast and saturation are multipliers, and temperature is normalized warmth. |
 | `region` | `clipId` and an optional `region` object. Set `mode` to `blur`, `pixelate` or `cover`. Set `left`, `top`, `right` and `bottom` in source fractions from 0 to 1. Omit `region` to clear it. |
+| `clipMotion` | `clipId` and optional `motion` with `preset` (`punchIn` or `shake`), exact `durationTicks` and optional `strength` (0 to 1). Omit `motion` to clear it. |
+| `title`, `removeTitle` | Add, replace or remove a title by stable ID. See [animation presets](ANIMATION_PRESETS.md) for authoring and exact timing. |
 
 Each video clip carries one static rectangular region. Split a clip to change its effect partway through. The rectangle applies to the source before the output crop or reframe. Left and top round down to source pixels, right and bottom round up, and the resolved edges are half-open. `size` is the tent-filter tap spacing for blur or the block size for pixelation, from 1 to 64 original source pixels. Each axis scales with the proxy resolution. Blur samples stay inside the region. Cover substitutes black and then respects the clip's opacity and fades. Use cover at full opacity for concealing source content and check the entire export when the target moves.
 
