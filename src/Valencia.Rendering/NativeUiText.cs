@@ -13,11 +13,10 @@ public sealed class NativeUiText : ITextMeasurer
         AurelianNativeUiFont.Create(TypeScale.Specs(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts"))
             .Where(spec => !TypeScale.UsesRaster(spec.Size))));
     internal static AurelianNativeUiFont Font => NativeFont.Value;
-    internal static TextSize Size(TextSize size) => size;
     public IntrinsicSize MeasureText(string value, TextStyle style)
     {
         if (value.All(c => c is >= ' ' and <= '~' || char.IsWhiteSpace(c)))
-            return TypeScale.UsesRaster(style.Size) ? RasterText.Instance.Measure(value, style.Size) : Font.MeasureText(value, style with { Size = Size(style.Size) });
+            return TypeScale.UsesRaster(style.Size) ? RasterText.Instance.Measure(value, style.Size) : Font.MeasureText(value, style);
         // The pixel fallback's system-font coverage can differ. Reserve a full em per
         // non-ASCII scalar, including surrogate pairs, rather than measuring missing glyphs as zero.
         double em = TypeScale.Pixels(style.Size);
@@ -58,14 +57,13 @@ public sealed class NativeUiText : ITextMeasurer
 }
 
 /// <summary>
-/// Edge Code type scale: hinted small text and shared MSDF display sizes. Plex Mono carries data, Archivo Expanded carries
+/// Edge Code type scale: hinted data and shared MSDF command and display sizes. Plex Mono carries data, Archivo Expanded carries
 /// commands (the default button size), and the extra-condensed Noto Serif Display carries titles and timecode.
 /// All three are SIL OFL 1.1 and ship in Assets/Fonts with their licenses.
 /// </summary>
 public static class TypeScale
 {
-    /// <summary>Hinted small text stays on the device pixel grid; larger/scaled text uses the shared MSDF path.</summary>
-    public static bool UsesRaster(TextSize size) => size is TextSize.Xs or TextSize.Sm or TextSize.Md;
+    public static bool UsesRaster(TextSize size) => size is TextSize.Xs or TextSize.Sm;
     public const string Mono = "IBMPlexMono-Regular.ttf", Command = "Archivo-ExpandedBold.ttf", Display = "NotoSerifDisplay-ExtraCondensedBlack.ttf";
     public static int Pixels(TextSize size) => size switch
     {

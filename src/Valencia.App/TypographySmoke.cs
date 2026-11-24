@@ -24,7 +24,9 @@ internal static class TypographySmoke
         {
             ("SEQUENCE", TextSize.H1, new Rect(20, 20, 700, 90)),
             ("Drop a recording here, press Ctrl+I, or start OBS from the Record tab.", TextSize.Lg, new Rect(20, 140, 1200, 50)),
-            ("AVATAR / To WA", TextSize.Xl, new Rect(20, 230, 1000, 70))
+            ("AVATAR / To WA", TextSize.Xl, new Rect(20, 230, 1000, 70)),
+            ("OVERWRITE / ANALYZE / ROUGH CUT", TextSize.Md, new Rect(20, 330, 400, 28)),
+            ("UNDO / REDO / SNAP / MAGNET", TextSize.Md, new Rect(20, 375, 400, 28))
         };
         var children = new List<UiNode>();
         foreach (var (text, size, rect) in samples)
@@ -42,7 +44,6 @@ internal static class TypographySmoke
         using var canvas = new SKCanvas(reference);
         canvas.Clear(SKColors.Black);
         canvas.Scale(width / 1280f, height / 720f);
-        using var face = SKTypeface.FromFile(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts", TypeScale.Display));
         using var paint = new SKPaint { Color = SKColors.White, IsAntialias = true };
         var native = AurelianNativeUiFont.Create(TypeScale.Specs(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts"))
             .Where(spec => !TypeScale.UsesRaster(spec.Size)));
@@ -50,6 +51,7 @@ internal static class TypographySmoke
         foreach (var text in frame.PresentationFrame.Operations.OfType<PositionedTextOperation>())
         {
             var run = native.Qualify(text).Primitive!.GlyphRun;
+            using var face = SKTypeface.FromFile(Path.Combine(AppContext.BaseDirectory, "Assets", "Fonts", TypeScale.File(text.Style.Size)));
             using var font = new SKFont(face, TypeScale.Pixels(text.Style.Size))
             {
                 Hinting = SKFontHinting.None, LinearMetrics = true, Subpixel = true
@@ -82,7 +84,7 @@ internal static class TypographySmoke
         {
             outcome = passed ? "passed" : "failed", gpu = graphics.GpuName, runtime = Environment.Version.ToString(),
             graphics.ValidationAvailable, graphics.ValidationErrorCount,
-            font = TypeScale.Display, metrics, comparisons,
+            fonts = samples.Select(sample => TypeScale.File(sample.Item2)).Distinct(), metrics, comparisons,
             reference = "Independent Skia outlines at the shared run's origins; numerical advance/bounds parity is tested separately."
         }, new JsonSerializerOptions { WriteIndented = true }));
         return passed ? 0 : 1;

@@ -169,9 +169,8 @@ internal sealed partial class EditorView
         if (editor.Session.Snapshot.Document.Sequences.Length > 1 && right - left >= 86)
         {
             double switchWidth = Math.Min(140, right - left);
-            string name = NativeUiText.Ellipsize(sequence.Name, switchWidth - 18, TextSize.Sm);
-            children.Add(Button(name, "NextSequence", right - switchWidth, 6, switchWidth, 28,
-                Sized(Ui.Outline, TextSize.Sm), caps: false));
+            string name = NativeUiText.Ellipsize(sequence.Name, switchWidth - 18, TextSize.Md);
+            children.Add(Button(name, "NextSequence", right - switchWidth, 6, switchWidth, 28, Ui.Outline, caps: false));
             right -= switchWidth + Gap;
         }
         string meta = $"REV {editor.Session.Snapshot.Revision:0000} / {sequence.Video.Width}x{sequence.Video.Height} / {Fps(sequence.Video.FrameRate)}P";
@@ -402,18 +401,24 @@ internal sealed partial class EditorView
             ("Magnet", "ToggleMagnet", editor.Magnetic ? Ui.Plain : Ui.Dim, false, (Ui.Bone, editor.Magnetic))]);
         double zoomWidth = 30 + 44 + 30 + 4;
         double x = layout.ClipLeft, y = bar.Y, right = bar.X + bar.Width - (layout.ToolbarRows == 2 ? 0 : zoomWidth + 8);
-        // Commands use Archivo Expanded; when the whole set cannot fit a single row they drop to the mono face.
-        double Needed(TextSize size) => tools.Sum(t => Command(t.Label, size) + (t.Pip is null ? 0 : 14) + 2 + (t.GroupStart ? 8 : 0));
-        var textSize = layout.ToolbarRows == 2 || x + Needed(TextSize.Md) <= right ? TextSize.Md : TextSize.Sm;
-        foreach (var tool in tools)
+        // Reduce padding first. If the row is still tight, give the whole group proportionally smaller labels.
+        const double pipSpace = 18, gap = 2, groupGap = 8;
+        var widths = tools.Select(t => NativeUiText.Width(t.Label.ToUpperInvariant(), TextSize.Md)).ToArray();
+        double ink = widths.Sum();
+        double spacing = (tools.Count - 1) * gap + tools.Count(t => t.GroupStart) * groupGap + tools.Count(t => t.Pip is not null) * pipSpace;
+        double padding = layout.ToolbarRows == 2 ? 20 : Math.Clamp((right - x - spacing - ink) / tools.Count, 8, 20);
+        double scale = layout.ToolbarRows == 2 ? 1 : Math.Min(1, (right - x - spacing - padding * tools.Count) / ink);
+        for (int i = 0; i < tools.Count; i++)
         {
-            double w = Command(tool.Label, textSize) + (tool.Pip is null ? 0 : 14);
-            if (tool.GroupStart) x += 8;
+            var tool = tools[i];
+            double w = widths[i] * scale + padding + (tool.Pip is null ? 0 : pipSpace);
+            if (tool.GroupStart) x += groupGap;
             if (x + w > right && layout.ToolbarRows == 2 && y == bar.Y) { x = bar.X; y += EditorLayout.ToolbarRowHeight + 4; right = bar.X + bar.Width - zoomWidth - 8; }
-            if (x + w > right) break;
-            children.Add(Button(tool.Label, tool.Action, x, y, w, 28, Sized(tool.Style, textSize), key: "tool"));
-            if (tool.Pip is { } pip) children.Add(pip.On ? Box(x + 9, y + 11, 6, 6, pip.Color) : Frame(x + 9, y + 11, 6, 6, Ui.Edge));
-            x += w + 2;
+            if (x + w > right + .001) break;
+            var style = tool.Pip is null ? tool.Style : tool.Style with { HorizontalPadding = pipSpace / 2 };
+            children.Add(Button(tool.Label, tool.Action, x, y, w, 28, style, key: "tool"));
+            if (tool.Pip is { } pip) children.Add(pip.On ? Box(x + 6, y + 11, 6, 6, pip.Color) : Frame(x + 6, y + 11, 6, 6, Ui.Edge));
+            x += w + gap;
         }
         double zx = bar.X + bar.Width - zoomWidth, zy = layout.ToolbarRows == 2 ? bar.Y + EditorLayout.ToolbarRowHeight + 4 : bar.Y;
         foreach (var (label, action) in new[] { ("-", "ZoomOut"), ("Fit", "ZoomFit"), ("+", "ZoomIn") })
@@ -709,12 +714,24 @@ internal sealed partial class EditorView
         var actions = new (string Label, string Short, string Action)[] { ("Import", "Import", "Import"), ("Insert ,", "Insert", "InsertEdit"),
             ("Overwrite .", "Overwrite", "OverwriteEdit"), ("Relink", "Relink", "Relink"), ("Analyze", "Analyze", "Analyze"), ("Speech", "Speech", "Transcribe"),
             ("Rough cut", "Rough cut", "RoughCut"), ("Script", "Script", "RunScript") };
-        int columns = 4; double cell = (width - (columns - 1) * 2) / columns;
+        const int columns = 4;
+        const double gap = 2;
+        var labelWidths = Enumerable.Range(0, columns).Select(i => Math.Max(
+            NativeUiText.Width(actions[i].Short.ToUpperInvariant(), TextSize.Md),
+            NativeUiText.Width(actions[i + columns].Short.ToUpperInvariant(), TextSize.Md))).ToArray();
+        double room = width - (columns - 1) * gap;
+        double total = labelWidths.Sum();
+        double padding = Math.Max(6, (room - total) / columns);
+        double scale = Math.Min(1, (room - padding * columns) / total);
         double actionsTop = bottom - 2 * 28 - 2;
+        double x = Pad;
         for (int i = 0; i < actions.Length; i++)
         {
-            string label = NativeUiText.Width(actions[i].Label.ToUpperInvariant(), TextSize.Sm) <= cell - 6 ? actions[i].Label : actions[i].Short;
-            items.Add(Button(label, actions[i].Action, Pad + i % columns * (cell + 2), actionsTop + i / columns * 30, cell, 28, key: "media"));
+            int column = i % columns;
+            double cell = labelWidths[column] * scale + padding;
+            string label = NativeUiText.Width(actions[i].Label.ToUpperInvariant(), TextSize.Md) <= cell - 6 ? actions[i].Label : actions[i].Short;
+            items.Add(Button(label, actions[i].Action, x, actionsTop + i / columns * 30, cell, 28, key: "media"));
+            x = column == columns - 1 ? Pad : x + cell + gap;
         }
         var assets = editor.Session.Snapshot.Document.Assets;
         double rowHeight = compact ? 30 : 40, listBottom = actionsTop - 8;
@@ -976,14 +993,15 @@ internal sealed partial class EditorView
         return Text(text, x, rowY + (rowHeight - h) / 2, w, h, size, color, alignX);
     }
     /// <summary>
-    /// Command button. Labels are set in caps in the command face and step down to the mono face when they do not fit.
+    /// Command labels keep their face when space is tight. Native presentation fits the ink in the button bounds.
     /// Node identity defaults to the action; pass a key when the same action appears in two places in one frame.
     /// </summary>
     private static UiNode Button(string text, string action, double x, double y, double w, double h, StandardButtonStyle? style = null, string? key = null, bool caps = true)
     {
         style ??= Ui.Plain;
         string label = caps ? text.ToUpperInvariant() : text;
-        style = Sized(style, Fit(label, style.TextStyle.Size, w - 6, h));
+        if (style.TextStyle.Size != TextSize.Md)
+            style = Sized(style, Fit(label, style.TextStyle.Size, w - 6, h));
         return key is null ? StandardUI.Button(label, UiAction.Named(action), x, y, w, h, style: style)
             : StandardUI.Button(label, UiAction.Named(action), x, y, w, h, id: new NodeId(key).Child(action), style: style);
     }

@@ -9,7 +9,7 @@ namespace Valencia.Rendering;
 
 /// <summary>
 /// Narrow realization of Valencia's flat Machina panels. Geometry remains vector intent;
-/// Small ASCII text uses a pixel-aligned hinted atlas; larger text uses Machina's MSDF authority. Unicode text uses a
+/// Data labels use a pixel-aligned hinted atlas. Commands and headings use Machina's MSDF authority. Unicode text uses a
 /// pixel-sized Skia fallback, never a stretched 1280x720 bitmap. This is not a widget toolkit.
 /// </summary>
 internal sealed class NativeUiPresentation
@@ -65,11 +65,8 @@ internal sealed class NativeUiPresentation
                             }
                             break;
                         }
-                        var sized = new PositionedTextOperation(text.SourceId, text.Rect, text.Text,
-                            text.Style with { Size = NativeUiText.Size(text.Style.Size) }, text.Color);
-                        var qualified = NativeUiText.Font.Qualify(sized);
                         int firstMsdf = Glyphs.Count;
-                        AurelianMsdfTextPresentationAdapter.AdaptInto(qualified, NativeUiText.Font.ResourceFor(qualified), atlas, Glyphs, clip);
+                        AppendMsdf(text, clip, atlas);
                         if (above.Length > 0)
                         {
                             var placed = Glyphs.GetRange(firstMsdf, Glyphs.Count - firstMsdf);
@@ -144,6 +141,41 @@ internal sealed class NativeUiPresentation
         }
     }
 
+    private void AppendMsdf(PositionedTextOperation text, Rect clip, AurelianMsdfAtlasCache atlas)
+    {
+        var font = NativeUiText.Font;
+        var qualified = font.Qualify(text);
+        var resource = font.ResourceFor(qualified);
+        float scale = 1;
+        if (text.Style is { Size: TextSize.Md, AlignX: TextAlignX.Center, AlignY: TextAlignY.Center }
+            && qualified.Primitive!.GlyphRun.Lines[0].InkBounds is { } ink)
+        {
+            // Fit the actual command ink with a small inset, retaining both its face and aspect ratio.
+            double availableWidth = text.Rect.Width - 6, availableHeight = text.Rect.Height - 2;
+            if (availableWidth <= 0 || availableHeight <= 0) return;
+            scale = (float)Math.Min(1, Math.Min(availableWidth / (ink.Right - ink.Left), availableHeight / (ink.Bottom - ink.Top)));
+        }
+
+        double cx = text.Rect.X + text.Rect.Width / 2, cy = text.Rect.Y + text.Rect.Height / 2;
+        // Clip in the unscaled coordinate space so the UV crop and final placement agree.
+        var glyphClip = scale == 1 ? clip : new Rect(cx + (clip.X - cx) / scale, cy + (clip.Y - cy) / scale,
+            clip.Width / scale, clip.Height / scale);
+        int first = Glyphs.Count;
+        AurelianMsdfTextPresentationAdapter.AdaptInto(qualified, resource, atlas, Glyphs, glyphClip);
+        if (scale == 1) return;
+
+        for (int i = first; i < Glyphs.Count; i++)
+        {
+            var glyph = Glyphs[i];
+            var rect = glyph.Destination;
+            Glyphs[i] = glyph with
+            {
+                Destination = new((float)(cx + (rect.X - cx) * scale), (float)(cy + (rect.Y - cy) * scale),
+                    rect.Width * scale, rect.Height * scale),
+                Msdf = glyph.Msdf with { FieldScale = glyph.Msdf.FieldScale * scale }
+            };
+        }
+    }
 
     /// <summary>
     /// Fills in painter order with their clipped rectangles. Only axis-aligned rectangles (and nearly square-cornered

@@ -21,7 +21,7 @@ internal sealed class LayoutSmoke(string directory)
 {
     private readonly Stopwatch deadline = Stopwatch.StartNew();
     private readonly (int Width, int Height, string Name)[] sizes =
-        [(1280, 720, "desktop"), (1920, 1080, "desktop-wide"), (2560, 1440, "desktop-1440"), (768, 1024, "vertical-tablet"),
+        [(1280, 720, "desktop"), (1145, 670, "compact-desktop"), (1920, 1080, "desktop-wide"), (2560, 1440, "desktop-1440"), (768, 1024, "vertical-tablet"),
          (390, 844, "vertical-phone"), (1, 1, "tiny"), (20, 720, "narrow"),
          (320, 200, "short"), (2559, 1, "flat"), (1280, 720, "desktop-restored")];
     private readonly List<object> results = [];
@@ -97,7 +97,8 @@ internal sealed class LayoutSmoke(string directory)
             var layout = EditorLayout.For(window.Graphics.Window.Size.X, window.Graphics.Window.Size.Y);
             results.Add(new { size.Name, size.Width, size.Height, profile = layout.Profile.ToString(),
                 framebufferWidth = window.Graphics.Window.FramebufferSize.X, framebufferHeight = window.Graphics.Window.FramebufferSize.Y,
-                textGlyphs = window.Graphics.TextGlyphCount, fallbackTextRuns = window.Graphics.PixelFallbackTextRuns,
+                textGlyphs = window.Graphics.TextGlyphCount, msdfGlyphs = window.Graphics.MsdfGlyphCount,
+                fallbackTextRuns = window.Graphics.PixelFallbackTextRuns,
                 atlasUploads = window.Graphics.AtlasUploadCount, visibleTracks = editor.Viewport.VisibleTracks,
                 frameMedianMs = measured[measured.Length / 2], frameP95Ms = measured[(int)(measured.Length * .95)],
                 buttonAlignment });
@@ -148,7 +149,7 @@ internal sealed class LayoutSmoke(string directory)
         File.WriteAllText(Path.Combine(directory, "result.json"), JsonSerializer.Serialize(new
         {
             outcome = "passed", gpu = window.Graphics.GpuName, runtime = Environment.Version.ToString(),
-            pipeline = "Machina -> pixel-aligned hinted controls + shared MSDF headings -> Vulkan",
+            pipeline = "Machina -> MSDF commands and headings + hinted data text -> Vulkan",
             validationAvailable = window.Graphics.ValidationAvailable, validationErrors = window.Graphics.ValidationErrorCount,
             deviceScales,
             layouts = results, semanticDocumentPreservedByResize = true, syntheticClips = 5000, visibleClips = visible.Length,
@@ -169,10 +170,10 @@ internal sealed class LayoutSmoke(string directory)
         double scaleX = width / (double)presentation.PresentationFrame.Viewport.Width;
         double scaleY = height / (double)presentation.PresentationFrame.Viewport.Height;
         var results = new List<object>();
-        foreach (string action in new[] { "Undo", "Redo", "TogglePlay", "MarkOut", "NextFrame", "NextEdit", "OutputProfile" })
+        string[] actions = ["Undo", "Redo", "TogglePlay", "MarkOut", "NextFrame", "NextEdit", "OutputProfile", "Analyze", "RoughCut", "OverwriteEdit"];
+        foreach (var entry in presentation.Lowering.Actions.Where(entry => actions.Contains(entry.Value.Name)))
         {
-            var entry = presentation.Lowering.Actions.FirstOrDefault(p => p.Value.Name == action);
-            if (entry.Value is null) continue;
+            string action = entry.Value.Name;
             Rect bounds = presentation.Resolved.Nodes[entry.Key].Rect;
             var text = presentation.PresentationFrame.Operations.OfType<PositionedTextOperation>()
                 .FirstOrDefault(t => t.SourceId == entry.Key.Child("label").Value);
@@ -225,6 +226,8 @@ internal sealed class LayoutSmoke(string directory)
                 children.Add(StandardUI.Button(label, UiAction.Named(action), 30, 12 + row++ * 38, 220, 30,
                     style: style with { TextStyle = style.TextStyle with { Size = role } }));
             }
+            if (role == Machina.Core.Styling.TextSize.Md)
+                children.Add(StandardUI.Button("ROUGH CUT", UiAction.Named("RoughCut"), 30, 12 + row * 38, 64, 28, style: EditorView.Ui.Plain));
             var presentation = new MachinaPresentationPipeline().Prepare(UI.Surface(children: children), width, height,
                 new Machina.Core.Lowering.UiLoweringOptions(NativeUiText.Instance));
             window.Graphics.UpdateUi(presentation.PresentationFrame);

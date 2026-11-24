@@ -44,7 +44,7 @@ dotnet run --project src/Valencia.App -c Release -- "C:\Videos\recording.mp4"
 
 An initial media path is imported and placed on the timeline. With no argument, use **Import**, select a media item, position the playhead and click **Insert**. Use **Open** for `.valencia` projects. Drag clip bodies to move, or their edge handles to trim; a release commits one edit. Clips on separate tracks are independent. Video tracks with higher order cover lower ones; audible audio tracks mix.
 
-The UI uses hinted, pixel-aligned glyphs for small controls, shared Machina MSDF rendering for larger text, and analytic GPU widget geometry. Three explicit native profiles cover desktop/landscape tablet, portrait tablet, and portrait phone. Layout and rendering share font measurements; shortcut hints wrap on narrow layouts. Portrait Windows captures do not imply mobile-platform support.
+The UI uses shared Machina MSDF rendering for Archivo Expanded button labels and display headings, pixel-aligned Plex Mono for small data text, and analytic GPU widget geometry. Compact controls fit the expanded face inside their available space. Three native profiles cover desktop/landscape tablet, portrait tablet, and portrait phone. Layout and rendering share font measurements, and shortcut hints wrap on narrow layouts.
 
 **OBS** opens connect/start/stop/pause/mark/import controls. Configure client credentials with `Valencia.Cli obs configure`, supplying `VALENCIA_OBS_PASSWORD` through the process environment. Stored client credentials use Windows CurrentUser DPAPI. Start/Stop are explicit actions. **Alt+Shift+M** records an approximate OBS highlight observation. Import completed takes, then use Insert. See M2e for recording-root boundaries, CLI options and MCP control authorization.
 

@@ -11,10 +11,8 @@ namespace Valencia.Rendering;
 public readonly record struct RasterGlyphQuad(Native2DRect Destination, Native2DUvRect Uv, Native2DTint Color);
 
 /// <summary>
-/// Hinted, pixel-snapped raster text for Valencia's fixed type scale. No UI text in the editor scales: every role is
-/// one size, so each (size, device scale, character) is rasterized once by Skia into a shared RGBA atlas
-/// (white RGB, coverage in alpha) and drawn as tinted 1:1 quads on whole device pixels. That replaces MSDF's
-/// minified 64 px fields, whose small sizes come out soft and whose fractional glyph origins drift.
+/// Hinted, pixel-snapped text for Valencia's small data roles. Each (size, device scale, character) is rasterized
+/// by Skia into a shared RGBA atlas (white RGB, coverage in alpha) and drawn as tinted 1:1 quads on device pixels.
 /// Glyph origins and baselines snap to device pixels; advances come from hinted metrics, so measurement and
 /// presentation agree exactly.
 /// </summary>

@@ -98,6 +98,28 @@ public sealed class EditorInteractionTests
     }
 
     [Fact]
+    public void CompactCommandLabelsKeepTheExpandedFaceAndAllToolbarActions()
+    {
+        Assert.Equal(TypeScale.Command, TypeScale.File(TextSize.Md));
+        Assert.False(TypeScale.UsesRaster(TextSize.Md));
+        var editor = Document();
+        var view = new EditorView();
+        foreach (int width in new[] { 1099, 1100, 1145, 1280, 1360 })
+        {
+            var prepared = view.Prepare(editor, new(editor), false, false, width, 670);
+            var labels = prepared.PresentationFrame.Operations.OfType<PositionedTextOperation>()
+                .ToDictionary(text => text.SourceId);
+            foreach (string action in new[] { "Analyze", "RoughCut", "OverwriteEdit", "SelectTool", "Undo", "Redo", "ToggleSnap", "ToggleLink", "ToggleMagnet" })
+            {
+                var entries = prepared.Lowering.Actions.Where(entry => entry.Value.Name == action).ToArray();
+                Assert.Equal(action == "OverwriteEdit" ? 2 : 1, entries.Length);
+                foreach (var entry in entries)
+                    Assert.Equal(TextSize.Md, labels[entry.Key.Child("label").Value].Style.Size);
+            }
+        }
+    }
+
+    [Fact]
     public void NativeTextMetricsAndWrappingPreventBitmapSizedLabelClipping()
     {
         var small = NativeUiText.Instance.MeasureText("Ctrl+I import", new TextStyle(Size: TextSize.Sm));
