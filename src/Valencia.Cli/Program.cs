@@ -24,6 +24,7 @@ public static class Program
                 Console.WriteLine("Valencia.Cli project info|create <project> [--media file]\nValencia.Cli timeline list <project>\nValencia.Cli script run <script.ts> --project <project> [--save-as file]\nValencia.Cli plan validate|apply <plan.json|plan.obj.ts> --project <project> [--save-as file]\nValencia.Cli schema export\nValencia.Cli export <project> --sequence <id> --output <file>\nValencia.Cli mcp --root <directory> --project <relative.valencia>");
                 Console.WriteLine("Valencia.Cli analyze waveform|silence|activity|scenes|audio <project> --asset <id> --stream <index> [--settings file.obj.ts]\nValencia.Cli roughcut plan <project> --analysis <key> [--sequence <id>] [--policy file.obj.ts] [--output plan.json]\nValencia.Cli roughcut apply <project> --plan <file> [--save-as <file>]\nValencia.Cli schema export --analysis");
                 Console.WriteLine("Valencia.Cli workflow preview|run <file.ts> --project <project> [--sequence <id>] [--revision <number>] [--args <json>] [--entry name] [--save-as file (run only)]");
+                Console.WriteLine("Valencia.Cli plan review <file> | workflow review <script.ts> --project <project> --output <new.png|new.mp4> [--at <ticks[,ticks...]> | --start <ticks> --end <ticks>] [--profile <id>] [--max-edge 640]\nValencia.Cli timeline review <project> --output <new.png|new.mp4> [--sequence <id>] [same review options]");
                 Console.WriteLine("Valencia.Cli effects list\nValencia.Cli source frame <project> --asset <id> --stream <index> --at <source-offset-ticks> --output <new.png> [--max-edge 640] [--x <pixel edge> --y <pixel edge>]");
                 Console.WriteLine("Valencia.Cli transcribe <project> --asset <id> --stream <index> [--model tiny.en|large-v3] [--language en]\nValencia.Cli transcript show|search <project> --analysis <key> [--query phrase]\nValencia.Cli textedit plan <project> --analysis <key> --query <phrase> --mode retain|remove [--occurrence <id>] [--output plan.json]\nValencia.Cli textedit apply <project> --plan <file> [--save-as <file>]");
                 Console.WriteLine("Valencia.Cli creator run <project> --asset <id> --stream <index> --output-dir <directory> [--keywords phrase] [--proxy] [--commit --verify-history]\nValencia.Cli creator plan <project> --request <file.obj.ts> --output <plan.json>\nValencia.Cli creator apply <project> --plan <plan.json> [--save-as file]\nValencia.Cli creator export <project> --output-dir <directory>\nValencia.Cli outputs list <project>\nValencia.Cli proxy create|index build|loudness analyze <project> --asset <id> --stream <index>\nValencia.Cli captions generate <project> --analysis <key> --output <plan.json>\nValencia.Cli transcript correct <project> --edits <file.obj.ts>\nTranscription alignment: --alignment native|dtw. Trusted Copeland scripts only; MCP exposes validated plans, never arbitrary code.");
@@ -194,6 +195,19 @@ public static class Program
                 Console.WriteLine(EngineJson.Write(engine.Query().Sequences));
                 return 0;
             }
+            if (args is ["plan" or "timeline", "review", var input, ..])
+            {
+                var snapshot = engine.Session.Snapshot;
+                EditPlan? edit = args[0] == "plan"
+                    ? EditPlanSchema.Parse(await File.ReadAllTextAsync(input, cancellation.Token), input) : null;
+                var sequence = edit?.SequenceId ?? (Option(args, "--sequence") is { } id ? Guid.Parse(id) : snapshot.Document.Sequences.First().Id);
+                long revision = edit is not null ? EngineJson.Int64(edit.ProjectRevision)
+                    : Option(args, "--revision") is { } expected ? EngineJson.Int64(expected) : snapshot.Revision;
+                var review = await engine.ReviewAsync(edit?.ProjectId ?? snapshot.Document.Id, sequence, revision, ReadReview(args),
+                    Required(args, "--output"), edit, cancellation.Token);
+                Console.WriteLine(EngineJson.Write(review));
+                return 0;
+            }
             if (args is ["plan", var mode, var planPath, ..] && mode is "validate" or "apply")
             {
                 var plan = EditPlanSchema.Parse(await File.ReadAllTextAsync(planPath, cancellation.Token), planPath);
@@ -203,7 +217,7 @@ public static class Program
                 if (!result.Valid) Console.Error.WriteLine(string.Join("\n", result.Diagnostics));
                 return result.Valid ? 0 : 2;
             }
-            if (args is ["workflow", var workflowMode, var workflowPath, ..] && workflowMode is "preview" or "run")
+            if (args is ["workflow", var workflowMode, var workflowPath, ..] && workflowMode is "preview" or "run" or "review")
             {
                 bool commit = workflowMode == "run";
                 string? destination = Option(args, "--save-as");
@@ -216,7 +230,8 @@ public static class Program
                 var result = await host.RunWorkflowFileAsync(workflowPath, engine,
                     new(Option(args, "--sequence") is { } sequence ? Guid.Parse(sequence) : null,
                         Option(args, "--revision") is { } revision ? EngineJson.Int64(revision) : null,
-                        arguments, Option(args, "--entry") ?? "run", commit), cancellation.Token);
+                        arguments, Option(args, "--entry") ?? "run", commit,
+                        workflowMode == "review" ? new(ReadReview(args), Required(args, "--output")) : null), cancellation.Token);
                 if (result.Success && destination is not null) await engine.SaveAsync(destination, cancellation.Token);
                 Console.WriteLine(EngineJson.Write(result));
                 if (!result.Success) Console.Error.WriteLine(EngineJson.Write(result.Script.Diagnostics));
@@ -250,6 +265,15 @@ public static class Program
     {
         int index = Array.IndexOf(args, name);
         return index >= 0 && index + 1 < args.Length ? args[index + 1] : null;
+    }
+    private static ReviewSelection ReadReview(string[] args)
+    {
+        ImmutableArray<long>? times = Option(args, "--at") is { } at ? [.. at.Split(',').Select(EngineJson.Int64)] : null;
+        long? start = Option(args, "--start") is { } from ? EngineJson.Int64(from) : null;
+        long? end = Option(args, "--end") is { } to ? EngineJson.Int64(to) : null;
+        string kind = start.HasValue || end.HasValue ? "video" : times?.Length == 1 ? "frame" : "contactSheet";
+        return new(kind, times, start, end, Option(args, "--profile") is { } profile ? Guid.Parse(profile) : null,
+            int.Parse(Option(args, "--max-edge") ?? "640", CultureInfo.InvariantCulture));
     }
     private static string Required(string[] args, string name) => Option(args, name) ?? throw new ArgumentException("Missing " + name);
     private static void Require(EditResult result)

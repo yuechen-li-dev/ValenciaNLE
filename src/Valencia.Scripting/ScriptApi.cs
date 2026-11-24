@@ -208,6 +208,26 @@ public sealed class ScriptApi
         return EngineJson.Exact(result.Revision);
     }
     public void Save(string path) { RequireDirectScript(); engine.SaveAsync(path, cancellation).GetAwaiter().GetResult(); }
+    public string ReviewFrame(PlanBuilder plan, long at, string output, string profileId, int maximumEdge) =>
+        RenderReview(plan, new("frame", [at], ProfileId: ParseProfile(profileId), MaxEdge: maximumEdge), output);
+
+    public string ReviewContactSheet(PlanBuilder plan, string sampleTicks, string output, string profileId, int maximumEdge) =>
+        RenderReview(plan, new("contactSheet", [.. sampleTicks.Split(',', 13).Select(EngineJson.Int64)],
+            ProfileId: ParseProfile(profileId), MaxEdge: maximumEdge), output);
+
+    public string ReviewVideo(PlanBuilder plan, long start, long end, string output, string profileId, int maximumEdge) =>
+        RenderReview(plan, new("video", StartTicks: start, EndTicks: end, ProfileId: ParseProfile(profileId), MaxEdge: maximumEdge), output);
+
+    private static Guid? ParseProfile(string profileId) => profileId.Length == 0 ? null : Guid.Parse(profileId);
+
+    private string RenderReview(PlanBuilder plan, ReviewSelection selection, string output)
+    {
+        RequireDirectScript();
+        var edit = plan.Build();
+        var result = engine.ReviewAsync(edit.ProjectId, edit.SequenceId, EngineJson.Int64(edit.ProjectRevision),
+            selection, output, edit, cancellation).GetAwaiter().GetResult();
+        return EngineJson.Write(result);
+    }
     public string Export(string sequence, string path) { RequireDirectScript(); return engine.Exports.Start(Guid.Parse(sequence), path).ToString(); }
     public string ExportStatus(string job) { Check(); return EngineJson.Write(engine.Exports.Status(Guid.Parse(job))); }
     public void CancelExport(string job) { Check(); engine.Exports.Cancel(Guid.Parse(job)); }
@@ -399,7 +419,24 @@ public sealed class PlanBuilder(Guid projectId, string revision, Guid sequence)
     public void ClipMotion(string clipId, string preset, long duration, double strength) =>
         operations.Add(new ClipMotionPlan(Guid.Parse(clipId), new(preset, duration, strength)));
     public void ClearClipMotion(string clipId) => operations.Add(new ClipMotionPlan(Guid.Parse(clipId)));
+    public TransformBuilder Keyframes() => new();
+    public void ClipKeys(string clipId, TransformBuilder frames) => operations.Add(new TransformPlan("clip", Guid.Parse(clipId), frames.Build()));
+    public void TitleKeys(string titleId, TransformBuilder frames) => operations.Add(new TransformPlan("title", Guid.Parse(titleId), frames.Build()));
+    public void ClearKeys(string target, string id) => operations.Add(new TransformPlan(target, Guid.Parse(id)));
     public void AddTrack(string trackId, string kind, int order, string name) => operations.Add(new AddTrackPlan(Guid.Parse(trackId), Enum.Parse<TrackKind>(kind, true), order, name));
     public string ToJson() => EngineJson.Write(Build());
     public EditPlan Build() => new(1, projectId, revision, sequence, [.. operations]);
+}
+
+public sealed class TransformBuilder
+{
+    private readonly List<TransformKey> keys = [];
+
+    public void Key(long at, double x, double y, double scale, double rotation, double opacity, string interpolation)
+    {
+        if (keys.Count == 128) throw new ArgumentException("A transform supports at most 128 keyframes.");
+        keys.Add(new(at, x, y, scale, rotation, opacity, interpolation));
+    }
+
+    internal TransformCurve Build() => new([.. keys]);
 }

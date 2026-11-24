@@ -35,6 +35,7 @@ public sealed record ClipDto(Guid Id, Guid AssetId, int StreamIndex, string Star
 [JsonDerivedType(typeof(TitlePlan), "title")]
 [JsonDerivedType(typeof(RemoveTitlePlan), "removeTitle")]
 [JsonDerivedType(typeof(ClipMotionPlan), "clipMotion")]
+[JsonDerivedType(typeof(TransformPlan), "transform")]
 public abstract record PlanOperation
 {
     public abstract EditOperation ToCore(Guid sequenceId);
@@ -106,6 +107,15 @@ public sealed record RemoveTitlePlan(Guid TitleId) : PlanOperation
 public sealed record ClipMotionPlan(Guid ClipId, ClipMotion? Motion = null) : PlanOperation
 {
     public override EditOperation ToCore(Guid sequenceId) => new SetClipMotion(sequenceId, ClipId, Motion);
+}
+public sealed record TransformPlan(string Target, Guid TargetId, TransformCurve? Curve = null) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => Target switch
+    {
+        "clip" => new SetClipTransform(sequenceId, TargetId, Curve),
+        "title" => new SetTitleTransform(sequenceId, TargetId, Curve),
+        _ => throw new ArgumentException("Transform target must be clip or title.")
+    };
 }
 public sealed record SourcePrecondition(Guid AssetId, string Fingerprint);
 public sealed record EditPlan(int SchemaVersion, Guid ProjectId, string ProjectRevision, Guid SequenceId,

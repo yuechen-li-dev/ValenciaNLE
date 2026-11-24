@@ -6,10 +6,12 @@ using Valencia.Engine;
 namespace Valencia.Scripting;
 
 public sealed record WorkflowOptions(Guid? SequenceId = null, long? ExpectedRevision = null,
-    IReadOnlyDictionary<string, string>? Arguments = null, string EntryPoint = "run", bool Commit = false);
+    IReadOnlyDictionary<string, string>? Arguments = null, string EntryPoint = "run", bool Commit = false,
+    WorkflowReviewOptions? Review = null);
 
+public sealed record WorkflowReviewOptions(ReviewSelection Selection, string Output);
 public sealed record WorkflowResult(bool Success, bool Changed, bool Committed, Guid ProjectId,
-    string ExpectedRevision, string CurrentRevision, ScriptResult Script);
+    string ExpectedRevision, string CurrentRevision, ScriptResult Script, ReviewResult? Review = null);
 
 public sealed partial class CopelandScriptHost
 {
@@ -35,6 +37,8 @@ public sealed partial class CopelandScriptHost
             cancellation.ThrowIfCancellationRequested();
             if (original.Revision != expected)
                 return Failure("WORKFLOW_STALE", "The project revision no longer matches the workflow request.");
+            if (options.Commit && options.Review is not null)
+                return Failure("WORKFLOW_REVIEW", "Review requires a dry-run workflow.");
             Guid? sequence = options.SequenceId ?? original.Document.Sequences.FirstOrDefault()?.Id;
             if (sequence is { } sequenceId && !original.Document.Sequences.Any(item => item.Id == sequenceId))
                 return Failure("WORKFLOW_SEQUENCE", "The requested sequence is not in this project.");
@@ -62,6 +66,14 @@ public sealed partial class CopelandScriptHost
             cancellation.ThrowIfCancellationRequested();
             var candidate = staged.Session.Snapshot.Document;
             bool changed = !DocumentSemantics.Equal(original.Document, candidate);
+            if (options.Review is { } review)
+            {
+                var reviewSequence = sequence ?? candidate.Sequences.FirstOrDefault()?.Id
+                    ?? throw new ArgumentException("Review requires a sequence.");
+                var rendered = await engine.ReviewWorkflowAsync(original, candidate, reviewSequence, review.Selection, review.Output, cancellation)
+                    .ConfigureAwait(false);
+                return Report(script, changed) with { Review = rendered };
+            }
             if (!options.Commit) return Report(script, changed);
 
             var result = engine.Session.CommitStagedEdit(original, candidate, Guid.NewGuid());

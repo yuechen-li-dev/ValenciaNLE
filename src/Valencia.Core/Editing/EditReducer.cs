@@ -27,6 +27,7 @@ internal static class EditReducer
             PatchClipColor x => x.SequenceId, SetClipRegion x => x.SequenceId, SetClipMotion x => x.SequenceId,
             SetSequenceMarker x => x.SequenceId, RemoveSequenceMarker x => x.SequenceId,
             SetTitle x => x.SequenceId, RemoveTitle x => x.SequenceId,
+            SetTitleTransform x => x.SequenceId, SetClipTransform x => x.SequenceId,
             _ => throw new ArgumentException("Unsupported operation.")
         };
         int si = Index(document.Sequences, s => s.Id == sequenceId, "sequence");
@@ -50,7 +51,9 @@ internal static class EditReducer
         {
             ArgumentNullException.ThrowIfNull(title.Cue);
             DocumentValidator.Require(title.Cue.End.Ticks <= sequence.Duration.Ticks, "Place titles within the current sequence duration.");
-            var titles = sequence.Titles.Where(cue => cue.Id != title.Cue.Id).Append(title.Cue)
+            var existing = sequence.Titles.FirstOrDefault(cue => cue.Id == title.Cue.Id);
+            var updated = title.Cue with { Transform = title.Cue.Transform ?? existing?.Transform };
+            var titles = sequence.Titles.Where(cue => cue.Id != updated.Id).Append(updated)
                 .OrderBy(cue => cue.Start.Ticks).ThenBy(cue => cue.Id);
             return document with { Sequences = document.Sequences.SetItem(si, sequence with { Titles = [.. titles] }) };
         }
@@ -58,6 +61,12 @@ internal static class EditReducer
         {
             int index = Index(sequence.Titles, cue => cue.Id == removeTitle.TitleId, "title");
             return document with { Sequences = document.Sequences.SetItem(si, sequence with { Titles = sequence.Titles.RemoveAt(index) }) };
+        }
+        if (operation is SetTitleTransform titleTransform)
+        {
+            int index = Index(sequence.Titles, cue => cue.Id == titleTransform.TitleId, "title");
+            var updated = sequence.Titles[index] with { Transform = titleTransform.Curve };
+            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Titles = sequence.Titles.SetItem(index, updated) }) };
         }
         if (operation is SetOutputFraming framing)
         {
@@ -107,6 +116,7 @@ internal static class EditReducer
                 {
                     MoveClip x => x.ClipId, TrimClip x => x.ClipId, SplitClip x => x.ClipId, DeleteClip x => x.ClipId,
                     SetClipProperties x => x.ClipId, PatchClipColor x => x.ClipId, SetClipRegion x => x.ClipId, SetClipMotion x => x.ClipId,
+                    SetClipTransform x => x.ClipId,
                     _ => throw new ArgumentException("Unsupported clip operation.")
                 };
                 int ti = Index(tracks, t => t.Clips.Any(c => c.Id == clipId), "clip");
@@ -170,6 +180,16 @@ internal static class EditReducer
                         var video = (clip.Properties.Video ?? new()) with { Motion = x.Motion };
                         clips = clips.SetItem(ci, clip with { Properties = clip.Properties with
                             { Video = x.Motion is null && video == new VideoEffects() ? null : video } });
+                        break;
+                    }
+                    case SetClipTransform x:
+                    {
+                        DocumentValidator.Require(track.Kind == TrackKind.Video, "A clip transform requires a video clip.");
+                        x.Curve?.Validate(clip.Duration.Ticks);
+                        var video = (clip.Properties.Video ?? new()) with
+                            { Transform = x.Curve is null ? null : new ClipTransform(clip.SourceIn, x.Curve) };
+                        clips = clips.SetItem(ci, clip with { Properties = clip.Properties with
+                            { Video = x.Curve is null && video == new VideoEffects() ? null : video } });
                         break;
                     }
                 }

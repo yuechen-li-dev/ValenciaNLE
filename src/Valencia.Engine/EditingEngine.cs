@@ -122,8 +122,12 @@ public sealed partial class EditingEngine : IAsyncDisposable
         cancellation.ThrowIfCancellationRequested();
         return Session.Redo(new(Guid.NewGuid(), 1, revision));
     }
-    public PlanResult Plan(EditPlan plan, bool commit, CancellationToken cancellation = default)
+    public PlanResult Plan(EditPlan plan, bool commit, CancellationToken cancellation = default) =>
+        EvaluatePlan(plan, commit, out _, cancellation);
+
+    private PlanResult EvaluatePlan(EditPlan plan, bool commit, out ProjectSnapshot? candidate, CancellationToken cancellation)
     {
+        candidate = null;
         var before = Session.Snapshot;
         try
         {
@@ -164,9 +168,11 @@ public sealed partial class EditingEngine : IAsyncDisposable
                 .Where(id => id != Guid.Empty).Distinct().Order().ToImmutableArray();
             long resulting = commit ? result.Revision : checked(revision + 1);
             var current = Session.Snapshot;
+            var duration = new TimelineQueries(after).Duration(plan.SequenceId);
+            candidate = after;
             return new(1, true, commit, plan.ProjectRevision, EngineJson.Exact(resulting), EngineJson.Exact(current.Revision),
                 !commit && current.Revision == revision && current.Document.Id == plan.ProjectId, affected, changes,
-                new TimelineQueries(after).Duration(plan.SequenceId), [], outputProfiles.IsEmpty ? null : outputProfiles,
+                duration, [], outputProfiles.IsEmpty ? null : outputProfiles,
                 titles.IsEmpty ? null : titles);
         }
         catch (Exception error) when (error is ArgumentException or OverflowException or FormatException or System.Text.Json.JsonException or InvalidOperationException or IOException)
@@ -179,7 +185,9 @@ public sealed partial class EditingEngine : IAsyncDisposable
     private static ImmutableArray<TitleChange> DiffTitles(EditPlan plan, ProjectSnapshot before, ProjectSnapshot after)
     {
         var ids = plan.Operations.OfType<TitlePlan>().Select(operation => operation.TitleId)
-            .Concat(plan.Operations.OfType<RemoveTitlePlan>().Select(operation => operation.TitleId)).Distinct().Order().ToArray();
+            .Concat(plan.Operations.OfType<RemoveTitlePlan>().Select(operation => operation.TitleId))
+            .Concat(plan.Operations.OfType<TransformPlan>().Where(operation => operation.Target == "title").Select(operation => operation.TargetId))
+            .Distinct().Order().ToArray();
         if (ids.Length == 0) return [];
         var left = new TimelineQueries(before).Sequence(plan.SequenceId).Titles;
         var right = new TimelineQueries(after).Sequence(plan.SequenceId).Titles;

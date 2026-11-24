@@ -28,6 +28,8 @@ public sealed record SetTrackState(Guid SequenceId, Guid TrackId, TrackState Sta
 public sealed record SetCreatorSettings(Guid SequenceId, CreatorSettings Settings) : EditOperation;
 public sealed record SetTitle(Guid SequenceId, TitleCue Cue) : EditOperation;
 public sealed record RemoveTitle(Guid SequenceId, Guid TitleId) : EditOperation;
+public sealed record SetTitleTransform(Guid SequenceId, Guid TitleId, TransformCurve? Curve) : EditOperation;
+public sealed record SetClipTransform(Guid SequenceId, Guid ClipId, TransformCurve? Curve) : EditOperation;
 public sealed record SetOutputFraming(Guid SequenceId, Guid ProfileId, string? Name = null, int? Width = null, int? Height = null,
     string? Fit = null, double? FocalX = null, double? FocalY = null) : EditOperation;
 public sealed record SetClipProperties(Guid SequenceId, Guid ClipId, ClipProperties Properties) : EditOperation;

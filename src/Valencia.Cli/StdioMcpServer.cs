@@ -16,7 +16,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
     private static readonly string[] ToolNames = ["project_info", "timeline_query", "validate_edit_plan", "apply_edit_plan", "run_export", "export_status", "cancel_export",
         "start_analysis", "analysis_status", "analysis_result", "cancel_analysis", "create_roughcut", "transcript_query", "create_textedit",
         "start_creator", "creator_status", "cancel_creator", "apply_creator", "caption_plan", "correct_transcript",
-        "obs_connect", "obs_status", "obs_record", "obs_marker", "obs_import", "effects_list", "source_frame"];
+        "obs_connect", "obs_status", "obs_record", "obs_marker", "obs_import", "effects_list", "source_frame", "review_timeline"];
 
     public async Task RunAsync(TextReader input, TextWriter output, CancellationToken cancellation)
     {
@@ -49,7 +49,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
                     {
                         "ping" => new { },
                         "tools/list" => new { tools = ToolNames.Select(name => new { name, description = "Valencia engine v1: " + name, inputSchema = InputSchema(name) }) },
-                        "tools/call" => Call(request.GetProperty("params"), cancellation),
+                        "tools/call" => await Call(request.GetProperty("params"), cancellation).ConfigureAwait(false),
                         _ => throw new ArgumentException("Unsupported MCP method.")
                     };
                 }
@@ -65,7 +65,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
         }
     }
 
-    private object Call(JsonElement parameters, CancellationToken cancellation)
+    private async Task<object> Call(JsonElement parameters, CancellationToken cancellation)
     {
         string name = parameters.GetProperty("name").GetString()!;
         if (!ToolNames.Contains(name)) throw new ArgumentException("Unknown tool.");
@@ -82,6 +82,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
                 "timeline_query" => BoundedQuery(Query(arguments)),
                 "effects_list" => new { version = EffectCatalog.Version, effects = EffectCatalog.Effects },
                 "source_frame" => SourceFrame(arguments, cancellation),
+                "review_timeline" => await Review(arguments, cancellation).ConfigureAwait(false),
                 "validate_edit_plan" or "apply_edit_plan" => Plan(arguments, name == "apply_edit_plan"),
                 "run_export" => new { jobId = StartExport(arguments) },
                 "export_status" => engine.Exports.Status(Guid.Parse(arguments.GetProperty("jobId").GetString()!)),
@@ -288,6 +289,11 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
             arguments.TryGetProperty("maxEdge", out var edge) ? edge.GetInt32() : 640,
             hasX ? new(x.GetDouble(), y.GetDouble()) : null, cancellation);
     }
+    private Task<ReviewResult> Review(JsonElement arguments, CancellationToken cancellation) =>
+        engine.ReviewAsync(arguments.GetProperty("projectId").GetGuid(), arguments.GetProperty("sequenceId").GetGuid(),
+            EngineJson.Int64(arguments.GetProperty("revision").GetString()!), ReviewSelection.Parse(arguments.GetProperty("selection")),
+            arguments.GetProperty("output").GetString()!,
+            arguments.TryGetProperty("plan", out var plan) ? EditPlanSchema.Parse(plan.GetRawText()) : null, cancellation);
     private object Cancel(JsonElement arguments)
     {
         Guid id = Guid.Parse(arguments.GetProperty("jobId").GetString()!);
@@ -326,6 +332,13 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
             Field("revision", true);
             properties["plan"] = new JsonObject { ["$ref"] = "#/$defs/EditPlan" };
             required.Add("plan");
+        }
+        if (tool == "review_timeline")
+        {
+            Field("sequenceId", true); Field("revision", true); Field("output", true);
+            properties["selection"] = new JsonObject { ["$ref"] = "#/$defs/ReviewSelection" };
+            properties["plan"] = new JsonObject { ["$ref"] = "#/$defs/EditPlan" };
+            required.Add("selection");
         }
         if (tool == "run_export") { Field("sequenceId", true); Field("revision", true); Field("output", true); Field("profileId"); }
         if (tool is "export_status" or "cancel_export") Field("jobId", true);
@@ -368,7 +381,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
         if (tool == "caption_plan") { Field("key", true); Field("sequenceId", true); Field("revision", true); }
         if (tool == "correct_transcript") { properties["request"] = new JsonObject { ["$ref"] = "#/$defs/TranscriptCorrections" }; required.Add("request"); }
         var result = new JsonObject { ["type"] = "object", ["properties"] = properties, ["required"] = required, ["additionalProperties"] = false };
-        if (tool is "validate_edit_plan" or "apply_edit_plan")
+        if (tool is "validate_edit_plan" or "apply_edit_plan" or "review_timeline")
         {
             var definitions = new JsonObject();
             foreach (var definition in EditPlanSchema.Catalog.Definitions.OfType<TsonTypeAliasDefinition>()) definitions[definition.Name] = Shape(definition.Shape);

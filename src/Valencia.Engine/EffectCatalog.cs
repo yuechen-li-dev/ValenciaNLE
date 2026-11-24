@@ -24,6 +24,10 @@ public static class EffectCatalog
             new("size", "outputHeightFraction", .11, .03, .34)],
         ["static", "fade", "slideUp", "pop", "impact"]),
         new("clip-motion", "clipMotion", "videoClip", "Apply clip-local entry motion or clear it while preserving the underlying placement and grade.",
-        [new("strength", "ratio", 1, 0, 1)], ["punchIn", "shake"])
+        [new("strength", "ratio", 1, 0, 1)], ["punchIn", "shake"]),
+        new("transform-keyframes", "transform", "videoClipOrTitle", "Animate position, scale, clockwise rotation and opacity with exact relative key times.",
+        [new("x", "outputFraction", .5, -1, 2), new("y", "outputFraction", .5, -1, 2),
+            new("scale", "multiplier", 1, .1, 10), new("rotation", "degrees", 0, -3600, 3600), new("opacity", "ratio", 1, 0, 1)],
+        ["hold", "linear", "ease"])
     ];
 }

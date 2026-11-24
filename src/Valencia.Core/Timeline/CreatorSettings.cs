@@ -6,7 +6,8 @@ namespace Valencia.Core.Timeline;
 public sealed record VideoEffects(double Exposure = 0, double Contrast = 1, double Saturation = 1, double Temperature = 0,
     double X = .5, double Y = .5, double Scale = 1, double CropLeft = 0, double CropTop = 0, double CropRight = 0, double CropBottom = 0,
     long FadeInTicks = 0, long FadeOutTicks = 0, [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] RegionEffect? Region = null,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ClipMotion? Motion = null);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ClipMotion? Motion = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] ClipTransform? Transform = null);
 /// <summary>One source-relative rectangle. Size is the blur radius or pixel block size in source pixels.</summary>
 public sealed record RegionEffect(string Mode, double Left, double Top, double Right, double Bottom, int Size = 8);
 public sealed record ColorPatch(

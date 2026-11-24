@@ -70,6 +70,7 @@ public static class DocumentValidator
                     "Title text requires one line of 1..120 characters.");
                 Require(TitleMotion.IsSupported(title.Motion) && CreatorSemantics.Unit(title.X) && CreatorSemantics.Unit(title.Y)
                     && title.Size is >= .03 and <= .34, "Invalid title motion, placement or size.");
+                title.Transform?.Validate(title.End.Ticks - title.Start.Ticks);
             }
             for (int order = 0; order < sequence.Tracks.Length; order++)
             {
@@ -94,6 +95,14 @@ public static class DocumentValidator
                     var stream = asset!.Streams.FirstOrDefault(s => s.Index == clip.StreamIndex);
                     Require(stream is not null && stream.Kind == track.Kind, "Clip references an unknown or incompatible stream.");
                     CheckPosition(clip.SourceIn); CheckPosition(clip.SourceOut);
+                    if (clip.Properties.Video?.Transform is { } transform)
+                    {
+                        Require(track.Kind == TrackKind.Video && transform.Curve is not null, "A clip transform requires a video stream and a curve.");
+                        CheckPosition(transform.Origin);
+                        _ = clip.SourceIn.Since(transform.Origin);
+                        _ = clip.SourceOut.Since(transform.Origin);
+                        transform.Curve!.Validate();
+                    }
                     if (stream!.Start is { } start) Require(clip.SourceIn.CompareTo(new(start)) >= 0, "Clip starts before source bounds.");
                     if (stream.End is { } end) Require(clip.SourceOut.CompareTo(new(end)) <= 0, "Clip ends after source bounds.");
                     void CheckPosition(SourcePosition p) => Require(p.Timestamp.Numerator == stream!.TimeBaseNumerator &&

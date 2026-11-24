@@ -1,8 +1,11 @@
+using System.Text.Json.Serialization;
+
 namespace Valencia.Core.Timeline;
 
 public sealed record TitleCue(Guid Id, string Text, SequenceTime Start, SequenceTime End,
     string Motion = "static", long EntranceTicks = 0, long ExitTicks = 0,
-    double X = .5, double Y = .5, double Size = .11, uint Color = 0xFFFFFFFF, uint Outline = 0x101015FF);
+    double X = .5, double Y = .5, double Size = .11, uint Color = 0xFFFFFFFF, uint Outline = 0x101015FF,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] TransformCurve? Transform = null);
 
 public readonly record struct TitlePose(double Opacity, double Scale, double OffsetX, double OffsetY);
 

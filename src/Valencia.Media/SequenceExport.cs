@@ -13,7 +13,8 @@ public static class SequenceExport
 {
     /// <summary>CPU evaluation → bounded OS pipes → FFmpeg H.264/AAC. No preview, wall-clock or audio-device dependency.</summary>
     public static async Task<ExportResult> RunAsync(ProjectSnapshot snapshot, Guid sequenceId, string path,
-        IProgress<ExportProgress>? progress = null, CancellationToken cancellation = default, OutputProfile? profile = null)
+        IProgress<ExportProgress>? progress = null, CancellationToken cancellation = default, OutputProfile? profile = null,
+        bool overwrite = true, (int Width, int Height)? encodeSize = null, (SequenceTime Start, SequenceTime End)? range = null)
     {
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("M1b export uses Windows named pipes.");
         DocumentValidator.Validate(snapshot.Document);
@@ -22,8 +23,8 @@ public static class SequenceExport
             throw new ArgumentException("Export cannot replace source media.");
         var sequence = new TimelineQueries(snapshot).Sequence(sequenceId);
         var rate = profile?.FrameRate ?? sequence.Video.FrameRate;
-        var origin = profile?.Start ?? default;
-        var end = new SequenceTime(Math.Min(profile?.End?.Ticks ?? sequence.Duration.Ticks, sequence.Duration.Ticks));
+        var origin = range?.Start ?? profile?.Start ?? default;
+        var end = new SequenceTime(Math.Min(range?.End.Ticks ?? profile?.End?.Ticks ?? sequence.Duration.Ticks, sequence.Duration.Ticks));
         if (end.Ticks <= origin.Ticks) throw new ArgumentException("Output profile has no media range.");
         long frames = TimelineTime.FrameIndex(new(end.Ticks - origin.Ticks), rate, TimeRounding.Ceiling);
         if (frames == 0) throw new ArgumentException("Cannot export an empty sequence.");
@@ -45,7 +46,9 @@ public static class SequenceExport
         string[] args = ["-hide_banner", "-loglevel", "error", "-y", "-thread_queue_size", "8", "-f", "rawvideo", "-pixel_format", "rgba",
             "-video_size", $"{profile?.Width ?? sequence.Video.Width}x{profile?.Height ?? sequence.Video.Height}", "-framerate", frameRate, "-i", @"\\.\pipe\" + videoName,
             "-thread_queue_size", "8", "-f", "f32le", "-ar", sequence.AudioSampleRate.ToString(System.Globalization.CultureInfo.InvariantCulture), "-ac", "2", "-i", @"\\.\pipe\" + audioName,
-            "-map", "0:v:0", "-map", "1:a:0", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p",
+            "-map", "0:v:0", "-map", "1:a:0",
+            .. (encodeSize is { } size ? new[] { "-vf", $"scale={size.Width}:{size.Height}:flags=bilinear,setsar=1" } : []),
+            "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", "-pix_fmt", "yuv420p",
             "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", "-f", "mp4", temporary];
         foreach (string arg in args) start.ArgumentList.Add(arg);
         using Process process = Process.Start(start) ?? throw new InvalidOperationException("FFmpeg encoder process could not start.");
@@ -95,7 +98,7 @@ public static class SequenceExport
         {
             await Task.WhenAll(video, audio, exit).ConfigureAwait(false);
             cancellation.ThrowIfCancellationRequested();
-            File.Move(temporary, destination, overwrite: true);
+            File.Move(temporary, destination, overwrite);
             return new(destination, frames, samples, duration);
         }
         catch

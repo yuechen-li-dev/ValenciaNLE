@@ -82,18 +82,27 @@ public sealed class SequenceEvaluator : IDisposable
                 timestamps.Add(source.SourceTimestamp);
                 var effects = a.Clip.Properties.Video;
                 float opacity = (float)a.Clip.Properties.Opacity;
+                double rotation = 0;
                 if (effects is not null) opacity *= (float)CaptionEvaluation.Fade(time.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks, effects.FadeInTicks, effects.FadeOutTicks);
+                if (effects?.Transform is { } transform)
+                {
+                    var pose = transform.Curve.At(a.SourcePosition.Since(transform.Origin).Ticks);
+                    opacity *= (float)pose.Opacity;
+                    rotation = pose.Rotation % 360;
+                    var transformed = effects with { X = pose.X, Y = pose.Y, Scale = pose.Scale, Transform = null };
+                    effects = transformed == IdentityEffects ? null : transformed;
+                }
                 if (effects?.Motion is { } motion)
                 {
                     var animated = motion.Apply(effects with { Motion = null }, time.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks);
                     effects = animated == IdentityEffects ? null : animated;
                 }
-                if (effects is null && profile is null) Composite(pixels, width, height, source, opacity);
+                if (effects is null && profile is null && rotation == 0) Composite(pixels, width, height, source, opacity);
                 else
                 {
-                    var device = gpuEffects && opacity > 0 && effects is not null && (effects.Region is not null || ClipEffectFrame.HasColor(effects))
+                    var device = gpuEffects && rotation == 0 && opacity > 0 && effects is not null && (effects.Region is not null || ClipEffectFrame.HasColor(effects))
                         ? effectDevice ??= new VulkanClipEffects() : null;
-                    CreatorRenderer.Composite(pixels, width, height, source, a.Stream, opacity, effects ?? IdentityEffects, profile, time, device, cancellation);
+                    CreatorRenderer.Composite(pixels, width, height, source, a.Stream, opacity, effects ?? IdentityEffects, profile, time, device, cancellation, rotation);
                 }
             }
         }

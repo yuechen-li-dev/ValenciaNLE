@@ -9,7 +9,8 @@ internal static class CreatorRenderer
 {
     private static readonly VideoEffects IdentityEffects = new();
     public static void Composite(byte[] output, int width, int height, VideoFrame source, AssetStream stream, float opacity,
-        VideoEffects effects, OutputProfile? profile, SequenceTime time, VulkanClipEffects? gpu, CancellationToken cancellation)
+        VideoEffects effects, OutputProfile? profile, SequenceTime time, VulkanClipEffects? gpu, CancellationToken cancellation,
+        double rotation = 0)
     {
         if (opacity <= 0) return;
         var framing = Framing(profile, time);
@@ -21,7 +22,7 @@ internal static class CreatorRenderer
         double left = (width - w) * framing.X + (effects.X - .5) * width;
         double top = (height - h) * framing.Y + (effects.Y - .5) * height;
         if (effects == IdentityEffects && width == source.Width && height == source.Height
-            && framing.Scale == 1 && opacity == 1)
+            && framing.Scale == 1 && opacity == 1 && rotation == 0)
         {
             source.Rgba.CopyTo(output, 0);
             return;
@@ -29,19 +30,22 @@ internal static class CreatorRenderer
         bool hasColor = ClipEffectFrame.HasColor(effects);
         if (!hasColor && effects.Region is null)
         {
-            Geometry(output, width, height, source, opacity, effects, cropW, cropH, left, top, w, h);
+            Geometry(output, width, height, source, opacity, effects, cropW, cropH, left, top, w, h, rotation);
             return;
         }
         // Keep the old grading path's sample convention for existing projects.
+        double radians = rotation * Math.PI / 180;
+        RotatedSampling? sampling = rotation == 0 ? null : new(left, top, w, h, scale, effects.CropLeft, effects.CropTop,
+            source.Width, source.Height, Math.Cos(radians), Math.Sin(radians), hasColor ? 0 : .5);
         var pass = new ClipEffectFrame(source, stream, effects, opacity,
             ClipEffectFrame.Axis(width, source.Width, left, w, scale, effects.CropLeft, centers: !hasColor),
-            ClipEffectFrame.Axis(height, source.Height, top, h, scale, effects.CropTop, centers: !hasColor));
-        if (gpu is null) pass.Composite(output, cancellation);
+            ClipEffectFrame.Axis(height, source.Height, top, h, scale, effects.CropTop, centers: !hasColor), sampling);
+        if (gpu is null || sampling is not null) pass.Composite(output, cancellation);
         else gpu.Composite(pass, output, cancellation);
     }
 
     private static unsafe void Geometry(byte[] output, int width, int height, VideoFrame source, float opacity, VideoEffects effects,
-        double cropWidth, double cropHeight, double left, double top, double scaledWidth, double scaledHeight)
+        double cropWidth, double cropHeight, double left, double top, double scaledWidth, double scaledHeight, double rotation)
     {
         if (opacity <= 0) return;
         // Native raster geometry avoids scalar per-pixel color math for ordinary fit/fill/crop.
@@ -60,7 +64,10 @@ internal static class CreatorRenderer
             var from = new SKRect((float)(source.Width * effects.CropLeft), (float)(source.Height * effects.CropTop),
                 (float)(source.Width * effects.CropLeft + cropWidth), (float)(source.Height * effects.CropTop + cropHeight));
             var to = new SKRect((float)left, (float)top, (float)(left + scaledWidth), (float)(top + scaledHeight));
+            canvas.Save();
+            if (rotation != 0) canvas.RotateDegrees((float)rotation, to.MidX, to.MidY);
             canvas.DrawImage(image, from, to, new SKSamplingOptions(SKFilterMode.Nearest, SKMipmapMode.None));
+            canvas.Restore();
             if (opacity < 1) canvas.Restore();
             canvas.Flush();
         }

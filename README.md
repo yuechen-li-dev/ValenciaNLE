@@ -89,7 +89,7 @@ cooperative cancellation. See [workflow examples and API](docs/WORKFLOWS.md).
 
 Right-click the timeline for context actions. Clip menus offer split, delete, ripple delete and seek. Ruler and gap menus offer seek and marker placement.
 
-Discover color, region effects, animated titles and clip motion with `effects list` or MCP `effects_list`. See [Clip Effects 1](docs/EFFECT_PACK.md) for Vulkan rendering and [Animation Presets](docs/ANIMATION_PRESETS.md) for an editable Copeland montage.
+Discover color, region effects, animated titles and clip motion with `effects list` or MCP `effects_list`. See [Clip Effects 1](docs/EFFECT_PACK.md) for Vulkan rendering, [Animation Presets](docs/ANIMATION_PRESETS.md) for an editable Copeland montage, and [Plan Review and Keyframes](docs/PLAN_REVIEW.md) for rendering and revising proposed edits.
 
 ```powershell
 $cli = '.\artifacts\publish\cli-win-x64\Valencia.Cli.exe'

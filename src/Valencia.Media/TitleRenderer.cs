@@ -32,21 +32,29 @@ internal sealed class TitleRenderer : IDisposable
             {
                 cancellation.ThrowIfCancellationRequested();
                 if (TitleMotion.At(title, time) is not { Opacity: > 0 } pose) continue;
+                var transform = title.Transform?.At(time.Ticks - title.Start.Ticks) ?? new TransformPose(title.X, title.Y, 1, 0, 1);
+                double opacity = pose.Opacity * transform.Opacity;
+                if (opacity <= 0) continue;
 
                 font.Size = (float)(title.Size * height);
                 font.MeasureText(title.Text, out SKRect bounds);
                 float stroke = Math.Max(1, font.Size * .12f);
                 float peakScale = title.Motion switch { "impact" => 1.4f, "pop" => 1.05f, _ => 1f };
                 float fit = Math.Min(1, width * .9f / ((bounds.Width + stroke) * peakScale));
-                font.Size *= fit * (float)pose.Scale;
+                font.Size *= fit * (float)(pose.Scale * transform.Scale);
                 font.MeasureText(title.Text, out bounds);
                 outline.StrokeWidth = Math.Max(1, font.Size * .12f);
-                outline.Color = Tint(title.Outline, pose.Opacity);
-                fill.Color = Tint(title.Color, pose.Opacity);
-                float left = (float)((title.X + pose.OffsetX) * width) - bounds.MidX;
-                float baseline = (float)((title.Y + pose.OffsetY) * height) - bounds.MidY;
+                outline.Color = Tint(title.Outline, opacity);
+                fill.Color = Tint(title.Color, opacity);
+                float x = (float)((transform.X + pose.OffsetX) * width);
+                float y = (float)((transform.Y + pose.OffsetY) * height);
+                float left = x - bounds.MidX;
+                float baseline = y - bounds.MidY;
+                canvas.Save();
+                if (transform.Rotation % 360 != 0) canvas.RotateDegrees((float)(transform.Rotation % 360), x, y);
                 canvas.DrawText(title.Text, left, baseline, font, outline);
                 canvas.DrawText(title.Text, left, baseline, font, fill);
+                canvas.Restore();
             }
             canvas.Flush();
         }

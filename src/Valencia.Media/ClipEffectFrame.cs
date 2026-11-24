@@ -4,7 +4,8 @@ using Valencia.Core.Timeline;
 namespace Valencia.Media;
 
 /// <summary>One resolved SDR clip pass. Both backends sample the same integer source pixels.</summary>
-internal sealed class ClipEffectFrame(VideoFrame source, AssetStream stream, VideoEffects effects, float opacity, int[] columns, int[] rows)
+internal sealed class ClipEffectFrame(VideoFrame source, AssetStream stream, VideoEffects effects, float opacity, int[] columns, int[] rows,
+    RotatedSampling? rotated = null)
 {
     internal const int HeaderWords = 20;
     private const int Blur = 1, Pixelate = 2, Cover = 3;
@@ -64,10 +65,10 @@ internal sealed class ClipEffectFrame(VideoFrame source, AssetStream stream, Vid
         for (int y = 0; y < Height; y++)
         {
             cancellation.ThrowIfCancellationRequested();
-            int sy = rows[y];
             for (int x = 0; x < Width; x++)
             {
-                int sx = columns[x], offset = (y * Width + x) * 4;
+                var (sx, sy) = rotated is { } transform ? transform.At(x, y) : (columns[x], rows[y]);
+                int offset = (y * Width + x) * 4;
                 Vector3 color = Vector3.Zero;
                 bool masked = sx >= region.Left && sx < region.Right && sy >= region.Top && sy < region.Bottom;
                 if (sx >= 0 && sy >= 0 && !(masked && region.Mode == Cover))
@@ -111,5 +112,21 @@ internal sealed class ClipEffectFrame(VideoFrame source, AssetStream stream, Vid
             sum += Pixel(Math.Clamp(x + dx * stepX, region.Left, region.Right - 1),
                 Math.Clamp(y + dy * stepY, region.Top, region.Bottom - 1)) * ((2 - dx * dx) * (2 - dy * dy));
         return sum * (1f / 16);
+    }
+}
+
+/// <summary>Inverse rotation in output pixels, followed by the normal source crop.</summary>
+internal readonly record struct RotatedSampling(double Left, double Top, double Width, double Height, double Scale,
+    double CropLeft, double CropTop, int SourceWidth, int SourceHeight, double Cosine, double Sine, double SampleOffset)
+{
+    public (int X, int Y) At(int x, int y)
+    {
+        double dx = x + SampleOffset - (Left + Width / 2);
+        double dy = y + SampleOffset - (Top + Height / 2);
+        double u = Cosine * dx + Sine * dy + Width / 2;
+        double v = -Sine * dx + Cosine * dy + Height / 2;
+        if (u < 0 || v < 0 || u >= Width || v >= Height) return (-1, -1);
+        return (Math.Clamp((int)(u / Scale + CropLeft * SourceWidth), 0, SourceWidth - 1),
+            Math.Clamp((int)(v / Scale + CropTop * SourceHeight), 0, SourceHeight - 1));
     }
 }

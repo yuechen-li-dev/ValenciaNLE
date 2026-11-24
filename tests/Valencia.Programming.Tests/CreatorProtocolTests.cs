@@ -38,7 +38,18 @@ public sealed partial class TranscriptionTests
         {
             await Rpc("initialize", new { protocolVersion = "2025-11-25", capabilities = new { }, clientInfo = new { name = "M2d protocol test", version = "1" } });
             await process.StandardInput.WriteLineAsync("{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}");
-            Assert.Equal(27, (await Rpc("tools/list", new { })).GetProperty("result").GetProperty("tools").GetArrayLength());
+            Assert.Equal(28, (await Rpc("tools/list", new { })).GetProperty("result").GetProperty("tools").GetArrayLength());
+            var previewPlan = new EditPlan(1, projectId, revision, request.SequenceId,
+                [new TitlePlan(Guid.NewGuid(), "PROPOSED", 0, Valencia.Core.SequenceTime.TicksPerSecond)]);
+            var review = Data(await Tool("review_timeline", new
+            {
+                projectId, revision, sequenceId = request.SequenceId, plan = previewPlan,
+                selection = new { kind = "frame", atTicks = new[] { "0" } }, output = "mcp-review.png"
+            }));
+            Assert.Equal("plan", review.GetProperty("candidate").GetString());
+            Assert.Equal(revision, review.GetProperty("currentRevision").GetString());
+            Assert.True(review.GetProperty("baseStillCurrent").GetBoolean());
+            Assert.True(File.Exists(Path.Combine(root, "mcp-review.png")));
             var submitted = Data(await Tool("start_creator", new { projectId, revision, request }));
             Guid jobId = submitted.GetProperty("jobId").GetGuid();
             JsonElement status;

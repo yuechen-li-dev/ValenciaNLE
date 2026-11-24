@@ -90,7 +90,7 @@ public sealed class HeadlessProtocolTests : IAsyncLifetime
         Assert.Equal("2025-11-25", initialization.GetProperty("result").GetProperty("protocolVersion").GetString());
         await process.StandardInput.WriteLineAsync("{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}");
         var tools = await Request("tools/list", new { });
-        Assert.Equal(27, tools.GetProperty("result").GetProperty("tools").GetArrayLength());
+        Assert.Equal(28, tools.GetProperty("result").GetProperty("tools").GetArrayLength());
         var effects = Value(await Tool("effects_list", new { projectId = ProjectId }));
         Assert.Equal("basic-color", effects.GetProperty("effects")[0].GetProperty("id").GetString());
         Assert.Equal("cover", effects.GetProperty("effects")[1].GetProperty("modes")[2].GetString());
@@ -102,6 +102,9 @@ public sealed class HeadlessProtocolTests : IAsyncLifetime
         var preview = Value(await Tool("validate_edit_plan", new { projectId = ProjectId, revision = plan.ProjectRevision, plan }));
         Assert.True(preview.GetProperty("valid").GetBoolean());
         Assert.False(preview.GetProperty("committed").GetBoolean());
+        var deniedReview = await Tool("review_timeline", new { projectId = ProjectId, revision = plan.ProjectRevision, sequenceId = SequenceId,
+            selection = new { kind = "frame", atTicks = new[] { "0" } }, output = "../escaped.png" });
+        Assert.Contains("Path escapes", Value(deniedReview).GetProperty("message").GetString());
         var committed = Value(await Tool("apply_edit_plan", new { projectId = ProjectId, revision = plan.ProjectRevision, plan }));
         Assert.True(committed.GetProperty("committed").GetBoolean());
         Assert.Equal(preview.GetProperty("changes").GetRawText(), committed.GetProperty("changes").GetRawText());
