@@ -25,6 +25,25 @@ public sealed class TimeAndAudioTests
     }
 
     [Fact]
+    public async Task MonitorVolumeAndMuteScalePcmWithoutChangingTheMediaClock()
+    {
+        var buffer = new AudioStreamBuffer { Gain = .5f };
+        await buffer.WriteAsync(new float[] { .5f, -.5f, 1, -1, .25f, -.25f }, CancellationToken.None);
+        buffer.Complete();
+        byte[] stereo = new byte[2 * sizeof(float)];
+        Assert.Equal(stereo.Length, buffer.Read(stereo));
+        Assert.Equal(new[] { .25f, -.25f }, MemoryMarshal.Cast<byte, float>(stereo).ToArray());
+        buffer.Gain = 0;
+        Assert.Equal(stereo.Length, buffer.Read(stereo));
+        Assert.Equal(new float[] { 0, 0 }, MemoryMarshal.Cast<byte, float>(stereo).ToArray());
+        buffer.Gain = 1;
+        Assert.Equal(stereo.Length, buffer.Read(stereo));
+        Assert.Equal(new[] { .25f, -.25f }, MemoryMarshal.Cast<byte, float>(stereo).ToArray());
+        Assert.Equal(3, buffer.MediaFramesAtDevicePosition(3));
+        Assert.Equal(0, buffer.UnderrunFrames);
+    }
+
+    [Fact]
     public async Task DeviceClockCountsOnlyMediaPlayedRatherThanQueuedUnderrunSilence()
     {
         var buffer = new AudioStreamBuffer();

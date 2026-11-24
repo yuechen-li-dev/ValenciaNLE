@@ -31,7 +31,8 @@ internal static class Program
         bool widgetSmoke = args.Contains("--widgets-smoke");
         bool typographySmoke = args.Contains("--typography-smoke");
         bool scrubSmoke = args.Contains("--scrub-smoke");
-        bool smoke = widgetSmoke || typographySmoke || scrubSmoke || args.Contains("--smoke") || args.Contains("--editor-smoke") || args.Contains("--analysis-smoke") || args.Contains("--transcript-smoke") || args.Contains("--creator-smoke") || args.Contains("--qualification-smoke") || args.Contains("--layout-smoke");
+        bool fullscreenSmoke = args.Contains("--fullscreen-smoke");
+        bool smoke = widgetSmoke || typographySmoke || scrubSmoke || fullscreenSmoke || args.Contains("--smoke") || args.Contains("--editor-smoke") || args.Contains("--analysis-smoke") || args.Contains("--transcript-smoke") || args.Contains("--creator-smoke") || args.Contains("--qualification-smoke") || args.Contains("--layout-smoke");
         try
         {
             if (widgetSmoke || args.Contains("--widget-gallery"))
@@ -43,8 +44,8 @@ internal static class Program
             bool creatorSmoke = args.Contains("--creator-smoke");
             bool qualificationSmoke = args.Contains("--qualification-smoke");
             bool layoutSmoke = args.Contains("--layout-smoke");
-            bool editorSmoke = args.Contains("--editor-smoke") || analysisSmoke || transcriptSmoke || creatorSmoke || qualificationSmoke || layoutSmoke || scrubSmoke;
-            string? path = smoke ? ValueAfter(args, scrubSmoke ? "--scrub-smoke" : layoutSmoke ? "--layout-smoke" : qualificationSmoke ? "--qualification-smoke" : creatorSmoke ? "--creator-smoke" : transcriptSmoke ? "--transcript-smoke" : analysisSmoke ? "--analysis-smoke" : editorSmoke ? "--editor-smoke" : "--smoke") : args.FirstOrDefault(argument => !argument.StartsWith("--", StringComparison.Ordinal));
+            bool editorSmoke = args.Contains("--editor-smoke") || analysisSmoke || transcriptSmoke || creatorSmoke || qualificationSmoke || layoutSmoke || scrubSmoke || fullscreenSmoke;
+            string? path = smoke ? ValueAfter(args, fullscreenSmoke ? "--fullscreen-smoke" : scrubSmoke ? "--scrub-smoke" : layoutSmoke ? "--layout-smoke" : qualificationSmoke ? "--qualification-smoke" : creatorSmoke ? "--creator-smoke" : transcriptSmoke ? "--transcript-smoke" : analysisSmoke ? "--analysis-smoke" : editorSmoke ? "--editor-smoke" : "--smoke") : args.FirstOrDefault(argument => !argument.StartsWith("--", StringComparison.Ordinal));
             if (smoke && path is null)
             {
                 throw new ArgumentException("--smoke requires a video path.");
@@ -52,7 +53,8 @@ internal static class Program
             string output = Path.GetFullPath(ValueAfter(args, "--output") ?? "artifacts/local/smoke");
             if (!args.Contains("--player") && (!smoke || editorSmoke))
             {
-                using var editor = new Editing.EditorWindow(path, editorSmoke ? output : null, analysisSmoke, transcriptSmoke, creatorSmoke, qualificationSmoke, layoutSmoke, scrubSmoke); editor.Run();
+                using var editor = new Editing.EditorWindow(path, editorSmoke ? output : null, analysisSmoke, transcriptSmoke, creatorSmoke,
+                    qualificationSmoke, layoutSmoke, scrubSmoke, fullscreenSmoke); editor.Run();
             }
             else { using var player = new PlayerWindow(path, smoke ? output : null); player.Run(); }
             return 0;

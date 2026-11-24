@@ -20,7 +20,7 @@ namespace Valencia.App.Editing;
 /// Native editor declaration in the Edge Code style. Layout slots come from <see cref="EditorLayout"/>; this class only
 /// fills them. Everything is rects, 1 px rules and MSDF text: no gradients, blur, shadows or rotation. All strings are ASCII.
 /// </summary>
-internal sealed class EditorView
+internal sealed partial class EditorView
 {
     private readonly MachinaPresentationPipeline pipeline = new();
     public AurelianWindowChrome? Chrome { get; set; }
@@ -327,10 +327,14 @@ internal sealed class EditorView
 
     private static void Transport(List<UiNode> children, EditorDocument editor, EditorLayout layout, bool playing)
     {
-        var t = layout.Transport; var rate = editor.Sequence.Video.FrameRate;
+        var t = layout.Transport; var rate = editor.MonitorFrameRate;
         Fill(children, t, Ui.Panel);
         bool twoRows = layout.TransportRows == 2, source = editor.Source is not null;
         double rowH = EditorLayout.TransportRowHeight, rowY = t.Y + 5, buttonsY = twoRows ? t.Y + rowH + 5 : rowY, left0 = t.X + 6, right0 = t.X + t.Width - 6;
+        double fullscreenWidth = t.Width < 450 ? 42 : 98;
+        children.Add(Button(t.Width < 450 ? "F11" : "Full screen", nameof(EditorAction.Fullscreen), right0 - fullscreenWidth, rowY, fullscreenWidth, 26, Ui.Outline));
+        double controlsRight = right0;
+        right0 -= fullscreenWidth + 8;
         // Monitor mode switch (Premiere's source/program monitors share one picture here).
         double program = Command("Program"), sourceWidth = Command("Source");
         children.Add(Button("Program", "MonitorProgram", left0, rowY, program, 26, source ? Ui.Outline : Ui.Active));
@@ -363,12 +367,12 @@ internal sealed class EditorView
         };
         if (source) buttons.AddRange([("Insert ,", "InsertEdit", Command("Insert ,"), Ui.Plain, true), ("Overwrite .", "OverwriteEdit", Command("Overwrite ."), Ui.Plain, false)]);
         double total = buttons.Sum(b => b.Width + (b.GroupStart ? 8 : 0)) + (buttons.Count - 1) * 2;
-        double right = twoRows ? right0 : right0 - (labelWidth > 0 ? labelWidth + 10 : 0);
+        double right = twoRows ? controlsRight : right0 - (labelWidth > 0 ? labelWidth + 10 : 0);
         double left = twoRows ? left0 + Math.Max(0, (t.Width - 12 - total) / 2) : Math.Max(timecodeRight + 4, right - total);
         foreach (var b in buttons)
         {
             if (b.GroupStart) left += 8;
-            if (left + b.Width > (twoRows ? right0 : right)) break;
+            if (left + b.Width > right) break;
             children.Add(Button(b.Label, b.Action, left, buttonsY, b.Width, 26, b.Style, key: "transport")); left += b.Width + 2;
         }
     }

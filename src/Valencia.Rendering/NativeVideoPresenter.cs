@@ -39,6 +39,7 @@ public sealed class NativeVideoPresenter : IDisposable
     private Native2DTextureHandle glyphTexture;
     private int glyphVersion = -1;
     public bool EditorLayout { get; set; }
+    public bool VideoBehindUi { get; set; }
     public Rect? ProgramMonitor { get; set; }
     public IReadOnlyList<CanvasRectangle> Canvas { get; set; } = [];
     public IReadOnlyList<CanvasRectangle> CanvasOverlay { get; set; } = [];
@@ -138,7 +139,7 @@ public sealed class NativeVideoPresenter : IDisposable
     {
         uiFrame = frame;
         logicalWidth = frame.Viewport.Width; logicalHeight = frame.Viewport.Height;
-        if (renderer is not null)
+        if (renderer is not null && !resize)
         {
             renderer.SetLogicalSize((float)logicalWidth, (float)logicalHeight);
             textRenderer!.SetLogicalSize((float)logicalWidth, (float)logicalHeight);
@@ -200,6 +201,14 @@ public sealed class NativeVideoPresenter : IDisposable
         lastVideo = null;
     }
 
+    /// <summary>Realize a pending framebuffer resize before the host selects its next media frame.</summary>
+    public void SynchronizeResize()
+    {
+        if (!resize || Window.FramebufferSize.X <= 0 || Window.FramebufferSize.Y <= 0) return;
+        RecreateSurface();
+        resize = false;
+    }
+
     public byte[]? Draw(bool capture = false)
     {
         long started = Stopwatch.GetTimestamp();
@@ -207,11 +216,7 @@ public sealed class NativeVideoPresenter : IDisposable
         {
             return null;
         }
-        if (resize)
-        {
-            RecreateSurface();
-            resize = false;
-        }
+        SynchronizeResize();
         // Never block the window loop on the compositor. When Windows throttles composition (display asleep,
         // locked session) no swapchain image is free for long stretches; waiting for one used to stall input,
         // seeks and media pacing to the compositor's ~4 Hz. Skip the frame instead; a capture still renders.
@@ -229,40 +234,20 @@ public sealed class NativeVideoPresenter : IDisposable
             LastDrawPresented = false;
             if (!capture) return null;
         }
-        using VulkanNativeFrameSession frame = target!.BeginFrame(new NativeFrameClearColor(0.04f, 0.05f, 0.07f, 1));
-        var shapePass = frame.Present(shapeRenderer!, shapes =>
-        {
-            foreach (var shape in ui.Shapes) shapes.SubmitAnalyticShape(shape);
-        });
-        var videoPass = frame.Present(renderer!, quad =>
-        {
-            if (videoTexture.Value != 0)
+        using VulkanNativeFrameSession frame = target!.BeginFrame(VideoBehindUi ? new(0, 0, 0, 1) : new(0.04f, 0.05f, 0.07f, 1));
+        if (VideoBehindUi) frame.Present(renderer!, SubmitVideo);
+        if (!VideoBehindUi || ui.Shapes.Count != 0)
+            frame.Present(shapeRenderer!, shapes =>
             {
-                Rect area = ProgramMonitor ?? (EditorLayout ? new(326, 64, 930, 270) : new(24, 100, 1232, 470));
-                float areaX = (float)area.X, areaY = (float)area.Y;
-                float areaWidth = (float)area.Width, areaHeight = (float)area.Height;
-                float scale = Math.Min(areaWidth / videoWidth, areaHeight / videoHeight);
-                float width = videoWidth * scale;
-                float height = videoHeight * scale;
-                quad.SubmitQuad(new NativeQuadSubmission(new Native2DRect(areaX + (areaWidth - width) / 2, areaY + (areaHeight - height) / 2, width, height),
-                    Native2DUvRect.Full, videoTexture, Native2DTint.White));
-            }
-            SubmitRectangles(Canvas);
-            SubmitRectangles(CanvasOverlay);
-            void SubmitRectangles(IReadOnlyList<CanvasRectangle> rectangles)
+                foreach (var shape in ui.Shapes) shapes.SubmitAnalyticShape(shape);
+            });
+        if (!VideoBehindUi || Canvas.Count != 0 || CanvasOverlay.Count != 0 || ui.RasterGlyphs.Count != 0)
+            frame.Present(renderer!, SubmitCanvas);
+        if (!VideoBehindUi || ui.Glyphs.Count != 0)
+            frame.Present(textRenderer!, text =>
             {
-                foreach (var r in rectangles)
-                    quad.SubmitQuad(new NativeQuadSubmission(new Native2DRect(r.X, r.Y, r.Width, r.Height), Native2DUvRect.Full,
-                        whiteTexture, new Native2DTint((r.Color >> 24) / 255f, ((r.Color >> 16) & 255) / 255f, ((r.Color >> 8) & 255) / 255f, (r.Color & 255) / 255f)));
-            }
-            // Raster UI text draws in this pass, after the canvas, so it sits above every fill and the picture.
-            if (glyphTexture.Value != 0)
-                foreach (var g in ui.RasterGlyphs) quad.SubmitQuad(new NativeQuadSubmission(g.Destination, g.Uv, glyphTexture, g.Color));
-        });
-        var textPass = frame.Present(textRenderer!, text =>
-        {
-            foreach (var glyph in ui.Glyphs) text.SubmitMsdfQuad(glyph);
-        });
+                foreach (var glyph in ui.Glyphs) text.SubmitMsdfQuad(glyph);
+            });
         if (uiTexture.Value != 0)
             frame.Present(renderer!, quad => quad.SubmitQuad(new NativeQuadSubmission(
                 new(0, 0, (float)logicalWidth, (float)logicalHeight), Native2DUvRect.Full, uiTexture, Native2DTint.White)));
@@ -278,8 +263,36 @@ public sealed class NativeVideoPresenter : IDisposable
             PresentedFrames++;
             LastDrawPresented = true;
         }
-        trace?.Frame(frameId - 1, started, [shapePass, videoPass, textPass], presenter.LastTimings, AtlasUploadCount, UploadedVideoFrames);
+        trace?.Frame(frameId - 1, started, result.Passes, presenter.LastTimings, AtlasUploadCount, UploadedVideoFrames);
         return result.Pixels;
+
+        void SubmitCanvas(VulkanOrderedQuadRenderer quad)
+        {
+            if (!VideoBehindUi) SubmitVideo(quad);
+            SubmitRectangles(Canvas);
+            SubmitRectangles(CanvasOverlay);
+            void SubmitRectangles(IReadOnlyList<CanvasRectangle> rectangles)
+            {
+                foreach (var r in rectangles)
+                    quad.SubmitQuad(new NativeQuadSubmission(new Native2DRect(r.X, r.Y, r.Width, r.Height), Native2DUvRect.Full,
+                        whiteTexture, new Native2DTint((r.Color >> 24) / 255f, ((r.Color >> 16) & 255) / 255f, ((r.Color >> 8) & 255) / 255f, (r.Color & 255) / 255f)));
+            }
+            // Raster UI text draws in this pass, after the canvas, so it sits above every fill and the picture.
+            if (glyphTexture.Value != 0)
+                foreach (var g in ui.RasterGlyphs) quad.SubmitQuad(new NativeQuadSubmission(g.Destination, g.Uv, glyphTexture, g.Color));
+        }
+
+        void SubmitVideo(VulkanOrderedQuadRenderer quad)
+        {
+            if (videoTexture.Value == 0) return;
+            Rect area = ProgramMonitor ?? (EditorLayout ? new(326, 64, 930, 270) : new(24, 100, 1232, 470));
+            if (area.Width <= 0 || area.Height <= 0) return;
+            float scale = Math.Min((float)area.Width / videoWidth, (float)area.Height / videoHeight);
+            float width = videoWidth * scale;
+            float height = videoHeight * scale;
+            quad.SubmitQuad(new NativeQuadSubmission(new Native2DRect((float)area.X + ((float)area.Width - width) / 2,
+                (float)area.Y + ((float)area.Height - height) / 2, width, height), Native2DUvRect.Full, videoTexture, Native2DTint.White));
+        }
     }
 
     private void RecreateSurface()

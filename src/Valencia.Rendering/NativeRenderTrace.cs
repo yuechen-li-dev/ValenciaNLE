@@ -20,7 +20,7 @@ internal sealed class NativeRenderTrace(string path)
     public object? Upload { get; set; }
     public object? MediaFrame { get; set; }
     public void Phase(string name, double milliseconds) => cpu[name] = milliseconds;
-    public void Frame(ulong id, long started, Native2DPassResult[] passes, NativePresentTimings? presentation,
+    public void Frame(ulong id, long started, IReadOnlyList<Native2DPassResult> passes, NativePresentTimings? presentation,
         int atlasUploads, long uploadedFrames)
     {
         observedFrames++;

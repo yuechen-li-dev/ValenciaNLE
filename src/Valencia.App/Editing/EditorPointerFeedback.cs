@@ -57,6 +57,9 @@ internal sealed partial class EditorWindow
     {
         if (Gesture.Active) return Gesture.Edge == 0 ? UiCursor.Move : UiCursor.ResizeHorizontal;
         if (scrubbing) return UiCursor.Hand;
+        if (IsFullscreen)
+            return pointerPosition is { } fullscreenPoint && Contains(view.FullscreenSeekBar, fullscreenPoint.X, fullscreenPoint.Y)
+                ? UiCursor.Hand : feedback.Cursor;
         if (pointerPosition is { } point && !view.IsCompact)
         {
             if (Editor.Viewport.Cursor(Editor.Sequence, point.X, point.Y, view.Layout.RulerY, razor) is { } intent)

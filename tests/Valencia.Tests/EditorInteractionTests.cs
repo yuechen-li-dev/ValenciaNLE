@@ -82,6 +82,7 @@ public sealed class EditorInteractionTests
         double saveX = (layout.HeaderRows == 2 ? EditorLayout.Gap : EditorLayout.HeaderCommandsLeft) + 2 * (cell + gap) + cell / 2;
         double saveY = layout.HeaderRows == 2 ? EditorLayout.HeaderRowHeight + 18 : 20;
         Assert.Equal("Save", prepared.HitTest.HitTest(new PointerPoint(saveX, saveY))?.Action.Name);
+        Assert.True(prepared.TryGetActionCenter(Machina.Core.Actions.UiAction.Named("Fullscreen"), out _));
 
         var texts = prepared.PresentationFrame.Operations.OfType<PositionedTextOperation>().ToArray();
         foreach (var text in texts)

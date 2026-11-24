@@ -29,7 +29,7 @@ internal sealed partial class EditorWindow : IDisposable
     private readonly AurelianCursor cursor;
     private readonly AurelianWidgetInput widgetInput;
     internal SettingsPage Settings { get; }
-    private readonly AurelianWindowChrome chrome;
+    private AurelianWindowChrome chrome;
     private long chromeRevision;
     private bool feedbackDirty;
     private System.Numerics.Vector2? observedNativePointer;
@@ -63,13 +63,16 @@ internal sealed partial class EditorWindow : IDisposable
     private readonly QualificationSmoke? qualificationSmoke;
     private readonly LayoutSmoke? layoutSmoke;
     private readonly ScrubSmoke? scrubSmoke;
+    private readonly FullscreenSmoke? fullscreenSmoke;
+    private bool ScriptedPointer => scrubSmoke is not null || fullscreenSmoke is not null;
     public long StaleGenerationsRejected { get; private set; }
     public long SeekRequests { get; private set; }
     public long InputFailures { get; private set; }
     public bool Busy => job is not null || opening is not null || desired;
     public double MaximumAvSkew { get; private set; }
     public List<double> FrameMilliseconds { get; } = [];
-    public EditorWindow(string? path = null, string? smokeDirectory = null, bool analyzeSmoke = false, bool transcribeSmoke = false, bool createSmoke = false, bool qualifySmoke = false, bool resizeSmoke = false, bool scrubTest = false)
+    public EditorWindow(string? path = null, string? smokeDirectory = null, bool analyzeSmoke = false, bool transcribeSmoke = false, bool createSmoke = false,
+        bool qualifySmoke = false, bool resizeSmoke = false, bool scrubTest = false, bool fullscreenTest = false)
     {
         SynchronizationContext.SetSynchronizationContext(context);
         diagnostics = new(smokeDirectory is null ? null : Path.Combine(Path.GetFullPath(smokeDirectory), "editor-diagnostics.json"));
@@ -81,12 +84,12 @@ internal sealed partial class EditorWindow : IDisposable
         chrome = new(Graphics.Window);
         view.Chrome = chrome;
         if (scrubTest && smokeDirectory is not null) scrubSmoke = new(smokeDirectory);
+        if (fullscreenTest && smokeDirectory is not null) fullscreenSmoke = new(smokeDirectory);
         diagnostics.Record("window-created", generation, 0, $"gpu={Graphics.GpuName};hwnd={WindowHandle};size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}");
         foreach (var keyboard in input.Keyboards) { keyboard.KeyDown += (_, k, _) => HandlePointer(() => { keys.Record(k, true); Editor.Card = null; }); keyboard.KeyUp += (_, k, _) => HandlePointer(() => keys.Record(k, false)); }
         foreach (var mouse in input.Mice)
         {
-            // The scrub smoke drives these same handlers with scripted coordinates.
-            if (scrubSmoke is not null) break;
+            if (ScriptedPointer) break;
             // Exceptions escaping GLFW callbacks terminate Windows with 0xc000041d before Main can report them.
             mouse.MouseDown += (m, b) => HandlePointer(() => { if (!Settings.IsOpen) MouseDown(m, b); });
             mouse.MouseUp += (m, b) => HandlePointer(() => { if (!Settings.IsOpen) MouseUp(m, b); });
@@ -94,6 +97,7 @@ internal sealed partial class EditorWindow : IDisposable
             mouse.Scroll += (m, wheel) => HandlePointer(() =>
             {
                 if (Settings.IsOpen) return;
+                if (IsFullscreen) { if (wheel.Y != 0) Action(wheel.Y > 0 ? "VolumeUp" : "VolumeDown"); return; }
                 var point = Point(m); var media = view.Layout.Media;
                 if (point.X >= media.X && point.X < media.X + media.Width && point.Y >= media.Y && point.Y < media.Y + media.Height)
                     Editor.FirstAsset = Math.Clamp(Editor.FirstAsset - (int)wheel.Y, 0, Math.Max(0, Editor.Session.Snapshot.Document.Assets.Length - Editor.MediaPageSize));
@@ -107,8 +111,8 @@ internal sealed partial class EditorWindow : IDisposable
         // Native callbacks only invalidate state. Layout/font realization runs on the
         // normal event loop, never across GLFW's unmanaged callback boundary.
         Graphics.Window.Resize += _ => HandlePointer(() => { diagnostics.Record("resize", generation, Editor.Playhead.Ticks, $"size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}"); CancelGesture(); });
-        Graphics.Window.Closing += () => HandlePointer(() => { if (smoke is null && analysisSmoke is null && transcriptSmoke is null && creatorSmoke is null && qualificationSmoke is null && layoutSmoke is null && scrubSmoke is null && !DiscardAllowed()) { Graphics.Window.IsClosing = false; return; } jobCancellation?.Cancel(); seekCancellation?.Cancel(); Gesture.Cancel(); });
-        if (smokeDirectory is not null && scrubSmoke is null)
+        Graphics.Window.Closing += () => HandlePointer(() => { if (smokeDirectory is null && !DiscardAllowed()) { Graphics.Window.IsClosing = false; return; } jobCancellation?.Cancel(); seekCancellation?.Cancel(); Gesture.Cancel(); });
+        if (smokeDirectory is not null && !ScriptedPointer)
         {
             if (resizeSmoke) layoutSmoke = new(smokeDirectory);
             else if (qualifySmoke) qualificationSmoke = new(smokeDirectory);
@@ -129,7 +133,7 @@ internal sealed partial class EditorWindow : IDisposable
         while (!Graphics.Window.IsClosing)
         {
             var frameClock = Stopwatch.StartNew(); Graphics.Window.DoEvents(); context.Pump(ReportFailure);
-            chrome.Update();
+            if (!IsFullscreen) chrome.Update();
             if (chromeRevision != chrome.VisualRevision) { chromeRevision = chrome.VisualRevision; lastUi = -1; }
             double now = clock.Elapsed.TotalSeconds;
             // Widget input is polled every iteration so the shared transport never accumulates stale events.
@@ -137,6 +141,7 @@ internal sealed partial class EditorWindow : IDisposable
                 if (Settings.IsOpen) widgetInput.SetPointerCapture(Settings.Handle(item, clock.Elapsed));
             // The keymap keeps running under Settings: it feeds InputMan's rebind capture. Commands are dropped there.
             if (focused) foreach (var action in keys.Read(now - lastTick)) if (!Settings.IsOpen) Action(action.ToString()); lastTick = now;
+            ApplyFullscreenToggle();
             if (Settings.TakeDirty()) lastUi = -1;
             if ((Gesture.Active || scrubbing) && GetCapture() != WindowHandle) CancelGesture();
             if (job?.IsCompleted == true)
@@ -175,7 +180,8 @@ internal sealed partial class EditorWindow : IDisposable
             qualificationSmoke?.Tick(this);
             layoutSmoke?.Tick(this);
             scrubSmoke?.Tick(this);
-            if (scrubSmoke is null && input.Mice.Count > 0 && !Settings.IsOpen)
+            fullscreenSmoke?.Tick(this);
+            if (!ScriptedPointer && input.Mice.Count > 0 && !Settings.IsOpen)
             {
                 var point = input.Mice[0].Position;
                 if (observedNativePointer != point)
@@ -191,6 +197,7 @@ internal sealed partial class EditorWindow : IDisposable
             }
             Editor.Reversing = resume && reverseRequested && (opening is not null || desired)
                 || Playback is { IsPlaying: true, IsReverse: true };
+            UpdateFullscreenControls(now);
             if (now - lastUi >= .1) Prepare();
             else if (feedbackDirty) RefreshFeedback();
             cursor.Set(Settings.IsOpen ? Settings.Cursor : PointerCursor());
@@ -205,16 +212,18 @@ internal sealed partial class EditorWindow : IDisposable
                 MaximumAvSkew = Math.Max(MaximumAvSkew, Math.Abs(observedClock - presentedFrame.Time.TotalSeconds));
             }
             if (FrameMilliseconds.Count < 10000) FrameMilliseconds.Add(frameClock.Elapsed.TotalMilliseconds);
-            if (smoke?.Finished == true || analysisSmoke?.Finished == true || transcriptSmoke?.Finished == true || creatorSmoke?.Finished == true || qualificationSmoke?.Finished == true || layoutSmoke?.Finished == true || scrubSmoke?.Finished == true) return;
+            if (smoke?.Finished == true || analysisSmoke?.Finished == true || transcriptSmoke?.Finished == true || creatorSmoke?.Finished == true || qualificationSmoke?.Finished == true || layoutSmoke?.Finished == true || scrubSmoke?.Finished == true || fullscreenSmoke?.Finished == true) return;
             // While composition is throttled there is nothing to present; poll gently instead of spinning.
             Thread.Sleep(Graphics.LastDrawPresented ? 1 : 4);
         }
-        if (smoke is not null || analysisSmoke is not null || transcriptSmoke is not null || creatorSmoke is not null || qualificationSmoke is not null || layoutSmoke is not null || scrubSmoke is not null) throw new InvalidOperationException("Editor smoke closed before completing its assertions.");
+        if (smoke is not null || analysisSmoke is not null || transcriptSmoke is not null || creatorSmoke is not null || qualificationSmoke is not null || layoutSmoke is not null || ScriptedPointer) throw new InvalidOperationException("Editor smoke closed before completing its assertions.");
     }
     private void Prepare()
     {
         lastUi = clock.Elapsed.TotalSeconds;
-        if (Graphics.Window.Size.X <= 0 || Graphics.Window.Size.Y <= 0) return;
+        var size = Graphics.Window.Size;
+        if (size.X <= 0 || size.Y <= 0) return;
+        if (IsFullscreen) { PrepareFullscreen(size.X, size.Y); return; }
         long preparedAt = Stopwatch.GetTimestamp();
         Editor.ObsConnection = Obs?.Recording.Client.Status.State.ToString() ?? "Disconnected";
         Editor.ObsRecording = Obs is { } obs ? obs.Recording.Snapshot.State + " / " + obs.Recording.Snapshot.Markers.Length + " markers" : "No recording session";
@@ -347,6 +356,7 @@ internal sealed partial class EditorWindow : IDisposable
             else
             {
                 Playback = opened;
+                if (opened is not null) opened.MonitorGain = EffectiveMonitorGain;
                 diagnostics.Record("seek-complete", generation, Editor.Playhead.Ticks, $"elapsedMs={seekLatency.Elapsed.TotalMilliseconds:F2}");
                 if (opened?.Current is { } frame)
                 {
@@ -404,8 +414,10 @@ internal sealed partial class EditorWindow : IDisposable
     {
         Playback?.Pause(); CancelGesture(); keys.Reset();
         using FileDialog dialog = save ? new SaveFileDialog() : new OpenFileDialog(); dialog.Filter = filter; dialog.Title = title;
-        string? result = dialog.ShowDialog() == DialogResult.OK ? dialog.FileName : null; keys.Reset(); return result;
+        string? result = dialog.ShowDialog(new DialogOwner(WindowHandle)) == DialogResult.OK ? dialog.FileName : null;
+        keys.Reset(); return result;
     }
+    private sealed record DialogOwner(nint Handle) : IWin32Window;
     private bool DiscardAllowed() => !Editor.Dirty || MessageBox.Show("Discard unsaved project edits?", "Valencia", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
     internal async Task RunTrustedScript(string scriptPath)
     {
@@ -440,6 +452,12 @@ internal sealed partial class EditorWindow : IDisposable
     {
         try
         {
+            if (name == "Fullscreen" || IsFullscreen && name == "Cancel")
+            {
+                fullscreenTogglePending = !fullscreenTogglePending;
+                return;
+            }
+            if (IsFullscreen && HandleFullscreenAction(name)) return;
             if (name.StartsWith("window.", StringComparison.Ordinal))
             {
                 var button = name switch
@@ -608,8 +626,9 @@ internal sealed partial class EditorWindow : IDisposable
                 case "Undo": case "Redo": if (Editor.History(name == "Redo").Success) Seek(Editor.Playhead); break;
                 case "ZoomIn": case "ZoomOut": Editor.Viewport.Zoom(name == "ZoomIn" ? 1.4 : 1 / 1.4, Math.Clamp(Editor.Viewport.X(Editor.Playhead), 166, 1256)); break;
                 case "PreviousFrame": case "NextFrame":
-                    long index = TimelineTime.FrameIndex(Editor.Playhead, Editor.Sequence.Video.FrameRate, TimeRounding.NearestAwayFromZero);
-                    Seek(TimelineTime.FromFrames(Math.Max(0, index + (name == "NextFrame" ? 1 : -1)), Editor.Sequence.Video.FrameRate)); break;
+                    var frameRate = Editor.MonitorFrameRate;
+                    long index = TimelineTime.FrameIndex(Editor.Playhead, frameRate, TimeRounding.NearestAwayFromZero);
+                    Seek(TimelineTime.FromFrames(Math.Max(0, index + (name == "NextFrame" ? 1 : -1)), frameRate)); break;
                 case "AddVideo": case "AddAudio":
                     Editor.Commit(new AddTrack(Editor.SequenceId, Guid.NewGuid(), name == "AddVideo" ? TrackKind.Video : TrackKind.Audio, Editor.Sequence.Tracks.Length, name == "AddVideo" ? "Video" : "Audio")); break;
                 default:
@@ -661,6 +680,7 @@ internal sealed partial class EditorWindow : IDisposable
     {
         pointerPosition = new(p.X, p.Y);
         feedbackDirty |= feedback.Press(new(p.X, p.Y));
+        if (IsFullscreen) { FullscreenPointerDown(p); return; }
         if (view.Prepared is null || view.IsCompact) return;
         diagnostics.Record("pointer-down", generation, Editor.Playhead.Ticks, $"x={p.X};y={p.Y}");
         diagnostics.Save(); // persist the last gesture even if a native fault prevents managed unwinding
@@ -721,19 +741,40 @@ internal sealed partial class EditorWindow : IDisposable
             var asset = Editor.Session.Snapshot.Document.Assets.First(a => a.Id == id);
             RunJob(async () => { imports[id] = await Task.Run(() => MediaAssetProbe.Import(id, asset.SourcePath)); OpenSelectedSource(); }); return;
         }
-        // A transient one-asset sequence built with the same placement rules as Insert; it never enters the project.
-        var sequence = Editor.Sequence; var sourceId = Guid.NewGuid();
-        var document = Editor.Session.Snapshot.Document with { Sequences = [new SequenceDocument(sourceId, "Source", sequence.Video, sequence.AudioSampleRate, [])] };
+        var source = CreateSourceView(imported);
+        ShowSource(source);
+        Editor.Status = "Source: " + source.Name + ". I/O mark, , insert, . overwrite at the timeline playhead.";
+    }
+
+    // Source monitoring uses the editor evaluator on a transient one-asset sequence.
+    private SourceView CreateSourceView(ImportedAsset imported)
+    {
+        var sequence = Editor.Sequence;
+        var video = imported.Asset.Streams.FirstOrDefault(s => s.Kind == TrackKind.Video);
+        var format = video is { Width: { } width, Height: { } height }
+            ? new VideoFormat(width, height, video.FrameRate ?? sequence.Video.FrameRate) : sequence.Video;
+        var sourceId = Guid.NewGuid();
+        var document = ProjectDocument.Create(Guid.NewGuid(), imported.Asset.Name) with
+        {
+            Assets = [imported.Asset], Sequences = [new SequenceDocument(sourceId, "Source", format, sequence.AudioSampleRate, [])]
+        };
         var session = new EditingSession(new ProjectSnapshot(document, 0));
         var operations = Valencia.Engine.InsertionCommands.Build(session.Snapshot, sourceId, imported, default);
         var built = session.Execute(new EditTransaction(Guid.NewGuid(), 1, 0, [.. operations.Select(o => new EditCommand(Guid.NewGuid(), 1, o))]));
-        if (!built.Success) { Editor.Status = "Cannot open source: " + (built.Message ?? built.Error.ToString()); return; }
+        if (!built.Success) throw new InvalidDataException("Cannot open source: " + (built.Message ?? built.Error.ToString()));
+        return new(imported.Asset.Id, imported.Asset.Name, built.Snapshot, sourceId,
+            new TimelineQueries(built.Snapshot).Duration(sourceId), imported);
+    }
+
+    private void ShowSource(SourceView source, bool play = false, bool useMarks = true)
+    {
         if (Editor.Source is null) Editor.ProgramPlayhead = Editor.Playhead;
-        Editor.Source = new(id, imported.Asset.Name, built.Snapshot, sourceId, new TimelineQueries(built.Snapshot).Duration(sourceId), imported);
-        Editor.Status = "Source: " + imported.Asset.Name + ". I/O mark, , insert, . overwrite at the timeline playhead.";
+        Editor.Source = source;
         // Start on the first picture: recordings often begin audio a few ms before video (OBS AAC starts at -21 ms).
-        var firstVideo = new TimelineQueries(built.Snapshot).Sequence(sourceId).Tracks.Where(t => t.Kind == TrackKind.Video).SelectMany(t => t.Clips).Select(c => c.Start).DefaultIfEmpty().Min(t => t.Ticks);
-        Seek(Editor.SourceMarks.GetValueOrDefault(id).In ?? new SequenceTime(firstVideo));
+        var firstVideo = source.Snapshot.Document.Sequences[0].Tracks.Where(t => t.Kind == TrackKind.Video)
+            .SelectMany(t => t.Clips).Select(c => c.Start.Ticks).DefaultIfEmpty().Min();
+        var mark = useMarks ? Editor.SourceMarks.GetValueOrDefault(source.AssetId).In : null;
+        Seek(mark ?? new SequenceTime(firstVideo), play);
     }
     private void ExitSource()
     {
@@ -750,6 +791,12 @@ internal sealed partial class EditorWindow : IDisposable
     {
         feedbackDirty |= feedback.Move(new(p.X, p.Y));
         pointerPosition = new(p.X, p.Y);
+        if (IsFullscreen)
+        {
+            RevealFullscreenControls();
+            if (scrubbing) UpdateFullscreenScrub(p.X);
+            return;
+        }
         if (Gesture.Active) { Gesture.Move(p.X, p.Y); lastUi = -1; } else if (scrubbing) UpdateScrubTarget(p.X);
     }
     private void MouseUp(IMouse mouse, MouseButton button)
@@ -761,6 +808,7 @@ internal sealed partial class EditorWindow : IDisposable
     {
         pointerPosition = new(p.X, p.Y);
         feedbackDirty |= feedback.Release(new(p.X, p.Y));
+        if (IsFullscreen) { FullscreenPointerUp(p); return; }
         diagnostics.Record("pointer-up", generation, Editor.Playhead.Ticks);
         if (Gesture.Active) { Gesture.Move(p.X, p.Y); if (Gesture.Release()) Seek(Editor.Playhead); ReleasePointer(); }
         else if (scrubbing)
@@ -781,7 +829,7 @@ internal sealed partial class EditorWindow : IDisposable
         Editor.ScrubTarget = pendingScrub = null;
         scrubSnapPoints = null;
     }
-    private void CancelGesture() { Gesture.Cancel(); ClearScrub(); pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
+    private void CancelGesture() { Gesture.Cancel(); ClearScrub(); fullscreenVideoPressed = false; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
     private nint WindowHandle => Graphics.Window.Native?.Win32?.Hwnd ?? 0;
     private void CapturePointer()
     {

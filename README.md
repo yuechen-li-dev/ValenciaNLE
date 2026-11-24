@@ -55,6 +55,7 @@ Editor controls:
 | Space / K / L | Toggle playback / pause / play at 1× |
 | J / K / L | Play backward at 1× / pause / play forward |
 | Left / Right | Step one sequence frame |
+| F11 / Full Screen | Show the active Program or Source monitor fullscreen |
 | V / C | Select tool / razor tool (click a clip to split) |
 | Ctrl+K | Split selected clip, or active unlocked clips when nothing is selected |
 | Delete / Shift+Delete | Delete / ripple-delete selection with its linked clips; ripple refuses to desync other unlocked tracks |
@@ -75,7 +76,9 @@ Editor controls:
 
 Click the ruler or empty timeline space to seek/scrub. Track headers provide lock, mute/visibility and insert-target controls. `+V`/`+A` append tracks. New/open/close guard dirty edits. Missing media can be selected and relinked. There are no I/O marks or automatic linked audio/video selections in M1b.
 
-For the preserved M0 player use `Valencia.App.exe --player recording.mp4`. Its original O, Space/K and Left/Right/J/L transport controls remain unchanged; `--smoke` still tests that path.
+In fullscreen, click the picture or press **Space** to play or pause. Drag the seek bar or press **Left/Right** to jump five seconds. **Up/Down**, the mouse wheel, or the volume controls adjust the fullscreen monitor level. Move the mouse to reveal the controls while playing. **Esc** or **F11** returns to the editor.
+
+**Open Video** or **Ctrl+O** in fullscreen plays a file without importing it or changing the project. Exit fullscreen to return to the previous monitor and position. The standalone player remains available via `Valencia.App.exe --player recording.mp4`.
 
 **Script** in the media panel opens Copeland TS files (`.ts` or `.tsx`). Use
 `.workflow.ts` or `.workflow.tsx` to run against the active sequence on a private

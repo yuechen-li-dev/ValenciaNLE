@@ -73,6 +73,7 @@ internal static class EditorShortcuts
         (EditorAction.NextEdit, new(KeyboardKey.ArrowDown)),
         (EditorAction.GoToStart, new(KeyboardKey.Home)),
         (EditorAction.GoToEnd, new(KeyboardKey.End)),
+        (EditorAction.Fullscreen, new(KeyboardKey.F11)),
         // Marking and three-point editing
         (EditorAction.MarkIn, new(KeyboardKey.I)),
         (EditorAction.MarkOut, new(KeyboardKey.O)),
@@ -130,6 +131,7 @@ internal static class EditorShortcuts
         EditorAction.NextEdit => ("Transport", "Go to next edit point"),
         EditorAction.GoToStart => ("Transport", "Go to sequence start"),
         EditorAction.GoToEnd => ("Transport", "Go to sequence end"),
+        EditorAction.Fullscreen => ("View", "Toggle fullscreen monitor"),
         EditorAction.MarkIn => ("Marking", "Mark In"),
         EditorAction.MarkOut => ("Marking", "Mark Out"),
         EditorAction.ClearMarks => ("Marking", "Clear In and Out"),
@@ -255,7 +257,7 @@ internal static class EditorShortcuts
             var overridden = user.Select(e => e.Action).ToHashSet();
             var occupied = user.Select(e => e.Shortcut).ToHashSet();
             var merged = PremiereDefaults.Where(e => !overridden.Contains(e.Action)
-                && (!IsNewSequenceShortcut(e.Action) || !occupied.Contains(e.Shortcut))).Concat(user).ToArray();
+                && (!CanYieldDefault(e.Action) || !occupied.Contains(e.Shortcut))).Concat(user).ToArray();
             problems.AddRange(Conflicts(merged));
             if (problems.Count > 0) return (Default(), $"Keyboard shortcuts file ignored ({Path.GetFileName(path)}): {string.Join("; ", problems)}.");
             return (Profile(merged), null);
@@ -266,8 +268,8 @@ internal static class EditorShortcuts
         }
     }
 
-    private static bool IsNewSequenceShortcut(EditorAction action) => action is EditorAction.NewSequence or EditorAction.NextSequence
-        or EditorAction.AddSequenceMarker or EditorAction.NextSequenceMarker or EditorAction.PreviousSequenceMarker;
+    private static bool CanYieldDefault(EditorAction action) => action is EditorAction.NewSequence or EditorAction.NextSequence
+        or EditorAction.AddSequenceMarker or EditorAction.NextSequenceMarker or EditorAction.PreviousSequenceMarker or EditorAction.Fullscreen;
 
     public static void Save(InputProfile profile, string path)
     {

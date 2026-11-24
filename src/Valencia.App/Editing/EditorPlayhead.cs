@@ -10,7 +10,7 @@ internal sealed partial class EditorWindow
         var overlay = playheadOverlay;
         overlay.Clear();
         Graphics.CanvasOverlay = overlay;
-        if (Settings.IsOpen || view.IsCompact || view.Prepared is null) return;
+        if (IsFullscreen || Settings.IsOpen || view.IsCompact || view.Prepared is null) return;
 
         var viewport = Editor.Viewport;
         float left = (float)viewport.ClipLeft;

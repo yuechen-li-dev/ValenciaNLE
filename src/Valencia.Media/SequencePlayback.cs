@@ -31,6 +31,7 @@ public sealed class SequencePlayback : IAsyncDisposable
     public bool CanPlay { get; }
     public Exception? Failure => Volatile.Read(ref failure);
     public long UnderrunFrames => audio.UnderrunFrames;
+    public float MonitorGain { get => audio.Gain; set => audio.Gain = value; }
     private SequencePlayback(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start, CancellationToken cancellation,
         OutputProfile? profile, SequenceFrame? preview = null, bool reverse = false)
     {

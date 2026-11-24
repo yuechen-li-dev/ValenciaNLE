@@ -21,6 +21,7 @@ public sealed class AudioStreamBuffer : IWaveProvider
     private long queuedSamples;
     private long underrunFrames;
     private volatile bool producerCompleted;
+    private volatile float gain = 1;
 
     public AudioStreamBuffer(int sampleRate = SampleRate, int capacity = QueueCapacity)
     {
@@ -36,6 +37,11 @@ public sealed class AudioStreamBuffer : IWaveProvider
     public bool Ended => ended;
     public Task Completion => blocks.Reader.Completion;
     public bool ProducerCompleted => producerCompleted;
+    public float Gain
+    {
+        get => gain;
+        set => gain = float.IsFinite(value) ? Math.Clamp(value, 0, 1) : 1;
+    }
 
     public async ValueTask WriteAsync(ReadOnlyMemory<float> samples, CancellationToken cancellation)
     {
@@ -83,6 +89,10 @@ public sealed class AudioStreamBuffer : IWaveProvider
                 offset = 0;
             }
         }
+
+        float level = gain;
+        if (level != 1)
+            for (int i = 0; i < written; i++) output[i] *= level;
 
         // Return a short final block at EOF, rather than endless trailing silence.
         if (current is null && blocks.Reader.Completion.IsCompleted)

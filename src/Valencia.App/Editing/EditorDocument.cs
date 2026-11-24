@@ -30,6 +30,7 @@ internal sealed class EditorDocument
     public SequenceTime TimelinePlayhead => ScrubTarget ?? (Source is null ? Playhead : ProgramPlayhead);
     public bool Reversing { get; set; }
     public SequenceTime MonitorDuration => Source?.Duration ?? Sequence.Duration;
+    public FrameRate MonitorFrameRate => Source?.Snapshot.Document.Sequences[0].Video.FrameRate ?? Sequence.Video.FrameRate;
     public Dictionary<Guid, (SequenceTime? In, SequenceTime? Out)> SourceMarks { get; } = [];
     public ProjectDocument? SavedDocument { get; set; }
     public string? ProjectPath { get; set; }
