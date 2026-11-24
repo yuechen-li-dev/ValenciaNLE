@@ -55,15 +55,58 @@ internal sealed class EditorDocument
     public int? TranscriptSelectionEnd { get; set; }
     public SequenceDocument Sequence => new TimelineQueries(Session.Snapshot).Sequence(SequenceId);
     public EditorDocument() => New();
+
+    public EditResult AddSequence()
+    {
+        var current = Sequence;
+        var id = Guid.NewGuid();
+        int number = Session.Snapshot.Document.Sequences.Length + 1;
+        var result = Commit(SequenceSetup(id, $"Sequence {number}", current.Video, current.AudioSampleRate));
+        if (result.Success) SelectSequence(id);
+        return result;
+    }
+
+    private static IEnumerable<EditOperation> SequenceSetup(Guid id, string name, VideoFormat format, int audioRate)
+    {
+        yield return new CreateSequence(id, name, format, audioRate);
+        yield return new AddTrack(id, Guid.NewGuid(), TrackKind.Video, 0, "V1");
+        yield return new AddTrack(id, Guid.NewGuid(), TrackKind.Video, 1, "V2");
+        yield return new AddTrack(id, Guid.NewGuid(), TrackKind.Audio, 2, "A1");
+        yield return new AddTrack(id, Guid.NewGuid(), TrackKind.Audio, 3, "A2");
+    }
+
+    public void SelectSequence(Guid id)
+    {
+        var sequence = new TimelineQueries(Session.Snapshot).Sequence(id);
+        SequenceId = id;
+        Source = null;
+        ProgramPlayhead = Playhead = default;
+        SelectedClip = SelectedProfile = TargetTrack = null;
+        MarkIn = MarkOut = null;
+        ProposedCut = null;
+        ProposedTextCut = null;
+        Card = null;
+        Viewport.Reset();
+        Status = $"Sequence: {sequence.Name}";
+    }
+
+    public SequenceMarker? AdjacentMarker(bool next)
+    {
+        var sequence = Sequence;
+        long duration = sequence.Duration.Ticks;
+        var available = sequence.Markers.Where(marker => marker.At.Ticks <= duration);
+        return next
+            ? available.Where(marker => marker.At.Ticks > TimelinePlayhead.Ticks).MinBy(marker => marker.At.Ticks)
+            : available.Where(marker => marker.At.Ticks < TimelinePlayhead.Ticks).MaxBy(marker => marker.At.Ticks);
+    }
+
     public void New()
     {
         SelectedProfile = null;
         Waveforms.Clear(); ProposedCut = null; Transcript = null; ProposedTextCut = null; TranscriptMode = false;
         Session = new(ProjectDocument.Create(Guid.NewGuid(), "Untitled")); SequenceId = Guid.NewGuid();
-        var ops = new List<EditOperation> { new CreateSequence(SequenceId, "Main", new(1280, 720, new(30, 1)), 48000) };
-        foreach (var (kind, name) in new[] { (TrackKind.Video, "V1"), (TrackKind.Video, "V2"), (TrackKind.Audio, "A1"), (TrackKind.Audio, "A2") })
-            ops.Add(new AddTrack(SequenceId, Guid.NewGuid(), kind, ops.Count - 1, name));
-        Commit(ops); Session = new(Session.Snapshot); // Required sequence/track setup is the baseline, not an undoable user edit.
+        Commit(SequenceSetup(SequenceId, "Main", new(1280, 720, new(30, 1)), 48000));
+        Session = new(Session.Snapshot); // Required sequence/track setup is the baseline.
         SelectedClip = null; SelectedAsset = null; TargetTrack = null; FirstAsset = 0; Viewport.Reset(); Playhead = default; MarkIn = null; MarkOut = null; Source = null; SourceMarks.Clear(); SavedDocument = Session.Snapshot.Document; ProjectPath = null;
     }
     public void Open(ProjectSnapshot snapshot, string path)
@@ -97,7 +140,11 @@ internal sealed class EditorDocument
     public EditResult History(bool redo)
     {
         var request = new SessionRequest(Guid.NewGuid(), 1, Session.Snapshot.Revision);
-        var result = redo ? Session.Redo(request) : Session.Undo(request); Status = result.Message ?? (redo ? "Redo" : "Undo"); return result;
+        var result = redo ? Session.Redo(request) : Session.Undo(request);
+        if (result.Success && !result.Snapshot.Document.Sequences.Any(sequence => sequence.Id == SequenceId))
+            SelectSequence(result.Snapshot.Document.Sequences[0].Id);
+        Status = result.Message ?? (redo ? "Redo" : "Undo");
+        return result;
     }
 }
 

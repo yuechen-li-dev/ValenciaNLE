@@ -2,15 +2,96 @@ using Valencia.Core;
 using Valencia.Core.Timeline;
 using Valencia.Engine;
 using System.Collections.Immutable;
+using Valencia.Core.Editing;
 
 namespace Valencia.Scripting;
 
 /// <summary>Trusted CLR script surface. Native long overloads preserve Int64; wire contracts retain canonical strings.</summary>
-public sealed class ScriptApi(EditingEngine engine, CancellationToken cancellation = default, bool allowProjectReplacement = true)
+public sealed class ScriptApi
 {
-    public string ObsConnect(string endpoint, string recordingRoot, string manifest, bool allowRecordingControl)
+    private readonly EditingEngine engine;
+    private readonly CancellationToken cancellation;
+    private readonly bool allowProjectReplacement;
+    private readonly WorkflowContext? workflow;
+
+    public ScriptApi(EditingEngine engine, CancellationToken cancellation = default, bool allowProjectReplacement = true)
+        : this(engine, cancellation, allowProjectReplacement, null) { }
+
+    internal ScriptApi(EditingEngine engine, CancellationToken cancellation, bool allowProjectReplacement, WorkflowContext? workflow)
+    {
+        this.engine = engine;
+        this.cancellation = cancellation;
+        this.allowProjectReplacement = allowProjectReplacement;
+        this.workflow = workflow;
+    }
+
+    public string Argument(string name, string fallback)
     {
         Check();
+        return workflow?.Arguments.GetValueOrDefault(name, fallback) ?? fallback;
+    }
+
+    public string SelectedSequence()
+    {
+        Check();
+        return workflow?.SequenceId is { } sequence ? sequence.ToString() : FirstSequence();
+    }
+
+    public void Checkpoint() => Check();
+
+    public string CreateSequence(string name, int width, int height, int fpsNumerator, int fpsDenominator, int audioSampleRate)
+    {
+        var id = Guid.NewGuid();
+        ApplyOperations([new CreateSequence(id, name, new(width, height, new(fpsNumerator, fpsDenominator)), audioSampleRate)]);
+        return id.ToString();
+    }
+
+    public string InsertAsset(string asset, string sequence, long at)
+    {
+        Check();
+        var snapshot = engine.Session.Snapshot;
+        Guid assetId = Guid.Parse(asset);
+        var media = snapshot.Document.Assets.First(item => item.Id == assetId);
+        var imported = Valencia.Media.MediaAssetProbe.Import(media.Id, engine.OutputPath(media.SourcePath));
+        var operations = InsertionCommands.Build(snapshot, Guid.Parse(sequence), imported, new(at));
+        ApplyOperations(operations, snapshot.Revision);
+        return asset;
+    }
+
+    public string AddMarker(string sequence, long at, string label)
+    {
+        var marker = new SequenceMarker(Guid.NewGuid(), new(at), label);
+        ApplyOperations([new SetSequenceMarker(Guid.Parse(sequence), marker)]);
+        return marker.Id.ToString();
+    }
+
+    public void RemoveMarker(string sequence, string marker)
+        => ApplyOperations([new RemoveSequenceMarker(Guid.Parse(sequence), Guid.Parse(marker))]);
+
+    public string Markers(string sequence)
+    {
+        Check();
+        return EngineJson.Write(engine.Query().Sequence(Guid.Parse(sequence)).Markers
+            .Select(marker => new { marker.Id, At = EngineJson.Exact(marker.At.Ticks), marker.Label }));
+    }
+
+    private void ApplyOperations(IEnumerable<EditOperation> operations, long? revision = null)
+    {
+        Check();
+        var result = engine.Execute(new EditTransaction(Guid.NewGuid(), 1, revision ?? engine.Session.Snapshot.Revision,
+            [.. operations.Select(operation => new EditCommand(Guid.NewGuid(), 1, operation))]), cancellation);
+        if (!result.Success) throw new InvalidOperationException(result.Message ?? result.Error.ToString());
+    }
+
+    private void RequireDirectScript()
+    {
+        Check();
+        if (workflow is not null) throw new InvalidOperationException("Saving, exporting and OBS control are direct script operations. Publish the workflow edit first.");
+    }
+
+    public string ObsConnect(string endpoint, string recordingRoot, string manifest, bool allowRecordingControl)
+    {
+        RequireDirectScript();
         if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("OBS credentials currently require Windows.");
         var stored = Valencia.Obs.ObsCredentials.Load();
         var options = endpoint.Length == 0 ? stored?.Options ?? new(new Uri("ws://127.0.0.1:4455"))
@@ -125,8 +206,8 @@ public sealed class ScriptApi(EditingEngine engine, CancellationToken cancellati
         if (!result.Success) throw new InvalidOperationException(result.Message);
         return EngineJson.Exact(result.Revision);
     }
-    public void Save(string path) { Check(); engine.SaveAsync(path, cancellation).GetAwaiter().GetResult(); }
-    public string Export(string sequence, string path) { Check(); return engine.Exports.Start(Guid.Parse(sequence), path).ToString(); }
+    public void Save(string path) { RequireDirectScript(); engine.SaveAsync(path, cancellation).GetAwaiter().GetResult(); }
+    public string Export(string sequence, string path) { RequireDirectScript(); return engine.Exports.Start(Guid.Parse(sequence), path).ToString(); }
     public string ExportStatus(string job) { Check(); return EngineJson.Write(engine.Exports.Status(Guid.Parse(job))); }
     public void CancelExport(string job) { Check(); engine.Exports.Cancel(Guid.Parse(job)); }
     public string WaitExport(string job)
@@ -141,8 +222,8 @@ public sealed class ScriptApi(EditingEngine engine, CancellationToken cancellati
     }
     private void Check() => cancellation.ThrowIfCancellationRequested();
     public string OutputProfiles(string sequence) { Check(); return EngineJson.Write(engine.Query().Sequence(Guid.Parse(sequence)).Creator?.Profiles ?? []); }
-    public string ExportProfile(string sequence, string profile, string output) { Check(); return engine.Exports.Start(Guid.Parse(sequence), output, Guid.Parse(profile)).ToString(); }
-    public string ExportOutputs(string sequence, string directory) { Check(); return EngineJson.Write(engine.ExportProfilesAsync(Guid.Parse(sequence), directory, cancellation).GetAwaiter().GetResult()); }
+    public string ExportProfile(string sequence, string profile, string output) { RequireDirectScript(); return engine.Exports.Start(Guid.Parse(sequence), output, Guid.Parse(profile)).ToString(); }
+    public string ExportOutputs(string sequence, string directory) { RequireDirectScript(); return EngineJson.Write(engine.ExportProfilesAsync(Guid.Parse(sequence), directory, cancellation).GetAwaiter().GetResult()); }
     public string TranscribeAligned(string asset, int stream, string model)
     {
         Check();

@@ -46,7 +46,7 @@ An initial media path is imported and placed on the timeline. With no argument, 
 
 The UI uses hinted, pixel-aligned glyphs for small controls, shared Machina MSDF rendering for larger text, and analytic GPU widget geometry. Three explicit native profiles cover desktop/landscape tablet, portrait tablet, and portrait phone. Layout and rendering share font measurements; shortcut hints wrap on narrow layouts. Portrait Windows captures do not imply mobile-platform support.
 
-**OBS** opens connect/start/stop/pause/mark/import controls. Configure client credentials with `Valencia.Cli obs configure`, supplying `VALENCIA_OBS_PASSWORD` through the process environment. Stored client credentials use Windows CurrentUser DPAPI. Connecting does not change OBS settings; Start/Stop are explicit actions, and closing Valencia does not stop OBS. **Ctrl+Shift+M** records an approximate highlight observation. Import completed takes, then use Insert. See M2e for recording-root boundaries, CLI options and MCP control authorization.
+**OBS** opens connect/start/stop/pause/mark/import controls. Configure client credentials with `Valencia.Cli obs configure`, supplying `VALENCIA_OBS_PASSWORD` through the process environment. Stored client credentials use Windows CurrentUser DPAPI. Start/Stop are explicit actions. **Alt+Shift+M** records an approximate OBS highlight observation. Import completed takes, then use Insert. See M2e for recording-root boundaries, CLI options and MCP control authorization.
 
 Editor controls:
 
@@ -59,13 +59,15 @@ Editor controls:
 | Ctrl+K | Split selected clip, or active unlocked clips when nothing is selected |
 | Delete / Shift+Delete | Delete / ripple-delete selection with its linked clips; ripple refuses to desync other unlocked tracks |
 | Ctrl+Z / Ctrl+Shift+Z | Undo / redo |
-| Ctrl+I / Ctrl+O / Ctrl+N | Import / open project / new project |
-| Ctrl+S / Ctrl+Shift+S / Ctrl+E | Save / Save As / export MP4 |
+| Ctrl+I / Ctrl+O / Ctrl+Alt+N | Import / open project / new project |
+| Ctrl+N / Ctrl+Tab | Create a sequence in this project / switch sequence |
+| Ctrl+S / Ctrl+Shift+S / Ctrl+M | Save / Save As / export MP4 |
 | Wheel / Ctrl+wheel | Horizontal scroll / zoom around cursor |
 | View button | Cycle sequence/creator output-profile framing in the program monitor |
 | Shift+wheel | Scroll track rows; wheel over media panel scrolls assets |
 | Escape | Cancel drag or background job |
 | I / O / Ctrl+Shift+X | Mark In / mark Out / clear marks (transient, shown on the ruler) |
+| M / Shift+M / Ctrl+Shift+M | Add persistent sequence marker / next marker / previous marker |
 | ; / ' | Lift / extract the In–Out range on all unlocked tracks |
 | Q / W | Ripple-trim previous edit to playhead / playhead to next edit, all unlocked tracks |
 | Up / Down, Home / End | Previous / next edit point, sequence start / end |
@@ -75,7 +77,12 @@ Click the ruler or empty timeline space to seek/scrub. Track headers provide loc
 
 For the preserved M0 player use `Valencia.App.exe --player recording.mp4`. Its original O, Space/K and Left/Right/J/L transport controls remain unchanged; `--smoke` still tests that path.
 
-**Run script** in the media panel executes a trusted local Copeland `.ts` file against the current editing session. Scripts have ordinary CLR privileges. Escape requests cooperative cancellation; this is not an untrusted-code sandbox. The CLI is the primary headless scripting entry point:
+**Script** in the media panel opens Copeland TS files (`.ts` or `.tsx`). Use
+`.workflow.ts` or `.workflow.tsx` to run against the active sequence on a private
+editing snapshot. A successful workflow publishes all edits together with one
+undo entry. Other Copeland scripts use the direct execution path. Use local code
+you trust because scripts run with ordinary CLR privileges. Escape requests
+cooperative cancellation. See [workflow examples and API](docs/WORKFLOWS.md).
 
 ```powershell
 $cli = '.\artifacts\publish\cli-win-x64\Valencia.Cli.exe'

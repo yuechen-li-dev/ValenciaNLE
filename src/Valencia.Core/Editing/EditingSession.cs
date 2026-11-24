@@ -123,6 +123,29 @@ public sealed class EditingSession
             return Fail(id, EditError.InvalidCommand, "Request requires identity, supported schema and expected revision.");
         return revision != snapshot.Revision ? Fail(id, EditError.StaleRevision, "Project revision is stale.") : null;
     }
+
+    /// <summary>Publish a validated edit performed on an isolated session as one history entry.</summary>
+    public EditResult CommitStagedEdit(ProjectSnapshot original, ProjectDocument candidate, Guid requestId)
+    {
+        lock (gate)
+        {
+            var failure = CheckRequest(requestId, EditCommand.CurrentSchemaVersion, original.Revision);
+            if (failure is not null) return failure;
+            if (!ReferenceEquals(original, snapshot))
+                return Fail(requestId, EditError.StaleRevision, "The workflow's starting snapshot is no longer current.");
+            if (candidate.Id != original.Document.Id)
+                return Fail(requestId, EditError.InvalidEdit, "A staged edit must keep the project identity.");
+            try { DocumentValidator.Validate(candidate); }
+            catch (ArgumentException error) { return Fail(requestId, EditError.InvalidEdit, error.Message); }
+            catch (OverflowException error) { return Fail(requestId, EditError.Overflow, error.Message); }
+            if (DocumentSemantics.Equal(candidate, snapshot.Document)) return Ok(requestId);
+            if (snapshot.Revision == long.MaxValue) return Fail(requestId, EditError.Overflow, "Project revision overflow.");
+            Push(undo, snapshot.Document);
+            redo.Clear();
+            snapshot = new(candidate, snapshot.Revision + 1);
+            return Ok(requestId);
+        }
+    }
     private void Push(List<ProjectDocument> list, ProjectDocument document)
     {
         if (historyLimit == 0) return;

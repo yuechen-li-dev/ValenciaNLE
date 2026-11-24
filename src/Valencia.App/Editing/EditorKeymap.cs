@@ -6,6 +6,7 @@ namespace Valencia.App.Editing;
 
 internal enum EditorAction { TogglePlay, Pause, Play, ReverseUnsupported, Split, Delete, RippleDelete, Undo, Redo, Save, SaveAs, Open, Import, New, Export, SelectTool, RazorTool, Cancel, PreviousFrame, NextFrame, ObsMarker,
     MarkIn, MarkOut, ClearMarks, PreviousEdit, NextEdit, GoToStart, GoToEnd, RippleTrimPrevious, RippleTrimNext, InsertEdit, OverwriteEdit, Lift, Extract,
+    NewSequence, NextSequence, AddSequenceMarker, NextSequenceMarker, PreviousSequenceMarker,
     ToggleSnap, ZoomIn, ZoomOut, ZoomFit, KeyboardShortcuts }
 
 /// <summary>

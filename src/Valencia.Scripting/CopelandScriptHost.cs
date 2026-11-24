@@ -17,7 +17,7 @@ public sealed record ScriptDiagnostic(string Code, string Message, string Path, 
 public sealed record ScriptResult(bool Success, string? ReturnValue, ImmutableArray<ScriptDiagnostic> Diagnostics, bool CacheHit, double ElapsedMs);
 
 /// <summary>Trusted local CLR execution, not a security sandbox. Bounded compilation cache; no JavaScript/Node execution.</summary>
-public sealed class CopelandScriptHost : IDisposable
+public sealed partial class CopelandScriptHost : IDisposable
 {
     private readonly SemaphoreSlim gate = new(1, 1);
     private readonly Dictionary<string, Artifact> cache = [];
@@ -27,7 +27,10 @@ public sealed class CopelandScriptHost : IDisposable
         string source = await File.ReadAllTextAsync(path, cancellation).ConfigureAwait(false);
         return await RunAsync(source, Path.GetFullPath(path), engine, entryPoint, cancellation, allowProjectReplacement).ConfigureAwait(false);
     }
-    public async Task<ScriptResult> RunAsync(string source, string path, EditingEngine engine, string entryPoint = "run", CancellationToken cancellation = default, bool allowProjectReplacement = true)
+    public Task<ScriptResult> RunAsync(string source, string path, EditingEngine engine, string entryPoint = "run", CancellationToken cancellation = default, bool allowProjectReplacement = true)
+        => InvokeAsync(source, path, entryPoint, new ScriptApi(engine, cancellation, allowProjectReplacement), cancellation);
+
+    private async Task<ScriptResult> InvokeAsync(string source, string path, string entryPoint, ScriptApi api, CancellationToken cancellation)
     {
         var elapsed = Stopwatch.StartNew();
         bool hit = false;
@@ -60,7 +63,7 @@ public sealed class CopelandScriptHost : IDisposable
             }
             finally { gate.Release(); }
             cancellation.ThrowIfCancellationRequested();
-            string? value = await Task.Run(() => (string?)artifact!.Entry.Invoke(null, [new ScriptApi(engine, cancellation, allowProjectReplacement)]), cancellation).ConfigureAwait(false);
+            string? value = await Task.Run(() => (string?)artifact!.Entry.Invoke(null, [api]), cancellation).ConfigureAwait(false);
             return new(true, value, [], hit, elapsed.Elapsed.TotalMilliseconds);
         }
         catch (Exception error)

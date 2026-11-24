@@ -29,7 +29,8 @@ public sealed class EditorShortcutTests
         { [Key.ControlLeft, Key.M], ["Export"] },
         { [Key.ControlLeft, Key.E], [] },
         { [Key.ControlLeft, Key.AltLeft, Key.N], ["New"] },
-        { [Key.ControlLeft, Key.N], [] },
+        { [Key.ControlLeft, Key.N], ["NewSequence"] },
+        { [Key.ControlLeft, Key.Tab], ["NextSequence"] },
         { [Key.ControlLeft, Key.I], ["Import"] },
         { [Key.I], ["MarkIn"] },
         { [Key.Comma], ["InsertEdit"] },
@@ -46,7 +47,10 @@ public sealed class EditorShortcutTests
         { [Key.Home], ["GoToStart"] },
         { [Key.Up], ["PreviousEdit"] },
         { [Key.ControlLeft, Key.ShiftLeft, Key.X], ["ClearMarks"] },
-        { [Key.ControlLeft, Key.ShiftLeft, Key.M], ["ObsMarker"] },
+        { [Key.M], ["AddSequenceMarker"] },
+        { [Key.ShiftLeft, Key.M], ["NextSequenceMarker"] },
+        { [Key.ControlLeft, Key.ShiftLeft, Key.M], ["PreviousSequenceMarker"] },
+        { [Key.AltLeft, Key.ShiftLeft, Key.M], ["ObsMarker"] },
         { [Key.SuperLeft, Key.S], [] },
         { [Key.AltLeft, Key.K], [] },
     };
@@ -92,6 +96,25 @@ public sealed class EditorShortcutTests
         Assert.Equal([EditorAction.Export], Press(keys, Key.ControlLeft, Key.E));
         Assert.Empty(Press(keys, Key.ControlLeft, Key.M));
         Assert.Equal([EditorAction.Split], Press(keys, Key.ControlLeft, Key.K));
+    }
+
+    [Fact]
+    public void LegacyObsBindingMigratesWhileUserBindingsCanKeepNewlyClaimedChords()
+    {
+        string path = Temp();
+        try
+        {
+            EditorShortcuts.Save(EditorShortcuts.Profile([
+                (EditorAction.ObsMarker, new(KeyboardKey.M, ShortcutModifiers.Ctrl | ShortcutModifiers.Shift)),
+                (EditorAction.Export, new(KeyboardKey.N, ShortcutModifiers.Ctrl))
+            ]), path);
+            var keys = EditorKeymap.ForUser(path);
+            Assert.Null(keys.LoadWarning);
+            Assert.Equal([EditorAction.PreviousSequenceMarker], Press(keys, Key.ControlLeft, Key.ShiftLeft, Key.M));
+            Assert.Equal([EditorAction.ObsMarker], Press(keys, Key.AltLeft, Key.ShiftLeft, Key.M));
+            Assert.Equal([EditorAction.Export], Press(keys, Key.ControlLeft, Key.N));
+        }
+        finally { File.Delete(path); }
     }
 
     [Fact]

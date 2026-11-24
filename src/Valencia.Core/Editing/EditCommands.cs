@@ -8,6 +8,8 @@ public abstract record EditOperation;
 public sealed record AddAsset(MediaAsset Asset) : EditOperation;
 public sealed record RelinkAsset(MediaAsset Asset) : EditOperation;
 public sealed record CreateSequence(Guid SequenceId, string Name, VideoFormat Video, int AudioSampleRate) : EditOperation;
+public sealed record SetSequenceMarker(Guid SequenceId, SequenceMarker Marker) : EditOperation;
+public sealed record RemoveSequenceMarker(Guid SequenceId, Guid MarkerId) : EditOperation;
 public sealed record AddTrack(Guid SequenceId, Guid TrackId, TrackKind Kind, int Order, string Name) : EditOperation;
 public sealed record InsertClip(Guid SequenceId, Guid TrackId, TimelineClip Clip) : EditOperation;
 /// <summary>Move within a sequence; both original and destination tracks must be unlocked.</summary>

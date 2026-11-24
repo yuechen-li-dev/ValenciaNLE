@@ -23,10 +23,24 @@ internal static class EditReducer
             TrimClip x => x.SequenceId, SplitClip x => x.SequenceId, DeleteClip x => x.SequenceId,
             RippleDelete x => x.SequenceId, SetTrackState x => x.SequenceId,
             SetCreatorSettings x => x.SequenceId, SetClipProperties x => x.SequenceId,
+            SetSequenceMarker x => x.SequenceId, RemoveSequenceMarker x => x.SequenceId,
             _ => throw new ArgumentException("Unsupported operation.")
         };
         int si = Index(document.Sequences, s => s.Id == sequenceId, "sequence");
         var sequence = document.Sequences[si];
+        if (operation is SetSequenceMarker set)
+        {
+            ArgumentNullException.ThrowIfNull(set.Marker);
+            DocumentValidator.Require(set.Marker.At.Ticks <= sequence.Duration.Ticks, "Marker must be within sequence duration.");
+            var markers = sequence.Markers.Where(marker => marker.Id != set.Marker.Id).Append(set.Marker)
+                .OrderBy(marker => marker.At.Ticks).ThenBy(marker => marker.Id);
+            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Markers = [.. markers] }) };
+        }
+        if (operation is RemoveSequenceMarker remove)
+        {
+            int index = Index(sequence.Markers, marker => marker.Id == remove.MarkerId, "marker");
+            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Markers = sequence.Markers.RemoveAt(index) }) };
+        }
         if (operation is SetCreatorSettings settings)
             return document with { Sequences = document.Sequences.SetItem(si, sequence with { Creator = settings.Settings }) };
         var tracks = sequence.Tracks;

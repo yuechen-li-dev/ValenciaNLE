@@ -7,5 +7,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="all" />
     <ProjectReference Include="../../src/Valencia.Cli/Valencia.Cli.csproj" />
     <Compile Include="../TestProject.cs" Link="TestProject.cs" />
+    <None Include="../../examples/chapter-markers.workflow.ts" Link="chapter-markers.workflow.ts" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

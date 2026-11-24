@@ -407,6 +407,20 @@ internal sealed partial class EditorWindow : IDisposable
         Seek(Editor.Playhead);
         Editor.Status = result.Success ? "Script completed." : "Script failed: " + string.Join("; ", result.Diagnostics.Select(d => d.Message));
     }
+
+    internal async Task RunWorkflow(string path)
+    {
+        PauseTransport();
+        CancelGesture();
+        await using var engine = new Valencia.Engine.EditingEngine(Editor.Session, projectPath: Editor.ProjectPath);
+        var result = await scriptHost.RunWorkflowFileAsync(path, engine,
+            new(SequenceId: Editor.SequenceId, Commit: true), jobCancellation?.Token ?? default);
+        if (result.Committed) Seek(Editor.Playhead);
+        if (!result.Success)
+            Editor.Status = "Workflow failed: " + string.Join("; ", result.Script.Diagnostics.Select(d => d.Message));
+        else
+            Editor.Status = result.Committed ? "Workflow applied. Ctrl+Z undoes the entire edit." : "Workflow completed without edits.";
+    }
     public void Action(string name)
     {
         try
@@ -458,15 +472,47 @@ internal sealed partial class EditorWindow : IDisposable
                 case "ApplyCut": RunJob(ApplyRoughCut); break;
                 case "CancelCut": Editor.ProposedCut = null; Editor.Status = "Rough cut cancelled; no edits applied."; break;
                 case "RunScript":
-                    if (Pick(false, "Trusted Copeland script|*.ts", "Run trusted local script (full CLR privileges)") is { } scriptPath)
+                    if (Pick(false, "Copeland TS (*.ts, *.tsx)|*.ts;*.tsx", "Run Copeland TS") is { } scriptPath)
                     {
-                        RunJob(() => RunTrustedScript(scriptPath));
+                        bool workflow = scriptPath.EndsWith(".workflow.ts", StringComparison.OrdinalIgnoreCase)
+                            || scriptPath.EndsWith(".workflow.tsx", StringComparison.OrdinalIgnoreCase);
+                        RunJob(() => workflow ? RunWorkflow(scriptPath) : RunTrustedScript(scriptPath));
                     }
                     break;
                 case "Import":
                     if (Pick(false, "Media|*.mp4;*.mkv;*.mov;*.wav;*.mp3;*.webm|All files|*.*", "Import media") is { } media) RunJob(() => Import(media)); break;
                 case "Insert": InsertSelected(); break;
                 case "New": if (DiscardAllowed()) { Editor.New(); imports.Clear(); Seek(default); } break;
+                case "NewSequence":
+                    if (Editor.AddSequence().Success) { CancelGesture(); Seek(default); }
+                    break;
+                case "NextSequence":
+                {
+                    var sequences = Editor.Session.Snapshot.Document.Sequences;
+                    if (sequences.Length < 2) break;
+                    int current = sequences.IndexOf(Editor.Sequence);
+                    CancelGesture();
+                    Editor.SelectSequence(sequences[(current + 1) % sequences.Length].Id);
+                    Seek(default);
+                    break;
+                }
+                case "AddSequenceMarker":
+                {
+                    var at = Editor.TimelinePlayhead;
+                    var marker = new SequenceMarker(Guid.NewGuid(), at, "Marker");
+                    if (Editor.Commit(new SetSequenceMarker(Editor.SequenceId, marker)).Success)
+                        Editor.Status = $"Marker added at {Timecode.Format(at, Editor.Sequence.Video.FrameRate)}.";
+                    break;
+                }
+                case "NextSequenceMarker": case "PreviousSequenceMarker":
+                    if (Editor.AdjacentMarker(name == "NextSequenceMarker") is { } markerTarget)
+                    {
+                        Editor.Source = null;
+                        Seek(markerTarget.At);
+                        Editor.Status = markerTarget.Label;
+                    }
+                    else Editor.Status = "No marker in that direction.";
+                    break;
                 case "Open": if (DiscardAllowed() && Pick(false, "Valencia project|*.valencia", "Open project") is { } path) RunJob(() => OpenProject(path)); break;
                 case "Save": case "SaveAs":
                     string? save = name == "Save" ? Editor.ProjectPath : null;
@@ -605,7 +651,9 @@ internal sealed partial class EditorWindow : IDisposable
         if (Editor.Snapping)
         {
             long threshold = (long)(TimelineGesture.SnapPixels / Editor.Viewport.PixelsPerSecond * SequenceTime.TicksPerSecond);
-            var points = EditorEdits.EditPoints(Editor.Sequence).Concat(new[] { Editor.MarkIn?.Ticks, Editor.MarkOut?.Ticks }.OfType<long>());
+            var points = EditorEdits.EditPoints(Editor.Sequence)
+                .Concat(Editor.Sequence.Markers.Select(marker => marker.At.Ticks))
+                .Concat(new[] { Editor.MarkIn?.Ticks, Editor.MarkOut?.Ticks }.OfType<long>());
             long nearest = points.OrderBy(p => Math.Abs(p - time.Ticks)).DefaultIfEmpty(-1).First();
             if (nearest >= 0 && Math.Abs(nearest - time.Ticks) <= threshold) return new(nearest);
         }

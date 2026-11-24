@@ -47,6 +47,14 @@ public static class DocumentValidator
             TimelineTime.RequireRate(sequence.Video.FrameRate);
             _ = TimelineTime.FromFrames(1, sequence.Video.FrameRate);
             _ = TimelineTime.FromSamples(1, sequence.AudioSampleRate);
+            Require(!sequence.Markers.IsDefault, "Missing sequence markers.");
+            foreach (var marker in sequence.Markers)
+            {
+                Require(marker is not null, "Null sequence marker.");
+                AddId(marker!.Id);
+                Require(marker.At.Ticks >= 0 && marker.Label is { Length: > 0 and <= 256 }
+                    && !string.IsNullOrWhiteSpace(marker.Label) && !marker.Label.Any(char.IsControl), "Invalid sequence marker.");
+            }
             for (int order = 0; order < sequence.Tracks.Length; order++)
             {
                 var track = sequence.Tracks[order];

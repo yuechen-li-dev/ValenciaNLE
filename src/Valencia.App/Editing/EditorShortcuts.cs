@@ -77,6 +77,9 @@ internal static class EditorShortcuts
         (EditorAction.MarkIn, new(KeyboardKey.I)),
         (EditorAction.MarkOut, new(KeyboardKey.O)),
         (EditorAction.ClearMarks, new(KeyboardKey.X, Ctrl | Shift)),
+        (EditorAction.AddSequenceMarker, new(KeyboardKey.M)),
+        (EditorAction.NextSequenceMarker, new(KeyboardKey.M, Shift)),
+        (EditorAction.PreviousSequenceMarker, new(KeyboardKey.M, Ctrl | Shift)),
         (EditorAction.InsertEdit, new(KeyboardKey.Comma)),
         (EditorAction.OverwriteEdit, new(KeyboardKey.Period)),
         (EditorAction.Lift, new(KeyboardKey.Semicolon)),
@@ -100,6 +103,8 @@ internal static class EditorShortcuts
         (EditorAction.Cancel, new(KeyboardKey.Escape)),
         // Project
         (EditorAction.New, new(KeyboardKey.N, Ctrl | Alt)),
+        (EditorAction.NewSequence, new(KeyboardKey.N, Ctrl)),
+        (EditorAction.NextSequence, new(KeyboardKey.Tab, Ctrl)),
         (EditorAction.Open, new(KeyboardKey.O, Ctrl)),
         (EditorAction.Save, new(KeyboardKey.S, Ctrl)),
         (EditorAction.SaveAs, new(KeyboardKey.S, Ctrl | Shift)),
@@ -107,7 +112,7 @@ internal static class EditorShortcuts
         (EditorAction.Export, new(KeyboardKey.M, Ctrl)),
         (EditorAction.KeyboardShortcuts, new(KeyboardKey.K, Ctrl | Alt)),
         // Valencia-only (no Premiere equivalent)
-        (EditorAction.ObsMarker, new(KeyboardKey.M, Ctrl | Shift)),
+        (EditorAction.ObsMarker, new(KeyboardKey.M, Alt | Shift)),
     ];
 
     public static readonly ImmutableArray<string> Groups = ["Transport", "Marking", "Editing", "View", "Project", "Recording"];
@@ -128,6 +133,9 @@ internal static class EditorShortcuts
         EditorAction.MarkIn => ("Marking", "Mark In"),
         EditorAction.MarkOut => ("Marking", "Mark Out"),
         EditorAction.ClearMarks => ("Marking", "Clear In and Out"),
+        EditorAction.AddSequenceMarker => ("Marking", "Add sequence marker"),
+        EditorAction.NextSequenceMarker => ("Marking", "Go to next sequence marker"),
+        EditorAction.PreviousSequenceMarker => ("Marking", "Go to previous sequence marker"),
         EditorAction.InsertEdit => ("Marking", "Insert"),
         EditorAction.OverwriteEdit => ("Marking", "Overwrite"),
         EditorAction.Lift => ("Marking", "Lift"),
@@ -147,6 +155,8 @@ internal static class EditorShortcuts
         EditorAction.ZoomOut => ("View", "Zoom out"),
         EditorAction.ZoomFit => ("View", "Zoom to sequence"),
         EditorAction.New => ("Project", "New project"),
+        EditorAction.NewSequence => ("Project", "New sequence"),
+        EditorAction.NextSequence => ("Project", "Switch to next sequence"),
         EditorAction.Open => ("Project", "Open project"),
         EditorAction.Save => ("Project", "Save"),
         EditorAction.SaveAs => ("Project", "Save as"),
@@ -229,8 +239,22 @@ internal static class EditorShortcuts
         {
             var problems = new List<string>();
             var user = Table(InputProfileJson.LoadFromFile(path), problems);
+            var formerObsDefault = new Shortcut(KeyboardKey.M, Ctrl | Shift);
+            // Upgrade profiles saved before sequence markers were available.
+            // Preserve explicit bindings for either command in newer profiles.
+            if (!user.Any(entry => entry.Action == EditorAction.PreviousSequenceMarker)
+                && user.Count(entry => entry.Action == EditorAction.ObsMarker) == 1
+                && user.Contains((EditorAction.ObsMarker, formerObsDefault)))
+            {
+                var replacement = new Shortcut(KeyboardKey.M, Alt | Shift);
+                if (!user.Any(entry => entry.Shortcut == replacement))
+                    user = [.. user.Select(entry => entry == (EditorAction.ObsMarker, formerObsDefault)
+                        ? (EditorAction.ObsMarker, replacement) : entry)];
+            }
             var overridden = user.Select(e => e.Action).ToHashSet();
-            var merged = PremiereDefaults.Where(e => !overridden.Contains(e.Action)).Concat(user).ToArray();
+            var occupied = user.Select(e => e.Shortcut).ToHashSet();
+            var merged = PremiereDefaults.Where(e => !overridden.Contains(e.Action)
+                && (!IsNewSequenceShortcut(e.Action) || !occupied.Contains(e.Shortcut))).Concat(user).ToArray();
             problems.AddRange(Conflicts(merged));
             if (problems.Count > 0) return (Default(), $"Keyboard shortcuts file ignored ({Path.GetFileName(path)}): {string.Join("; ", problems)}.");
             return (Profile(merged), null);
@@ -240,6 +264,9 @@ internal static class EditorShortcuts
             return (Default(), $"Keyboard shortcuts file ignored ({Path.GetFileName(path)}): {e.Message}");
         }
     }
+
+    private static bool IsNewSequenceShortcut(EditorAction action) => action is EditorAction.NewSequence or EditorAction.NextSequence
+        or EditorAction.AddSequenceMarker or EditorAction.NextSequenceMarker or EditorAction.PreviousSequenceMarker;
 
     public static void Save(InputProfile profile, string path)
     {

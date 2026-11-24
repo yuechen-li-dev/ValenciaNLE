@@ -165,6 +165,14 @@ internal sealed class EditorView
         if (jobRunning) { children.Add(Button("Cancel job", "Cancel", right - 112, 6, 112, 28, Ui.Danger)); right -= 122; }
         double left = two ? 14 + mark + 20 : x + 10;
         var sequence = editor.Sequence;
+        if (editor.Session.Snapshot.Document.Sequences.Length > 1 && right - left >= 86)
+        {
+            double switchWidth = Math.Min(140, right - left);
+            string name = NativeUiText.Ellipsize(sequence.Name, switchWidth - 18, TextSize.Sm);
+            children.Add(Button(name, "NextSequence", right - switchWidth, 6, switchWidth, 28,
+                Sized(Ui.Outline, TextSize.Sm), caps: false));
+            right -= switchWidth + Gap;
+        }
         string meta = $"REV {editor.Session.Snapshot.Revision:0000} / {sequence.Video.Width}x{sequence.Video.Height} / {Fps(sequence.Video.FrameRate)}P";
         double metaWidth = NativeUiText.Width(meta, TextSize.Xs);
         if (right - metaWidth - 180 >= left) { children.Add(TextIn(meta, right - metaWidth, 0, metaWidth, rowH, TextSize.Xs, Ui.Mute)); right -= metaWidth + 18; }
@@ -431,6 +439,12 @@ internal sealed class EditorView
             children.Add(Text(Timecode.Ruler(second), x + 4, rulerY + 8, 80, 14, TextSize.Xs, Ui.Mute));
         }
         children.Add(TextIn(Timecode.Format(editor.TimelinePlayhead, sequence.Video.FrameRate), Gap + 2, rulerY, layout.ClipLeft - Gap - 6, EditorLayout.RulerHeight, TextSize.Lg, Ui.Orange));
+        foreach (var marker in sequence.Markers)
+        {
+            double x = viewport.X(marker.At);
+            if (x < viewport.ClipLeft || x + 5 > viewport.ClipRight) continue;
+            quads.Add(new((float)x, (float)rulerY + 1, 5, 7, Ui.Cyan));
+        }
         double row = viewport.Row, clipHeight = row - 8;
 
         HashSet<Guid> selected = editor.Selection is { } chosen ? [.. EditorEdits.Group(editor, chosen.Id).Select(g => g.Clip.Id)] : [];

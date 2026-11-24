@@ -53,6 +53,33 @@ internal sealed class EditorSmoke(string directory)
             case -1:
                 Require(e.Status == "Script completed.", e.Status);
                 Require(DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document), "Native script undo did not restore the editor document.");
+                string workflow = Path.Combine(directory, "native.workflow.tsx");
+                File.WriteAllText(workflow, """
+                    using Valencia.Scripting;
+                    function run(api: ScriptApi): string {
+                        const sequence = api.SelectedSequence();
+                        api.AddMarker(sequence, api.Frames(30L, 30, 1), "Start");
+                        api.AddMarker(sequence, api.Frames(60L, 30, 1), "Next");
+                        return "Marked";
+                    }
+                    """);
+                operation = window.RunWorkflow(workflow);
+                phase = -3;
+                break;
+            case -3:
+                Require(e.Sequence.Markers.Length == 2, "Native workflow did not commit both markers.");
+                e.Playhead = default;
+                window.Action("NextSequenceMarker");
+                Require(e.Playhead == T(1), "Next sequence marker did not seek to the marker.");
+                Require(e.History(false).Success && DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document),
+                    "One undo did not restore the document after the workflow.");
+                Guid first = e.SequenceId;
+                window.Action("NewSequence");
+                Require(e.SequenceId != first && e.Session.Snapshot.Document.Assets.Length == 1, "New sequence replaced the project.");
+                window.Action("NextSequence");
+                Require(e.SequenceId == first, "Switching sequences did not return to the original timeline.");
+                window.Action("Undo");
+                Require(DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document), "Undo did not remove the new sequence.");
                 phase = 0;
                 break;
             case 0:
