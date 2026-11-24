@@ -108,6 +108,13 @@ public static class DocumentValidator
                     void CheckPosition(SourcePosition p) => Require(p.Timestamp.Numerator == stream!.TimeBaseNumerator &&
                         p.Timestamp.Denominator == stream.TimeBaseDenominator, "Clip timestamp must preserve its stream timebase.");
                 }
+                Require(!track.Transitions.IsDefault && track.Transitions.Length <= track.Clips.Length, "Invalid track transitions.");
+                foreach (var transition in track.Transitions)
+                {
+                    Require(transition is not null, "Null track transition.");
+                    AddId(transition!.Id);
+                }
+                _ = TransitionRules.Windows(track, assets);
             }
             _ = sequence.Duration;
             if (sequence.Creator is { } creator) CreatorSemantics.Validate(creator, sequence, project.Assets);

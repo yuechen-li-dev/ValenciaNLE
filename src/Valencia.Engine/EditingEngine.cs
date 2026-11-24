@@ -159,12 +159,16 @@ public sealed partial class EditingEngine : IAsyncDisposable
             var changes = Diff(before.Document, after.Document);
             var outputProfiles = DiffOutputFraming(plan, before, after);
             var titles = DiffTitles(plan, before, after);
+            var transitionChanges = DiffTransitions(plan.SequenceId, before, after);
+            var gainChanges = DiffTrackGain(plan.SequenceId, before, after);
             var affected = changes.SelectMany(c => new[] { c.ClipId, c.BeforeTrack ?? Guid.Empty, c.AfterTrack ?? Guid.Empty })
                 .Concat(plan.Operations.OfType<TrackStatePlan>().Select(o => o.TrackId))
                 .Concat(plan.Operations.OfType<AddTrackPlan>().Select(o => o.TrackId))
                 .Concat(plan.Operations.OfType<CreatorPlan>().Select(_ => plan.SequenceId))
                 .Concat(outputProfiles.SelectMany(change => new[] { plan.SequenceId, change.ProfileId }))
                 .Concat(titles.SelectMany(change => new[] { plan.SequenceId, change.TitleId }))
+                .Concat(transitionChanges.SelectMany(change => new[] { change.TransitionId, change.BeforeTrack ?? Guid.Empty, change.AfterTrack ?? Guid.Empty }))
+                .Concat(gainChanges.Select(change => change.TrackId))
                 .Where(id => id != Guid.Empty).Distinct().Order().ToImmutableArray();
             long resulting = commit ? result.Revision : checked(revision + 1);
             var current = Session.Snapshot;
@@ -173,7 +177,8 @@ public sealed partial class EditingEngine : IAsyncDisposable
             return new(1, true, commit, plan.ProjectRevision, EngineJson.Exact(resulting), EngineJson.Exact(current.Revision),
                 !commit && current.Revision == revision && current.Document.Id == plan.ProjectId, affected, changes,
                 duration, [], outputProfiles.IsEmpty ? null : outputProfiles,
-                titles.IsEmpty ? null : titles);
+                titles.IsEmpty ? null : titles, transitionChanges.IsEmpty ? null : transitionChanges,
+                gainChanges.IsEmpty ? null : gainChanges);
         }
         catch (Exception error) when (error is ArgumentException or OverflowException or FormatException or System.Text.Json.JsonException or InvalidOperationException or IOException)
         {
@@ -181,6 +186,30 @@ public sealed partial class EditingEngine : IAsyncDisposable
         }
         PlanResult Invalid(string message) => new(1, false, false, plan.ProjectRevision, EngineJson.Exact(Session.Snapshot.Revision),
             EngineJson.Exact(Session.Snapshot.Revision), false, [], [], null, [message]);
+    }
+    private static ImmutableArray<TransitionChange> DiffTransitions(Guid sequence, ProjectSnapshot before, ProjectSnapshot after)
+    {
+        Dictionary<Guid, (Guid? Track, TimelineTransition Item)> Get(ProjectSnapshot snapshot) => new TimelineQueries(snapshot)
+            .Tracks(sequence).SelectMany(track => track.Transitions.Select(item => (Track: (Guid?)track.Id, Item: item)))
+            .ToDictionary(pair => pair.Item.Id);
+        var old = Get(before);
+        var current = Get(after);
+        return [.. old.Keys.Union(current.Keys).Order().Select(id =>
+        {
+            var a = old.GetValueOrDefault(id);
+            var b = current.GetValueOrDefault(id);
+            return new TransitionChange(id, a.Track, b.Track, a.Item, b.Item);
+        }).Where(change => change.BeforeTrack != change.AfterTrack || change.Before != change.After)];
+    }
+    private static ImmutableArray<TrackGainChange> DiffTrackGain(Guid sequence, ProjectSnapshot before, ProjectSnapshot after)
+    {
+        Dictionary<Guid, TrackAudio> Get(ProjectSnapshot snapshot) =>
+            (new TimelineQueries(snapshot).Sequence(sequence).Creator?.Audio ?? []).ToDictionary(item => item.TrackId);
+        var old = Get(before);
+        var current = Get(after);
+        return [.. old.Keys.Union(current.Keys).Order().Select(id => new TrackGainChange(id, old.GetValueOrDefault(id), current.GetValueOrDefault(id)))
+            .Where(change => change.Before is not { } a || change.After is not { } b || a.GainDb != b.GainDb
+                || !a.Envelope.SequenceEqual(b.Envelope))];
     }
     private static ImmutableArray<TitleChange> DiffTitles(EditPlan plan, ProjectSnapshot before, ProjectSnapshot after)
     {

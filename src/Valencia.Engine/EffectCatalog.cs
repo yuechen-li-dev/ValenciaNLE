@@ -28,6 +28,12 @@ public static class EffectCatalog
         new("transform-keyframes", "transform", "videoClipOrTitle", "Animate position, scale, clockwise rotation and opacity with exact relative key times.",
         [new("x", "outputFraction", .5, -1, 2), new("y", "outputFraction", .5, -1, 2),
             new("scale", "multiplier", 1, .1, 10), new("rotation", "degrees", 0, -3600, 3600), new("opacity", "ratio", 1, 0, 1)],
-        ["hold", "linear", "ease"])
+        ["hold", "linear", "ease"]),
+        new("sound-hit", "soundHit", "audioTrack", "Place a source range on an exact sequence frame with sample-aligned onset.",
+            [new("gainDb", "decibels", 0, -120, 30)], []),
+        new("track-gain", "trackGain", "audioTrack", "Patch the track trim level or its exact-time, linear-in-dB envelope.",
+            [new("gainDb", "decibels", 0, -120, 30)], []),
+        new("cut-transition", "transition", "trackCut", "Blend adjacent clips with explicit source handles on both sides of the cut.",
+            [], ["videoDissolve", "equalPowerAudio"])
     ];
 }

@@ -133,6 +133,7 @@ public sealed class ScriptApi
     public string FirstSequence() { Check(); return engine.Query().Sequences.First().Id.ToString(); }
     public string FirstClip(string sequence) { Check(); return engine.Query().Tracks(Guid.Parse(sequence)).SelectMany(t => t.Clips).First().Id.ToString(); }
     public string Tracks(string sequence) { Check(); return EngineJson.Write(engine.Query().Tracks(Guid.Parse(sequence))); }
+    public int TrackCount(string sequence) { Check(); return engine.Query().Tracks(Guid.Parse(sequence)).Length; }
     public string Revision() { Check(); return EngineJson.Exact(engine.Session.Snapshot.Revision); }
     public string ProjectId() { Check(); return engine.Session.Snapshot.Document.Id.ToString(); }
     public string ProjectFile() { Check(); return engine.ProjectPath ?? throw new InvalidOperationException("No project file in this scope."); }
@@ -145,10 +146,12 @@ public sealed class ScriptApi
         Check();
         return EngineJson.Write(Valencia.Media.MediaAssetProbe.Read(Guid.NewGuid(), engine.OutputPath(path)));
     }
-    public string Import(string path)
+    public string Import(string path) => Import(path, Guid.NewGuid().ToString());
+
+    public string Import(string path, string assetId)
     {
         Check();
-        var id = Guid.NewGuid();
+        var id = Guid.Parse(assetId);
         var result = engine.ImportAsync(id, path, engine.Session.Snapshot.Revision, cancellation).GetAwaiter().GetResult();
         if (!result.Success) throw new InvalidOperationException(result.Message);
         return id.ToString();
@@ -423,6 +426,15 @@ public sealed class PlanBuilder(Guid projectId, string revision, Guid sequence)
     public void ClipKeys(string clipId, TransformBuilder frames) => operations.Add(new TransformPlan("clip", Guid.Parse(clipId), frames.Build()));
     public void TitleKeys(string titleId, TransformBuilder frames) => operations.Add(new TransformPlan("title", Guid.Parse(titleId), frames.Build()));
     public void ClearKeys(string target, string id) => operations.Add(new TransformPlan(target, Guid.Parse(id)));
+    public void SoundHit(string trackId, string clipId, string assetId, int stream, long at, long sourceOffset, long duration, double gainDb) =>
+        operations.Add(new SoundHitPlan(Guid.Parse(trackId), Guid.Parse(clipId), Guid.Parse(assetId), stream, at, sourceOffset, duration, gainDb));
+    public GainEnvelopeBuilder GainEnvelope() => new();
+    public void TrackGain(string trackId, double gainDb) => operations.Add(new TrackGainPlan(Guid.Parse(trackId), gainDb));
+    public void TrackEnvelope(string trackId, GainEnvelopeBuilder envelope) =>
+        operations.Add(new TrackGainPlan(Guid.Parse(trackId), Envelope: envelope.Build()));
+    public void Transition(string trackId, string id, string outgoing, string incoming, long before, long after) =>
+        operations.Add(new TransitionPlan(Guid.Parse(trackId), Guid.Parse(id), new(Guid.Parse(outgoing), Guid.Parse(incoming), before, after)));
+    public void ClearTransition(string trackId, string id) => operations.Add(new TransitionPlan(Guid.Parse(trackId), Guid.Parse(id)));
     public void AddTrack(string trackId, string kind, int order, string name) => operations.Add(new AddTrackPlan(Guid.Parse(trackId), Enum.Parse<TrackKind>(kind, true), order, name));
     public string ToJson() => EngineJson.Write(Build());
     public EditPlan Build() => new(1, projectId, revision, sequence, [.. operations]);
@@ -439,4 +451,17 @@ public sealed class TransformBuilder
     }
 
     internal TransformCurve Build() => new([.. keys]);
+}
+
+public sealed class GainEnvelopeBuilder
+{
+    private readonly List<GainPoint> points = [];
+
+    public void Point(long at, double gainDb)
+    {
+        if (points.Count == 20000) throw new ArgumentException("A gain envelope supports at most 20,000 points.");
+        points.Add(new(new(at), gainDb));
+    }
+
+    internal ImmutableArray<GainPoint> Build() => [.. points];
 }

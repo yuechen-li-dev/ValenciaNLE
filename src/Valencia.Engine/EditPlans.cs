@@ -36,6 +36,9 @@ public sealed record ClipDto(Guid Id, Guid AssetId, int StreamIndex, string Star
 [JsonDerivedType(typeof(RemoveTitlePlan), "removeTitle")]
 [JsonDerivedType(typeof(ClipMotionPlan), "clipMotion")]
 [JsonDerivedType(typeof(TransformPlan), "transform")]
+[JsonDerivedType(typeof(SoundHitPlan), "soundHit")]
+[JsonDerivedType(typeof(TrackGainPlan), "trackGain")]
+[JsonDerivedType(typeof(TransitionPlan), "transition")]
 public abstract record PlanOperation
 {
     public abstract EditOperation ToCore(Guid sequenceId);
@@ -117,16 +120,35 @@ public sealed record TransformPlan(string Target, Guid TargetId, TransformCurve?
         _ => throw new ArgumentException("Transform target must be clip or title.")
     };
 }
+public sealed record SoundHitPlan(Guid TrackId, Guid ClipId, Guid AssetId, int StreamIndex, long At, long SourceOffset,
+    long Duration, double GainDb = 0) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) =>
+        new PlaceSoundHit(sequenceId, TrackId, ClipId, AssetId, StreamIndex, new(At), new(SourceOffset), new(Duration), GainDb);
+}
+public sealed record TrackGainPlan(Guid TrackId, double? GainDb = null, ImmutableArray<GainPoint>? Envelope = null) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new PatchTrackGain(sequenceId, TrackId, GainDb, Envelope);
+}
+public sealed record TransitionSpec(Guid OutgoingClipId, Guid IncomingClipId, long BeforeTicks, long AfterTicks);
+public sealed record TransitionPlan(Guid TrackId, Guid TransitionId, TransitionSpec? Transition = null) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new SetTrackTransition(sequenceId, TrackId, TransitionId, Transition is null
+        ? null : new(TransitionId, Transition.OutgoingClipId, Transition.IncomingClipId, Transition.BeforeTicks, Transition.AfterTicks));
+}
 public sealed record SourcePrecondition(Guid AssetId, string Fingerprint);
 public sealed record EditPlan(int SchemaVersion, Guid ProjectId, string ProjectRevision, Guid SequenceId,
     ImmutableArray<PlanOperation> Operations, string? Note = null, ImmutableArray<SourcePrecondition>? SourcePreconditions = null);
 public sealed record ClipChange(string Kind, Guid ClipId, Guid? BeforeTrack, Guid? AfterTrack, TimelineClip? Before, TimelineClip? After);
 public sealed record OutputProfileChange(Guid ProfileId, OutputProfile? Before, OutputProfile? After);
 public sealed record TitleChange(Guid TitleId, TitleCue? Before, TitleCue? After);
+public sealed record TransitionChange(Guid TransitionId, Guid? BeforeTrack, Guid? AfterTrack, TimelineTransition? Before, TimelineTransition? After);
+public sealed record TrackGainChange(Guid TrackId, TrackAudio? Before, TrackAudio? After);
 public sealed record PlanResult(int ApiVersion, bool Valid, bool Committed, string ExpectedRevision, string ResultingRevision,
     string CurrentRevision, bool CanCommit, ImmutableArray<Guid> AffectedIds, ImmutableArray<ClipChange> Changes,
     SequenceTime? ResultingDuration, ImmutableArray<string> Diagnostics, ImmutableArray<OutputProfileChange>? OutputProfiles = null,
-    ImmutableArray<TitleChange>? Titles = null);
+    ImmutableArray<TitleChange>? Titles = null, ImmutableArray<TransitionChange>? Transitions = null,
+    ImmutableArray<TrackGainChange>? TrackGain = null);
 
 public static class EditPlanSchema
 {

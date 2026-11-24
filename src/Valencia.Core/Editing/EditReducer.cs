@@ -28,6 +28,7 @@ internal static class EditReducer
             SetSequenceMarker x => x.SequenceId, RemoveSequenceMarker x => x.SequenceId,
             SetTitle x => x.SequenceId, RemoveTitle x => x.SequenceId,
             SetTitleTransform x => x.SequenceId, SetClipTransform x => x.SequenceId,
+            PlaceSoundHit x => x.SequenceId, PatchTrackGain x => x.SequenceId, SetTrackTransition x => x.SequenceId,
             _ => throw new ArgumentException("Unsupported operation.")
         };
         int si = Index(document.Sequences, s => s.Id == sequenceId, "sequence");
@@ -68,6 +69,18 @@ internal static class EditReducer
             var updated = sequence.Titles[index] with { Transform = titleTransform.Curve };
             return document with { Sequences = document.Sequences.SetItem(si, sequence with { Titles = sequence.Titles.SetItem(index, updated) }) };
         }
+        if (operation is PatchTrackGain gain)
+        {
+            var track = sequence.Tracks[Index(sequence.Tracks, t => t.Id == gain.TrackId, "audio track")];
+            Unlocked(track);
+            DocumentValidator.Require(track.Kind == TrackKind.Audio && (gain.GainDb is not null || gain.Envelope is not null),
+                "Track gain requires an audio track and a level or envelope.");
+            var creator = sequence.Creator ?? new CreatorSettings(1, [], new(), [], [], PeakCeilingDb: 0);
+            var previous = creator.Audio.FirstOrDefault(t => t.TrackId == gain.TrackId);
+            var updated = new TrackAudio(gain.TrackId, gain.GainDb ?? previous?.GainDb ?? 0, gain.Envelope ?? previous?.Envelope ?? []);
+            var audio = previous is null ? creator.Audio.Add(updated) : creator.Audio.Replace(previous, updated);
+            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Creator = creator with { Audio = audio } }) };
+        }
         if (operation is SetOutputFraming framing)
         {
             var creator = sequence.Creator ?? new CreatorSettings(1, [], new(), [], []);
@@ -98,7 +111,44 @@ internal static class EditReducer
                 ArgumentNullException.ThrowIfNull(x.Clip);
                 int ti = Index(tracks, t => t.Id == x.TrackId, "track");
                 Unlocked(tracks[ti]);
-                tracks = tracks.SetItem(ti, WithClips(tracks[ti], tracks[ti].Clips.Add(x.Clip)));
+                tracks = tracks.SetItem(ti, WithClips(tracks[ti], tracks[ti].Clips.Add(x.Clip), document.Assets));
+                break;
+            }
+            case PlaceSoundHit x:
+            {
+                int ti = Index(tracks, t => t.Id == x.TrackId, "audio track");
+                var track = tracks[ti];
+                Unlocked(track);
+                DocumentValidator.Require(track.Kind == TrackKind.Audio && x.At.Ticks >= 0
+                    && x.SourceOffset.Ticks >= 0 && x.Duration.Ticks > 0 && x.GainDb is >= -120 and <= 30,
+                    "A sound hit requires an audio track, nonnegative placement and offset, positive duration and valid gain.");
+                var rate = sequence.Video.FrameRate;
+                var frame = TimelineTime.FrameIndex(x.At, rate, TimeRounding.Floor);
+                DocumentValidator.Require(TimelineTime.FromFrames(frame, rate) == x.At, "A sound hit must start on a sequence frame boundary.");
+                var asset = document.Assets[Index(document.Assets, a => a.Id == x.AssetId, "sound asset")];
+                var stream = asset.Streams[Index(asset.Streams, s => s.Index == x.StreamIndex && s.Kind == TrackKind.Audio, "sound stream")];
+                var origin = stream.Start ?? new MediaTimestamp(0, stream.TimeBaseNumerator, stream.TimeBaseDenominator);
+                var source = new SourcePosition(origin).Shift(x.SourceOffset);
+                var clip = new TimelineClip(x.ClipId, asset.Id, stream.Index, x.At, source, source.Shift(x.Duration),
+                    new(asset.Name, Gain: (decimal)Math.Pow(10, x.GainDb / 20), Audio: new(AlignStartToSample: true)));
+                tracks = tracks.SetItem(ti, WithClips(track, track.Clips.Add(clip), document.Assets));
+                break;
+            }
+            case SetTrackTransition x:
+            {
+                int ti = Index(tracks, t => t.Id == x.TrackId, "transition track");
+                var track = tracks[ti];
+                Unlocked(track);
+                if (x.Transition is { } transition)
+                {
+                    DocumentValidator.Require(transition.Id == x.TransitionId, "Transition ID mismatch.");
+                    track = track with { Transitions = [.. track.Transitions.Where(item => item.Id != x.TransitionId), transition] };
+                    track = track with { Transitions = [.. TransitionRules.Windows(track, document.Assets.ToDictionary(asset => asset.Id))
+                        .Select(window => window.Transition)] };
+                }
+                else
+                    track = track with { Transitions = track.Transitions.RemoveAt(Index(track.Transitions, item => item.Id == x.TransitionId, "transition")) };
+                tracks = tracks.SetItem(ti, track);
                 break;
             }
             case SetTrackState x:
@@ -108,7 +158,7 @@ internal static class EditReducer
                 break;
             }
             case RippleDelete x:
-                tracks = Ripple(sequence, x);
+                tracks = Ripple(sequence, x, document.Assets);
                 break;
             default:
             {
@@ -135,7 +185,7 @@ internal static class EditReducer
                         else
                         {
                             clips = clips.RemoveAt(ci);
-                            tracks = tracks.SetItem(destination, WithClips(tracks[destination], tracks[destination].Clips.Add(clip with { Start = x.Start })));
+                            tracks = tracks.SetItem(destination, WithClips(tracks[destination], tracks[destination].Clips.Add(clip with { Start = x.Start }), document.Assets));
                         }
                         break;
                     }
@@ -193,14 +243,14 @@ internal static class EditReducer
                         break;
                     }
                 }
-                tracks = tracks.SetItem(ti, WithClips(track, clips));
+                tracks = tracks.SetItem(ti, WithClips(track, clips, document.Assets));
                 break;
             }
         }
         return document with { Sequences = document.Sequences.SetItem(si, sequence with { Tracks = tracks }) };
     }
 
-    private static ImmutableArray<TimelineTrack> Ripple(SequenceDocument sequence, RippleDelete x)
+    private static ImmutableArray<TimelineTrack> Ripple(SequenceDocument sequence, RippleDelete x, ImmutableArray<MediaAsset> assets)
     {
         DocumentValidator.Require(x.Start.Ticks >= 0 && x.End.Ticks > x.Start.Ticks && x.End.Ticks <= sequence.Duration.Ticks,
             "Ripple range must be positive and inside sequence duration.");
@@ -238,14 +288,19 @@ internal static class EditReducer
                     }
                 }
             }
-            tracks = tracks.SetItem(ti, WithClips(track, clips.ToImmutable()));
+            tracks = tracks.SetItem(ti, WithClips(track, clips.ToImmutable(), assets));
         }
         DocumentValidator.Require(splitIds.Count == 0, "Unused ripple fragment IDs.");
         return tracks;
     }
 
-    private static TimelineTrack WithClips(TimelineTrack track, ImmutableArray<TimelineClip> clips) =>
-        track with { Clips = [.. clips.OrderBy(c => c.Start.Ticks).ThenBy(c => c.Id)] };
+    private static TimelineTrack WithClips(TimelineTrack track, ImmutableArray<TimelineClip> clips, ImmutableArray<MediaAsset> assets)
+    {
+        track = track with { Clips = [.. clips.OrderBy(c => c.Start.Ticks).ThenBy(c => c.Id)] };
+        if (track.Transitions.IsEmpty) return track;
+        return track with { Transitions = [.. TransitionRules.Windows(track, assets.ToDictionary(asset => asset.Id), prune: true)
+            .Select(window => window.Transition)] };
+    }
     private static void Unlocked(TimelineTrack track) => DocumentValidator.Require(!track.State.Locked, "Track is locked.");
     private static int Index<T>(ImmutableArray<T> items, Func<T, bool> predicate, string kind)
     {

@@ -25,11 +25,14 @@ public sealed class SequenceEvaluator : IDisposable
     private readonly SKTypeface? captionFont;
     private readonly CaptionIndex captionIndex;
     private TitleRenderer? titleRenderer;
+    private byte[]? dissolveBuffer;
     private readonly bool useProxies;
     private readonly bool retainVideoHistory;
     private readonly bool gpuEffects;
     private VulkanClipEffects? effectDevice;
     private SequenceTime? audioThrough;
+    private TransitionWindow[]? previewTransitions;
+    private (Guid Clip, Task<VideoCursor> Cursor)? warmVideo;
     /// <summary>Diagnostic work count for currently retained cursors, including frames skipped during seek.</summary>
     public long ActiveVideoDecodedFrames => videos.Values.Sum(v => v.DecodedFrames);
     public long ActiveVideoConvertedFrames => videos.Values.Sum(v => v.ConvertedFrames);
@@ -57,7 +60,8 @@ public sealed class SequenceEvaluator : IDisposable
         if (Sequence.AudioSampleRate is < 8000 or > 192000) throw new NotSupportedException("M1b audio supports sample rates from 8 kHz through 192 kHz.");
         if ((long)Sequence.Video.Width * Sequence.Video.Height > 8_294_400 || Sequence.Video.Width % 2 != 0 || Sequence.Video.Height % 2 != 0)
             throw new NotSupportedException("M1b supports even sequence dimensions up to 3840x2160 pixels.");
-        boundaries = [.. Sequence.Tracks.SelectMany(t => t.Clips).SelectMany(c => new[] { c.Start.Ticks, c.End.Ticks }).Distinct().Order()];
+        boundaries = [.. Sequence.Tracks.SelectMany(t => t.Clips).SelectMany(c => new[] { c.Start.Ticks, c.End.Ticks })
+            .Concat(queries.TransitionBoundaries(sequenceId).Select(time => time.Ticks)).Distinct().Order()];
     }
 
     public SequenceFrame Video(SequenceTime time, CancellationToken cancellation)
@@ -71,11 +75,47 @@ public sealed class SequenceEvaluator : IDisposable
         var pixels = new byte[checked(width * height * 4)];
         var timestamps = ImmutableArray.CreateBuilder<MediaTimestamp>();
         for (int i = 3; i < pixels.Length; i += 4) pixels[i] = 255;
-        foreach (var a in active) // higher track order is on top
+        for (int i = 0; i < active.Length; i++) // higher track order is on top
+        {
+            var layer = active[i];
+            if (layer.Transition is { Incoming: false } transition)
+            {
+                // Composite each side onto the same lower tracks, then interpolate the results.
+                // This preserves the lower tracks' contribution for both fractional clip opacities.
+                var incoming = dissolveBuffer ??= new byte[pixels.Length];
+                pixels.CopyTo(incoming, 0);
+                Draw(layer, pixels);
+                Draw(active[++i], incoming);
+                double weight = transition.Progress(time);
+                for (int offset = 0; offset < pixels.Length; offset++)
+                    pixels[offset] = (byte)Math.Round(pixels[offset] + (incoming[offset] - pixels[offset]) * weight);
+            }
+            else Draw(layer, pixels);
+        }
+        if (Sequence.Creator is { } creator && captionIndex.At(evaluated.Where(clip =>
+            clip.Transition is null || (clip.Clip.Start.Ticks <= time.Ticks && time.Ticks < clip.Clip.End.Ticks))) is { } line)
+            CreatorRenderer.Captions(pixels, width, height, line, creator.CaptionStyle, profile?.CaptionY, captionFont!);
+        if (Sequence.Titles.Any(title => title.Start.Ticks <= time.Ticks && time.Ticks < title.End.Ticks))
+            (titleRenderer ??= new TitleRenderer()).Draw(pixels, width, height, time, Sequence.Titles, cancellation);
+        return new(time, width, height, pixels, [.. active.Select(a => a.Clip.Id)], timestamps.ToImmutable())
+        {
+            ReadyHostTicks = System.Diagnostics.Stopwatch.GetTimestamp(),
+            EvaluationMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds
+        };
+
+        void Draw(ActiveClip a, byte[] target)
         {
             cancellation.ThrowIfCancellationRequested();
             if (!videos.TryGetValue(a.Clip.Id, out var cursor))
-                videos.Add(a.Clip.Id, cursor = new(a.Asset, a.Stream, a.SourcePosition, Sequence.AudioSampleRate, useProxies, retainVideoHistory));
+            {
+                if (warmVideo is { } warmed && warmed.Clip == a.Clip.Id)
+                {
+                    warmVideo = null;
+                    cursor = warmed.Cursor.GetAwaiter().GetResult();
+                }
+                else cursor = new(a.Asset, a.Stream, a.SourcePosition, Sequence.AudioSampleRate, useProxies, retainVideoHistory);
+                videos.Add(a.Clip.Id, cursor);
+            }
             var source = cursor.At(a.SourcePosition, cancellation);
             if (source is not null)
             {
@@ -97,24 +137,48 @@ public sealed class SequenceEvaluator : IDisposable
                     var animated = motion.Apply(effects with { Motion = null }, time.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks);
                     effects = animated == IdentityEffects ? null : animated;
                 }
-                if (effects is null && profile is null && rotation == 0) Composite(pixels, width, height, source, opacity);
+                if (effects is null && profile is null && rotation == 0) Composite(target, width, height, source, opacity);
                 else
                 {
                     var device = gpuEffects && rotation == 0 && opacity > 0 && effects is not null && (effects.Region is not null || ClipEffectFrame.HasColor(effects))
                         ? effectDevice ??= new VulkanClipEffects() : null;
-                    CreatorRenderer.Composite(pixels, width, height, source, a.Stream, opacity, effects ?? IdentityEffects, profile, time, device, cancellation, rotation);
+                    CreatorRenderer.Composite(target, width, height, source, a.Stream, opacity, effects ?? IdentityEffects, profile, time, device, cancellation, rotation);
                 }
             }
         }
-        if (Sequence.Creator is { } creator && captionIndex.At(evaluated) is { } line)
-            CreatorRenderer.Captions(pixels, width, height, line, creator.CaptionStyle, profile?.CaptionY, captionFont!);
-        if (Sequence.Titles.Any(title => title.Start.Ticks <= time.Ticks && time.Ticks < title.End.Ticks))
-            (titleRenderer ??= new TitleRenderer()).Draw(pixels, width, height, time, Sequence.Titles, cancellation);
-        return new(time, width, height, pixels, [.. active.Select(a => a.Clip.Id)], timestamps.ToImmutable())
+    }
+
+    /// <summary>Warm one cold transition input off the playback worker before that input becomes visible.</summary>
+    internal void PrepareTransition(SequenceTime time, bool reverse, bool initial, CancellationToken cancellation)
+    {
+        if (warmVideo is not null) return;
+        long lead = SequenceTime.TicksPerSecond / 2;
+        previewTransitions ??= reverse ? [.. queries.VisibleVideoTransitions(sequenceId).OrderByDescending(window => window.End.Ticks)]
+            : [.. queries.VisibleVideoTransitions(sequenceId).OrderBy(window => window.Start.Ticks)];
+        foreach (var window in previewTransitions)
         {
-            ReadyHostTicks = System.Diagnostics.Stopwatch.GetTimestamp(),
-            EvaluationMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds
-        };
+            long distance = reverse ? time.Ticks - window.End.Ticks : window.Start.Ticks - time.Ticks;
+            if (distance < 0 || distance > lead) continue;
+            var clip = reverse ? window.Outgoing : window.Incoming;
+            if (videos.ContainsKey(clip.Id)) continue;
+            var source = reverse ? clip.SourceOut.Shift(new(window.Transition.AfterTicks - 1))
+                : clip.SourceIn.Shift(new(-window.Transition.BeforeTicks));
+            var asset = queries.Assets.First(item => item.Id == clip.AssetId);
+            var stream = asset.Streams.First(item => item.Index == clip.StreamIndex);
+            warmVideo = (clip.Id, Task.Run(() =>
+            {
+                var cursor = new VideoCursor(asset, stream, source, Sequence.AudioSampleRate, useProxies, retainVideoHistory);
+                try
+                {
+                    cursor.At(source, cancellation);
+                    return cursor;
+                }
+                catch { cursor.Dispose(); throw; }
+            }, cancellation));
+            // If playback is launched immediately before a dissolve, prime both sides before starting the audio clock.
+            if (initial) warmVideo.Value.Cursor.GetAwaiter().GetResult();
+            return;
+        }
     }
 
     public float[] Audio(SequenceTime origin, long firstSample, int count, CancellationToken cancellation)
@@ -148,7 +212,13 @@ public sealed class SequenceEvaluator : IDisposable
             {
                 if (!audios.TryGetValue(a.Clip.Id, out var cursor)) audios.Add(a.Clip.Id, cursor = new(a, rate, cancellation));
                 float[] clipSamples = new float[run * 2];
-                cursor.Mix(a.SourcePosition.SampleIndex(rate, TimeRounding.NearestAwayFromZero), clipSamples, 1, cancellation);
+                long sourceSample = a.SourcePosition.SampleIndex(rate, TimeRounding.NearestAwayFromZero);
+                if (a.Clip.Properties.Audio?.AlignStartToSample == true)
+                {
+                    long first = TimelineTime.SampleIndex(new(checked(a.Clip.Start.Ticks - origin.Ticks)), rate, TimeRounding.Ceiling);
+                    sourceSample = checked(a.Clip.SourceIn.SampleIndex(rate, TimeRounding.NearestAwayFromZero) + sample - first);
+                }
+                cursor.Mix(sourceSample, clipSamples, 1, cancellation);
                 var processing = Sequence.Creator?.Audio.FirstOrDefault(t => t.TrackId == a.TrackId);
                 long step = TimelineTime.FromSamples(1, rate).Ticks;
                 double baseGain = (double)a.Clip.Properties.Gain * Math.Pow(10, (processing?.GainDb ?? 0) / 20);
@@ -157,6 +227,7 @@ public sealed class SequenceEvaluator : IDisposable
                     var at = new SequenceTime(checked(time.Ticks + frame * step));
                     double gain = baseGain * (processing is null || processing.Envelope.IsEmpty ? 1 : Math.Pow(10, CaptionEvaluation.GainAt(processing.Envelope, at) / 20));
                     if (a.Clip.Properties.Audio is { } effects) gain *= CaptionEvaluation.Fade(at.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks, effects.FadeInTicks, effects.FadeOutTicks);
+                    if (a.Transition is { } transition) gain *= transition.EqualPower(at);
                     for (int channel = 0; channel < 2; channel++) output[(written + frame) * 2 + channel] += clipSamples[frame * 2 + channel] * (float)gain;
                 }
             }
@@ -206,6 +277,14 @@ public sealed class SequenceEvaluator : IDisposable
     }
     public void Dispose()
     {
+        if (warmVideo is { } warmed)
+        {
+            // A prepared input can be left unconsumed if playback is cancelled.
+            // The producer owns both outcomes and the warm worker disposes its cursor on failure.
+            try { warmed.Cursor.GetAwaiter().GetResult().Dispose(); }
+            catch (Exception) when (warmed.Cursor.IsFaulted || warmed.Cursor.IsCanceled) { }
+            warmVideo = null;
+        }
         foreach (var video in videos.Values) video.Dispose();
         foreach (var audio in audios.Values) audio.Dispose();
         videos.Clear();
@@ -311,6 +390,7 @@ public sealed class SequenceEvaluator : IDisposable
         public long DecodedFrames { get; private set; }
         private readonly FfmpegDecoder decoder;
         private readonly AudioSeekIndex.Anchor anchor;
+        private readonly MediaAsset asset;
         private readonly int rate;
         private readonly AudioFilter? filter;
         private float[] block = [];
@@ -319,8 +399,9 @@ public sealed class SequenceEvaluator : IDisposable
         public AudioCursor(ActiveClip clip, int rate, CancellationToken cancellation)
         {
             this.rate = rate;
+            asset = clip.Asset;
             anchor = AudioSeekIndex.Resolve(clip.Asset, clip.Stream, clip.SourcePosition, cancellation);
-            var preroll = new SourcePosition(anchor.Pts).Shift(new(-SequenceTime.TicksPerSecond));
+            var preroll = AudioSeekIndex.DecoderStart(clip.Asset, clip.Stream, anchor.Pts);
             decoder = new(clip.Asset, clip.Stream, preroll, rate);
             if (clip.Clip.Properties.Audio?.NoiseReductionDb is > 0 and var reduction) filter = new(rate, reduction);
         }
@@ -381,7 +462,7 @@ public sealed class SequenceEvaluator : IDisposable
                     {
                         int compared = new SourcePosition(decoder.Timestamp).CompareTo(new(anchor.Pts));
                         if (compared < 0) continue;
-                        if (compared > 0) throw new InvalidDataException("Decoder skipped the exact indexed audio anchor.");
+                        if (compared > 0) throw AudioSeekIndex.SkippedAnchor(asset, anchor.Pts, decoder.Timestamp);
                         inputOrigin = anchor.Position; inputSamples = 0; inputRate = decoder.SourceSampleRate;
                         nextOutput = inputOrigin.SampleIndex(rate, TimeRounding.NearestAwayFromZero); initialized = true;
                     }

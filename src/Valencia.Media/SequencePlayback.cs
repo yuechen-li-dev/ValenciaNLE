@@ -147,6 +147,7 @@ public sealed class SequencePlayback : IAsyncDisposable
         {
             using var evaluator = new SequenceEvaluator(Snapshot, sequenceId, profile, useProxies: true, retainVideoHistory: IsReverse);
             var initial = IsReverse ? ReverseBoundary(Start) : Start;
+            evaluator.PrepareTransition(initial, IsReverse, initial: true, stopping.Token);
             await video.Writer.WriteAsync(new(evaluator.Video(initial, stopping.Token), Start.Ticks), stopping.Token);
             var frameRate = profile?.FrameRate ?? Sequence.Video.FrameRate;
             long initialFrame = TimelineTime.FrameIndex(initial, frameRate, TimeRounding.Floor);
@@ -157,6 +158,7 @@ public sealed class SequencePlayback : IAsyncDisposable
                     var due = TimelineTime.FromFrames(i + 1, frameRate);
                     var time = TimelineTime.FromFrames(i, frameRate);
                     await video.Writer.WaitToWriteAsync(stopping.Token).ConfigureAwait(false);
+                    evaluator.PrepareTransition(time, reverse: true, initial: false, stopping.Token);
                     var frame = evaluator.Video(time, stopping.Token);
                     await video.Writer.WriteAsync(new(frame, due.Ticks), stopping.Token).ConfigureAwait(false);
                 }
@@ -167,6 +169,7 @@ public sealed class SequencePlayback : IAsyncDisposable
                 {
                     var time = TimelineTime.FromFrames(i, frameRate);
                     if (time.Ticks >= Sequence.Duration.Ticks) break;
+                    evaluator.PrepareTransition(time, reverse: false, initial: false, stopping.Token);
                     var frame = evaluator.Video(time, stopping.Token);
                     await presentationClock.WaitUntilDueAsync(time.Ticks, stopping.Token).ConfigureAwait(false);
                     await video.Writer.WriteAsync(new(frame, time.Ticks), stopping.Token).ConfigureAwait(false);

@@ -36,6 +36,10 @@ public sealed record SetClipProperties(Guid SequenceId, Guid ClipId, ClipPropert
 public sealed record PatchClipColor(Guid SequenceId, Guid ClipId, ColorPatch Color) : EditOperation;
 public sealed record SetClipRegion(Guid SequenceId, Guid ClipId, RegionEffect? Region) : EditOperation;
 public sealed record SetClipMotion(Guid SequenceId, Guid ClipId, ClipMotion? Motion) : EditOperation;
+public sealed record PlaceSoundHit(Guid SequenceId, Guid TrackId, Guid ClipId, Guid AssetId, int StreamIndex,
+    SequenceTime At, SequenceTime SourceOffset, SequenceTime Duration, double GainDb = 0) : EditOperation;
+public sealed record PatchTrackGain(Guid SequenceId, Guid TrackId, double? GainDb, ImmutableArray<GainPoint>? Envelope) : EditOperation;
+public sealed record SetTrackTransition(Guid SequenceId, Guid TrackId, Guid TransitionId, TimelineTransition? Transition) : EditOperation;
 
 public sealed record EditCommand(Guid Id, int SchemaVersion, EditOperation Operation, long? ExpectedRevision = null)
 {

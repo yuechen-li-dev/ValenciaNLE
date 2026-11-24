@@ -91,6 +91,8 @@ Right-click the timeline for context actions. Clip menus offer split, delete, ri
 
 Discover color, region effects, animated titles and clip motion with `effects list` or MCP `effects_list`. See [Clip Effects 1](docs/EFFECT_PACK.md) for Vulkan rendering, [Animation Presets](docs/ANIMATION_PRESETS.md) for an editable Copeland montage, and [Plan Review and Keyframes](docs/PLAN_REVIEW.md) for rendering and revising proposed edits.
 
+The [Soundtrack and Transition Kit](docs/SOUNDTRACK_KIT.md) covers exact sound cues, music gain automation, dissolves and equal-power audio crossfades.
+
 ```powershell
 $cli = '.\artifacts\publish\cli-win-x64\Valencia.Cli.exe'
 & $cli project info project.valencia

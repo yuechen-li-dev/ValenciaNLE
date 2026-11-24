@@ -40,7 +40,10 @@ public sealed record TimelineClip(Guid Id, Guid AssetId, int StreamIndex, Sequen
 }
 
 public sealed record TimelineTrack(Guid Id, TrackKind Kind, int Order, string Name, TrackState State,
-    ImmutableArray<TimelineClip> Clips);
+    ImmutableArray<TimelineClip> Clips)
+{
+    public ImmutableArray<TimelineTransition> Transitions { get; init; } = [];
+}
 public sealed record SequenceMarker(Guid Id, SequenceTime At, string Label);
 
 public sealed record SequenceDocument(Guid Id, string Name, VideoFormat Video, int AudioSampleRate,
@@ -70,6 +73,6 @@ public static class DocumentSemantics
             p.First with { Tracks = p.Second.Tracks, Creator = p.Second.Creator, Markers = p.Second.Markers, Titles = p.Second.Titles } == p.Second &&
             p.First.Titles.SequenceEqual(p.Second.Titles) &&
             p.First.Markers.SequenceEqual(p.Second.Markers) && CreatorSemantics.Equal(p.First.Creator, p.Second.Creator) && p.First.Tracks.Length == p.Second.Tracks.Length &&
-            p.First.Tracks.Zip(p.Second.Tracks).All(t => t.First with { Clips = t.Second.Clips } == t.Second &&
-                t.First.Clips.SequenceEqual(t.Second.Clips)));
+            p.First.Tracks.Zip(p.Second.Tracks).All(t => t.First with { Clips = t.Second.Clips, Transitions = t.Second.Transitions } == t.Second &&
+                t.First.Clips.SequenceEqual(t.Second.Clips) && t.First.Transitions.SequenceEqual(t.Second.Transitions)));
 }

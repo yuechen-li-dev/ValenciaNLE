@@ -22,6 +22,8 @@ internal sealed class ScrubSmoke(string directory)
     private long dragFrame;
     private bool dragStarted, dragAwaiting, dragFinished, originalSnapping;
     private long reverseStart;
+    private TransitionWindow? reverseTransition;
+    private int reverseTransitionPictures;
     private long? revision;
     public bool Finished { get; private set; }
 
@@ -128,6 +130,7 @@ internal sealed class ScrubSmoke(string directory)
             callbackFailures, injectedCallbackFailureReported = true, requestToDisplayedFrameMs = latencies,
             sourceToTimelineSwitch = true, pauseCancelsPendingPlay = true,
             reversePlayback = true, reversePauseResume = true, forwardAfterReverse = true,
+            reverseTransitionPictures,
             reversePictures = reversePictures.Count, reverseUnderruns, livePlayheadBeforeDecode = true, backwardDragMs,
             medianMs = (latencies.Order().ElementAt((latencies.Count - 1) / 2) + latencies.Order().ElementAt(latencies.Count / 2)) / 2,
             p95Ms = latencies.Order().ElementAt((int)(latencies.Count * .95)),
@@ -150,7 +153,14 @@ internal sealed class ScrubSmoke(string directory)
                 if (playback?.IsPlaying == true && latency.Elapsed.TotalSeconds < 1) return false;
                 Require(playback?.CanPlay == true && playback.UnderrunFrames == 0, "Initial forward playback failed.");
                 window.Action("Pause");
-                reverseStart = Math.Min(editor.Sequence.Duration.Ticks, 4 * SequenceTime.TicksPerSecond);
+                reverseTransition = editor.Sequence.Tracks.Where(track => track.Kind == TrackKind.Video && track.State.Visible)
+                    .SelectMany(track => track.Transitions.Select(transition => new TransitionWindow(transition,
+                        track.Clips.First(clip => clip.Id == transition.OutgoingClipId),
+                        track.Clips.First(clip => clip.Id == transition.IncomingClipId))))
+                    .FirstOrDefault(candidate => candidate.End.Ticks <= 7 * SequenceTime.TicksPerSecond
+                        && candidate.Outgoing.Properties.Enabled && candidate.Incoming.Properties.Enabled);
+                long through = reverseTransition is { } transitionWindow ? transitionWindow.End.Ticks + SequenceTime.TicksPerSecond : 0;
+                reverseStart = Math.Min(editor.Sequence.Duration.Ticks, Math.Max(4 * SequenceTime.TicksPerSecond, through));
                 window.Seek(new(reverseStart));
                 reversePhase = 1;
                 return false;
@@ -165,6 +175,10 @@ internal sealed class ScrubSmoke(string directory)
                 {
                     Require(reversePictures.Count == 0 || picture.Time.Ticks < reversePictures[^1], "Reverse video advanced.");
                     reversePictures.Add(picture.Time.Ticks);
+                    if (reverseTransition is { } transition && picture.Time.Ticks >= transition.Start.Ticks
+                        && picture.Time.Ticks < transition.End.Ticks && picture.SourceTimestamps is { Length: >= 2 }
+                        && picture.VideoClips.Contains(transition.Outgoing.Id) && picture.VideoClips.Contains(transition.Incoming.Id))
+                        reverseTransitionPictures++;
                 }
                 if (reversePhase == 2)
                 {
@@ -177,6 +191,7 @@ internal sealed class ScrubSmoke(string directory)
                 }
                 if (playback.IsPlaying) return false;
                 Require(playback.Position.Ticks == 0 && reversePictures.Count >= 20, "Reverse playback did not run through to the start.");
+                Require(reverseTransition is null || reverseTransitionPictures > 0, "No decoded blend reached native reverse playback.");
                 reverseUnderruns = playback.UnderrunFrames;
                 window.Action("Play");
                 reversePhase = 5;

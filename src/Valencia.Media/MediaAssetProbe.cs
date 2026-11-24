@@ -20,6 +20,7 @@ public static unsafe class MediaAssetProbe
         {
             FfmpegRuntime.Check(ffmpeg.avformat_open_input(&format, path, null, null), "Open asset");
             FfmpegRuntime.Check(ffmpeg.avformat_find_stream_info(format, null), "Read asset streams");
+            string container = Marshal.PtrToStringUTF8((nint)format->iformat->name) ?? "Unknown";
             var streams = ImmutableArray.CreateBuilder<AssetStream>();
             for (int index = 0; index < format->nb_streams; index++)
             {
@@ -29,6 +30,9 @@ public static unsafe class MediaAssetProbe
                 bool video = parameters->codec_type == AVMediaType.AVMEDIA_TYPE_VIDEO;
                 MediaTimestamp? start = stream->start_time == ffmpeg.AV_NOPTS_VALUE ? null
                     : new(stream->start_time, stream->time_base.num, stream->time_base.den);
+                // The WAV demuxer reports duration in stream ticks but often omits its implicit zero origin.
+                if (!video && container == "wav" && start is null && stream->duration > 0)
+                    start = new(0, stream->time_base.num, stream->time_base.den);
                 MediaTimestamp? end = start is { } streamOrigin && stream->duration > 0
                     ? new(checked(streamOrigin.Value + stream->duration), streamOrigin.Numerator, streamOrigin.Denominator) : null;
                 AVRational rate = video ? ffmpeg.av_guess_frame_rate(format, stream, null) : default;
@@ -41,7 +45,7 @@ public static unsafe class MediaAssetProbe
                     rate.num > 0 && rate.den > 0 ? new FrameRate(rate.num, rate.den) : null));
             }
             if (streams.Count == 0) throw new NotSupportedException("Source has no video/audio streams to register.");
-            var asset = new MediaAsset(assetId, Path.GetFileName(path), path, Marshal.PtrToStringUTF8((nint)format->iformat->name) ?? "Unknown", streams.ToImmutable());
+            var asset = new MediaAsset(assetId, Path.GetFileName(path), path, container, streams.ToImmutable());
             var origin = new MediaTimestamp(format->start_time == ffmpeg.AV_NOPTS_VALUE ? 0 : format->start_time, 1, ffmpeg.AV_TIME_BASE);
             var primary = asset.Streams.FirstOrDefault(s => s.Kind == TrackKind.Video) ?? asset.Streams[0];
             SequenceTime duration;

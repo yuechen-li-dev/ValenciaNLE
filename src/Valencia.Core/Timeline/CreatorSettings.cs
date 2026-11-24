@@ -22,7 +22,8 @@ public sealed record ColorPatch(
         Saturation = Saturation ?? video.Saturation, Temperature = Temperature ?? video.Temperature
     };
 }
-public sealed record AudioEffects(long FadeInTicks = 0, long FadeOutTicks = 0, double NoiseReductionDb = 0);
+public sealed record AudioEffects(long FadeInTicks = 0, long FadeOutTicks = 0, double NoiseReductionDb = 0,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool AlignStartToSample = false);
 public sealed record GainPoint(SequenceTime Time, double GainDb);
 public sealed record TrackAudio(Guid TrackId, double GainDb, ImmutableArray<GainPoint> Envelope);
 public sealed record FramingPoint(SequenceTime Time, double X, double Y, double Scale = 1);
@@ -84,8 +85,9 @@ public static class CreatorSemantics
             long previous = -1;
             foreach (var point in track.Envelope)
             {
-                DocumentValidator.Require(point.Time.Ticks > previous && double.IsFinite(point.GainDb) && point.GainDb is >= -120 and <= 30, "Invalid gain envelope.");
-                previous = point.Time.Ticks;
+                DocumentValidator.Require(point is not null && point.Time.Ticks > previous && double.IsFinite(point.GainDb)
+                    && point.GainDb is >= -120 and <= 30, "Invalid gain envelope.");
+                previous = point!.Time.Ticks;
             }
         }
     }

@@ -57,7 +57,8 @@ internal sealed class AudioSeekIndex
     private Anchor Find(SourcePosition target, CancellationToken cancellation)
     {
         using var reader = !ended && (!started || last.CompareTo(target) < 0)
-            ? new FfmpegDecoder(asset, stream, started ? new SourcePosition(anchors[^1].Pts).Shift(new(-SequenceTime.TicksPerSecond)) : new(stream.Start ?? new(0, stream.TimeBaseNumerator, stream.TimeBaseDenominator)), rate)
+            ? new FfmpegDecoder(asset, stream, started ? DecoderStart(asset, stream, anchors[^1].Pts)
+                : new(stream.Start ?? new(0, stream.TimeBaseNumerator, stream.TimeBaseDenominator)), rate)
             : null;
         Anchor? resume = started && reader is not null ? anchors[^1] : null;
         if (resume is not null)
@@ -75,7 +76,7 @@ internal sealed class AudioSeekIndex
             {
                 int compared = new SourcePosition(pts).CompareTo(new(resume.Pts));
                 if (compared < 0) continue;
-                if (compared > 0) throw new InvalidDataException("Decoder skipped the index continuation anchor.");
+                if (compared > 0) throw SkippedAnchor(asset, resume.Pts, pts);
                 resume = null;
             }
             if (!started) { origin = new(pts); samples = 0; }
@@ -101,4 +102,17 @@ internal sealed class AudioSeekIndex
         var before = target.Shift(new(-SequenceTime.TicksPerSecond));
         return anchors.LastOrDefault(a => a.Position.CompareTo(before) <= 0) ?? anchors[0];
     }
+
+    internal static SourcePosition DecoderStart(MediaAsset asset, AssetStream stream, MediaTimestamp anchor)
+    {
+        var position = new SourcePosition(anchor);
+        // PCM can start at an exact sample. Seeking to an arbitrary earlier sample in WAV repacketizes the
+        // stream around that earlier position, so no decoded packet may start at the saved anchor.
+        // The chosen anchor is already before the target, which leaves resampler warm-up.
+        return asset.Container == "wav" && stream.Codec.StartsWith("pcm_", StringComparison.Ordinal)
+            ? position : position.Shift(new(-SequenceTime.TicksPerSecond));
+    }
+
+    internal static InvalidDataException SkippedAnchor(MediaAsset asset, MediaTimestamp expected, MediaTimestamp actual) =>
+        new($"Audio decoder skipped the indexed anchor in {asset.Name} ({asset.Container}): expected {expected.Value}, decoded {actual.Value}.");
 }
