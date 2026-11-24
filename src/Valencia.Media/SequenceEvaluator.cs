@@ -73,7 +73,7 @@ public sealed class SequenceEvaluator : IDisposable
         {
             cancellation.ThrowIfCancellationRequested();
             if (!videos.TryGetValue(a.Clip.Id, out var cursor))
-                videos.Add(a.Clip.Id, cursor = new(a, Sequence.AudioSampleRate, useProxies, retainVideoHistory));
+                videos.Add(a.Clip.Id, cursor = new(a.Asset, a.Stream, a.SourcePosition, Sequence.AudioSampleRate, useProxies, retainVideoHistory));
             var source = cursor.At(a.SourcePosition, cancellation);
             if (source is not null)
             {
@@ -191,18 +191,19 @@ public sealed class SequenceEvaluator : IDisposable
     private sealed class VideoCursor : IDisposable
     {
         private FfmpegDecoder decoder;
-        private readonly ActiveClip clip;
+        private readonly MediaAsset asset;
+        private readonly AssetStream stream;
         private readonly int rate;
         private ProxySource? proxy;
         private readonly bool retainHistory;
-        public VideoCursor(ActiveClip clip, int rate, bool useProxy, bool retainHistory)
+        public VideoCursor(MediaAsset asset, AssetStream stream, SourcePosition position, int rate, bool useProxy, bool retainHistory)
         {
-            this.clip = clip; this.rate = rate;
+            this.asset = asset; this.stream = stream; this.rate = rate;
             this.retainHistory = retainHistory;
-            proxy = useProxy ? MediaProxy.Resolve(clip.Asset, clip.Stream) : null;
-            try { decoder = new(proxy?.Asset ?? clip.Asset, proxy?.Stream ?? clip.Stream, clip.SourcePosition, rate); }
+            proxy = useProxy ? MediaProxy.Resolve(asset, stream) : null;
+            try { decoder = new(proxy?.Asset ?? asset, proxy?.Stream ?? stream, position, rate); }
             catch (Exception error) when (proxy is not null && error is IOException or InvalidOperationException or NotSupportedException)
-            { proxy = null; decoder = new(clip.Asset, clip.Stream, clip.SourcePosition, rate); }
+            { proxy = null; decoder = new(asset, stream, position, rate); }
         }
         private VideoFrame? current;
         private MediaTimestamp? nextTimestamp;
@@ -219,7 +220,7 @@ public sealed class SequenceEvaluator : IDisposable
             catch (Exception error) when (proxy is not null && error is IOException or InvalidOperationException or NotSupportedException)
             {
                 decoder.Dispose(); proxy = null;
-                decoder = new(clip.Asset, clip.Stream, target, rate);
+                decoder = new(asset, stream, target, rate);
                 current = null; nextTimestamp = null; retainedDirty = false; ended = false; requested = null;
                 return ReadAt(target, cancellation);
             }
@@ -240,7 +241,7 @@ public sealed class SequenceEvaluator : IDisposable
                 catch (InvalidDataException)
                 {
                     decoder.Dispose();
-                    decoder = new(proxy?.Asset ?? clip.Asset, proxy?.Stream ?? clip.Stream, target, rate);
+                    decoder = new(proxy?.Asset ?? asset, proxy?.Stream ?? stream, target, rate);
                 }
                 current = null; nextTimestamp = null; retainedDirty = false; ended = false;
             }
@@ -270,6 +271,13 @@ public sealed class SequenceEvaluator : IDisposable
             return picture;
         }
         public void Dispose() => decoder.Dispose();
+    }
+    internal static VideoFrame ReadSourceFrame(MediaAsset asset, AssetStream stream, SourcePosition position, CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        FfmpegRuntime.Initialize();
+        using var cursor = new VideoCursor(asset, stream, position, 48000, useProxy: false, retainHistory: false);
+        return cursor.At(position, cancellation) ?? throw new ArgumentException("No source picture covers the requested timestamp.");
     }
     private sealed class AudioCursor : IDisposable
     {

@@ -39,6 +39,14 @@ public sealed partial class EditingEngine : IAsyncDisposable
         return new(new EditingSession(loaded.Snapshot), policy) { ProjectPath = resolved, SavedDocument = loaded.Snapshot.Document };
     }
     public TimelineQueries Query() => new(Session.Snapshot);
+    public SourceFrameInfo SourceFrame(Guid assetId, int stream, SequenceTime offset, string output, int maximumEdge = 640,
+        SourcePoint? point = null, CancellationToken cancellation = default)
+    {
+        var asset = Session.Snapshot.Document.Assets.FirstOrDefault(a => a.Id == assetId)
+            ?? throw new ArgumentException("Unknown source asset.");
+        Policy?.Check(asset.SourcePath);
+        return SourceFrameThumbnail.Write(asset, stream, offset, maximumEdge, OutputPath(output), point, cancellation);
+    }
     public async Task<TextEditProposal> TextEditAsync(TextEditRequest request, CancellationToken cancellation = default)
     {
         var snapshot = Session.Snapshot;
@@ -145,16 +153,18 @@ public sealed partial class EditingEngine : IAsyncDisposable
             if (!result.Success) return Invalid(result.Message ?? result.Error.ToString());
             var after = result.Snapshot;
             var changes = Diff(before.Document, after.Document);
+            var outputProfiles = DiffOutputFraming(plan, before, after);
             var affected = changes.SelectMany(c => new[] { c.ClipId, c.BeforeTrack ?? Guid.Empty, c.AfterTrack ?? Guid.Empty })
                 .Concat(plan.Operations.OfType<TrackStatePlan>().Select(o => o.TrackId))
                 .Concat(plan.Operations.OfType<AddTrackPlan>().Select(o => o.TrackId))
                 .Concat(plan.Operations.OfType<CreatorPlan>().Select(_ => plan.SequenceId))
+                .Concat(outputProfiles.SelectMany(change => new[] { plan.SequenceId, change.ProfileId }))
                 .Where(id => id != Guid.Empty).Distinct().Order().ToImmutableArray();
             long resulting = commit ? result.Revision : checked(revision + 1);
             var current = Session.Snapshot;
             return new(1, true, commit, plan.ProjectRevision, EngineJson.Exact(resulting), EngineJson.Exact(current.Revision),
                 !commit && current.Revision == revision && current.Document.Id == plan.ProjectId, affected, changes,
-                new TimelineQueries(after).Duration(plan.SequenceId), []);
+                new TimelineQueries(after).Duration(plan.SequenceId), [], outputProfiles.IsEmpty ? null : outputProfiles);
         }
         catch (Exception error) when (error is ArgumentException or OverflowException or FormatException or System.Text.Json.JsonException or InvalidOperationException or IOException)
         {
@@ -162,6 +172,15 @@ public sealed partial class EditingEngine : IAsyncDisposable
         }
         PlanResult Invalid(string message) => new(1, false, false, plan.ProjectRevision, EngineJson.Exact(Session.Snapshot.Revision),
             EngineJson.Exact(Session.Snapshot.Revision), false, [], [], null, [message]);
+    }
+    private static ImmutableArray<OutputProfileChange> DiffOutputFraming(EditPlan plan, ProjectSnapshot before, ProjectSnapshot after)
+    {
+        var ids = plan.Operations.OfType<OutputFramingPlan>().Select(o => o.ProfileId).Distinct().Order().ToArray();
+        if (ids.Length == 0) return [];
+        var left = new TimelineQueries(before).Sequence(plan.SequenceId).Creator?.Profiles ?? [];
+        var right = new TimelineQueries(after).Sequence(plan.SequenceId).Creator?.Profiles ?? [];
+        return [.. ids.Select(id => new OutputProfileChange(id, left.FirstOrDefault(p => p.Id == id), right.FirstOrDefault(p => p.Id == id)))
+            .Where(change => change.Before != change.After)];
     }
     private static ImmutableArray<ClipChange> Diff(ProjectDocument before, ProjectDocument after)
     {

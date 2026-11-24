@@ -38,7 +38,7 @@ public sealed partial class TranscriptionTests
         {
             await Rpc("initialize", new { protocolVersion = "2025-11-25", capabilities = new { }, clientInfo = new { name = "M2d protocol test", version = "1" } });
             await process.StandardInput.WriteLineAsync("{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}");
-            Assert.Equal(26, (await Rpc("tools/list", new { })).GetProperty("result").GetProperty("tools").GetArrayLength());
+            Assert.Equal(27, (await Rpc("tools/list", new { })).GetProperty("result").GetProperty("tools").GetArrayLength());
             var submitted = Data(await Tool("start_creator", new { projectId, revision, request }));
             Guid jobId = submitted.GetProperty("jobId").GetGuid();
             JsonElement status;

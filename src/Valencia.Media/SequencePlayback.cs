@@ -10,17 +10,20 @@ namespace Valencia.Media;
 public sealed class SequencePlayback : IAsyncDisposable
 {
     private readonly CancellationTokenSource stopping;
-    private readonly Channel<SequenceFrame> video;
+    private readonly Channel<QueuedFrame> video;
     private readonly AudioStreamBuffer audio;
     private readonly Task videoWorker, audioWorker;
     private WaveOut? output;
-    private SequenceFrame? pending;
+    private QueuedFrame? pending;
+    private readonly int reversePrebuffer;
+    private volatile bool videoProducerCompleted;
     private readonly TimelineQueries queries;
     private Exception? failure;
     private SequenceTime lastPosition;
     private readonly object clockGate = new();
     private readonly PreviewFrameClock presentationClock = new();
     private readonly OutputProfile? profile;
+    private sealed record QueuedFrame(SequenceFrame Frame, long DueTicks);
     public ProjectSnapshot Snapshot { get; }
     public SequenceDocument Sequence { get; }
     public SequenceTime Start { get; }
@@ -40,10 +43,15 @@ public sealed class SequencePlayback : IAsyncDisposable
         IsReverse = reverse;
         this.profile = profile;
         stopping = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
-        int capacity = Math.Clamp(32 * 1024 * 1024 / checked((profile?.Width ?? Sequence.Video.Width) * (profile?.Height ?? Sequence.Video.Height) * 4), 1, 4);
-        video = Channel.CreateBounded<SequenceFrame>(new BoundedChannelOptions(capacity)
+        int frameBytes = checked((profile?.Width ?? Sequence.Video.Width) * (profile?.Height ?? Sequence.Video.Height) * 4);
+        // Reverse decoding crosses history boundaries by seeking back to a keyframe and decoding forward.
+        // Put that work ahead of the audio clock. Never drop a future reverse frame to make room for another.
+        int capacity = reverse ? Math.Clamp(96 * 1024 * 1024 / frameBytes, 1, 18) : Math.Clamp(32 * 1024 * 1024 / frameBytes, 1, 4);
+        var rate = profile?.FrameRate ?? Sequence.Video.FrameRate;
+        reversePrebuffer = reverse ? (int)Math.Clamp(TimelineTime.FrameIndex(new(SequenceTime.TicksPerSecond / 5), rate, TimeRounding.Ceiling), 1, capacity) : 0;
+        video = Channel.CreateBounded<QueuedFrame>(new BoundedChannelOptions(capacity)
         {
-            SingleReader = true, SingleWriter = true, FullMode = BoundedChannelFullMode.DropOldest
+            SingleReader = true, SingleWriter = true, FullMode = reverse ? BoundedChannelFullMode.Wait : BoundedChannelFullMode.DropOldest
         });
         // Edited cuts may jump hours forward and need sample-anchor discovery. Keep a bounded
         // 64-block horizon (~2.7 s / 1 MiB at 48 kHz), independently of the short video queue.
@@ -70,7 +78,8 @@ public sealed class SequencePlayback : IAsyncDisposable
         try
         {
             await session.video.Reader.WaitToReadAsync(cancellation).ConfigureAwait(false);
-            while (session.audio.BufferedFrames < session.Sequence.AudioSampleRate / 4 && !session.audio.ProducerCompleted)
+            while ((session.audio.BufferedFrames < session.Sequence.AudioSampleRate / 4 && !session.audio.ProducerCompleted)
+                || (reverse && session.video.Reader.Count < session.reversePrebuffer && !session.videoProducerCompleted))
             {
                 if (session.Failure is { } error) throw error;
                 await Task.Delay(2, cancellation).ConfigureAwait(false);
@@ -116,8 +125,8 @@ public sealed class SequencePlayback : IAsyncDisposable
         while (true)
         {
             if (pending is null && !video.Reader.TryRead(out pending)) break;
-            if (!IsReverse && Current is not null && pending.Time.Ticks > position.Ticks) break;
-            Current = pending; pending = null; changed = true;
+            if (Current is not null && (IsReverse ? pending.DueTicks < position.Ticks : pending.DueTicks > position.Ticks)) break;
+            Current = pending.Frame; pending = null; changed = true;
         }
         if (Current is { } current)
         {
@@ -138,7 +147,7 @@ public sealed class SequencePlayback : IAsyncDisposable
         {
             using var evaluator = new SequenceEvaluator(Snapshot, sequenceId, profile, useProxies: true, retainVideoHistory: IsReverse);
             var initial = IsReverse ? ReverseBoundary(Start) : Start;
-            await video.Writer.WriteAsync(evaluator.Video(initial, stopping.Token), stopping.Token);
+            await video.Writer.WriteAsync(new(evaluator.Video(initial, stopping.Token), Start.Ticks), stopping.Token);
             var frameRate = profile?.FrameRate ?? Sequence.Video.FrameRate;
             long initialFrame = TimelineTime.FrameIndex(initial, frameRate, TimeRounding.Floor);
             if (IsReverse)
@@ -147,9 +156,9 @@ public sealed class SequencePlayback : IAsyncDisposable
                 {
                     var due = TimelineTime.FromFrames(i + 1, frameRate);
                     var time = TimelineTime.FromFrames(i, frameRate);
+                    await video.Writer.WaitToWriteAsync(stopping.Token).ConfigureAwait(false);
                     var frame = evaluator.Video(time, stopping.Token);
-                    await presentationClock.WaitUntilDueAsync(due.Ticks, stopping.Token, reverse: true).ConfigureAwait(false);
-                    await video.Writer.WriteAsync(frame, stopping.Token).ConfigureAwait(false);
+                    await video.Writer.WriteAsync(new(frame, due.Ticks), stopping.Token).ConfigureAwait(false);
                 }
             }
             else
@@ -160,13 +169,14 @@ public sealed class SequencePlayback : IAsyncDisposable
                     if (time.Ticks >= Sequence.Duration.Ticks) break;
                     var frame = evaluator.Video(time, stopping.Token);
                     await presentationClock.WaitUntilDueAsync(time.Ticks, stopping.Token).ConfigureAwait(false);
-                    await video.Writer.WriteAsync(frame, stopping.Token).ConfigureAwait(false);
+                    await video.Writer.WriteAsync(new(frame, time.Ticks), stopping.Token).ConfigureAwait(false);
                 }
             }
             video.Writer.TryComplete();
         }
         catch (OperationCanceledException) when (stopping.IsCancellationRequested) { video.Writer.TryComplete(); }
         catch (Exception error) { Interlocked.CompareExchange(ref failure, error, null); video.Writer.TryComplete(error); }
+        finally { videoProducerCompleted = true; }
     }
     private async Task ProduceAudio(Guid sequenceId)
     {

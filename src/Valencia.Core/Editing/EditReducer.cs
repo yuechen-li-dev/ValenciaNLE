@@ -23,6 +23,7 @@ internal static class EditReducer
             TrimClip x => x.SequenceId, SplitClip x => x.SequenceId, DeleteClip x => x.SequenceId,
             RippleDelete x => x.SequenceId, SetTrackState x => x.SequenceId,
             SetCreatorSettings x => x.SequenceId, SetClipProperties x => x.SequenceId,
+            SetOutputFraming x => x.SequenceId,
             PatchClipColor x => x.SequenceId, SetClipRegion x => x.SequenceId,
             SetSequenceMarker x => x.SequenceId, RemoveSequenceMarker x => x.SequenceId,
             _ => throw new ArgumentException("Unsupported operation.")
@@ -44,6 +45,23 @@ internal static class EditReducer
         }
         if (operation is SetCreatorSettings settings)
             return document with { Sequences = document.Sequences.SetItem(si, sequence with { Creator = settings.Settings }) };
+        if (operation is SetOutputFraming framing)
+        {
+            var creator = sequence.Creator ?? new CreatorSettings(1, [], new(), [], []);
+            var profile = creator.Profiles.FirstOrDefault(p => p.Id == framing.ProfileId);
+            if (profile is null)
+            {
+                DocumentValidator.Require(framing.Width.HasValue && framing.Height.HasValue && !string.IsNullOrWhiteSpace(framing.Name),
+                    "A new output profile needs a name, width and height.");
+                profile = new(framing.ProfileId, framing.Name!, framing.Width!.Value, framing.Height!.Value,
+                    sequence.Video.FrameRate, CaptionY: creator.CaptionStyle.Y);
+            }
+            var changed = profile with { Name = framing.Name ?? profile.Name, Width = framing.Width ?? profile.Width, Height = framing.Height ?? profile.Height,
+                Fit = framing.Fit ?? profile.Fit, FocalX = framing.FocalX ?? profile.FocalX, FocalY = framing.FocalY ?? profile.FocalY };
+            DocumentValidator.Require(!string.IsNullOrWhiteSpace(changed.Name) && changed.Name.Length <= 120, "An output profile name must contain 1..120 characters.");
+            var profiles = creator.Profiles.Contains(profile) ? creator.Profiles.Replace(profile, changed) : creator.Profiles.Add(changed);
+            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Creator = creator with { Profiles = profiles } }) };
+        }
         var tracks = sequence.Tracks;
         switch (operation)
         {

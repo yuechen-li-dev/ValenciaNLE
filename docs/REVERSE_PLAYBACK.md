@@ -22,6 +22,19 @@ played on the audio device drives the descending sequence clock. Video uses
 the same timeline evaluator as forward playback and export. At an exact cut,
 the first reverse picture comes from the interval immediately before the cut.
 
+Reverse playback queues up to 18 composed frames within a 96 MiB queue budget.
+It primes up to 200 ms of pictures before starting the audio clock. The decoder
+can refill its history from a keyframe while the queue holds upcoming pictures.
+An audio-clock deadline on each queued picture keeps it from being shown early.
+
+On the original 1080p30 H.264 *Big Buck Bunny* excerpt, the previous software
+build reproduced 166 ms of maximum A/V skew during the edited reverse test.
+With decode-ahead, three software runs measured 39.4–40.0 ms and a Vulkan
+effects run measured 41.1 ms. Each showed 120 distinct pictures in four seconds
+with zero audio underruns. Vulkan validation reported zero errors. Wide
+random seeks on the original still took about 283 ms p95 in software. These
+are separate from the continuous reverse playback measurements.
+
 Native smokes ran on a Ryzen 7700X and RTX 3070 with NVIDIA driver 610.88 and
 .NET 11. The four-second reverse run on the 1080p60 H.264/AAC MKV (120-frame
 GOPs) displayed 229 distinct pictures, with 46.5 ms maximum measured A/V skew.

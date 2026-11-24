@@ -15,6 +15,52 @@ public sealed class EffectPackTests(TimelineFixture fixture) : IClassFixture<Tim
     private static TimelineClip Video(ProjectSnapshot snapshot) => new TimelineQueries(snapshot).Sequence(Sequence).Tracks[0].Clips[0];
 
     [Fact]
+    public async Task OutputFramingCreatesAndPatchesProfilesWithoutReplacingCreatorData()
+    {
+        var session = new EditingSession(fixture.Snapshot);
+        var profileId = Guid.NewGuid();
+        var existing = new OutputProfile(profileId, "Square", 640, 640, new(24, 1), CaptionY: .7, Start: TimelineFixture.F(1),
+            End: TimelineFixture.F(20), Framing: [new(default, .4, .6)]);
+        var creator = new CreatorSettings(1, [], new(Y: .75), [existing], [new(TimelineFixture.Id(7), -6, [])], MasterGainDb: 2);
+        Assert.True(session.Execute(new EditCommand(Guid.NewGuid(), 1, new SetCreatorSettings(Sequence, creator), 0)).Success);
+        var before = session.Snapshot;
+        await using var engine = new EditingEngine(session);
+        var newId = Guid.NewGuid();
+        var plan = new EditPlan(1, before.Document.Id, "1", Sequence,
+            [new OutputFramingPlan(newId, "Portrait", 720, 1280, "fill", .45, .5), new OutputFramingPlan(profileId, FocalX: .2)]);
+        var dry = engine.Plan(plan, false);
+        Assert.True(dry.Valid);
+        Assert.Same(before, session.Snapshot);
+        Assert.Contains(newId, dry.AffectedIds);
+        var committed = engine.Plan(plan, true);
+        Assert.True(committed.Committed);
+        Assert.Equal<OutputProfileChange>(dry.OutputProfiles!.Value, committed.OutputProfiles!.Value);
+        var actual = engine.Query().Sequence(Sequence).Creator!;
+        Assert.Equal(existing with { FocalX = .2 }, actual.Profiles[0]);
+        Assert.Equal(creator with { Profiles = actual.Profiles }, actual);
+        Assert.Equal(new OutputProfile(newId, "Portrait", 720, 1280, TimelineFixture.Rate, "fill", .45, .5, .75), actual.Profiles[1]);
+        Assert.True(engine.Undo(session.Snapshot.Revision).Success);
+        Assert.Equal(creator, engine.Query().Sequence(Sequence).Creator);
+        Assert.True(engine.Redo(session.Snapshot.Revision).Success);
+    }
+
+    [Fact]
+    public async Task SourceThumbnailKeepsPresentationTimestampAndNormalizesPixelEdges()
+    {
+        await using var engine = new EditingEngine(new EditingSession(fixture.Snapshot));
+        var asset = fixture.Snapshot.Document.Assets[0];
+        string image = Path.Combine(fixture.Root, "effect-source.png");
+        var frame = engine.SourceFrame(asset.Id, 0, TimelineFixture.F(7), image, 80, new(20, 33.75));
+        Assert.Equal(TimelineFixture.F(7), frame.PresentationTimestamp.ToSequenceTime());
+        Assert.Equal((160, 90, 80, 45), (frame.SourceWidth, frame.SourceHeight, frame.ImageWidth, frame.ImageHeight));
+        Assert.Equal(new SourcePoint(.25, .75), frame.Point);
+        using var decoded = SkiaSharp.SKBitmap.Decode(image);
+        Assert.Equal((80, 45), (decoded.Width, decoded.Height));
+        Assert.Throws<IOException>(() => engine.SourceFrame(asset.Id, 0, default, image));
+        Assert.Same(fixture.Snapshot, engine.Session.Snapshot);
+    }
+
+    [Fact]
     public async Task TypedPlanPatchesOnlyItsEffectsAndRoundTripsWithUndo()
     {
         var session = new EditingSession(fixture.Snapshot);

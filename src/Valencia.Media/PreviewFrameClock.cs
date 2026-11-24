@@ -15,10 +15,10 @@ internal sealed class PreviewFrameClock
         if (!ready.TrySetResult(readTicks)) throw new InvalidOperationException("Preview clock is already attached.");
     }
 
-    public async Task WaitUntilDueAsync(long frameTicks, CancellationToken cancellation, bool reverse = false)
+    public async Task WaitUntilDueAsync(long frameTicks, CancellationToken cancellation)
     {
         var clock = await ready.Task.WaitAsync(cancellation).ConfigureAwait(false);
-        while (reverse ? frameTicks < clock() : frameTicks > clock())
+        while (frameTicks > clock())
             await Task.Delay(2, cancellation).ConfigureAwait(false);
     }
 

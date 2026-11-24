@@ -31,6 +31,7 @@ public sealed record ClipDto(Guid Id, Guid AssetId, int StreamIndex, string Star
 [JsonDerivedType(typeof(PropertiesPlan), "properties")]
 [JsonDerivedType(typeof(ColorPlan), "color")]
 [JsonDerivedType(typeof(RegionPlan), "region")]
+[JsonDerivedType(typeof(OutputFramingPlan), "outputFraming")]
 public abstract record PlanOperation
 {
     public abstract EditOperation ToCore(Guid sequenceId);
@@ -83,13 +84,19 @@ public sealed record RegionPlan(Guid ClipId, [property: JsonIgnore(Condition = J
 {
     public override EditOperation ToCore(Guid sequenceId) => new SetClipRegion(sequenceId, ClipId, Region);
 }
+public sealed record OutputFramingPlan(Guid ProfileId, string? Name = null, int? Width = null, int? Height = null,
+    string? Fit = null, double? FocalX = null, double? FocalY = null) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new SetOutputFraming(sequenceId, ProfileId, Name, Width, Height, Fit, FocalX, FocalY);
+}
 public sealed record SourcePrecondition(Guid AssetId, string Fingerprint);
 public sealed record EditPlan(int SchemaVersion, Guid ProjectId, string ProjectRevision, Guid SequenceId,
     ImmutableArray<PlanOperation> Operations, string? Note = null, ImmutableArray<SourcePrecondition>? SourcePreconditions = null);
 public sealed record ClipChange(string Kind, Guid ClipId, Guid? BeforeTrack, Guid? AfterTrack, TimelineClip? Before, TimelineClip? After);
+public sealed record OutputProfileChange(Guid ProfileId, OutputProfile? Before, OutputProfile? After);
 public sealed record PlanResult(int ApiVersion, bool Valid, bool Committed, string ExpectedRevision, string ResultingRevision,
     string CurrentRevision, bool CanCommit, ImmutableArray<Guid> AffectedIds, ImmutableArray<ClipChange> Changes,
-    SequenceTime? ResultingDuration, ImmutableArray<string> Diagnostics);
+    SequenceTime? ResultingDuration, ImmutableArray<string> Diagnostics, ImmutableArray<OutputProfileChange>? OutputProfiles = null);
 
 public static class EditPlanSchema
 {

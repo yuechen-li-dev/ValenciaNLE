@@ -380,6 +380,10 @@ public sealed class PlanBuilder(Guid projectId, string revision, Guid sequence)
     public void Region(string clipId, string mode, double left, double top, double right, double bottom, int size) =>
         operations.Add(new RegionPlan(Guid.Parse(clipId), new(mode, left, top, right, bottom, size)));
     public void ClearRegion(string clipId) => operations.Add(new RegionPlan(Guid.Parse(clipId)));
+    public void OutputFraming(string profileId, string name, int width, int height, string fit, double focalX, double focalY) =>
+        operations.Add(new OutputFramingPlan(Guid.Parse(profileId), name, width, height, fit, focalX, focalY));
+    public void OutputFocalPoint(string profileId, double x, double y) =>
+        operations.Add(new OutputFramingPlan(Guid.Parse(profileId), FocalX: x, FocalY: y));
     public void AddTrack(string trackId, string kind, int order, string name) => operations.Add(new AddTrackPlan(Guid.Parse(trackId), Enum.Parse<TrackKind>(kind, true), order, name));
     public string ToJson() => EngineJson.Write(Build());
     public EditPlan Build() => new(1, projectId, revision, sequence, [.. operations]);

@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using Copeland.TS.Tson;
 using Valencia.Core;
 using Valencia.Engine;
+using Valencia.Media;
 
 namespace Valencia.Cli;
 
@@ -15,7 +16,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
     private static readonly string[] ToolNames = ["project_info", "timeline_query", "validate_edit_plan", "apply_edit_plan", "run_export", "export_status", "cancel_export",
         "start_analysis", "analysis_status", "analysis_result", "cancel_analysis", "create_roughcut", "transcript_query", "create_textedit",
         "start_creator", "creator_status", "cancel_creator", "apply_creator", "caption_plan", "correct_transcript",
-        "obs_connect", "obs_status", "obs_record", "obs_marker", "obs_import", "effects_list"];
+        "obs_connect", "obs_status", "obs_record", "obs_marker", "obs_import", "effects_list", "source_frame"];
 
     public async Task RunAsync(TextReader input, TextWriter output, CancellationToken cancellation)
     {
@@ -48,7 +49,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
                     {
                         "ping" => new { },
                         "tools/list" => new { tools = ToolNames.Select(name => new { name, description = "Valencia engine v1: " + name, inputSchema = InputSchema(name) }) },
-                        "tools/call" => Call(request.GetProperty("params")),
+                        "tools/call" => Call(request.GetProperty("params"), cancellation),
                         _ => throw new ArgumentException("Unsupported MCP method.")
                     };
                 }
@@ -64,7 +65,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
         }
     }
 
-    private object Call(JsonElement parameters)
+    private object Call(JsonElement parameters, CancellationToken cancellation)
     {
         string name = parameters.GetProperty("name").GetString()!;
         if (!ToolNames.Contains(name)) throw new ArgumentException("Unknown tool.");
@@ -80,6 +81,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
                 "project_info" => BoundedQuery(ProjectInfo(arguments)),
                 "timeline_query" => BoundedQuery(Query(arguments)),
                 "effects_list" => new { version = EffectCatalog.Version, effects = EffectCatalog.Effects },
+                "source_frame" => SourceFrame(arguments, cancellation),
                 "validate_edit_plan" or "apply_edit_plan" => Plan(arguments, name == "apply_edit_plan"),
                 "run_export" => new { jobId = StartExport(arguments) },
                 "export_status" => engine.Exports.Status(Guid.Parse(arguments.GetProperty("jobId").GetString()!)),
@@ -277,6 +279,15 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
         return engine.Exports.Start(Guid.Parse(arguments.GetProperty("sequenceId").GetString()!), arguments.GetProperty("output").GetString()!,
             arguments.TryGetProperty("profileId", out var profile) ? profile.GetGuid() : null);
     }
+    private SourceFrameInfo SourceFrame(JsonElement arguments, CancellationToken cancellation)
+    {
+        bool hasX = arguments.TryGetProperty("x", out var x), hasY = arguments.TryGetProperty("y", out var y);
+        if (hasX != hasY) throw new ArgumentException("Supply both x and y for a source point.");
+        return engine.SourceFrame(arguments.GetProperty("assetId").GetGuid(), arguments.GetProperty("stream").GetInt32(),
+            new(EngineJson.Int64(arguments.GetProperty("atTicks").GetString()!)), arguments.GetProperty("output").GetString()!,
+            arguments.TryGetProperty("maxEdge", out var edge) ? edge.GetInt32() : 640,
+            hasX ? new(x.GetDouble(), y.GetDouble()) : null, cancellation);
+    }
     private object Cancel(JsonElement arguments)
     {
         Guid id = Guid.Parse(arguments.GetProperty("jobId").GetString()!);
@@ -294,6 +305,14 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
         }
         if (tool == "timeline_query") { Field("sequenceId"); Field("atTicks"); Field("rangeStart"); Field("rangeEnd"); }
         if (tool == "project_info") properties["compact"] = new JsonObject { ["type"] = "boolean" };
+        if (tool == "source_frame")
+        {
+            Field("assetId", true); Field("atTicks", true); Field("output", true);
+            properties["stream"] = new JsonObject { ["type"] = "integer", ["minimum"] = 0 };
+            required.Add("stream");
+            properties["maxEdge"] = new JsonObject { ["type"] = "integer", ["minimum"] = 64, ["maximum"] = 1024 };
+            foreach (string axis in new[] { "x", "y" }) properties[axis] = new JsonObject { ["type"] = "number", ["minimum"] = 0 };
+        }
         if (tool == "obs_connect")
         {
             properties["request"] = new JsonObject { ["$ref"] = "#/$defs/ObsConnectRequest" };

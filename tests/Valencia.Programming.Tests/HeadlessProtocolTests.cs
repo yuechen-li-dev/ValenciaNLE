@@ -90,7 +90,7 @@ public sealed class HeadlessProtocolTests : IAsyncLifetime
         Assert.Equal("2025-11-25", initialization.GetProperty("result").GetProperty("protocolVersion").GetString());
         await process.StandardInput.WriteLineAsync("{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}");
         var tools = await Request("tools/list", new { });
-        Assert.Equal(26, tools.GetProperty("result").GetProperty("tools").GetArrayLength());
+        Assert.Equal(27, tools.GetProperty("result").GetProperty("tools").GetArrayLength());
         var effects = Value(await Tool("effects_list", new { projectId = ProjectId }));
         Assert.Equal("basic-color", effects.GetProperty("effects")[0].GetProperty("id").GetString());
         Assert.Equal("cover", effects.GetProperty("effects")[1].GetProperty("modes")[2].GetString());
