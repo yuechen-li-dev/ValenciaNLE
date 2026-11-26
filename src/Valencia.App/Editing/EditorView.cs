@@ -57,8 +57,8 @@ internal sealed partial class EditorView
             CardApply = Style(Ink, Card), CardCancel = Style(null, Ink, Ink);
     }
 
-    private enum PanelTab { Media, Transcript, Record }
-    private static readonly string[] TabNames = ["Media", "Transcript", "Record"];
+    private enum PanelTab { Media, Transcript, Record, Controls }
+    private static readonly string[] TabNames = ["Media", "Transcript", "Record", "Controls"];
 
     public Result<MachinaPreparedPresentation, EditorFailure> TryPrepare(EditorDocument editor,
         TimelineGesture gesture, bool playing, bool razor, int width, int height, bool jobRunning = false)
@@ -119,9 +119,10 @@ internal sealed partial class EditorView
         // Fills that sit under widgets must be widgets too: canvas quads draw above widget geometry (and above video).
         Fill(children, layout.Panel, Ui.Panel);
         children.Add(StandardUI.Frame(layout.Panel.X, layout.Panel.Y, layout.Panel.Width, layout.Panel.Height,
-            Panel(editor, layout.Panel, layout.Profile == EditorLayoutProfile.VerticalPhone)));
+            Panel(editor, layout.Panel, layout.Profile == EditorLayoutProfile.VerticalPhone, !layout.HasInspector)));
         Fill(children, layout.Monitor, Ui.Monitor);
         bool hideVideo = Monitor(children, quads, editor, layout);
+        if (!hideVideo && !playing) DrawTransformHandles(quads, editor, layout.Monitor);
         Transport(children, editor, layout, playing);
         if (layout.HasInspector)
         {
@@ -469,6 +470,7 @@ internal sealed partial class EditorView
 
         HashSet<Guid> selected = editor.Selection is { } chosen ? [.. EditorEdits.Group(editor, chosen.Id).Select(g => g.Clip.Id)] : [];
         var labelsByTrack = TrackLabels(sequence);
+        var queries = new TimelineQueries(editor.Session.Snapshot);
         VisibleClips = 0; int clipLabels = 0;
         for (int i = viewport.FirstTrack; i < Math.Min(sequence.Tracks.Length, viewport.FirstTrack + viewport.VisibleTracks); i++)
         {
@@ -498,6 +500,7 @@ internal sealed partial class EditorView
                     if (withCode) children.Add(Text(code, right - codeWidth, y + 7, codeWidth, 14, TextSize.Xs, ink, TextAlignX.Right));
                 }
             }
+            DrawTimelineEffects(quads, editor, sequence, queries, track, y);
             if (gesture.Active)
                 foreach (var (trackId, ghost) in gesture.Ghosts)
                     if (trackId == track.Id) ClipRect(ghost, y, gesture.Valid ? Ui.Ghost : Ui.GhostInvalid, false);
@@ -600,6 +603,11 @@ internal sealed partial class EditorView
     {
         double y = layout.StatusY, width = layout.Width - 2 * 12, h = EditorLayout.StatusHeight;
         children.Add(Box(0, y, layout.Width, 1, Ui.Rule));
+        if (editor.EffectDrag?.Preview is { Success: false, Message: { } failure, Error: not Valencia.Core.Editing.EditError.NoChange })
+        {
+            children.Add(TextIn(NativeUiText.Ellipsize(failure, width, TextSize.Sm), 12, y + 1, width, h - 1, TextSize.Sm, Ui.Alert));
+            return;
+        }
         var rate = editor.Sequence.Video.FrameRate;
         string selection = editor.Selection is { } chosen
             ? $"{Short(chosen.Properties.Name, 24)} {Timecode.Format(chosen.Start, rate)}-{Timecode.Format(chosen.End, rate)}  |  " : "";
@@ -614,12 +622,13 @@ internal sealed partial class EditorView
 
     // ---------------------------------------------------------------- panel
 
-    private static IReadOnlyList<UiNode> Panel(EditorDocument editor, Rect panel, bool compact)
+    private static IReadOnlyList<UiNode> Panel(EditorDocument editor, Rect panel, bool compact, bool inlineInspector)
     {
         var items = new List<UiNode>();
         double width = panel.Width - 2 * Pad, height = panel.Height;
-        var tab = editor.ObsMode ? PanelTab.Record : editor.TranscriptMode ? PanelTab.Transcript : PanelTab.Media;
-        bool card = !compact && height >= 300;
+        var tab = editor.ControlsMode && inlineInspector ? PanelTab.Controls
+            : editor.ObsMode ? PanelTab.Record : editor.TranscriptMode ? PanelTab.Transcript : PanelTab.Media;
+        bool card = tab != PanelTab.Controls && !compact && height >= 300;
         double y = Pad;
         if (card)
         {
@@ -635,8 +644,9 @@ internal sealed partial class EditorView
             items.Add(Box(0, y, panel.Width, 1, Ui.Rule));
             y += 6;
         }
-        double tabWidth = width / 3;
-        for (int i = 0; i < TabNames.Length; i++)
+        int tabCount = inlineInspector ? TabNames.Length : TabNames.Length - 1;
+        double tabWidth = width / tabCount;
+        for (int i = 0; i < tabCount; i++)
         {
             bool on = (int)tab == i;
             string numbered = $"{i + 1:00} {TabNames[i]}".ToUpperInvariant();
@@ -648,7 +658,7 @@ internal sealed partial class EditorView
                 items.Add(Box(Pad + i * tabWidth + (tabWidth - lw) / 2, y + 22, lw, 2, Ui.Orange));
             }
         }
-        double top = y + 24 + 10, bottom = height - Pad;
+        double top = y + 24 + (tab == PanelTab.Controls ? 4 : 10), bottom = height - Pad;
         if (card)
         {
             // Edge-code footer: real data only.
@@ -666,6 +676,13 @@ internal sealed partial class EditorView
         {
             case PanelTab.Media: MediaTab(items, editor, width, top, bottom, compact); break;
             case PanelTab.Transcript: TranscriptTab(items, editor, width, top, bottom); break;
+            case PanelTab.Controls:
+                if (bottom - top >= 32)
+                {
+                    var rect = new Rect(0, top - 6, panel.Width, bottom - top + 6);
+                    items.Add(StandardUI.Frame(rect.X, rect.Y, rect.Width, rect.Height, Inspector(editor, rect, compact: true)));
+                }
+                break;
             default: RecordTab(items, editor, width, top, bottom); break;
         }
         return items;
@@ -845,13 +862,19 @@ internal sealed partial class EditorView
 
     // ---------------------------------------------------------------- inspector
 
-    private static IReadOnlyList<UiNode> Inspector(EditorDocument editor, Rect area)
+    private static IReadOnlyList<UiNode> Inspector(EditorDocument editor, Rect area, bool compact = false)
     {
         var items = new List<UiNode>(); double x = 14, width = area.Width - 28, y = Pad, labelWidth = Math.Min(112, width * .4);
-        double footerY = area.Height - 22;
+        double footerY = compact ? area.Height : area.Height - 22;
         var rate = editor.Sequence.Video.FrameRate;
         void Title(string text, string info)
         {
+            if (compact)
+            {
+                items.Add(TextIn(text + " / " + info, x, 0, width, 18, TextSize.Sm));
+                y = 18;
+                return;
+            }
             var size = Fit(text, TextSize.H1, width * .62, 72); double h = Line(text, size);
             items.Add(Text(text, x, y - 2, width, h, size));
             double infoWidth = Math.Min(NativeUiText.Width(info, TextSize.Xs) + 2, width - NativeUiText.Width(text, size) - 12);
@@ -860,29 +883,48 @@ internal sealed partial class EditorView
         }
         void Row(string name, string value, uint color = Ui.Bone)
         {
-            const double rowHeight = 28;
+            double rowHeight = compact ? 19 : 28;
             if (y + rowHeight > footerY - 4) return;
             items.Add(TextIn(name.ToUpperInvariant(), x, y, labelWidth, rowHeight, TextSize.Sm, Ui.Mute));
             items.Add(TextIn(NativeUiText.Ellipsize(value, width - labelWidth), x + labelWidth, y, width - labelWidth, rowHeight, TextSize.Sm, color));
             y += rowHeight; items.Add(Box(x, y - 1, width, 1, Ui.RowRule));
         }
-        void Meter(string name, double fraction, string value)
+        void Control(string name, string value, string action, double startX, double cell, double label, bool advance = true)
         {
-            const double rowHeight = 28;
-            if (y + rowHeight > footerY - 4) return;
-            items.Add(TextIn(name.ToUpperInvariant(), x, y, labelWidth, rowHeight, TextSize.Sm, Ui.Mute));
-            int lit = (int)Math.Round(Math.Clamp(fraction, 0, 1) * 10);
-            for (int i = 0; i < 10; i++) items.Add(Box(x + labelWidth + i * 8, y + 9, 6, 10, i < lit ? Ui.Bone : Ui.Rule));
-            items.Add(TextIn(value, x + labelWidth + 88, y, width - labelWidth - 88, rowHeight, TextSize.Sm));
-            y += rowHeight; items.Add(Box(x, y - 1, width, 1, Ui.RowRule));
+            double rowHeight = compact ? 22 : 28, side = compact ? 20 : 26;
+            if (y + rowHeight > footerY) return;
+            var size = compact ? TextSize.Xs : TextSize.Sm;
+            items.Add(TextIn(name.ToUpperInvariant(), startX, y, label, rowHeight, size, Ui.Mute));
+            double valueWidth = cell - label - 2 * side - 6;
+            items.Add(TextIn(NativeUiText.Ellipsize(value, valueWidth, size), startX + label, y, valueWidth, rowHeight, size));
+            items.Add(Button("-", "fx:" + action + "-", startX + cell - 2 * (side + 2), y + 1, side, rowHeight - 3));
+            items.Add(Button("+", "fx:" + action + "+", startX + cell - side - 2, y + 1, side, rowHeight - 3));
+            if (advance) y += rowHeight;
         }
         void Footer(string left, string right)
         {
-            if (footerY < y + 8) return;
+            if (compact || footerY < y + 8) return;
             items.Add(Box(0, footerY, area.Width, 1, Ui.Rule));
             double rightWidth = Math.Min(NativeUiText.Width(right, TextSize.Xs) + 2, width * .62);
             items.Add(TextIn(NativeUiText.Ellipsize(left, width - rightWidth - 12, TextSize.Xs), x, footerY + 1, width - rightWidth - 12, 21, TextSize.Xs, Ui.Edge));
             items.Add(TextIn(NativeUiText.Ellipsize(right, rightWidth, TextSize.Xs), x + width - rightWidth, footerY + 1, rightWidth, 21, TextSize.Xs, Ui.Edge, TextAlignX.Right));
+        }
+        void SpeedControls(TimelineClip video)
+        {
+            double h = compact ? 22 : 26;
+            if (y + h > footerY) return;
+            var rate = video.Retime;
+            double cell = (width - 6) / 4;
+            var labels = new[] { "0.5x", "1x", "2x", "Freeze" };
+            var actions = new[] { "half", "normal", "double", "freeze" };
+            int selected = rate switch
+            {
+                null => 1, { Hold: not null } => 3,
+                { Numerator: 1, Denominator: 2 } => 0, { Numerator: 2, Denominator: 1 } => 2, _ => -1
+            };
+            for (int i = 0; i < labels.Length; i++)
+                items.Add(Button(labels[i], "fx:" + actions[i], x + i * (cell + 2), y + 1, cell, h - 2, i == selected ? Ui.Active : Ui.Plain));
+            y += h;
         }
         if (editor.Source is { } source)
         {
@@ -902,6 +944,40 @@ internal sealed partial class EditorView
             Footer("SRC " + IdCode(source.AssetId), $"IN {(marks.In is { } fi ? Timecode.Format(fi, rate) : "-")} > OUT {(marks.Out is { } fo ? Timecode.Format(fo, rate) : "-")}");
             return items;
         }
+        if (EditorEffects.SelectedTransform(editor) is { } target)
+        {
+            var pose = target.Pose;
+            Title(target.Title is null ? "CLIP" : "TITLE", "TRANSFORM");
+            if (!compact) Row("Name", target.Title?.Text ?? ClipName(editor, target.Clip!));
+            if (target.Clip is { } video) SpeedControls(video);
+            var controls = new (string Name, string Value, string Action)[]
+            {
+                (compact ? "X" : "Position X", $"{pose.X:P0}", "x"),
+                (compact ? "Y" : "Position Y", $"{pose.Y:P0}", "y"),
+                ("Scale", $"{pose.Scale:P0}", "scale"),
+                (compact ? "Angle" : "Rotation", $"{pose.Rotation:0.#}°", "rotation"),
+                (compact ? "Alpha" : "Opacity", $"{pose.Opacity:P0}", "opacity")
+            };
+            double cellWidth = compact ? (width - 6) / 2 : width;
+            for (int i = 0; i < controls.Length; i++)
+            {
+                var (name, value, action) = controls[i];
+                double start = compact && i % 2 != 0 ? x + cellWidth + 6 : x;
+                Control(name, value, action, start, cellWidth, compact ? 43 : labelWidth,
+                    !compact || i % 2 != 0 || i == controls.Length - 1);
+            }
+            double keyHeight = compact ? 22 : 26;
+            if (y + keyHeight <= footerY)
+            {
+                double cell = (width - 4) / 3;
+                items.Add(Button("Prev key", "fx:prev", x, y + 1, cell, keyHeight - 2));
+                items.Add(Button("Set key", "fx:key+", x + cell + 2, y + 1, cell, keyHeight - 2, Ui.Active));
+                items.Add(Button("Next key", "fx:next", x + 2 * (cell + 2), y + 1, cell, keyHeight - 2));
+                y += keyHeight;
+            }
+            Footer("DRAG HANDLE IN MONITOR", $"{target.Curve?.Keys.Length ?? 0} KEYS");
+            return items;
+        }
         if (editor.Selection is { } clip)
         {
             var track = editor.Sequence.Tracks.First(t => t.Clips.Any(c => c.Id == clip.Id));
@@ -909,11 +985,15 @@ internal sealed partial class EditorView
             string label = TrackLabels(editor.Sequence)[track.Id];
             Title("CLIP", label + " / " + (group.Length > 1 ? $"LINKED x{group.Length}" : "UNLINKED"));
             Row("Name", ClipName(editor, clip)); Row("Track", track.Name + (track.State.Locked ? " (locked)" : ""));
+            if (track.Kind == TrackKind.Video && !track.State.Locked) SpeedControls(clip);
+            if (track.Kind == TrackKind.Audio && !track.State.Locked)
+                Control("Clip gain", clip.Properties.Gain == 0 ? "-inf dB" : $"{20 * Math.Log10((double)clip.Properties.Gain):+0.0;-0.0;0.0} dB",
+                    "clipGain", x, width, labelWidth);
             Row("Start", Timecode.Format(clip.Start, rate)); Row("End", Timecode.Format(clip.End, rate)); Row("Duration", Timecode.Format(clip.Duration, rate), Ui.Orange);
             Row("Source in", $"{SourceTime(clip.SourceIn).TotalSeconds:0.000} s");
             Row("Linked", group.Length > 1 ? $"{group.Length - 1} other clip{(group.Length > 2 ? "s" : "")}" : "none");
             Row("Enabled", clip.Properties.Enabled ? "yes" : "no");
-            if (track.Kind == TrackKind.Video) Meter("Opacity", (double)clip.Properties.Opacity, $"{clip.Properties.Opacity * 100:0}%"); else Row("Gain", $"{clip.Properties.Gain:0.##}");
+            if (track.Kind == TrackKind.Video) Row("Transform", "Place playhead inside clip");
             Footer("CLIP " + IdCode(clip.Id), $"SRC {Timecode.Format(SourceTime(clip.SourceIn), rate)} > {Timecode.Format(SourceTime(clip.SourceOut), rate)}");
             return items;
         }

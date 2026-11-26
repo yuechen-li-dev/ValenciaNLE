@@ -44,16 +44,22 @@ internal sealed class TimelineViewport
     }
     public (TimelineTrack Track, TimelineClip Clip, int Edge)? Hit(SequenceDocument sequence, double x, double y)
     {
-        int visibleRow = (int)Math.Floor((y - TrackTop) / Row);
-        int row = visibleRow + FirstTrack;
-        if (x < ClipLeft || x > ClipRight || y < TrackTop || visibleRow >= VisibleTracks || row < 0 || row >= sequence.Tracks.Length) return null;
-        var track = sequence.Tracks[row];
+        if (TrackAt(sequence, x, y) is not { } row) return null;
+        var track = row.Track;
         foreach (var clip in Visible(track))
         {
             double left = Math.Max(ClipLeft, X(clip.Start)), right = Math.Min(ClipRight, X(clip.End));
             if (x >= left && x <= right) return (track, clip, Math.Abs(x - X(clip.Start)) <= 7 ? -1 : Math.Abs(x - X(clip.End)) <= 7 ? 1 : 0);
         }
         return null;
+    }
+
+    public (TimelineTrack Track, double Top)? TrackAt(SequenceDocument sequence, double x, double y)
+    {
+        int visibleRow = (int)Math.Floor((y - TrackTop) / Row);
+        int row = visibleRow + FirstTrack;
+        if (x < ClipLeft || x > ClipRight || visibleRow < 0 || visibleRow >= VisibleTracks || row >= sequence.Tracks.Length) return null;
+        return (sequence.Tracks[row], TrackTop + visibleRow * Row);
     }
 
     public UiCursor? Cursor(SequenceDocument sequence, double x, double y, double rulerY, bool razor)

@@ -124,10 +124,14 @@ internal sealed class TimelineGesture
         var operations = new List<EditOperation>(); var ghosts = new List<(Guid, TimelineClip)>();
         foreach (var (track, clip) in group)
         {
-            var trimmed = edge < 0
-                ? editor.Magnetic ? clip with { SourceIn = clip.SourceIn.Shift(new(change)) } : clip with { Start = new(checked(clip.Start.Ticks + change)), SourceIn = clip.SourceIn.Shift(new(change)) }
-                : clip with { SourceOut = clip.SourceOut.Shift(new(change)) };
-            operations.Add(new TrimClip(editor.SequenceId, clip.Id, trimmed.Start, trimmed.SourceIn, trimmed.SourceOut)); ghosts.Add((track.Id, trimmed));
+            var start = edge < 0 && !editor.Magnetic ? new SequenceTime(checked(clip.Start.Ticks + change)) : clip.Start;
+            var trimmed = clip.Retime is { Hold: not null } hold
+                ? clip with { Start = start, Retime = hold with { HoldTicks = checked(hold.HoldTicks + (edge < 0 ? -change : change)) } }
+                : edge < 0 ? clip with { Start = start, SourceIn = clip.SourceIn.Shift(clip.SourceDelta(new(change))) }
+                : clip with { SourceOut = clip.SourceOut.Shift(clip.SourceDelta(new(change))) };
+            operations.Add(new TrimClip(editor.SequenceId, clip.Id, trimmed.Start, trimmed.SourceIn, trimmed.SourceOut,
+                trimmed.Retime?.Hold is not null ? trimmed.Retime.HoldTicks : null));
+            ghosts.Add((track.Id, trimmed));
         }
         if (editor.Magnetic && change != 0)
         {

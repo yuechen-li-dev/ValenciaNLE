@@ -71,6 +71,8 @@ public static class TranscriptEditing
         if (selected.Any(w => !w.TimingUsable || w.Range.Epoch != 0)) throw new ArgumentException("Untimed/discontinuous words cannot be used as exact edit boundaries.");
         var sequence = new TimelineQueries(snapshot).Sequence(request.SequenceId);
         var tracks = sequence.Tracks.Where(t => t.Clips.Length > 0).ToArray();
+        if (tracks.SelectMany(t => t.Clips).Any(c => c.Retime is not null))
+            throw new NotSupportedException("Transcript editing requires original-speed clips.");
         if (tracks.Length == 0 || tracks.Any(t => t.State.Locked || t.Clips.Any(c => c.AssetId != artifact.AssetId)))
             throw new NotSupportedException("Text editing currently requires unlocked aligned tracks of the transcribed source.");
         var guide = tracks.FirstOrDefault(t => t.Kind == TrackKind.Video)?.Clips ?? tracks[0].Clips;

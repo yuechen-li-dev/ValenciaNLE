@@ -14,7 +14,7 @@ adds clock-paced preview and post-presentation timing checks. Current native tes
 pass; the historical 250 ms draw incident remains unexplained rather than being
 attributed to an unverified GPU fix.
 
-A native C#/.NET 11 video editor in development. **M2e adds native OBS integration, controlled 1080p60/1440p60 qualification, and a native frontend handoff.** Editing, trusted Copeland scripts, CLI and optional local MCP share the same engine. Product transcription remains CPU-based.
+A native C#/.NET 11 video editor in development. **M2e adds native OBS integration, controlled 1080p60/1440p60 qualification, and a native frontend handoff.** Editing, trusted Copeland scripts, CLI and optional local MCP share the same engine. Product transcription uses Aurelian Whisper on Vulkan.
 
 Start with [M2E.md](docs/M2E.md), [qualification and limitations](docs/M2E_REAL_WORLD_QUALIFICATION.md), and the [frontend handoff](docs/CLAUDE_FRONTEND_HANDOFF.md). The controlled OBS-to-export PoC works; human editorial quality and broader footage remain unqualified. [Native Int64 and audio-seek fixes](docs/INT64_AUDIO_SEEK_FIX.md) add exact native scripting and fast indexed audio seeks; initial sample-count indexing still has a cold cost. [M2D.md](docs/M2D.md) retains creator commands and historical coverage.
 
@@ -93,6 +93,8 @@ Discover color, region effects, animated titles and clip motion with `effects li
 
 The [Soundtrack and Transition Kit](docs/SOUNDTRACK_KIT.md) covers exact sound cues, music gain automation, dissolves and equal-power audio crossfades.
 
+The [native effect controls](docs/EDITOR_CONTROLS.md) bring those edits into the editor. Park the playhead inside a clip and use its inspector to set transform keys, or drag the clip or title handle in the Program monitor. On narrower layouts, open **Controls** beside the Media tab. Right-click a cut to add a transition or an audio track to add a gain point. Drag the orange transition edges or cyan gain points to adjust them. The inspector also offers 0.5×, 1×, 2× and Freeze for selected video clips.
+
 ```powershell
 $cli = '.\artifacts\publish\cli-win-x64\Valencia.Cli.exe'
 & $cli project info project.valencia
@@ -120,7 +122,7 @@ For analysis, select media (or a particular audio clip/OBS stream), click **Anal
 
 Audio jobs calculate waveform, silence and activity together. Analysis produces derived facts and never edits a timeline. Rough-cut application is explicit; source fingerprints and revision checks protect generated plans. These are energy/visual-change heuristics, not speech recognition or highlight selection. See [M2b](docs/M2B.md) for settings, cache policy, source clocks, performance and limitations.
 
-For local speech, explicitly download the pinned default model, set its directory, then click **Speech** in the editor. The **Transcript** panel supports Find, click-to-seek, Shift-click selection and **Retain/Remove → Apply/Cancel**. `[?]` indicates unusable word timing. Native token timestamps are approximate predictions, not forced alignment; preview cuts before applying them.
+For local speech, explicitly download the pinned default model, set its directory, then click **Speech** in the editor. The **Transcript** panel supports Find, click-to-seek, Shift-click selection and **Retain/Remove → Apply/Cancel**. `[?]` indicates unusable word timing. Aurelian Whisper is the default provider. It uses Vulkan for Tiny.en English inference and aligns words from decoder cross-attention. Preview cuts before applying them.
 
 ```powershell
 .\scripts\DownloadWhisperModels.ps1 -Model tiny.en
@@ -132,7 +134,7 @@ $env:VALENCIA_MODEL_DIR = "$PWD\artifacts\local\m2c\models"
 .\scripts\TranscriptionSmoke.ps1 -Native
 ```
 
-`examples/text-edit.ts` executes the full headless transcription/edit/save/reopen/export workflow through Copeland. Existing MCP analysis jobs plus `transcript_query` and `create_textedit` expose the same engine. See [M2c usage and qualification](docs/M2C.md) and [GPU research results and limits](docs/M2C_GPU_RESEARCH.md). No weights are downloaded automatically or bundled in published output. Build/test instructions for a fresh checkout must install the documented tiny.en fixture first; all other baseline tests remain independent of Whisper weights.
+`examples/text-edit.ts` executes the full headless transcription/edit/save/reopen/export workflow through Copeland. Existing MCP analysis jobs plus `transcript_query` and `create_textedit` expose the same engine. See [Aurelian transcription](docs/AURELIAN_WHISPER.md) and the historical [M2c qualification](docs/M2C.md). No weights are downloaded automatically or bundled in published output. Build/test instructions for a fresh checkout must install the documented tiny.en fixture first; all other baseline tests remain independent of Whisper weights.
 
 Requirements:
 

@@ -22,6 +22,8 @@ internal static class TransitionRules
         if (!clips.TryGetValue(transition.OutgoingClipId, out var outgoing) || !clips.TryGetValue(transition.IncomingClipId, out var incoming)
             || outgoing.End != incoming.Start)
             return "A transition requires an outgoing and incoming clip at the same cut on one track.";
+        if (outgoing.Retime is not null || incoming.Retime is not null)
+            return "Transitions require two clips at their original speed.";
         if (transition.BeforeTicks < 0 || transition.AfterTicks < 0 || (transition.BeforeTicks == 0 && transition.AfterTicks == 0)
             || transition.BeforeTicks > outgoing.Duration.Ticks || transition.AfterTicks > incoming.Duration.Ticks)
             return "Transition sides must fit inside both clips around the cut.";

@@ -38,7 +38,10 @@ public sealed record ClipDto(Guid Id, Guid AssetId, int StreamIndex, string Star
 [JsonDerivedType(typeof(TransformPlan), "transform")]
 [JsonDerivedType(typeof(SoundHitPlan), "soundHit")]
 [JsonDerivedType(typeof(TrackGainPlan), "trackGain")]
+[JsonDerivedType(typeof(ClipGainPlan), "clipGain")]
 [JsonDerivedType(typeof(TransitionPlan), "transition")]
+[JsonDerivedType(typeof(SpeedPlan), "speed")]
+[JsonDerivedType(typeof(FreezePlan), "freeze")]
 public abstract record PlanOperation
 {
     public abstract EditOperation ToCore(Guid sequenceId);
@@ -51,9 +54,18 @@ public sealed record MovePlan(Guid ClipId, Guid TrackId, string Start) : PlanOpe
 {
     public override EditOperation ToCore(Guid sequenceId) => new MoveClip(sequenceId, ClipId, TrackId, new(EngineJson.Int64(Start)));
 }
-public sealed record TrimPlan(Guid ClipId, string Start, SourcePositionDto SourceIn, SourcePositionDto SourceOut) : PlanOperation
+public sealed record TrimPlan(Guid ClipId, string Start, SourcePositionDto SourceIn, SourcePositionDto SourceOut, string? HoldTicks = null) : PlanOperation
 {
-    public override EditOperation ToCore(Guid sequenceId) => new TrimClip(sequenceId, ClipId, new(EngineJson.Int64(Start)), SourceIn.ToCore(), SourceOut.ToCore());
+    public override EditOperation ToCore(Guid sequenceId) => new TrimClip(sequenceId, ClipId, new(EngineJson.Int64(Start)),
+        SourceIn.ToCore(), SourceOut.ToCore(), HoldTicks is null ? null : EngineJson.Int64(HoldTicks));
+}
+public sealed record SpeedPlan(Guid ClipId, int Numerator, int Denominator) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new SetClipSpeed(sequenceId, ClipId, Numerator, Denominator);
+}
+public sealed record FreezePlan(Guid ClipId, long At, long Duration) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new FreezeClip(sequenceId, ClipId, new(At), new(Duration));
 }
 public sealed record SplitPlan(Guid ClipId, string At, Guid RightClipId) : PlanOperation
 {
@@ -111,11 +123,11 @@ public sealed record ClipMotionPlan(Guid ClipId, ClipMotion? Motion = null) : Pl
 {
     public override EditOperation ToCore(Guid sequenceId) => new SetClipMotion(sequenceId, ClipId, Motion);
 }
-public sealed record TransformPlan(string Target, Guid TargetId, TransformCurve? Curve = null) : PlanOperation
+public sealed record TransformPlan(string Target, Guid TargetId, TransformCurve? Curve = null, bool PreserveOrigin = false) : PlanOperation
 {
     public override EditOperation ToCore(Guid sequenceId) => Target switch
     {
-        "clip" => new SetClipTransform(sequenceId, TargetId, Curve),
+        "clip" => new SetClipTransform(sequenceId, TargetId, Curve, PreserveOrigin),
         "title" => new SetTitleTransform(sequenceId, TargetId, Curve),
         _ => throw new ArgumentException("Transform target must be clip or title.")
     };
@@ -129,6 +141,10 @@ public sealed record SoundHitPlan(Guid TrackId, Guid ClipId, Guid AssetId, int S
 public sealed record TrackGainPlan(Guid TrackId, double? GainDb = null, ImmutableArray<GainPoint>? Envelope = null) : PlanOperation
 {
     public override EditOperation ToCore(Guid sequenceId) => new PatchTrackGain(sequenceId, TrackId, GainDb, Envelope);
+}
+public sealed record ClipGainPlan(Guid ClipId, double GainDb) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new SetClipGain(sequenceId, ClipId, GainDb);
 }
 public sealed record TransitionSpec(Guid OutgoingClipId, Guid IncomingClipId, long BeforeTicks, long AfterTicks);
 public sealed record TransitionPlan(Guid TrackId, Guid TransitionId, TransitionSpec? Transition = null) : PlanOperation

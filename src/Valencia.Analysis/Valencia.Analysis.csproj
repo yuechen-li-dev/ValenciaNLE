@@ -1,9 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
     <ProjectReference Include="../Valencia.Media/Valencia.Media.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Whisper.net" Version="1.9.1" />
-    <PackageReference Include="Whisper.net.Runtime" Version="1.9.1" />
+    <ProjectReference Include="$(CopelandRoot)/src/Aurelian/Aurelian.Inference/Aurelian.Inference.csproj" />
   </ItemGroup>
 </Project>

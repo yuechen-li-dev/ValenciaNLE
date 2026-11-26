@@ -424,6 +424,8 @@ public sealed class PlanBuilder(Guid projectId, string revision, Guid sequence)
     public void ClearClipMotion(string clipId) => operations.Add(new ClipMotionPlan(Guid.Parse(clipId)));
     public TransformBuilder Keyframes() => new();
     public void ClipKeys(string clipId, TransformBuilder frames) => operations.Add(new TransformPlan("clip", Guid.Parse(clipId), frames.Build()));
+    public void ClipKeysPreservingOrigin(string clipId, TransformBuilder frames) =>
+        operations.Add(new TransformPlan("clip", Guid.Parse(clipId), frames.Build(), PreserveOrigin: true));
     public void TitleKeys(string titleId, TransformBuilder frames) => operations.Add(new TransformPlan("title", Guid.Parse(titleId), frames.Build()));
     public void ClearKeys(string target, string id) => operations.Add(new TransformPlan(target, Guid.Parse(id)));
     public void SoundHit(string trackId, string clipId, string assetId, int stream, long at, long sourceOffset, long duration, double gainDb) =>
@@ -435,6 +437,9 @@ public sealed class PlanBuilder(Guid projectId, string revision, Guid sequence)
     public void Transition(string trackId, string id, string outgoing, string incoming, long before, long after) =>
         operations.Add(new TransitionPlan(Guid.Parse(trackId), Guid.Parse(id), new(Guid.Parse(outgoing), Guid.Parse(incoming), before, after)));
     public void ClearTransition(string trackId, string id) => operations.Add(new TransitionPlan(Guid.Parse(trackId), Guid.Parse(id)));
+    public void ClipGain(string clipId, double gainDb) => operations.Add(new ClipGainPlan(Guid.Parse(clipId), gainDb));
+    public void Speed(string clipId, int numerator, int denominator) => operations.Add(new SpeedPlan(Guid.Parse(clipId), numerator, denominator));
+    public void Freeze(string clipId, long at, long duration) => operations.Add(new FreezePlan(Guid.Parse(clipId), at, duration));
     public void AddTrack(string trackId, string kind, int order, string name) => operations.Add(new AddTrackPlan(Guid.Parse(trackId), Enum.Parse<TrackKind>(kind, true), order, name));
     public string ToJson() => EngineJson.Write(Build());
     public EditPlan Build() => new(1, projectId, revision, sequence, [.. operations]);

@@ -32,13 +32,14 @@ internal sealed partial class EditorWindow
     {
         CloseContextMenu();
         if (Settings.IsOpen || IsFullscreen || view.IsCompact || view.Prepared is null || job is not null
-            || Gesture.Active || scrubbing) return;
+            || Gesture.Active || Editor.EffectDrag is not null || scrubbing) return;
         var viewport = Editor.Viewport;
         if (point.X < viewport.ClipLeft || point.X >= viewport.ClipRight
             || point.Y < view.Layout.RulerY || point.Y >= viewport.TrackBottom) return;
 
         contextTime = new(Math.Clamp(Snap(point.X).Ticks, 0, Editor.Sequence.Duration.Ticks));
         var hit = viewport.Hit(Editor.Sequence, point.X, point.Y);
+        Editor.SelectedTitle = null;
         Editor.SelectedClip = hit?.Clip.Id;
         contextItems = hit is { } clip
             ?
@@ -50,6 +51,7 @@ internal sealed partial class EditorWindow
                 new("seek", "Move playhead here")
             ]
             : [new("seek", "Move playhead here"), new("marker", "Add marker here")];
+        contextItems = [.. contextItems, .. ContextEffects(point.X, point.Y)];
         pointer.Reset();
         feedbackDirty |= feedback.Clear();
         lastUi = -1;
@@ -108,7 +110,7 @@ internal sealed partial class EditorWindow
                     Editor.Status = $"Marker added at {Timecode.Format(contextTime, Editor.Sequence.Video.FrameRate)}.";
                 break;
             case not null:
-                Action(choice);
+                if (!RunContextEffect(choice)) Action(choice);
                 break;
         }
     }

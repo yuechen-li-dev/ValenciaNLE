@@ -64,7 +64,8 @@ internal sealed partial class EditorWindow : IDisposable
     private readonly LayoutSmoke? layoutSmoke;
     private readonly ScrubSmoke? scrubSmoke;
     private readonly FullscreenSmoke? fullscreenSmoke;
-    private bool ScriptedPointer => scrubSmoke is not null || fullscreenSmoke is not null;
+    private readonly EffectControlsSmoke? effectControlsSmoke;
+    private bool ScriptedPointer => scrubSmoke is not null || fullscreenSmoke is not null || effectControlsSmoke is not null;
     public long StaleGenerationsRejected { get; private set; }
     public long SeekRequests { get; private set; }
     public long InputFailures { get; private set; }
@@ -72,7 +73,7 @@ internal sealed partial class EditorWindow : IDisposable
     public double MaximumAvSkew { get; private set; }
     public List<double> FrameMilliseconds { get; } = [];
     public EditorWindow(string? path = null, string? smokeDirectory = null, bool analyzeSmoke = false, bool transcribeSmoke = false, bool createSmoke = false,
-        bool qualifySmoke = false, bool resizeSmoke = false, bool scrubTest = false, bool fullscreenTest = false)
+        bool qualifySmoke = false, bool resizeSmoke = false, bool scrubTest = false, bool fullscreenTest = false, bool effectControlsTest = false)
     {
         SynchronizationContext.SetSynchronizationContext(context);
         diagnostics = new(smokeDirectory is null ? null : Path.Combine(Path.GetFullPath(smokeDirectory), "editor-diagnostics.json"));
@@ -85,6 +86,7 @@ internal sealed partial class EditorWindow : IDisposable
         view.Chrome = chrome;
         if (scrubTest && smokeDirectory is not null) scrubSmoke = new(smokeDirectory);
         if (fullscreenTest && smokeDirectory is not null) fullscreenSmoke = new(smokeDirectory);
+        if (effectControlsTest && smokeDirectory is not null) effectControlsSmoke = new(smokeDirectory);
         diagnostics.Record("window-created", generation, 0, $"gpu={Graphics.GpuName};hwnd={WindowHandle};size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}");
         foreach (var keyboard in input.Keyboards) { keyboard.KeyDown += (_, k, _) => HandlePointer(() => { keys.Record(k, true); Editor.Card = null; }); keyboard.KeyUp += (_, k, _) => HandlePointer(() => keys.Record(k, false)); }
         foreach (var mouse in input.Mice)
@@ -147,7 +149,7 @@ internal sealed partial class EditorWindow : IDisposable
             if (focused) foreach (var action in keys.Read(now - lastTick)) if (!Settings.IsOpen && !menuOwnsKeys) Action(action.ToString()); lastTick = now;
             ApplyFullscreenToggle();
             if (Settings.TakeDirty()) lastUi = -1;
-            if ((Gesture.Active || scrubbing) && GetCapture() != WindowHandle) CancelGesture();
+            if ((Gesture.Active || scrubbing || Editor.EffectDrag is not null) && GetCapture() != WindowHandle) CancelGesture();
             if (job?.IsCompleted == true)
             {
                 if (job.GetAwaiter().GetResult() is Err<EditorFailure> failed) ReportFailure(failed.Error);
@@ -185,6 +187,7 @@ internal sealed partial class EditorWindow : IDisposable
             layoutSmoke?.Tick(this);
             scrubSmoke?.Tick(this);
             fullscreenSmoke?.Tick(this);
+            effectControlsSmoke?.Tick(this);
             if (!ScriptedPointer && input.Mice.Count > 0 && !Settings.IsOpen && contextMenu is null)
             {
                 var point = input.Mice[0].Position;
@@ -217,7 +220,7 @@ internal sealed partial class EditorWindow : IDisposable
                 MaximumAvSkew = Math.Max(MaximumAvSkew, Math.Abs(observedClock - presentedFrame.Time.TotalSeconds));
             }
             if (FrameMilliseconds.Count < 10000) FrameMilliseconds.Add(frameClock.Elapsed.TotalMilliseconds);
-            if (smoke?.Finished == true || analysisSmoke?.Finished == true || transcriptSmoke?.Finished == true || creatorSmoke?.Finished == true || qualificationSmoke?.Finished == true || layoutSmoke?.Finished == true || scrubSmoke?.Finished == true || fullscreenSmoke?.Finished == true) return;
+            if (smoke?.Finished == true || analysisSmoke?.Finished == true || transcriptSmoke?.Finished == true || creatorSmoke?.Finished == true || qualificationSmoke?.Finished == true || layoutSmoke?.Finished == true || scrubSmoke?.Finished == true || fullscreenSmoke?.Finished == true || effectControlsSmoke?.Finished == true) return;
             // While composition is throttled there is nothing to present; poll gently instead of spinning.
             Thread.Sleep(Graphics.LastDrawPresented ? 1 : 4);
         }
@@ -478,6 +481,7 @@ internal sealed partial class EditorWindow : IDisposable
             }
             if (name == "Cancel") { CancelGesture(); jobCancellation?.Cancel(); Editor.ProposedCut = null; Editor.ProposedTextCut = null; return; }
             if (job is not null) return;
+            if (EffectAction(name)) { lastUi = -1; return; }
             // Timeline edits act on the program playhead; leave source mode first (as clicking the timeline panel does in Premiere).
             if (Editor.Source is not null && name is "Split" or "Delete" or "RippleDelete" or "RippleTrimPrevious" or "RippleTrimNext" or "Lift" or "Extract"
                 or "PreviousEdit" or "NextEdit" or "Undo" or "Redo" or "Insert" or "RazorTool" or "ZoomFit") ExitSource();
@@ -485,7 +489,7 @@ internal sealed partial class EditorWindow : IDisposable
             {
                 case "Settings": case "KeyboardShortcuts": OpenSettings(); return;
                 case "About": OpenSettings(SettingsSection.About); return;
-                case "ObsMode": Editor.ObsMode = !Editor.ObsMode; break;
+                case "ObsMode": Editor.ObsMode = !Editor.ObsMode; Editor.ControlsMode = false; break;
                 case "ObsConnect": RunJob(ConnectObs); break;
                 case "ObsStart": RunJob(() => ObsAction("start")); break;
                 case "ObsStop": RunJob(() => ObsAction("stop")); break;
@@ -498,7 +502,7 @@ internal sealed partial class EditorWindow : IDisposable
                     Editor.SelectedProfile = selected + 1 < profiles.Length ? profiles[selected + 1].Id : null;
                     Seek(Editor.Playhead); break;
                 case "Transcribe": RunJob(TranscribeSelected); break;
-                case "TranscriptMode": Editor.TranscriptMode = !Editor.TranscriptMode; break;
+                case "TranscriptMode": Editor.TranscriptMode = !Editor.TranscriptMode; Editor.ControlsMode = false; break;
                 case "TranscriptPrev": Editor.TranscriptFirstWord = Math.Max(0, Editor.TranscriptFirstWord - Editor.TranscriptPageSize); break;
                 case "TranscriptNext": Editor.TranscriptFirstWord = Math.Min(Math.Max(0, (Editor.Transcript?.Transcript?.Words.Length ?? 0) - 1), Editor.TranscriptFirstWord + Editor.TranscriptPageSize); break;
                 case "TranscriptFind": FindTranscript(); break;
@@ -615,9 +619,11 @@ internal sealed partial class EditorWindow : IDisposable
                 case "ToggleSnap": Editor.Snapping = !Editor.Snapping; Editor.Status = Editor.Snapping ? "Snapping on." : "Snapping off."; break;
                 case "ToggleLink": Editor.LinkedSelection = !Editor.LinkedSelection; Editor.Status = Editor.LinkedSelection ? "Linked selection on: audio and video move together." : "Linked selection off: clips edit independently."; break;
                 case "ToggleMagnet": Editor.Magnetic = !Editor.Magnetic; Editor.Status = Editor.Magnetic ? "Magnetic timeline on: deletes ripple, same-track moves reorder, overwrite inserts." : "Magnetic timeline off."; break;
-                case "Tab:Media": Editor.TranscriptMode = false; Editor.ObsMode = false; break;
-                case "Tab:Transcript": Editor.TranscriptMode = true; Editor.ObsMode = false; break;
-                case "Tab:Record": Editor.ObsMode = true; Editor.TranscriptMode = false; break;
+                case "Tab:Media": case "Tab:Transcript": case "Tab:Record": case "Tab:Controls":
+                    Editor.TranscriptMode = name == "Tab:Transcript";
+                    Editor.ObsMode = name == "Tab:Record";
+                    Editor.ControlsMode = name == "Tab:Controls";
+                    break;
                 case "ZoomFit":
                 {
                     int firstTrack = Editor.Viewport.FirstTrack; double span = Math.Max(1, Editor.Sequence.Duration.TotalSeconds);
@@ -697,11 +703,13 @@ internal sealed partial class EditorWindow : IDisposable
         diagnostics.Record("pointer-down", generation, Editor.Playhead.Ticks, $"x={p.X};y={p.Y}");
         diagnostics.Save(); // persist the last gesture even if a native fault prevents managed unwinding
         var viewport = Editor.Viewport;
+        if (BeginMonitorEffect(p.X, p.Y) || BeginTimelineEffect(p.X, p.Y)) return;
         if (p.X >= viewport.ClipLeft && p.X <= viewport.ClipRight && p.Y >= view.Layout.RulerY && p.Y < viewport.TrackTop + viewport.VisibleTracks * viewport.Row)
         {
             PauseTransport(); ExitSource();
             if (Editor.Viewport.Hit(Editor.Sequence, p.X, p.Y) is { } hit && p.Y >= viewport.TrackTop)
             {
+                Editor.SelectedTitle = null;
                 Editor.SelectedClip = hit.Clip.Id;
                 if (razor) { Seek(Snap(p.X)); Editor.Split(); Seek(Editor.Playhead); }
                 else { Gesture.Begin(hit.Clip, hit.Edge, p.X); CapturePointer(); }
@@ -810,7 +818,9 @@ internal sealed partial class EditorWindow : IDisposable
             if (scrubbing) UpdateFullscreenScrub(p.X);
             return;
         }
-        if (Gesture.Active) { Gesture.Move(p.X, p.Y); lastUi = -1; } else if (scrubbing) UpdateScrubTarget(p.X);
+        if (Editor.EffectDrag is { } effect) { effect.Move(Editor.Session, p.X, p.Y); lastUi = -1; }
+        else if (Gesture.Active) { Gesture.Move(p.X, p.Y); lastUi = -1; }
+        else if (scrubbing) UpdateScrubTarget(p.X);
     }
     private void MouseUp(IMouse mouse, MouseButton button)
     {
@@ -824,7 +834,8 @@ internal sealed partial class EditorWindow : IDisposable
         feedbackDirty |= feedback.Release(new(p.X, p.Y));
         if (IsFullscreen) { FullscreenPointerUp(p); return; }
         diagnostics.Record("pointer-up", generation, Editor.Playhead.Ticks);
-        if (Gesture.Active) { Gesture.Move(p.X, p.Y); if (Gesture.Release()) Seek(Editor.Playhead); ReleasePointer(); }
+        if (Editor.EffectDrag is not null) ReleaseEffect(p.X, p.Y);
+        else if (Gesture.Active) { Gesture.Move(p.X, p.Y); if (Gesture.Release()) Seek(Editor.Playhead); ReleasePointer(); }
         else if (scrubbing)
         {
             UpdateScrubTarget(p.X);
@@ -843,7 +854,7 @@ internal sealed partial class EditorWindow : IDisposable
         Editor.ScrubTarget = pendingScrub = null;
         scrubSnapPoints = null;
     }
-    private void CancelGesture() { CloseContextMenu(); Gesture.Cancel(); ClearScrub(); fullscreenVideoPressed = false; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
+    private void CancelGesture() { CloseContextMenu(); Gesture.Cancel(); Editor.EffectDrag = null; ClearScrub(); fullscreenVideoPressed = false; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
     private nint WindowHandle => Graphics.Window.Native?.Win32?.Hwnd ?? 0;
     private void CapturePointer()
     {

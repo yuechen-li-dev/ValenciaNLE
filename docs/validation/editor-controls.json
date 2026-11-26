@@ -1,0 +1,56 @@
+{
+  "feature": "Native effect controls and video retiming",
+  "runtime": ".NET 11.0.100 SDK, Release win-x64 framework-dependent publish",
+  "tests": {
+    "command": "dotnet test Valencia.slnx -c Release --no-build --no-restore -m:1 -nr:false -v:q",
+    "core": 76,
+    "persistence": 21,
+    "programming": 89,
+    "editorAndMedia": 210,
+    "passed": 396,
+    "failed": 0,
+    "skipped": 0
+  },
+  "native": {
+    "command": "Valencia.App.exe --effect-controls-smoke artifacts/local/soundtrack-kit/final/bunny-soundtrack.valencia --output artifacts/local/editor-controls/bunny-native",
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "cancelledGestures": 1,
+    "committedGestures": 3,
+    "undo": 3,
+    "redo": 3,
+    "inputFailures": 0,
+    "saveReopenSemanticMatch": true,
+    "nativeSpeedAndFreezePreviewPassed": true,
+    "title": { "frame": 115, "x": 0.62, "y": 0.23 },
+    "dissolve": { "previousStartFrame": 142, "startFrame": 146, "cutFrame": 150 },
+    "gain": { "previousFrame": 150, "frame": 155, "gainDb": -9 }
+  },
+  "independentDecode": {
+    "tool": "FFmpeg 7.1.1",
+    "command": "ffmpeg -v error -i <export> -map 0:v:0 -map 0:a:0 -f streamhash -hash sha256 -",
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "width": 720,
+    "height": 1280,
+    "frames": 360,
+    "durationSeconds": 12,
+    "audioHz": 48000,
+    "nativeAndCopelandVideoSha256": "436d32f4bcdeec76d36b3f7e29242823bd8ef4669dfcd0824ecb2a2723918591",
+    "nativeAndCopelandAudioSha256": "598d79db5ad4e048c441a4fcc431955a2827c3e7dd27794a3ba2aa33d385a735",
+    "retimeAndBaselineAudioSha256": "e2441a9a57ac48627f59571c187c57f17dce961960d4ee00e2ab6927b71feebd",
+    "retime": {
+      "decodedComparisonSize": "160x284 gray8",
+      "speedFrame": 30,
+      "speedReferenceFrame": 60,
+      "speedMeanAbsoluteLumaDifference": 0.3966769366,
+      "pictureGapFrame": 80,
+      "pictureGapMaxLuma": 1,
+      "titleOverGapFrame": 110,
+      "titleOverGapMaxLuma": 230,
+      "heldFrames": [165, 345],
+      "heldFramesMeanAbsoluteLumaDifference": 0.0001980634,
+      "heldReferenceFrame": 230,
+      "holdVsReferenceMeanAbsoluteLumaDifference": 0.4309639085
+    }
+  }
+}

@@ -15,7 +15,9 @@ public sealed record InsertClip(Guid SequenceId, Guid TrackId, TimelineClip Clip
 /// <summary>Move within a sequence; both original and destination tracks must be unlocked.</summary>
 public sealed record MoveClip(Guid SequenceId, Guid ClipId, Guid DestinationTrackId, SequenceTime Start) : EditOperation;
 /// <summary>Explicit replacement of start/in/out; no implicit anchoring, slipping or neighbor movement.</summary>
-public sealed record TrimClip(Guid SequenceId, Guid ClipId, SequenceTime Start, SourcePosition SourceIn, SourcePosition SourceOut) : EditOperation;
+public sealed record TrimClip(Guid SequenceId, Guid ClipId, SequenceTime Start, SourcePosition SourceIn, SourcePosition SourceOut, long? HoldTicks = null) : EditOperation;
+public sealed record SetClipSpeed(Guid SequenceId, Guid ClipId, int Numerator, int Denominator) : EditOperation;
+public sealed record FreezeClip(Guid SequenceId, Guid ClipId, SequenceTime At, SequenceTime Duration) : EditOperation;
 /// <summary>The left fragment keeps ClipId; the caller supplies the right fragment's stable ID.</summary>
 public sealed record SplitClip(Guid SequenceId, Guid ClipId, SequenceTime At, Guid RightClipId) : EditOperation;
 public sealed record DeleteClip(Guid SequenceId, Guid ClipId) : EditOperation;
@@ -29,10 +31,11 @@ public sealed record SetCreatorSettings(Guid SequenceId, CreatorSettings Setting
 public sealed record SetTitle(Guid SequenceId, TitleCue Cue) : EditOperation;
 public sealed record RemoveTitle(Guid SequenceId, Guid TitleId) : EditOperation;
 public sealed record SetTitleTransform(Guid SequenceId, Guid TitleId, TransformCurve? Curve) : EditOperation;
-public sealed record SetClipTransform(Guid SequenceId, Guid ClipId, TransformCurve? Curve) : EditOperation;
+public sealed record SetClipTransform(Guid SequenceId, Guid ClipId, TransformCurve? Curve, bool PreserveOrigin = false) : EditOperation;
 public sealed record SetOutputFraming(Guid SequenceId, Guid ProfileId, string? Name = null, int? Width = null, int? Height = null,
     string? Fit = null, double? FocalX = null, double? FocalY = null) : EditOperation;
 public sealed record SetClipProperties(Guid SequenceId, Guid ClipId, ClipProperties Properties) : EditOperation;
+public sealed record SetClipGain(Guid SequenceId, Guid ClipId, double GainDb) : EditOperation;
 public sealed record PatchClipColor(Guid SequenceId, Guid ClipId, ColorPatch Color) : EditOperation;
 public sealed record SetClipRegion(Guid SequenceId, Guid ClipId, RegionEffect? Region) : EditOperation;
 public sealed record SetClipMotion(Guid SequenceId, Guid ClipId, ClipMotion? Motion) : EditOperation;

@@ -17,25 +17,58 @@ public sealed record TrackState(bool Locked = false, bool Muted = false, bool Vi
 public sealed record ClipProperties(string Name = "", bool Enabled = true, decimal Opacity = 1m, decimal Gain = 1m,
     VideoEffects? Video = null, AudioEffects? Audio = null);
 
-/// <summary>A 1x-speed half-open interval. No nominal-FPS normalization or implicit source rounding.</summary>
+/// <summary>A half-open interval on the sequence, backed by a rational source clock.</summary>
 public sealed record TimelineClip(Guid Id, Guid AssetId, int StreamIndex, SequenceTime Start,
     SourcePosition SourceIn, SourcePosition SourceOut, ClipProperties Properties)
 {
-    [JsonIgnore] public SequenceTime Duration => SourceOut.Since(SourceIn);
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public VideoRetime? Retime { get; init; }
+    [JsonIgnore] public SequenceTime Duration => Retime switch
+    {
+        { Hold: not null } hold => new(hold.HoldTicks),
+        { } rate => new(VideoRetime.Scale(SourceOut.Since(SourceIn).Ticks, rate.Denominator, rate.Numerator, TimeRounding.Exact)),
+        _ => SourceOut.Since(SourceIn)
+    };
     [JsonIgnore] public SequenceTime End => new(checked(Start.Ticks + Duration.Ticks));
 
     public SourcePosition MapToSource(SequenceTime timelineTime)
     {
         if (timelineTime.Ticks < Start.Ticks || timelineTime.Ticks >= End.Ticks)
             throw new ArgumentOutOfRangeException(nameof(timelineTime), "Time must be inside [start, end).");
-        return SourceIn.Shift(new(checked(timelineTime.Ticks - Start.Ticks)));
+        return Retime?.Hold ?? SourceIn.Shift(SourceDelta(new(timelineTime.Ticks - Start.Ticks), TimeRounding.Floor));
     }
 
     public SequenceTime MapToTimeline(SourcePosition source)
     {
         if (source.CompareTo(SourceIn) < 0 || source.CompareTo(SourceOut) >= 0)
             throw new ArgumentOutOfRangeException(nameof(source), "Source must be inside [in, out).");
-        return new(checked(Start.Ticks + source.Since(SourceIn).Ticks));
+        return MapSourceBoundary(source);
+    }
+
+    /// <summary>Map a source endpoint to the sequence, including the exclusive out-point.</summary>
+    public SequenceTime MapSourceBoundary(SourcePosition source)
+    {
+        if (source.CompareTo(SourceIn) < 0 || source.CompareTo(SourceOut) > 0)
+            throw new ArgumentOutOfRangeException(nameof(source), "Source is outside the clip source boundaries.");
+        long offset = source.Since(SourceIn).Ticks;
+        if (Retime is { Hold: not null }) throw new InvalidOperationException("A freeze frame has no unique inverse source mapping.");
+        if (Retime is { } rate) offset = VideoRetime.Scale(offset, rate.Denominator, rate.Numerator, TimeRounding.Floor);
+        return new(checked(Start.Ticks + offset));
+    }
+
+    /// <summary>Edits must land exactly on the retained source grid. Evaluation rounds down between source ticks.</summary>
+    public SequenceTime SourceDelta(SequenceTime delta, TimeRounding rounding = TimeRounding.Exact) =>
+        Retime is { } rate ? new(VideoRetime.Scale(delta.Ticks, rate.Numerator, rate.Denominator, rounding)) : delta;
+
+    internal TimelineClip Slice(SequenceTime start, SequenceTime end)
+    {
+        if (Retime is { Hold: not null } hold) return this with { Start = start, Retime = hold with { HoldTicks = end.Ticks - start.Ticks } };
+        return this with
+        {
+            Start = start,
+            SourceIn = start == Start ? SourceIn : SourceIn.Shift(SourceDelta(new(start.Ticks - Start.Ticks))),
+            SourceOut = end == End ? SourceOut : SourceIn.Shift(SourceDelta(new(end.Ticks - Start.Ticks)))
+        };
     }
 }
 

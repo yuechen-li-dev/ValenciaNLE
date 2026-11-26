@@ -33,7 +33,13 @@ public static class EffectCatalog
             [new("gainDb", "decibels", 0, -120, 30)], []),
         new("track-gain", "trackGain", "audioTrack", "Patch the track trim level or its exact-time, linear-in-dB envelope.",
             [new("gainDb", "decibels", 0, -120, 30)], []),
+        new("clip-gain", "clipGain", "audioClip", "Set one audio clip's level independently of track gain.",
+            [new("gainDb", "decibels", 0, -120, 30)], []),
         new("cut-transition", "transition", "trackCut", "Blend adjacent clips with explicit source handles on both sides of the cut.",
-            [], ["videoDissolve", "equalPowerAudio"])
+            [], ["videoDissolve", "equalPowerAudio"]),
+        new("video-speed", "speed", "videoClip", "Change picture speed with an exact rational rate. Other clips and audio stay in place.",
+            [new("rate", "sourceTimePerSequenceTime", 1, .125, 8)], []),
+        new("freeze-frame", "freeze", "videoClip", "Hold the picture at a sequence timestamp for an exact duration. Audio stays in place.",
+            [], [])
     ];
 }

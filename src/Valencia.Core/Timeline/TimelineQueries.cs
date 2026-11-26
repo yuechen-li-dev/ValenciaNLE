@@ -46,6 +46,9 @@ public sealed class TimelineQueries(ProjectSnapshot snapshot)
         .Where(track => track.Kind == TrackKind.Video && track.State.Visible).SelectMany(track => Windows(track))
         .Where(window => window.Outgoing.Properties.Enabled && window.Incoming.Properties.Enabled);
 
+    public ImmutableArray<TransitionWindow> TrackTransitions(Guid sequenceId, Guid trackId) =>
+        Windows(Tracks(sequenceId).First(track => track.Id == trackId));
+
     private ImmutableArray<TransitionWindow> Windows(TimelineTrack track) =>
         transitions.Value.TryGetValue(track.Id, out var windows) ? windows : [];
 

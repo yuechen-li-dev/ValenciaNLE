@@ -77,7 +77,8 @@ public sealed partial class TranscriptionTests : IAsyncLifetime
         await using var engine = await Engine();
         var before = engine.Session.Snapshot;
         var artifact = await Transcribe(engine);
-        Assert.Contains(artifact.Transcript!.Words, w => WhisperTranscriber.Normalize(w.Text) == "announcement");
+        Assert.Equal("Aurelian Whisper / Vulkan", artifact.Transcript!.Provider);
+        Assert.Contains(artifact.Transcript.Words, w => WhisperTranscriber.Normalize(w.Text) == "announcement");
         Assert.All(artifact.Transcript.Words, w => Assert.True(w.Range.End.CompareTo(w.Range.Start) >= 0));
         Assert.All(artifact.Transcript.Words.Where(w => w.TimingUsable), w => Assert.True(w.Range.End.CompareTo(w.Range.Start) > 0));
         Assert.Equal(16000, artifact.SampleRate);

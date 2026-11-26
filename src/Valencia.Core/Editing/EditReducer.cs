@@ -28,6 +28,8 @@ internal static class EditReducer
             SetSequenceMarker x => x.SequenceId, RemoveSequenceMarker x => x.SequenceId,
             SetTitle x => x.SequenceId, RemoveTitle x => x.SequenceId,
             SetTitleTransform x => x.SequenceId, SetClipTransform x => x.SequenceId,
+            SetClipSpeed x => x.SequenceId, FreezeClip x => x.SequenceId,
+            SetClipGain x => x.SequenceId,
             PlaceSoundHit x => x.SequenceId, PatchTrackGain x => x.SequenceId, SetTrackTransition x => x.SequenceId,
             _ => throw new ArgumentException("Unsupported operation.")
         };
@@ -167,6 +169,8 @@ internal static class EditReducer
                     MoveClip x => x.ClipId, TrimClip x => x.ClipId, SplitClip x => x.ClipId, DeleteClip x => x.ClipId,
                     SetClipProperties x => x.ClipId, PatchClipColor x => x.ClipId, SetClipRegion x => x.ClipId, SetClipMotion x => x.ClipId,
                     SetClipTransform x => x.ClipId,
+                    SetClipSpeed x => x.ClipId, FreezeClip x => x.ClipId,
+                    SetClipGain x => x.ClipId,
                     _ => throw new ArgumentException("Unsupported clip operation.")
                 };
                 int ti = Index(tracks, t => t.Clips.Any(c => c.Id == clipId), "clip");
@@ -190,16 +194,33 @@ internal static class EditReducer
                         break;
                     }
                     case TrimClip x:
-                        clips = clips.SetItem(ci, clip with { Start = x.Start, SourceIn = x.SourceIn, SourceOut = x.SourceOut });
+                    {
+                        var retime = clip.Retime;
+                        if (retime?.Hold is not null)
+                        {
+                            DocumentValidator.Require(x.HoldTicks is > 0 && x.SourceIn == clip.SourceIn && x.SourceOut == clip.SourceOut,
+                                "A freeze trim changes timeline duration and keeps its source range.");
+                            retime = retime with { HoldTicks = x.HoldTicks!.Value };
+                        }
+                        else DocumentValidator.Require(x.HoldTicks is null, "Only a freeze frame can set a trim duration.");
+                        clips = clips.SetItem(ci, clip with { Start = x.Start, SourceIn = x.SourceIn, SourceOut = x.SourceOut, Retime = retime });
+                        break;
+                    }
+                    case SetClipSpeed x:
+                    {
+                        var rate = new VideoRetime(x.Numerator, x.Denominator);
+                        rate.Validate(clip);
+                        ApplyRetime(x.Numerator == x.Denominator ? null : rate);
+                        break;
+                    }
+                    case FreezeClip x:
+                        ApplyRetime(new(0, 1, clip.MapToSource(x.At), x.Duration.Ticks));
                         break;
                     case SplitClip x:
                     {
                         DocumentValidator.Require(x.At.Ticks > clip.Start.Ticks && x.At.Ticks < clip.End.Ticks, "Split must be strictly inside the clip.");
-                        var boundary = clip.MapToSource(x.At);
-                        clips = clips.SetItem(ci, clip with { SourceOut = boundary }).Add(clip with
-                        {
-                            Id = x.RightClipId, Start = x.At, SourceIn = boundary
-                        });
+                        clips = clips.SetItem(ci, clip.Slice(clip.Start, x.At))
+                            .Add(clip.Slice(x.At, clip.End) with { Id = x.RightClipId });
                         break;
                     }
                     case DeleteClip:
@@ -207,6 +228,11 @@ internal static class EditReducer
                         break;
                     case SetClipProperties x:
                         clips = clips.SetItem(ci, clip with { Properties = x.Properties });
+                        break;
+                    case SetClipGain x:
+                        DocumentValidator.Require(track.Kind == TrackKind.Audio && x.GainDb is >= -120 and <= 30,
+                            "Clip gain requires an audio clip and a level from -120 to +30 dB.");
+                        clips = clips.SetItem(ci, clip with { Properties = clip.Properties with { Gain = (decimal)Math.Pow(10, x.GainDb / 20) } });
                         break;
                     case PatchClipColor x:
                     {
@@ -235,9 +261,10 @@ internal static class EditReducer
                     case SetClipTransform x:
                     {
                         DocumentValidator.Require(track.Kind == TrackKind.Video, "A clip transform requires a video clip.");
-                        x.Curve?.Validate(clip.Duration.Ticks);
+                        var origin = x.PreserveOrigin ? ClipTransform.KeyOrigin(clip) : clip.SourceIn;
+                        x.Curve?.Validate(x.PreserveOrigin ? long.MaxValue : clip.Duration.Ticks);
                         var video = (clip.Properties.Video ?? new()) with
-                            { Transform = x.Curve is null ? null : new ClipTransform(clip.SourceIn, x.Curve) };
+                            { Transform = x.Curve is null ? null : new ClipTransform(origin, x.Curve) };
                         clips = clips.SetItem(ci, clip with { Properties = clip.Properties with
                             { Video = x.Curve is null && video == new VideoEffects() ? null : video } });
                         break;
@@ -245,6 +272,15 @@ internal static class EditReducer
                 }
                 tracks = tracks.SetItem(ti, WithClips(track, clips, document.Assets));
                 break;
+
+                void ApplyRetime(VideoRetime? retime)
+                {
+                    DocumentValidator.Require(track.Kind == TrackKind.Video, "Speed and freeze frame require a video clip. Audio keeps its original timing.");
+                    DocumentValidator.Require(!track.Transitions.Any(t => t.IncomingClipId == clip.Id || t.OutgoingClipId == clip.Id),
+                        "Remove the clip's transitions before changing its speed or applying a freeze frame.");
+                    retime?.Validate(clip);
+                    clips = clips.SetItem(ci, clip with { Retime = retime });
+                }
             }
         }
         return document with { Sequences = document.Sequences.SetItem(si, sequence with { Tracks = tracks }) };
@@ -276,7 +312,7 @@ internal static class EditReducer
                 {
                     bool left = clip.Start.Ticks < x.Start.Ticks;
                     bool right = clip.End.Ticks > x.End.Ticks;
-                    if (left) clips.Add(clip with { SourceOut = clip.MapToSource(x.Start) });
+                    if (left) clips.Add(clip.Slice(clip.Start, x.Start));
                     if (right)
                     {
                         Guid id = clip.Id;
@@ -284,7 +320,7 @@ internal static class EditReducer
                         {
                             DocumentValidator.Require(splitIds.Remove(clip.Id, out id), "Ripple spanning a clip requires a right-fragment ID.");
                         }
-                        clips.Add(clip with { Id = id, Start = x.Start, SourceIn = clip.MapToSource(x.End) });
+                        clips.Add(clip.Slice(x.End, clip.End) with { Id = id, Start = x.Start });
                     }
                 }
             }

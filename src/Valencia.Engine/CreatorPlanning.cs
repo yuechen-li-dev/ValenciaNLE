@@ -97,6 +97,8 @@ public static class CreatorPlanning
         var sequence = new TimelineQueries(snapshot).Sequence(request.SequenceId);
         var asset = snapshot.Document.Assets.First(a => a.Id == transcript.AssetId);
         var tracks = sequence.Tracks.Where(t => t.Clips.Length > 0).ToArray();
+        if (tracks.SelectMany(t => t.Clips).Any(c => c.Retime is not null))
+            throw new NotSupportedException("Creator source mode requires original-speed clips.");
         if (tracks.Length == 0 || tracks.Any(t => t.State.Locked || t.Clips.Length != 1 || t.Clips[0].AssetId != asset.Id))
             throw new NotSupportedException("Creator source mode requires one unlocked aligned original recording clip per populated track; review complex sequences explicitly.");
         foreach (var track in tracks)

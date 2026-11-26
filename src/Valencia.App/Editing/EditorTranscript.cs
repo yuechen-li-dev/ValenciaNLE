@@ -24,7 +24,7 @@ internal sealed partial class EditorWindow
         var result = await engine.Analysis.WaitAsync(id, token);
         if (result.State != "completed") throw new InvalidOperationException(result.Error ?? result.State);
         Editor.Transcript = await engine.Analysis.ResultAsync(result.Key, token);
-        Editor.TranscriptMode = true; Editor.TranscriptFirstWord = 0;
+        Editor.TranscriptMode = true; Editor.ControlsMode = false; Editor.TranscriptFirstWord = 0;
         Editor.TranscriptSelectionStart = null; Editor.TranscriptSelectionEnd = null;
         Editor.Status = "Transcript ready. [?] marks unsupported word timing. Shift-click selects a range.";
         lastUi = -1;
@@ -63,7 +63,9 @@ internal sealed partial class EditorWindow
         var artifact = Editor.Transcript!;
         var word = artifact.Transcript!.Words[index];
         if (!word.TimingUsable) { Editor.Status = "This word has no usable native alignment."; return; }
-        var times = Editor.Sequence.Tracks.SelectMany(t => t.Clips).Where(c => c.AssetId == artifact.AssetId && word.Range.Start.CompareTo(c.SourceIn) >= 0 && word.Range.Start.CompareTo(c.SourceOut) < 0)
+        var times = Editor.Sequence.Tracks.Where(t => t.Kind == TrackKind.Audio).SelectMany(t => t.Clips)
+            .Where(c => c.AssetId == artifact.AssetId && c.StreamIndex == artifact.StreamIndex
+                && word.Range.Start.CompareTo(c.SourceIn) >= 0 && word.Range.Start.CompareTo(c.SourceOut) < 0)
             .Select(c => c.MapToTimeline(word.Range.Start)).Distinct().ToArray();
         if (times.Length != 1) { Editor.Status = "No unique timeline occurrence; choose an explicit occurrence through the engine/CLI."; return; }
         Seek(times[0]);

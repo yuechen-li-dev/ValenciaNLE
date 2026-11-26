@@ -58,4 +58,9 @@ public sealed record TransformCurve(ImmutableArray<TransformKey> Keys)
 }
 
 /// <summary>Keys follow the original source interval through clip moves, trims and splits.</summary>
-public sealed record ClipTransform(SourcePosition Origin, TransformCurve Curve);
+public sealed record ClipTransform(SourcePosition Origin, TransformCurve Curve)
+{
+    public static SourcePosition KeyOrigin(TimelineClip clip) =>
+        clip.Properties.Video?.Transform is { } existing && existing.Origin.CompareTo(clip.SourceIn) <= 0
+            ? existing.Origin : clip.SourceIn;
+}

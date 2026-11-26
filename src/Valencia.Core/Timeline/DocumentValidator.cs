@@ -84,6 +84,12 @@ public static class DocumentValidator
                 {
                     Require(clip is not null, "Null clip.");
                     AddId(clip!.Id);
+                    if (clip.Retime is { } timing)
+                    {
+                        Require(track.Kind == TrackKind.Video && clip.SourceOut.Since(clip.SourceIn).Ticks > 0,
+                            "Retiming requires a positive video source range.");
+                        timing.Validate(clip);
+                    }
                     Require(clip.Start.Ticks >= previousEnd && clip.Duration.Ticks > 0, "Clip duration must be positive; clips must be sorted and non-overlapping.");
                     previousEnd = clip.End.Ticks;
                     Require(clip.Properties is not null && clip.Properties.Name is not null && clip.Properties.Opacity is >= 0m and <= 1m

@@ -55,6 +55,24 @@ public sealed partial class TranscriptionTests
     }
 
     [Fact]
+    public async Task FullWhisperWindowRecoversTheSpokenTail()
+    {
+        string file = Path.Combine(root, "spoken-tail.wav");
+        await AnalysisFixture.Run("ffmpeg", "-v", "error", "-y", "-stream_loop", "-1",
+            "-i", Path.Combine(root, "speech.wav"), "-t", "30", "-ar", "16000", file);
+        var asset = MediaAssetProbe.Read(Guid.NewGuid(), file);
+        var result = WhisperTranscriber.Run(asset, 0, new(), "spoken-tail", AnalysisCache.Fingerprint(file),
+            new(Path.Combine(root, "spoken-tail-cache")), null, default);
+        var tail = result.Transcript!.Words.TakeLast(3).ToArray();
+        Assert.Equal(new[] { "welcome", "to", "valencia" }, tail.Select(word => WhisperTranscriber.Normalize(word.Text)));
+        Assert.All(tail, word =>
+        {
+            Assert.True(word.TimingUsable);
+            Assert.InRange(AnalysisTime.Normalize(word.Range.Start, result.ContainerStart).TotalSeconds, 28, 30);
+        });
+    }
+
+    [Fact]
     public async Task RepeatedContinuousSpeechUsesOverlapOwnershipAndNativeCancellation()
     {
         string file = Path.Combine(root, "continuous.wav");

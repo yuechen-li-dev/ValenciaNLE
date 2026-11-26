@@ -42,6 +42,8 @@ public static class RoughCutPlanner
         if (AnalysisCache.Fingerprint(asset.SourcePath) != artifact.Fingerprint) throw new ArgumentException("Stale analysis fingerprint.");
         var sequence = new TimelineQueries(snapshot).Sequence(sequenceId);
         var tracks = sequence.Tracks.Where(t => t.Clips.Length > 0).ToArray();
+        if (tracks.SelectMany(t => t.Clips).Any(c => c.Retime is not null))
+            throw new NotSupportedException("Rough cut planning requires original-speed clips.");
         if (tracks.Length == 0 || tracks.Any(t => t.State.Locked || t.Clips.Any(c => c.AssetId != artifact.AssetId)))
             throw new NotSupportedException("Rough cuts require unlocked, single-source tracks; unrelated tracks are not shifted implicitly.");
         if (!tracks.Any(t => t.Kind == TrackKind.Audio && t.Clips.Any(c => c.StreamIndex == artifact.StreamIndex)))

@@ -15,7 +15,7 @@ namespace Valencia.App.Editing;
 internal static class EditorEdits
 {
     public static bool LinkedTo(TimelineClip a, TimelineClip b) =>
-        a.Id != b.Id && a.AssetId == b.AssetId && a.StreamIndex != b.StreamIndex
+        a.Id != b.Id && a.Retime is null && b.Retime is null && a.AssetId == b.AssetId && a.StreamIndex != b.StreamIndex
         && a.Start.Ticks < b.End.Ticks && b.Start.Ticks < a.End.Ticks
         && a.SourceIn.Shift(new(-a.Start.Ticks)).EquivalentTo(b.SourceIn.Shift(new(-b.Start.Ticks)));
 

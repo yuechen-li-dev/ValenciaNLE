@@ -602,42 +602,6 @@
     ]
   },
   {
-    "package": "Whisper.net",
-    "version": "1.9.1",
-    "license": "LICENSE",
-    "repository": "https://github.com/sandrohanea/whisper.net",
-    "projectUrl": "https://github.com/sandrohanea/whisper.net",
-    "scopes": [
-      "application",
-      "research",
-      "test"
-    ]
-  },
-  {
-    "package": "Whisper.net.Runtime",
-    "version": "1.9.1",
-    "license": "MIT",
-    "repository": "",
-    "projectUrl": "https://github.com/sandrohanea/whisper.net",
-    "scopes": [
-      "application",
-      "research",
-      "test"
-    ]
-  },
-  {
-    "package": "Whisper.net.Runtime.Metal",
-    "version": "1.9.1",
-    "license": "MIT",
-    "repository": "",
-    "projectUrl": "https://github.com/sandrohanea/whisper.net",
-    "scopes": [
-      "application",
-      "research",
-      "test"
-    ]
-  },
-  {
     "package": "xunit",
     "version": "2.9.3",
     "license": "Apache-2.0",

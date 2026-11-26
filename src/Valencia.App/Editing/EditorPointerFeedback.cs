@@ -57,12 +57,15 @@ internal sealed partial class EditorWindow
     {
         if (contextMenu is not null) return contextMenu.Cursor;
         if (Gesture.Active) return Gesture.Edge == 0 ? UiCursor.Move : UiCursor.ResizeHorizontal;
+        if (Editor.EffectDrag is { } effect) return effect.Operation is Valencia.Core.Editing.SetTrackTransition
+            ? UiCursor.ResizeHorizontal : UiCursor.Move;
         if (scrubbing) return UiCursor.Hand;
         if (IsFullscreen)
             return pointerPosition is { } fullscreenPoint && Contains(view.FullscreenSeekBar, fullscreenPoint.X, fullscreenPoint.Y)
                 ? UiCursor.Hand : feedback.Cursor;
         if (pointerPosition is { } point && !view.IsCompact)
         {
+            if (EffectCursor(point.X, point.Y) is { } effectIntent) return effectIntent;
             if (Editor.Viewport.Cursor(Editor.Sequence, point.X, point.Y, view.Layout.RulerY, razor) is { } intent)
                 return intent;
         }

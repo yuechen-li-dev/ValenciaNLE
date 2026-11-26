@@ -45,11 +45,7 @@ public static class AnalysisTime
         new SourcePosition(anchor).Shift(TimelineTime.FromSamples(sample, rate));
     public static SequenceTime Normalize(SourcePosition position, MediaTimestamp containerStart) => position.Since(new(containerStart));
     /// <summary>Boundary conversion includes SourceOut for half-open range endpoints.</summary>
-    public static SequenceTime ToTimeline(TimelineClip clip, SourcePosition source)
-    {
-        if (source.CompareTo(clip.SourceIn) < 0 || source.CompareTo(clip.SourceOut) > 0) throw new ArgumentOutOfRangeException(nameof(source));
-        return new(checked(clip.Start.Ticks + source.Since(clip.SourceIn).Ticks));
-    }
+    public static SequenceTime ToTimeline(TimelineClip clip, SourcePosition source) => clip.MapSourceBoundary(source);
     public static SourcePosition ToSource(TimelineClip clip, SequenceTime timeline) => clip.MapToSource(timeline);
     public static SequenceTime Milliseconds(int ms) => new(checked(ms * (SequenceTime.TicksPerSecond / 1000)));
     public static long MinimumSamples(int ms, int rate) => checked(((long)ms * rate + 999) / 1000);

@@ -11,7 +11,8 @@ public sealed record TranscriptionSettings(string Model = "tiny.en", string Lang
         if (Model is not ("tiny.en" or "large-v3") || Alignment is not ("native" or "dtw") || Language.Length is < 2 or > 12 || !Language.All(c => char.IsAsciiLetter(c) || c == '-')
             || ChunkSeconds is < 5 or > 30 || OverlapSeconds is < 1 or > 5 || OverlapSeconds * 2 >= ChunkSeconds || Threads is < 1 or > 16)
             throw new ArgumentException("Invalid local transcription settings.");
-        if (Model == "tiny.en" && Language != "en") throw new ArgumentException("tiny.en supports English only; use a multilingual model for other languages.");
+        if (Model != "tiny.en" || Language != "en")
+            throw new NotSupportedException("Aurelian Whisper currently supports the tiny.en English model.");
     }
 }
 public sealed record WhisperModel(string Id, string Revision, string Sha256, long Bytes, string Precision, string Path);
