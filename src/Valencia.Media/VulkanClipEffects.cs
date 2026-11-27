@@ -28,6 +28,13 @@ internal sealed unsafe class VulkanClipEffects : IDisposable
     private DescriptorSet set;
     private PipelineLayout pipelineLayout;
     private Pipeline pipeline;
+    private byte[]? pendingTarget;
+    private byte[]? uploadedSource;
+    private bool faulted;
+    public long SourceUploads { get; private set; }
+    public long TargetUploads { get; private set; }
+    public long TargetReadbacks { get; private set; }
+    public long Dispatches { get; private set; }
 
     public VulkanClipEffects()
     {
@@ -54,17 +61,29 @@ internal sealed unsafe class VulkanClipEffects : IDisposable
     public void Composite(ClipEffectFrame pass, byte[] pixels, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
+        if (faulted) throw new InvalidOperationException("The failed Vulkan effects device must be retired before another dispatch.");
         var input = EnsureStorage(0, pass.Source.Rgba.Length);
         var target = EnsureStorage(1, pixels.Length);
         var parameters = EnsureStorage(2, checked(pass.ParameterCount * sizeof(int)));
-        pass.Source.Rgba.AsSpan().CopyTo(input.Span);
-        pixels.AsSpan().CopyTo(target.Span);
+        if (!ReferenceEquals(uploadedSource, pass.Source.Rgba))
+        {
+            pass.Source.Rgba.AsSpan().CopyTo(input.Span);
+            uploadedSource = pass.Source.Rgba;
+            SourceUploads++;
+        }
+        if (!ReferenceEquals(pendingTarget, pixels))
+        {
+            if (pendingTarget is not null) throw new InvalidOperationException("Flush the active effect target before switching.");
+            pixels.AsSpan().CopyTo(target.Span);
+            TargetUploads++;
+        }
         pass.Pack(MemoryMarshal.Cast<byte, int>(parameters.Span));
 
         var command = pool.Rent(submitter.LastKnownCompletedFenceValue);
         Require(command.Begin().Success, "begin effects command");
-        Barrier(command.CommandBuffer, AccessFlags.HostWriteBit, AccessFlags.ShaderReadBit | AccessFlags.ShaderWriteBit,
-            PipelineStageFlags.HostBit, PipelineStageFlags.ComputeShaderBit);
+        Barrier(command.CommandBuffer, AccessFlags.HostWriteBit | AccessFlags.ShaderWriteBit,
+            AccessFlags.ShaderReadBit | AccessFlags.ShaderWriteBit,
+            PipelineStageFlags.HostBit | PipelineStageFlags.ComputeShaderBit, PipelineStageFlags.ComputeShaderBit);
         plant.Vk.CmdBindPipeline(command.CommandBuffer, PipelineBindPoint.Compute, pipeline);
         var descriptor = set;
         plant.Vk.CmdBindDescriptorSets(command.CommandBuffer, PipelineBindPoint.Compute, pipelineLayout, 0, 1, &descriptor, 0, null);
@@ -73,9 +92,26 @@ internal sealed unsafe class VulkanClipEffects : IDisposable
             PipelineStageFlags.ComputeShaderBit, PipelineStageFlags.HostBit);
         Require(command.End().Success, "finish effects command");
         var submitted = submitter.Submit(new(command, WaitForCompletion: true, TimeoutNanoseconds: 5_000_000_000, DebugName: "valencia.clip-effects"));
+        faulted = !submitted.Success;
         Require(submitted.Success, "dispatch effects: " + string.Join("; ", submitted.Diagnostics.Select(d => d.Message)));
         cancellation.ThrowIfCancellationRequested();
-        target.Span[..pixels.Length].CopyTo(pixels);
+        pendingTarget = pixels;
+        Dispatches++;
+    }
+
+    public void Flush()
+    {
+        if (pendingTarget is not { } pixels) return;
+        buffers[1]!.Span[..pixels.Length].CopyTo(pixels);
+        pendingTarget = null;
+        TargetReadbacks++;
+    }
+
+    public void BeginFrame()
+    {
+        // Every successful dispatch has already joined its fence. An aborted sequence frame
+        // may leave a target that was never consumed, which the next frame must not publish.
+        pendingTarget = null;
     }
 
     private Storage EnsureStorage(int index, int length)

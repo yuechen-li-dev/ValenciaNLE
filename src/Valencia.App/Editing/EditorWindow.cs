@@ -65,6 +65,7 @@ internal sealed partial class EditorWindow : IDisposable
     private readonly ScrubSmoke? scrubSmoke;
     private readonly FullscreenSmoke? fullscreenSmoke;
     private readonly EffectControlsSmoke? effectControlsSmoke;
+    private readonly PerformanceSmoke? performanceSmoke;
     private bool ScriptedPointer => scrubSmoke is not null || fullscreenSmoke is not null || effectControlsSmoke is not null;
     public long StaleGenerationsRejected { get; private set; }
     public long SeekRequests { get; private set; }
@@ -73,7 +74,8 @@ internal sealed partial class EditorWindow : IDisposable
     public double MaximumAvSkew { get; private set; }
     public List<double> FrameMilliseconds { get; } = [];
     public EditorWindow(string? path = null, string? smokeDirectory = null, bool analyzeSmoke = false, bool transcribeSmoke = false, bool createSmoke = false,
-        bool qualifySmoke = false, bool resizeSmoke = false, bool scrubTest = false, bool fullscreenTest = false, bool effectControlsTest = false)
+        bool qualifySmoke = false, bool resizeSmoke = false, bool scrubTest = false, bool fullscreenTest = false, bool effectControlsTest = false,
+        PerformanceOptions? performanceOptions = null)
     {
         SynchronizationContext.SetSynchronizationContext(context);
         diagnostics = new(smokeDirectory is null ? null : Path.Combine(Path.GetFullPath(smokeDirectory), "editor-diagnostics.json"));
@@ -122,7 +124,8 @@ internal sealed partial class EditorWindow : IDisposable
         if (smokeDirectory is null) autosave = CreateAutosave();
         if (smokeDirectory is not null && !ScriptedPointer)
         {
-            if (resizeSmoke) layoutSmoke = new(smokeDirectory);
+            if (performanceOptions is not null) performanceSmoke = new(smokeDirectory, performanceOptions);
+            else if (resizeSmoke) layoutSmoke = new(smokeDirectory);
             else if (qualifySmoke) qualificationSmoke = new(smokeDirectory);
             else if (createSmoke) creatorSmoke = new(smokeDirectory);
             else if (transcribeSmoke) transcriptSmoke = new(smokeDirectory);
@@ -180,7 +183,8 @@ internal sealed partial class EditorWindow : IDisposable
                 if (playback.Update() && playback.Current is { } frame)
                 {
                     Graphics.RecordMediaFrame(new { frame.Time, frame.SourceTimestamps, frame.ReadyHostTicks,
-                        frame.EvaluationMilliseconds, selectedHostTicks = Stopwatch.GetTimestamp(), audioClock = playback.Position });
+                        frame.EvaluationMilliseconds, frame.PrimaryDecode, frame.PrimaryUsesProxy, frame.UsedOwnedSourcePixels,
+                        selectedHostTicks = Stopwatch.GetTimestamp(), audioClock = playback.Position });
                     Graphics.UpdateVideo(frame.Width, frame.Height, frame.Rgba);
                 }
                 Graphics.RecordCpuPhase("frameSelectionAndUploadMs", Stopwatch.GetElapsedTime(selectedAt).TotalMilliseconds);
@@ -193,7 +197,6 @@ internal sealed partial class EditorWindow : IDisposable
             creatorSmoke?.Tick(this);
             qualificationSmoke?.Tick(this);
             layoutSmoke?.Tick(this);
-            scrubSmoke?.Tick(this);
             fullscreenSmoke?.Tick(this);
             effectControlsSmoke?.Tick(this);
             if (!ScriptedPointer && input.Mice.Count > 0 && !Settings.IsOpen && contextMenu is null)
@@ -228,11 +231,13 @@ internal sealed partial class EditorWindow : IDisposable
                 MaximumAvSkew = Math.Max(MaximumAvSkew, Math.Abs(observedClock - presentedFrame.Time.TotalSeconds));
             }
             if (FrameMilliseconds.Count < 10000) FrameMilliseconds.Add(frameClock.Elapsed.TotalMilliseconds);
-            if (smoke?.Finished == true || analysisSmoke?.Finished == true || transcriptSmoke?.Finished == true || creatorSmoke?.Finished == true || qualificationSmoke?.Finished == true || layoutSmoke?.Finished == true || scrubSmoke?.Finished == true || fullscreenSmoke?.Finished == true || effectControlsSmoke?.Finished == true) return;
+            scrubSmoke?.Tick(this);
+            performanceSmoke?.Tick(this);
+            if (performanceSmoke?.Finished == true || smoke?.Finished == true || analysisSmoke?.Finished == true || transcriptSmoke?.Finished == true || creatorSmoke?.Finished == true || qualificationSmoke?.Finished == true || layoutSmoke?.Finished == true || scrubSmoke?.Finished == true || fullscreenSmoke?.Finished == true || effectControlsSmoke?.Finished == true) return;
             // While composition is throttled there is nothing to present; poll gently instead of spinning.
             Thread.Sleep(Graphics.LastDrawPresented ? 1 : 4);
         }
-        if (smoke is not null || analysisSmoke is not null || transcriptSmoke is not null || creatorSmoke is not null || qualificationSmoke is not null || layoutSmoke is not null || ScriptedPointer) throw new InvalidOperationException("Editor smoke closed before completing its assertions.");
+        if (performanceSmoke is not null || smoke is not null || analysisSmoke is not null || transcriptSmoke is not null || creatorSmoke is not null || qualificationSmoke is not null || layoutSmoke is not null || ScriptedPointer) throw new InvalidOperationException("Editor smoke closed before completing its assertions.");
     }
     private void Prepare()
     {
@@ -349,11 +354,13 @@ internal sealed partial class EditorWindow : IDisposable
         var profile = Editor.Source is null ? Editor.Sequence.Creator?.Profiles.FirstOrDefault(p => p.Id == Editor.SelectedProfile) : null;
         bool prepareAudio = resume;
         bool reverse = reverseRequested;
+        bool resetProxy = refreshPausedProxy;
+        refreshPausedProxy = false;
         opening = Task.Run(async () =>
         {
             if (old is not null) await old.DisposeAsync(); previousCancellation?.Dispose();
             if (new TimelineQueries(snapshot).Duration(id).Ticks == 0) return null;
-            if (prepareAudio) pausedPreview.Dispose();
+            if (prepareAudio || resetProxy) pausedPreview.Dispose();
             return prepareAudio ? await SequencePlayback.OpenAsync(snapshot, id, position, token, profile, reverse)
                 : SequencePlayback.OpenPreview(pausedPreview, snapshot, id, position, token, profile);
         });
@@ -379,7 +386,7 @@ internal sealed partial class EditorWindow : IDisposable
                 {
                     Graphics.UpdateVideo(frame.Width, frame.Height, frame.Rgba);
                     diagnostics.Record("seek-frame-uploaded", generation, frame.Time.Ticks,
-                        $"sourcePTS={string.Join(';', frame.SourceTimestamps ?? [])};evaluationMs={frame.EvaluationMilliseconds:F2}");
+                        $"sourcePTS={string.Join(';', frame.SourceTimestamps ?? [])};evaluationMs={frame.EvaluationMilliseconds:F2};decode={frame.PrimaryDecode?.Backend};planes={frame.PrimaryDecode?.PlaneFormat};proxy={frame.PrimaryUsesProxy};fallback={frame.PrimaryDecode?.Fallback}");
                     if (SeekLatenciesMs.Count < 1000) SeekLatenciesMs.Add(seekLatency.Elapsed.TotalMilliseconds);
                 }
                 if (resume && opened is not null)
@@ -409,7 +416,11 @@ internal sealed partial class EditorWindow : IDisposable
             RunJob(async () => { imports[id] = await Task.Run(() => MediaAssetProbe.Import(id, asset.SourcePath)); InsertSelected(mode); }); return;
         }
         var result = mode == InsertMode.Place ? Editor.Insert(imported) : EditorEdits.InsertAt(Editor, imported, mode == InsertMode.Overwrite);
-        if (result.Success) Seek(Editor.Playhead);
+        if (result.Success)
+        {
+            ConsiderPreviewProxy(imported);
+            Seek(Editor.Playhead);
+        }
     }
     public async Task OpenProject(string path)
     {
@@ -488,7 +499,7 @@ internal sealed partial class EditorWindow : IDisposable
                 chrome.Invoke(button);
                 return;
             }
-            if (name == "Cancel") { CancelGesture(); jobCancellation?.Cancel(); Editor.ProposedCut = null; Editor.ProposedTextCut = null; RejectAgentProposal(); return; }
+            if (name == "Cancel") { CancelGesture(); jobCancellation?.Cancel(); CancelPreviewProxy(); Editor.ProposedCut = null; Editor.ProposedTextCut = null; RejectAgentProposal(); return; }
             if (job is not null) return;
             if (EffectAction(name)) { lastUi = -1; return; }
             // Timeline edits act on the program playhead; leave source mode first (as clicking the timeline panel does in Premiere).
@@ -913,6 +924,7 @@ internal sealed partial class EditorWindow : IDisposable
     [DllImport("user32.dll")] private static extern nint GetCapture();
     public void Dispose()
     {
+        performanceSmoke?.Dispose();
         AppDomain.CurrentDomain.UnhandledException -= UnhandledException;
         diagnostics.Record("shutdown", generation, Editor.Playhead.Ticks); diagnostics.Save();
         jobCancellation?.Cancel(); seekCancellation?.Cancel();

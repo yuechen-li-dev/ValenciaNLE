@@ -12,7 +12,10 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
     private AVPacket* packet;
     private AVFrame* frame;
     private AVFrame* retainedVideo;
+    private AVFrame* downloadedVideo;
+    private AVFrame* planarVideo;
     private SwsContext* scaler;
+    private SwsContext* planeScaler;
     private SwrContext* resampler;
     private readonly int streamIndex;
     private int outputSampleRate = AudioStreamBuffer.SampleRate;
@@ -21,6 +24,8 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
     private bool finished;
     private bool disposed;
     private double lastReadMilliseconds;
+    private readonly string? hardwareFallback;
+    private bool HasHardwareDevice => codec->hw_device_ctx != null;
     private const long VideoHistoryBudget = 64 * 1024 * 1024;
     private const int MaximumHistoryFrames = 64;
     private readonly Queue<HistoryPicture> videoHistory = new();
@@ -28,7 +33,7 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
     private VideoFrame? convertedHistory;
     private readonly record struct HistoryPicture(nint Frame, MediaTimestamp Timestamp, long Bytes);
 
-    public FfmpegDecoder(MediaInfo info, int streamIndex, double seekSeconds)
+    public FfmpegDecoder(MediaInfo info, int streamIndex, double seekSeconds, bool requestHardware = false)
     {
         this.streamIndex = streamIndex;
         try
@@ -40,7 +45,9 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
             FfmpegRuntime.Check(ffmpeg.avformat_find_stream_info(format, null), "Read decoder streams");
             if (streamIndex < 0 || streamIndex >= format->nb_streams) throw new InvalidDataException("Source stream no longer exists.");
             AVStream* stream = format->streams[streamIndex];
-            AVCodec* decoder = ffmpeg.avcodec_find_decoder(stream->codecpar->codec_id);
+            var codecId = stream->codecpar->codec_id;
+            AVCodec* software = ffmpeg.avcodec_find_decoder(codecId);
+            AVCodec* decoder = requestHardware ? VideoDecodeProvider.SelectDecoder(software, codecId) : software;
             if (decoder == null)
             {
                 throw new NotSupportedException($"Decoder unavailable for {ffmpeg.avcodec_get_name(stream->codecpar->codec_id)}.");
@@ -52,7 +59,13 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
             }
             FfmpegRuntime.Check(ffmpeg.avcodec_parameters_to_context(codec, stream->codecpar), "Configure decoder");
             codec->thread_count = Math.Min(Environment.ProcessorCount, 4);
-            FfmpegRuntime.Check(ffmpeg.avcodec_open2(codec, decoder, null), "Start software decoder");
+            if (requestHardware)
+            {
+                hardwareFallback = VideoDecodeProvider.Configure(codec, decoder);
+                if (hardwareFallback is not null && decoder != software)
+                    throw new HardwareVideoDecodeException(hardwareFallback);
+            }
+            CheckDecode(ffmpeg.avcodec_open2(codec, decoder, null), "Start decoder");
             packet = ffmpeg.av_packet_alloc();
             frame = ffmpeg.av_frame_alloc();
             if (packet == null || frame == null)
@@ -73,8 +86,8 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
         }
     }
 
-    public FfmpegDecoder(MediaAsset asset, AssetStream stream, SourcePosition seek, int sampleRate)
-        : this(new MediaInfo(asset.SourcePath, asset.Container, 0, 0, 0, 0, 0, stream.Index, null, []), stream.Index, 0)
+    public FfmpegDecoder(MediaAsset asset, AssetStream stream, SourcePosition seek, int sampleRate, bool requestHardware = false)
+        : this(new MediaInfo(asset.SourcePath, asset.Container, 0, 0, 0, 0, 0, stream.Index, null, []), stream.Index, 0, requestHardware)
     {
         outputSampleRate = sampleRate;
         try
@@ -127,7 +140,7 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
             }
             if (result != ffmpeg.AVERROR(ffmpeg.EAGAIN))
             {
-                FfmpegRuntime.Check(result, "Decode frame");
+                CheckDecode(result, "Decode frame");
             }
             if (draining)
             {
@@ -140,7 +153,7 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
                 result = ffmpeg.av_read_frame(format, packet);
                 if (result == ffmpeg.AVERROR_EOF)
                 {
-                    FfmpegRuntime.Check(ffmpeg.avcodec_send_packet(codec, null), "Drain decoder");
+                    CheckDecode(ffmpeg.avcodec_send_packet(codec, null), "Drain decoder");
                     draining = true;
                     break;
                 }
@@ -149,7 +162,7 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
                 {
                     if (packet->stream_index == streamIndex)
                     {
-                        FfmpegRuntime.Check(ffmpeg.avcodec_send_packet(codec, packet), "Submit compressed packet");
+                        CheckDecode(ffmpeg.avcodec_send_packet(codec, packet), "Submit compressed packet");
                         break;
                     }
                 }
@@ -160,6 +173,13 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
             }
         }
         return false;
+    }
+
+    private void CheckDecode(int result, string operation)
+    {
+        try { FfmpegRuntime.Check(result, operation); }
+        catch (InvalidDataException error) when (HasHardwareDevice)
+        { throw new HardwareVideoDecodeException(error.Message, error); }
     }
 
     // Reuse the demux/codec/scaler allocation after a discontinuous video query.
@@ -182,6 +202,8 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
     // through swscale. Evict by actual referenced buffer bytes and frame count.
     public void RememberVideo(MediaTimestamp timestamp)
     {
+        // A D3D11 frame's buffer size does not account for the texture subresource it pins.
+        if (frame->hw_frames_ctx != null) return;
         long bytes = 0;
         for (uint index = 0; index < 8; index++)
             if (frame->buf[index] is var buffer && buffer != null) bytes += checked((long)buffer->size);
@@ -266,7 +288,25 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
         {
             throw new NotSupportedException("M0 supports decoded frames up to 8K, with valid dimensions.");
         }
-        scaler = ffmpeg.sws_getCachedContext(scaler, width, height, (AVPixelFormat)frame->format,
+        AVFrame* pixels = frame;
+        var surface = (AVPixelFormat)frame->format;
+        double downloadMilliseconds = 0;
+        double normalizeMilliseconds = 0;
+        long visiblePlaneBytes = 0;
+        bool hardware = surface == AVPixelFormat.AV_PIX_FMT_D3D11 && frame->hw_frames_ctx != null && frame->data[0] != null;
+        var plane = surface;
+        if (hardware)
+        {
+            long downloadStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+            pixels = Download(frame);
+            downloadMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(downloadStarted).TotalMilliseconds;
+            plane = (AVPixelFormat)pixels->format;
+            visiblePlaneBytes = ffmpeg.av_image_get_buffer_size(plane, width, height, 1);
+            long normalizeStarted = System.Diagnostics.Stopwatch.GetTimestamp();
+            pixels = NormalizePlanes(pixels, width, height);
+            normalizeMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(normalizeStarted).TotalMilliseconds;
+        }
+        scaler = ffmpeg.sws_getCachedContext(scaler, width, height, (AVPixelFormat)pixels->format,
             width, height, AVPixelFormat.AV_PIX_FMT_RGBA, ffmpeg.SWS_BILINEAR, null, null, null);
         if (scaler == null)
         {
@@ -288,7 +328,7 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
             int_array4 strides = default;
             data[0] = destination;
             strides[0] = width * 4;
-            FfmpegRuntime.Check(ffmpeg.sws_scale(scaler, frame->data, frame->linesize, 0, height, data, strides), "Convert video frame");
+            FfmpegRuntime.Check(ffmpeg.sws_scale(scaler, pixels->data, pixels->linesize, 0, height, data, strides), "Convert video frame");
         }
         MediaTimestamp timestamp = TimestampOf(frame);
         MediaTimestamp? duration = frame->duration > 0 ? new(frame->duration, timestamp.Numerator, timestamp.Denominator) : null;
@@ -296,8 +336,62 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
         return new VideoFrame(timestamp, timestamp.TotalSeconds - startSeconds, width, height, rgba, duration, dts)
         {
             Timing = new(System.Diagnostics.Stopwatch.GetTimestamp(), lastReadMilliseconds,
-                System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds)
+                System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds),
+            Decode = new(hardware ? "d3d11va" : "software", ffmpeg.avcodec_get_name(codec->codec_id), codec->profile,
+                ffmpeg.av_get_pix_fmt_name(surface), ffmpeg.av_get_pix_fmt_name(plane), width, height,
+                frame->color_range.ToString(), frame->colorspace.ToString(),
+                hardware ? null : hardwareFallback ?? (HasHardwareDevice ? "The driver/decoder negotiated a software pixel format." : null),
+                downloadMilliseconds, visiblePlaneBytes, normalizeMilliseconds)
         };
+    }
+
+    private AVFrame* Download(AVFrame* source)
+    {
+        var context = (AVHWFramesContext*)source->hw_frames_ctx->data;
+        if (downloadedVideo == null) downloadedVideo = ffmpeg.av_frame_alloc();
+        if (downloadedVideo == null) throw new OutOfMemoryException("FFmpeg transfer frame allocation failed.");
+        if (downloadedVideo->format != (int)context->sw_format
+            || downloadedVideo->width != context->width || downloadedVideo->height != context->height
+            || downloadedVideo->buf[0] == null)
+        {
+            ffmpeg.av_frame_unref(downloadedVideo);
+            downloadedVideo->format = (int)context->sw_format;
+            downloadedVideo->width = context->width;
+            downloadedVideo->height = context->height;
+            CheckDecode(ffmpeg.av_frame_get_buffer(downloadedVideo, 0), "Allocate D3D11 download planes");
+        }
+        CheckDecode(ffmpeg.av_hwframe_transfer_data(downloadedVideo, source, 0), "Download D3D11 video surface");
+        return downloadedVideo;
+    }
+
+    private AVFrame* NormalizePlanes(AVFrame* source, int width, int height)
+    {
+        var input = (AVPixelFormat)source->format;
+        var output = input switch
+        {
+            AVPixelFormat.AV_PIX_FMT_NV12 => AVPixelFormat.AV_PIX_FMT_YUV420P,
+            AVPixelFormat.AV_PIX_FMT_P010LE => AVPixelFormat.AV_PIX_FMT_YUV420P10LE,
+            _ => throw new HardwareVideoDecodeException($"No planar SDR conversion for D3D11 pixel format {input}.")
+        };
+        // swscale's direct NV12 and planar RGB paths sample chroma differently at sharp edges.
+        // Use the same color conversion as software decoding after an exact plane unpack.
+        planeScaler = ffmpeg.sws_getCachedContext(planeScaler, width, height, input, width, height, output,
+            ffmpeg.SWS_POINT, null, null, null);
+        if (planeScaler == null) throw new HardwareVideoDecodeException("Could not prepare D3D11 plane normalization.");
+        if (planarVideo == null) planarVideo = ffmpeg.av_frame_alloc();
+        if (planarVideo == null) throw new OutOfMemoryException("FFmpeg planar frame allocation failed.");
+        if (planarVideo->format != (int)output || planarVideo->width != width || planarVideo->height != height
+            || planarVideo->buf[0] == null)
+        {
+            ffmpeg.av_frame_unref(planarVideo);
+            planarVideo->format = (int)output;
+            planarVideo->width = width;
+            planarVideo->height = height;
+            CheckDecode(ffmpeg.av_frame_get_buffer(planarVideo, 0), "Allocate D3D11 planar normalization buffer");
+        }
+        CheckDecode(ffmpeg.sws_scale(planeScaler, source->data, source->linesize, 0, height, planarVideo->data, planarVideo->linesize),
+            "Normalize D3D11 video planes");
+        return planarVideo;
     }
 
     public float[] CopyAudio()
@@ -394,15 +488,20 @@ internal sealed unsafe class FfmpegDecoder : IDisposable
         disposed = true;
         ClearHistory();
         ffmpeg.sws_freeContext(scaler);
+        ffmpeg.sws_freeContext(planeScaler);
         SwrContext* ownedResampler = resampler;
         AVFrame* ownedFrame = frame;
         AVFrame* ownedRetainedVideo = retainedVideo;
+        AVFrame* ownedDownloadedVideo = downloadedVideo;
+        AVFrame* ownedPlanarVideo = planarVideo;
         AVPacket* ownedPacket = packet;
         AVCodecContext* ownedCodec = codec;
         AVFormatContext* ownedFormat = format;
         ffmpeg.swr_free(&ownedResampler);
         ffmpeg.av_frame_free(&ownedFrame);
         ffmpeg.av_frame_free(&ownedRetainedVideo);
+        ffmpeg.av_frame_free(&ownedDownloadedVideo);
+        ffmpeg.av_frame_free(&ownedPlanarVideo);
         ffmpeg.av_packet_free(&ownedPacket);
         ffmpeg.avcodec_free_context(&ownedCodec);
         ffmpeg.avformat_close_input(&ownedFormat);

@@ -78,6 +78,7 @@ public static class SequenceExport
             "-f", encoder.Container == "mkv" ? "matroska" : encoder.Container, temporary];
         foreach (string arg in args) start.ArgumentList.Add(arg);
         using Process process = Process.Start(start) ?? throw new InvalidOperationException("FFmpeg encoder process could not start.");
+        MediaProcess.SetBackgroundPriority(process);
         using var registration = stopping.Token.Register(() => { try { if (!process.HasExited) process.Kill(entireProcessTree: true); } catch (InvalidOperationException) { } });
         Task<string> errors = process.StandardError.ReadToEndAsync();
         Task video = Task.Run(async () =>
@@ -88,7 +89,7 @@ public static class SequenceExport
                 await videoPipe.WaitForConnectionAsync(stopping.Token).ConfigureAwait(false);
                 for (long i = 0; i < frames; i++)
                 {
-                    var frame = evaluator.Video(new(checked(origin.Ticks + TimelineTime.FromFrames(i, rate).Ticks)), stopping.Token);
+                    var frame = evaluator.VideoForTransport(new(checked(origin.Ticks + TimelineTime.FromFrames(i, rate).Ticks)), stopping.Token);
                     await videoPipe.WriteAsync(frame.Rgba, stopping.Token).ConfigureAwait(false);
                     progress?.Report(new(i + 1, frames));
                 }

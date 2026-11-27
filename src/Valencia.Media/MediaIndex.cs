@@ -3,7 +3,8 @@ using Valencia.Core.Timeline;
 
 namespace Valencia.Media;
 
-public sealed record SourceIndexData(int StreamIndex, string Policy, SourcePosition Through, int Anchors);
+public sealed record SourceIndexData(int StreamIndex, string Policy, SourcePosition Through, int Anchors,
+    bool ReusedPersistentAnchors = false, int PersistedAnchors = 0);
 public static class MediaIndex
 {
     public static SourceIndexData Build(MediaAsset asset, int streamIndex, CancellationToken cancellation)

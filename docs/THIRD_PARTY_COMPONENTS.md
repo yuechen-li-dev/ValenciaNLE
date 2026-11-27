@@ -1,4 +1,4 @@
-# M3b distribution components
+# Windows distribution components
 
 The package manifest `docs/installed-components.json` is generated from both host dependency graphs and the actual package files. It records exact NuGet versions, relative paths, sizes and SHA-256. `licenses/` contains package-supplied notices and Valencia's source notice.
 
@@ -22,7 +22,7 @@ The package manifest `docs/installed-components.json` is generated from both hos
 | Whisper model data | Pinned whisper.cpp conversion revision and digests from model catalog | MIT upstream model notices and an explicit optional download |
 | x264, x265, Media Foundation and vendor encoders | Optional explicitly configured external FFmpeg and associated platform/vendor components | Their provider provenance and terms apply. The standard package excludes these external tools |
 
-The shared FFmpeg build disables GPL, nonfree and version3 configuration and enables libaom, libvpx and libopus. The package retains the complete builder command in `licenses/media/FFMPEG-BUILD.txt`. Shared libraries can be replaced in the installation's `native` directory with ABI-compatible files. The release materials include corresponding source and build inputs for the shipped media stack. Runtime assembly inventories and source archives cover the exact staged candidate. [FFmpeg LGPL guidance](https://ffmpeg.org/legal.html)
+The shared FFmpeg build disables GPL, nonfree and version3 configuration and enables libaom, libvpx, libopus and D3D11VA. Windows supplies the D3D11 and DXGI runtimes. The GPU vendor supplies the driver. The package records the complete configure command, encoder inventory and hardware decoder inventory in `licenses/media`. Shared libraries can be replaced in the installation's `native` directory with ABI-compatible files. The release materials include corresponding source and build inputs for the shipped media stack. Runtime assembly inventories and source archives cover the exact staged candidate. [FFmpeg LGPL guidance](https://ffmpeg.org/legal.html)
 
 ## Optional M3c OCR provider
 

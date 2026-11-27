@@ -7,6 +7,7 @@ public sealed record VideoFrame(MediaTimestamp SourceTimestamp, double PositionS
     MediaTimestamp? Duration = null, MediaTimestamp? DecodeTimestamp = null)
 {
     public DecodedFrameTiming? Timing { get; init; }
+    public VideoDecodeEvidence? Decode { get; init; }
 }
 
 /// <summary>Transient monotonic host diagnostics, independent of authoritative media timestamps.</summary>

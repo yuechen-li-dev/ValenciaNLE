@@ -39,6 +39,7 @@ internal sealed class ScrubSmoke(string directory)
         }
         if (awaiting)
         {
+            if (!window.Graphics.LastDrawPresented) return;
             Require(window.Playback?.Current?.Time == expected, "A stale or incorrect seek result was published.");
             Require(e.Playhead == expected, "Playhead differs from the requested final position.");
             Require(window.InputFailures == 0, "Pointer callback failed.");
@@ -81,6 +82,7 @@ internal sealed class ScrubSmoke(string directory)
             }
             if (dragAwaiting)
             {
+                if (!window.Graphics.LastDrawPresented) return;
                 var requested = TimelineTime.FromFrames(dragFrame, rate);
                 var shown = window.Playback?.Current?.Time;
                 Require(shown == requested, $"Held backward drag requested {requested.Ticks} ticks and showed {shown?.Ticks}.");
@@ -112,20 +114,19 @@ internal sealed class ScrubSmoke(string directory)
         window.Action("Pause");
         var playback = window.Playback ?? throw new InvalidOperationException("Transport did not reopen after scrubbing.");
         Require(playback.CanPlay, "Transport failed to reopen synchronized audio after scrubbing.");
-        PlaybackQualification.Require(window.MaximumAvSkew, window.Graphics.ValidationErrorCount);
-        Require(playback.UnderrunFrames == 0, "Audio underrun after scrubbing.");
-        Require(reverseUnderruns == 0, "Audio underrun during reverse playback.");
+        bool timingPassed = PlaybackQualification.TimingPasses(window.MaximumAvSkew) && window.Graphics.ValidationErrorCount == 0
+            && playback.UnderrunFrames == 0 && reverseUnderruns == 0;
         long callbackFailures = window.InputFailures;
         window.HandlePointer(() => throw new InvalidOperationException("Scrub smoke: deliberate native callback boundary regression probe."));
         Require(window.InputFailures == callbackFailures + 1 && window.Editor.Status.StartsWith("Timeline input error:", StringComparison.Ordinal),
             "Input exception was not diagnosed and contained.");
         Require(e.Session.Snapshot.Revision == revision, "Failed input changed the document.");
-        e.Status = "Scrub smoke passed, including deliberate callback error recovery.";
+        e.Status = timingPassed ? "Scrub smoke passed, including deliberate callback error recovery." : "Scrub smoke timing failed.";
         Directory.CreateDirectory(directory);
         window.Capture(Path.Combine(directory, "scrub.png"));
         File.WriteAllText(Path.Combine(directory, "result.json"), JsonSerializer.Serialize(new
         {
-            outcome = "passed", gpu = window.Graphics.GpuName, runtime = Environment.Version.ToString(),
+            outcome = timingPassed ? "passed" : "failed", gpu = window.Graphics.GpuName, runtime = Environment.Version.ToString(),
             source = e.Session.Snapshot.Document.Assets[0], trials = trial, pointerMoves = trial * 100,
             callbackFailures, injectedCallbackFailureReported = true, requestToDisplayedFrameMs = latencies,
             sourceToTimelineSwitch = true, pauseCancelsPendingPlay = true,
@@ -140,6 +141,9 @@ internal sealed class ScrubSmoke(string directory)
             revisionUnchanged = e.Session.Snapshot.Revision == revision,
             scope = "Native GPU/audio window and actual coordinate/capture handlers with scripted mouse input."
         }, new JsonSerializerOptions { WriteIndented = true }));
+        PlaybackQualification.Require(window.MaximumAvSkew, window.Graphics.ValidationErrorCount);
+        Require(playback.UnderrunFrames == 0, "Audio underrun after scrubbing.");
+        Require(reverseUnderruns == 0, "Audio underrun during reverse playback.");
         Finished = true;
     }
 

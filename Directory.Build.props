@@ -6,7 +6,7 @@
     <LangVersion>14.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Deterministic>true</Deterministic>
-    <Version>0.3.0-rc.1</Version>
+    <Version>0.3.0-rc.3</Version>
     <CopelandRoot Condition="'$(CopelandRoot)' == ''">$(MSBuildThisFileDirectory)../Copeland</CopelandRoot>
     <InputManRoot Condition="'$(InputManRoot)' == ''">$(MSBuildThisFileDirectory)../InputMan</InputManRoot>
     <DeliveranceRoot Condition="'$(DeliveranceRoot)' == ''">$(MSBuildThisFileDirectory)../Deliverance</DeliveranceRoot>

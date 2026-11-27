@@ -70,7 +70,7 @@ prefix=$(cygpath -am "$root/sysroot/ucrt64")
 cd "$root/ffmpeg-7.1.4"
 ./configure --prefix="$root/ffmpeg-install" --arch=x86_64 --target-os=mingw32 --cc=gcc \
   --enable-shared --disable-static --disable-autodetect --disable-gpl --disable-nonfree --disable-version3 \
-  --disable-ffplay --disable-doc --disable-debug --enable-libopus --enable-libvpx --enable-libaom \
+  --disable-ffplay --disable-doc --disable-debug --enable-libopus --enable-libvpx --enable-libaom --enable-d3d11va \
   --pkg-config=pkgconf --extra-cflags="-I$prefix/include" --extra-ldflags="-L$prefix/lib"
 "$root/sysroot/usr/bin/make.exe" -j"$1"
 "$root/sysroot/usr/bin/make.exe" install

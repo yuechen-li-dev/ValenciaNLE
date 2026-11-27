@@ -40,7 +40,8 @@ internal static class Program
         bool fullscreenSmoke = args.Contains("--fullscreen-smoke");
         bool effectControlsSmoke = args.Contains("--effect-controls-smoke");
         bool effectSmoke = args.Contains("--effects-smoke");
-        bool smoke = widgetSmoke || typographySmoke || scrubSmoke || fullscreenSmoke || effectSmoke || effectControlsSmoke || args.Contains("--smoke") || args.Contains("--editor-smoke") || args.Contains("--analysis-smoke") || args.Contains("--transcript-smoke") || args.Contains("--creator-smoke") || args.Contains("--qualification-smoke") || args.Contains("--layout-smoke");
+        bool performanceSmoke = args.Contains("--performance-smoke");
+        bool smoke = performanceSmoke || widgetSmoke || typographySmoke || scrubSmoke || fullscreenSmoke || effectSmoke || effectControlsSmoke || args.Contains("--smoke") || args.Contains("--editor-smoke") || args.Contains("--analysis-smoke") || args.Contains("--transcript-smoke") || args.Contains("--creator-smoke") || args.Contains("--qualification-smoke") || args.Contains("--layout-smoke");
         try
         {
             if (effectSmoke)
@@ -58,8 +59,8 @@ internal static class Program
             bool creatorSmoke = args.Contains("--creator-smoke");
             bool qualificationSmoke = args.Contains("--qualification-smoke");
             bool layoutSmoke = args.Contains("--layout-smoke");
-            bool editorSmoke = args.Contains("--editor-smoke") || analysisSmoke || transcriptSmoke || creatorSmoke || qualificationSmoke || layoutSmoke || scrubSmoke || fullscreenSmoke || effectControlsSmoke;
-            string? path = smoke ? ValueAfter(args, effectControlsSmoke ? "--effect-controls-smoke" : fullscreenSmoke ? "--fullscreen-smoke" : scrubSmoke ? "--scrub-smoke" : layoutSmoke ? "--layout-smoke" : qualificationSmoke ? "--qualification-smoke" : creatorSmoke ? "--creator-smoke" : transcriptSmoke ? "--transcript-smoke" : analysisSmoke ? "--analysis-smoke" : editorSmoke ? "--editor-smoke" : "--smoke") : args.FirstOrDefault(argument => !argument.StartsWith("--", StringComparison.Ordinal));
+            bool editorSmoke = performanceSmoke || args.Contains("--editor-smoke") || analysisSmoke || transcriptSmoke || creatorSmoke || qualificationSmoke || layoutSmoke || scrubSmoke || fullscreenSmoke || effectControlsSmoke;
+            string? path = smoke ? ValueAfter(args, performanceSmoke ? "--performance-smoke" : effectControlsSmoke ? "--effect-controls-smoke" : fullscreenSmoke ? "--fullscreen-smoke" : scrubSmoke ? "--scrub-smoke" : layoutSmoke ? "--layout-smoke" : qualificationSmoke ? "--qualification-smoke" : creatorSmoke ? "--creator-smoke" : transcriptSmoke ? "--transcript-smoke" : analysisSmoke ? "--analysis-smoke" : editorSmoke ? "--editor-smoke" : "--smoke") : args.FirstOrDefault(argument => !argument.StartsWith("--", StringComparison.Ordinal));
             if (smoke && path is null)
             {
                 throw new ArgumentException("--smoke requires a video path.");
@@ -69,7 +70,8 @@ internal static class Program
             {
                 if (!smoke) path = Editing.RecoveryPrompt.Choose(path);
                 using var editor = new Editing.EditorWindow(path, editorSmoke ? output : null, analysisSmoke, transcriptSmoke, creatorSmoke,
-                    qualificationSmoke, layoutSmoke, scrubSmoke, fullscreenSmoke, effectControlsSmoke); editor.Run();
+                    qualificationSmoke, layoutSmoke, scrubSmoke, fullscreenSmoke, effectControlsSmoke,
+                    performanceSmoke ? Performance(args) : null); editor.Run();
             }
             else { using var player = new PlayerWindow(path, smoke ? output : null); player.Run(); }
             return 0;
@@ -86,6 +88,20 @@ internal static class Program
             }
             return 1;
         }
+    }
+
+    private static Editing.PerformanceOptions Performance(string[] args)
+    {
+        double start = Read("--performance-start", 0);
+        double seconds = Read("--performance-seconds", 30);
+        string work = ValueAfter(args, "--performance-work") ?? "none";
+        if (!double.IsFinite(start) || start < 0 || !double.IsFinite(seconds) || seconds is < 6 or > 120
+            || work is not ("none" or "analysis" or "transcript" or "proxy" or "export"))
+            throw new ArgumentException("Invalid performance start, duration (6–120s), or work mode (none, analysis, transcript, proxy, export).");
+        return new(start, seconds, work);
+
+        double Read(string option, double fallback) => ValueAfter(args, option) is { } value
+            ? double.Parse(value, System.Globalization.CultureInfo.InvariantCulture) : fallback;
     }
 
     private static string? ValueAfter(string[] args, string option)

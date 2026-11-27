@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Runtime.InteropServices;
 using Valencia.Core;
 using Valencia.Core.Timeline;
 using SkiaSharp;
@@ -12,7 +13,12 @@ public sealed record SequenceFrame(SequenceTime Time, int Width, int Height, byt
     public double EvaluationMilliseconds { get; init; }
     public IReadOnlyDictionary<Guid, MediaTimestamp>? DecodedByClip { get; init; }
     public CaptionLine? ReviewCaption { get; init; }
+    public VideoDecodeEvidence? PrimaryDecode { get; init; }
+    public bool PrimaryUsesProxy { get; init; }
+    public bool UsedOwnedSourcePixels { get; init; }
 }
+
+public sealed record EffectTransfers(long Dispatches, long SourceUploads, long TargetUploads, long TargetReadbacks);
 
 /// <summary>Worker-confined source resolution shared verbatim by preview and offline export. Owns at most 8 active cursors of each kind.</summary>
 public sealed class SequenceEvaluator : IDisposable
@@ -31,6 +37,7 @@ public sealed class SequenceEvaluator : IDisposable
     private byte[]? dissolveBuffer;
     private readonly bool useProxies;
     private readonly bool retainVideoHistory;
+    private readonly bool requestHardware;
     private readonly bool gpuEffects;
     private VulkanClipEffects? effectDevice;
     private SequenceTime? audioThrough;
@@ -47,9 +54,12 @@ public sealed class SequenceEvaluator : IDisposable
     public string? EffectGpu => effectDevice?.DeviceName;
     public bool EffectValidationAvailable => effectDevice?.ValidationAvailable == true;
     public int EffectValidationErrors => effectDevice?.ValidationErrors ?? 0;
+    public EffectTransfers? EffectTransferTotals => effectDevice is { } device
+        ? new(device.Dispatches, device.SourceUploads, device.TargetUploads, device.TargetReadbacks) : null;
     public static void PrepareEffectShader(string path) => ClipEffectShader.Prepare(path);
     public SequenceEvaluator(ProjectSnapshot snapshot, Guid sequenceId, OutputProfile? profile = null,
-        bool useProxies = false, bool retainVideoHistory = false, bool? useVulkanEffects = null, bool burnCaptions = true)
+        bool useProxies = false, bool retainVideoHistory = false, bool? useVulkanEffects = null, bool burnCaptions = true,
+        bool? useHardwareDecode = null)
     {
         DocumentValidator.Validate(snapshot.Document);
         FfmpegRuntime.Initialize();
@@ -57,6 +67,8 @@ public sealed class SequenceEvaluator : IDisposable
         this.profile = profile;
         this.useProxies = useProxies;
         this.retainVideoHistory = retainVideoHistory;
+        // Reverse playback and interactive scrub currently reuse the software picture history.
+        requestHardware = useHardwareDecode ?? (!retainVideoHistory && VideoDecodeProvider.Requested);
         gpuEffects = useVulkanEffects ?? string.Equals(Environment.GetEnvironmentVariable("VALENCIA_EFFECTS_BACKEND"), "vulkan", StringComparison.OrdinalIgnoreCase);
         captionIndex = new(Sequence);
         this.burnCaptions = burnCaptions;
@@ -69,35 +81,65 @@ public sealed class SequenceEvaluator : IDisposable
     }
 
     public SequenceFrame Video(SequenceTime time, CancellationToken cancellation, bool includeReviewMetadata = false)
+        => VideoAt(time, cancellation, includeReviewMetadata, transferPixels: false);
+
+    internal SequenceFrame VideoForTransport(SequenceTime time, CancellationToken cancellation)
+        => VideoAt(time, cancellation, includeReviewMetadata: false, transferPixels: !retainVideoHistory);
+
+    private SequenceFrame VideoAt(SequenceTime time, CancellationToken cancellation, bool includeReviewMetadata, bool transferPixels)
     {
         long started = System.Diagnostics.Stopwatch.GetTimestamp();
+        effectDevice?.BeginFrame();
         var evaluated = queries.Evaluate(sequenceId, time);
         var active = evaluated.Where(c => c.Kind == TrackKind.Video).ToArray();
         Limit(active.Length);
         Prune(videos, active.Select(a => a.Clip.Id));
         int width = profile?.Width ?? Sequence.Video.Width, height = profile?.Height ?? Sequence.Video.Height;
-        var pixels = new byte[checked(width * height * 4)];
         var timestamps = ImmutableArray.CreateBuilder<MediaTimestamp>();
         var decoded = includeReviewMetadata ? new Dictionary<Guid, MediaTimestamp>() : null;
         CaptionLine? caption = null;
-        for (int i = 3; i < pixels.Length; i += 4) pixels[i] = 255;
-        for (int i = 0; i < active.Length; i++) // higher track order is on top
+        VideoDecodeEvidence? primaryDecode = null;
+        bool primaryUsesProxy = false;
+        byte[]? pixels = null;
+        if (transferPixels && profile is null &&
+            active is [{ Transition: null, Clip: { Title: null, Properties: { Opacity: 1, Video: null } } } single])
         {
-            var layer = active[i];
-            if (layer.Transition is { Incoming: false } transition)
+            cancellation.ThrowIfCancellationRequested();
+            var cursor = Cursor(single);
+            if (cursor.At(single.SourcePosition, cancellation) is { } picture && picture.Width == width && picture.Height == height
+                && cursor.TryTakePixels(picture))
             {
-                // Composite each side onto the same lower tracks, then interpolate the results.
-                // This preserves the lower tracks' contribution for both fractional clip opacities.
-                var incoming = dissolveBuffer ??= new byte[pixels.Length];
-                pixels.CopyTo(incoming, 0);
-                Draw(layer, pixels);
-                Draw(active[++i], incoming);
-                double weight = transition.Progress(time);
-                for (int offset = 0; offset < pixels.Length; offset++)
-                    pixels[offset] = (byte)Math.Round(pixels[offset] + (incoming[offset] - pixels[offset]) * weight);
+                pixels = picture.Rgba;
+                Describe(single, picture, cursor.UsesProxy);
             }
-            else Draw(layer, pixels);
         }
+        bool usedOwnedSourcePixels = pixels is not null;
+        if (pixels is null)
+        {
+            pixels = new byte[checked(width * height * 4)];
+            for (int i = 3; i < pixels.Length; i += 4) pixels[i] = 255;
+            for (int i = 0; i < active.Length; i++) // higher track order is on top
+            {
+                var layer = active[i];
+                if (layer.Transition is { Incoming: false } transition)
+                {
+                    effectDevice?.Flush();
+                    // Composite each side onto the same lower tracks, then interpolate the results.
+                    // This preserves the lower tracks' contribution for both fractional clip opacities.
+                    var incoming = dissolveBuffer ??= new byte[pixels.Length];
+                    pixels.CopyTo(incoming, 0);
+                    Draw(layer, pixels);
+                    effectDevice?.Flush();
+                    Draw(active[++i], incoming);
+                    effectDevice?.Flush();
+                    double weight = transition.Progress(time);
+                    for (int offset = 0; offset < pixels.Length; offset++)
+                        pixels[offset] = (byte)Math.Round(pixels[offset] + (incoming[offset] - pixels[offset]) * weight);
+                }
+                else Draw(layer, pixels);
+            }
+        }
+        effectDevice?.Flush();
         if (burnCaptions && Sequence.Creator is { } creator && captionIndex.At(evaluated.Where(clip =>
             clip.Transition is null || (clip.Clip.Start.Ticks <= time.Ticks && time.Ticks < clip.Clip.End.Ticks))) is { } line)
         {
@@ -109,14 +151,42 @@ public sealed class SequenceEvaluator : IDisposable
             ReadyHostTicks = System.Diagnostics.Stopwatch.GetTimestamp(),
             EvaluationMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds,
             DecodedByClip = decoded,
-            ReviewCaption = includeReviewMetadata ? caption : null
+            ReviewCaption = includeReviewMetadata ? caption : null,
+            PrimaryDecode = primaryDecode,
+            PrimaryUsesProxy = primaryUsesProxy,
+            UsedOwnedSourcePixels = usedOwnedSourcePixels
         };
+
+        VideoCursor Cursor(ActiveClip a)
+        {
+            if (videos.TryGetValue(a.Clip.Id, out var cursor)) return cursor;
+            if (warmVideo is { } warmed && warmed.Clip == a.Clip.Id)
+            {
+                warmVideo = null;
+                cursor = warmed.Cursor.GetAwaiter().GetResult();
+            }
+            else cursor = new(a.Asset, a.Stream, a.SourcePosition, Sequence.AudioSampleRate, useProxies, retainVideoHistory, requestHardware);
+            videos.Add(a.Clip.Id, cursor);
+            return cursor;
+        }
+
+        void Describe(ActiveClip clip, VideoFrame source, bool usesProxy)
+        {
+            if (timestamps.Count == 0)
+            {
+                primaryDecode = source.Decode;
+                primaryUsesProxy = usesProxy;
+            }
+            timestamps.Add(source.SourceTimestamp);
+            if (decoded is not null) decoded[clip.Clip.Id] = source.SourceTimestamp;
+        }
 
         void Draw(ActiveClip a, byte[] target)
         {
             cancellation.ThrowIfCancellationRequested();
             if (a.Clip.Title is { } title)
             {
+                effectDevice?.Flush();
                 // Titles have no decoder: they draw at their track's position, over lower tracks and under higher ones.
                 float fade = a.Clip.Properties.Video is { } titleEffects
                     ? (float)CaptionEvaluation.Fade(time.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks, titleEffects.FadeInTicks, titleEffects.FadeOutTicks) : 1;
@@ -124,21 +194,11 @@ public sealed class SequenceEvaluator : IDisposable
                     (float)a.Clip.Properties.Opacity * fade, cancellation);
                 return;
             }
-            if (!videos.TryGetValue(a.Clip.Id, out var cursor))
-            {
-                if (warmVideo is { } warmed && warmed.Clip == a.Clip.Id)
-                {
-                    warmVideo = null;
-                    cursor = warmed.Cursor.GetAwaiter().GetResult();
-                }
-                else cursor = new(a.Asset, a.Stream, a.SourcePosition, Sequence.AudioSampleRate, useProxies, retainVideoHistory);
-                videos.Add(a.Clip.Id, cursor);
-            }
+            var cursor = Cursor(a);
             var source = cursor.At(a.SourcePosition, cancellation);
             if (source is not null)
             {
-                timestamps.Add(source.SourceTimestamp);
-                if (decoded is not null) decoded[a.Clip.Id] = source.SourceTimestamp;
+                Describe(a, source, cursor.UsesProxy);
                 var effects = a.Clip.Properties.Video;
                 float opacity = (float)a.Clip.Properties.Opacity;
                 double rotation = 0;
@@ -156,11 +216,16 @@ public sealed class SequenceEvaluator : IDisposable
                     var animated = motion.Apply(effects with { Motion = null }, time.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks);
                     effects = animated == IdentityEffects ? null : animated;
                 }
-                if (effects is null && profile is null && rotation == 0) Composite(target, width, height, source, opacity);
+                if (effects is null && profile is null && rotation == 0)
+                {
+                    effectDevice?.Flush();
+                    Composite(target, width, height, source, opacity);
+                }
                 else
                 {
                     var device = gpuEffects && rotation == 0 && opacity > 0 && effects is not null && (effects.Region is not null || ClipEffectFrame.HasColor(effects))
                         ? effectDevice ??= new VulkanClipEffects() : null;
+                    if (device is null) effectDevice?.Flush();
                     CreatorRenderer.Composite(target, width, height, source, a.Stream, opacity, effects ?? IdentityEffects, profile, time, device, cancellation, rotation);
                 }
             }
@@ -186,7 +251,7 @@ public sealed class SequenceEvaluator : IDisposable
             var stream = asset.Streams.First(item => item.Index == clip.StreamIndex);
             warmVideo = (clip.Id, Task.Run(() =>
             {
-                var cursor = new VideoCursor(asset, stream, source, Sequence.AudioSampleRate, useProxies, retainVideoHistory);
+                var cursor = new VideoCursor(asset, stream, source, Sequence.AudioSampleRate, useProxies, retainVideoHistory, requestHardware);
                 try
                 {
                     cursor.At(source, cancellation);
@@ -278,6 +343,11 @@ public sealed class SequenceEvaluator : IDisposable
         double scale = Math.Min((double)width / source.Width, (double)height / source.Height);
         int w = Math.Max(1, (int)(source.Width * scale)), h = Math.Max(1, (int)(source.Height * scale));
         int left = (width - w) / 2, top = (height - h) / 2;
+        if (opacity == 1 && BitConverter.IsLittleEndian)
+        {
+            CompositeOpaque(output, width, height, source, w, h, left, top);
+            return;
+        }
         // Each layer has an opaque black letterbox, matching full-sequence layer bounds.
         for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++)
@@ -286,6 +356,36 @@ public sealed class SequenceEvaluator : IDisposable
             bool inside = x >= left && x < left + w && y >= top && y < top + h;
             int s = inside ? (((y - top) * source.Height / h) * source.Width + (x - left) * source.Width / w) * 4 : 0;
             for (int c = 0; c < 3; c++) output[d + c] = (byte)Math.Clamp((inside ? source.Rgba[s + c] : 0) * opacity + output[d + c] * (1 - opacity), 0, 255);
+        }
+    }
+
+    private static void CompositeOpaque(byte[] output, int width, int height, VideoFrame source, int w, int h, int left, int top)
+    {
+        const uint alpha = 0xff000000;
+        // Preserve the old integer nearest-neighbor coordinates and the destination alpha.
+        // A 640px proxy otherwise pays three blend and clamp operations for every output pixel.
+        var destination = MemoryMarshal.Cast<byte, uint>(output.AsSpan());
+        var input = MemoryMarshal.Cast<byte, uint>(source.Rgba.AsSpan());
+        Span<int> columns = w <= 4096 ? stackalloc int[w] : new int[w];
+        for (int x = 0; x < w; x++) columns[x] = (int)((long)x * source.Width / w);
+        for (int y = 0; y < height; y++)
+        {
+            var row = destination.Slice(y * width, width);
+            if (y < top || y >= top + h)
+            {
+                ClearRgb(row);
+                continue;
+            }
+            ClearRgb(row[..left]);
+            var center = row.Slice(left, w);
+            var sourceRow = input.Slice((int)((long)(y - top) * source.Height / h) * source.Width, source.Width);
+            for (int x = 0; x < w; x++) center[x] = (center[x] & alpha) | (sourceRow[columns[x]] & ~alpha);
+            ClearRgb(row[(left + w)..]);
+        }
+
+        static void ClearRgb(Span<uint> pixels)
+        {
+            for (int x = 0; x < pixels.Length; x++) pixels[x] &= alpha;
         }
     }
     private static void Limit(int count) { if (count > 8) throw new NotSupportedException("M1b supports up to eight simultaneous clips per media kind."); }
@@ -321,14 +421,29 @@ public sealed class SequenceEvaluator : IDisposable
         private readonly int rate;
         private ProxySource? proxy;
         private readonly bool retainHistory;
-        public VideoCursor(MediaAsset asset, AssetStream stream, SourcePosition position, int rate, bool useProxy, bool retainHistory)
+        private bool requestHardware;
+        private string? hardwareFailure;
+        public VideoCursor(MediaAsset asset, AssetStream stream, SourcePosition position, int rate, bool useProxy, bool retainHistory,
+            bool requestHardware = false)
         {
             this.asset = asset; this.stream = stream; this.rate = rate;
             this.retainHistory = retainHistory;
-            proxy = useProxy ? MediaProxy.Resolve(asset, stream) : null;
-            try { decoder = new(proxy?.Asset ?? asset, proxy?.Stream ?? stream, position, rate); }
+            this.requestHardware = requestHardware;
+            proxy = useProxy ? MediaProxy.ResolvePreview(asset, stream) : null;
+            try { decoder = Open(position); }
             catch (Exception error) when (proxy is not null && error is IOException or InvalidOperationException or NotSupportedException)
-            { proxy = null; decoder = new(asset, stream, position, rate); }
+            { proxy = null; decoder = Open(position); }
+        }
+
+        private FfmpegDecoder Open(SourcePosition target)
+        {
+            try { return new(proxy?.Asset ?? asset, proxy?.Stream ?? stream, target, rate, requestHardware && proxy is null); }
+            catch (HardwareVideoDecodeException error)
+            {
+                requestHardware = false;
+                hardwareFailure = error.Message;
+                return new(asset, stream, target, rate);
+            }
         }
         private VideoFrame? current;
         private MediaTimestamp? nextTimestamp;
@@ -339,16 +454,40 @@ public sealed class SequenceEvaluator : IDisposable
         public long ConvertedFrames { get; private set; }
         public long HistoryHits { get; private set; }
         public long Seeks { get; private set; }
+        public bool UsesProxy => proxy is not null;
+        public bool TryTakePixels(VideoFrame picture)
+        {
+            if (!ReferenceEquals(picture, current)) return false;
+            // The result owns this writable array. A repeat request can materialize the retained
+            // native picture again, without sharing the output or keeping another RGBA buffer.
+            current = null;
+            retainedDirty = true;
+            return true;
+        }
         public VideoFrame? At(SourcePosition target, CancellationToken cancellation)
         {
             try { return ReadAt(target, cancellation); }
-            catch (Exception error) when (proxy is not null && error is IOException or InvalidOperationException or NotSupportedException)
+            catch (HardwareVideoDecodeException error)
             {
-                decoder.Dispose(); proxy = null;
-                decoder = new(asset, stream, target, rate);
-                current = null; nextTimestamp = null; retainedDirty = false; ended = false; requested = null;
+                cancellation.ThrowIfCancellationRequested();
+                requestHardware = false;
+                hardwareFailure = error.Message;
+                Reopen(target);
                 return ReadAt(target, cancellation);
             }
+            catch (Exception error) when (proxy is not null && error is IOException or InvalidOperationException or NotSupportedException)
+            {
+                proxy = null;
+                Reopen(target);
+                return ReadAt(target, cancellation);
+            }
+        }
+
+        private void Reopen(SourcePosition target)
+        {
+            decoder.Dispose();
+            decoder = Open(target);
+            current = null; nextTimestamp = null; retainedDirty = false; ended = false; requested = null;
         }
         private VideoFrame? ReadAt(SourcePosition target, CancellationToken cancellation)
         {
@@ -366,7 +505,7 @@ public sealed class SequenceEvaluator : IDisposable
                 catch (InvalidDataException)
                 {
                     decoder.Dispose();
-                    decoder = new(proxy?.Asset ?? asset, proxy?.Stream ?? stream, target, rate);
+                    decoder = Open(target);
                 }
                 current = null; nextTimestamp = null; retainedDirty = false; ended = false;
             }
@@ -379,7 +518,14 @@ public sealed class SequenceEvaluator : IDisposable
                 }
                 if (nextTimestamp is null || new SourcePosition(nextTimestamp.Value).CompareTo(target) > 0)
                 {
-                    if (retainedDirty) { current = decoder.CopyRetainedVideo(); ConvertedFrames++; retainedDirty = false; }
+                    if (retainedDirty)
+                    {
+                        current = decoder.CopyRetainedVideo();
+                        if (hardwareFailure is not null && current.Decode is { } evidence)
+                            current = current with { Decode = evidence with { Fallback = hardwareFailure } };
+                        ConvertedFrames++;
+                        retainedDirty = false;
+                    }
                     return WithinDecodedStream(current, target);
                 }
                 if (retainHistory) decoder.RememberVideo(nextTimestamp.Value);

@@ -21,7 +21,8 @@ public sealed partial class EditingEngine
         var availability = new List<EncoderAvailability>();
         foreach (var encoder in ExportCatalog.Encoders)
             availability.Add(await ExportCatalog.ProbeAsync(encoder, cancellation).ConfigureAwait(false));
-        return new { version = 1, presets = ExportCatalog.Presets, encoders = availability };
+        return new { version = 1, presets = ExportCatalog.Presets, encoders = availability, videoDecode = VideoDecodeProvider.Probe(),
+            previewProxyPolicy = MediaProxy.Policy.ToString() };
     }
 
     private async Task<object> ManageRenderQueue(ProjectSnapshot snapshot, JsonElement request, CancellationToken cancellation)

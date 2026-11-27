@@ -53,11 +53,15 @@ public static class ProductDoctor
             string decoder = FfmpegRuntime.DecoderIdentity;
             string codecs = string.Join(", ", new[] { "h264", "hevc", "av1", "vp9", "aac", "opus" }.Where(FfmpegRuntime.HasDecoder));
             checks.Add(new("ffmpeg-decode", true, true, decoder + ". Decoders " + codecs + "."));
+            var hardware = VideoDecodeProvider.Probe();
+            checks.Add(new("d3d11va-decode-device", false, hardware.DeviceAvailable, hardware.Detail
+                + " FFmpeg codec configurations: " + string.Join(", ", hardware.CodecConfigurations) + "."));
         }
         catch (Exception error) when (error is InvalidOperationException or DllNotFoundException or EntryPointNotFoundException or IOException or NotSupportedException)
         { checks.Add(new("ffmpeg-decode", true, false, error.Message, "Repair or re-extract the Valencia distribution.")); }
-        foreach (string name in new[] { "Analysis-v1", "Recovery", "RenderQueue" })
+        foreach (string name in new[] { "Analysis-v1", "AudioSeek-v1", "Recovery", "RenderQueue" })
             checks.Add(CheckDirectory(name));
+        checks.Add(new("preview-proxy-policy", false, true, MediaProxy.Policy.ToString()));
         bool obs;
         using (var process = Process.GetProcessesByName("obs64").FirstOrDefault()) obs = process is not null;
         checks.Add(new("obs", false, obs, obs ? "An OBS process is running." : "OBS is not running.",

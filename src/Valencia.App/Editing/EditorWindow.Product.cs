@@ -11,6 +11,57 @@ internal sealed partial class EditorWindow
     private ExportStatus? lastExportStatus;
     private double lastProductPoll;
     private bool firstRunChecked;
+    private (EditingEngine Engine, Guid Job)? previewProxy;
+    private (Guid Asset, int Stream)? pendingPreviewProxy;
+    private bool refreshPausedProxy;
+
+    private void ConsiderPreviewProxy(ImportedAsset imported)
+    {
+        var stream = imported.Asset.Streams.FirstOrDefault(item => MediaProxy.ShouldPrepare(item, imported.Duration));
+        if (stream is not null) pendingPreviewProxy = (imported.Asset.Id, stream.Index);
+    }
+
+    private void PollPreviewProxy()
+    {
+        if (previewProxy is { } active)
+        {
+            if (!ReferenceEquals(active.Engine.Session, Editor.Session)) previewProxy = null;
+            else
+            {
+                var status = active.Engine.Analysis.Status(active.Job);
+                if (status.State == "running") return;
+                previewProxy = null;
+                refreshPausedProxy = status.State == "completed";
+                Editor.Status = status.State switch
+                {
+                    "completed" => "Preview proxy ready.",
+                    "cancelled" => "Preview proxy cancelled.",
+                    _ => "Preview proxy failed. " + status.Error
+                };
+                diagnostics.Record("preview-proxy-" + status.State, generation, Editor.Playhead.Ticks, status.Error);
+                lastUi = -1;
+            }
+        }
+        if (pendingPreviewProxy is not { } pending || job is not null) return;
+        if (agentProposalEngine is { } service && ReferenceEquals(service.Session, Editor.Session)
+            && service.Analysis.ActiveJobs().Length > 0) return;
+        pendingPreviewProxy = null;
+        if (!Editor.Session.Snapshot.Document.Assets.Any(asset => asset.Id == pending.Asset)) return;
+        RunJob(async () =>
+        {
+            var engine = await DesktopAgentEngineAsync();
+            var id = engine.Analysis.Start(new(pending.Asset, pending.Stream, "proxy"));
+            previewProxy = (engine, id);
+            Editor.Status = "Preparing preview proxy in the background.";
+        });
+    }
+
+    private void CancelPreviewProxy()
+    {
+        pendingPreviewProxy = null;
+        if (previewProxy is { } active && ReferenceEquals(active.Engine.Session, Editor.Session))
+            active.Engine.Analysis.Cancel(active.Job);
+    }
 
     private void QueueDesktopExport(string? presetId = null)
     {
@@ -47,6 +98,7 @@ internal sealed partial class EditorWindow
     {
         if (clock.Elapsed.TotalSeconds - lastProductPoll < .3) return;
         lastProductPoll = clock.Elapsed.TotalSeconds;
+        PollPreviewProxy();
         if (!firstRunChecked && Media.FfmpegRuntime.IsDistribution && job is null && smoke is null)
         {
             firstRunChecked = true;

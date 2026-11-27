@@ -68,7 +68,7 @@ internal static class EffectSmoke
         File.WriteAllText(Path.Combine(directory, "result.json"), JsonSerializer.Serialize(new
         {
             outcome = passed ? "passed" : "failed", gpu = gpu.EffectGpu, gpu.EffectValidationAvailable, gpu.EffectValidationErrors,
-            graphics.ValidationAvailable, graphics.ValidationErrorCount, comparisons
+            graphics.ValidationAvailable, graphics.ValidationErrorCount, gpu.EffectTransferTotals, comparisons
         }, new JsonSerializerOptions { WriteIndented = true }));
         if (!passed) throw new InvalidOperationException("Native Clip Effects qualification failed. See result.json.");
     }

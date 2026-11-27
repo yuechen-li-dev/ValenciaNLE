@@ -12,7 +12,11 @@ internal sealed class AudioSeekIndex
     private readonly MediaAsset asset;
     private readonly AssetStream stream;
     private readonly List<Anchor> anchors = [];
+    private readonly object work = new();
     private readonly int rate;
+    private string? cacheKey;
+    private int savedAnchors;
+    private bool cacheChecked, reused, savedEnd;
     private SourcePosition origin;
     private long samples;
     private SourcePosition last;
@@ -24,11 +28,10 @@ internal sealed class AudioSeekIndex
         rate = stream.SampleRate ?? throw new NotSupportedException("An audio sample rate is required for precise seeking.");
     }
 
-    public static Anchor Resolve(MediaAsset asset, AssetStream stream, SourcePosition target, CancellationToken cancellation)
+    private static AudioSeekIndex Get(MediaAsset asset, AssetStream stream)
     {
         var file = new FileInfo(asset.SourcePath);
-        string key = $"{file.FullName}|{file.Length}|{file.LastWriteTimeUtc.Ticks}|{stream.Index}";
-        // Index building is worker-only. Serializing this small owner also prevents eviction during an active query.
+        string key = $"{ValenciaData.Root}|{file.FullName}|{file.Length}|{file.LastWriteTimeUtc.Ticks}|{stream.Index}";
         lock (Gate)
         {
             if (!Recent.TryGetValue(key, out var index))
@@ -40,17 +43,73 @@ internal sealed class AudioSeekIndex
                 }
                 Recent.Add(key, index = new(asset, stream));
             }
-            return index.Find(target, cancellation);
+            return index;
         }
     }
+
+    public static Anchor Resolve(MediaAsset asset, AssetStream stream, SourcePosition target, CancellationToken cancellation)
+    {
+        var index = Get(asset, stream);
+        lock (index.work)
+        {
+            index.TryLoad(cancellation);
+            try { return index.Find(target, cancellation); }
+            finally { index.TrySave(force: false); }
+        }
+    }
+
     public static SourceIndexData Build(MediaAsset asset, AssetStream stream, SourcePosition end, CancellationToken cancellation)
     {
-        lock (Gate)
+        var index = Get(asset, stream);
+        // Background construction yields between bounded spans so a seek inside the already
+        // indexed region can use its anchors while the worker is still counting later samples.
+        while (true)
         {
-            Resolve(asset, stream, end, cancellation);
-            var info = new FileInfo(asset.SourcePath);
-            var index = Recent[$"{info.FullName}|{info.Length}|{info.LastWriteTimeUtc.Ticks}|{stream.Index}"];
-            return new(stream.Index, "Progressive original decoded sample-count anchors at two-second intervals; process cache; forward epochs preserved", index.last, index.anchors.Count);
+            lock (index.work)
+            {
+                index.TryLoad(cancellation);
+                var boundary = index.started ? index.last : new SourcePosition(stream.Start ?? new(0, stream.TimeBaseNumerator, stream.TimeBaseDenominator));
+                boundary = boundary.Shift(new(120 * SequenceTime.TicksPerSecond));
+                if (end.CompareTo(boundary) < 0) boundary = end;
+                try { index.Find(boundary, cancellation); }
+                finally
+                {
+                    bool reachedEnd = index.ended || (index.started && index.last.CompareTo(end) >= 0);
+                    index.TrySave(force: !cancellation.IsCancellationRequested && reachedEnd);
+                }
+                if (index.ended || index.last.CompareTo(end) >= 0)
+                    return new(stream.Index, "Progressive original decoded sample-count anchors at two-second intervals; forward epochs preserved",
+                        index.last, index.anchors.Count, index.reused, index.savedAnchors);
+            }
+            Thread.Yield();
+        }
+    }
+
+    private void TryLoad(CancellationToken cancellation)
+    {
+        cancellation.ThrowIfCancellationRequested();
+        if (cacheChecked) return;
+        cacheChecked = true;
+        cacheKey = AudioSeekStorage.Key(asset, stream);
+        if (cacheKey is null || AudioSeekStorage.Read(cacheKey) is not { } saved) return;
+        anchors.AddRange(saved.Anchors);
+        started = reused = true;
+        savedAnchors = anchors.Count;
+        last = saved.Through;
+        ended = savedEnd = saved.Ended;
+    }
+
+    private void TrySave(bool force)
+    {
+        if (cacheKey is null || (anchors.Count == savedAnchors && ended == savedEnd) || anchors.Count == 0
+            || (!force && !ended && anchors.Count - savedAnchors < 256)) return;
+        // Only a verified anchor is a durable resume point until EOF has been proven.
+        var through = ended ? last : anchors[^1].Position;
+        if (cacheKey != AudioSeekStorage.Key(asset, stream)) return;
+        if (AudioSeekStorage.Write(cacheKey, new(anchors, through, ended)))
+        {
+            savedAnchors = anchors.Count;
+            savedEnd = ended;
         }
     }
 
@@ -91,7 +150,8 @@ internal sealed class AudioSeekIndex
             }
             if (!started || position.Since(anchors[^1].Position).Ticks >= 2 * SequenceTime.TicksPerSecond)
             {
-                if (anchors.Count >= 12000) throw new NotSupportedException("Audio seek index exceeds the supported six-hour anchor budget.");
+                if (anchors.Count >= AudioSeekStorage.MaximumAnchors)
+                    throw new NotSupportedException("Audio seek index exceeds its 12,000-anchor budget.");
                 anchors.Add(new(pts, position, origin, samples));
             }
             samples = checked(samples + reader.SourceSampleCount);

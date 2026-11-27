@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Collections.Immutable;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text.Json;
 using Valencia.Core;
 using Valencia.Core.Editing;
@@ -31,6 +33,152 @@ if (!transaction.Success) throw new InvalidOperationException(transaction.Messag
 var snapshot = engine.Session.Snapshot;
 var sequence = engine.Query().Sequence(sequenceId);
 var firstVideo = sequence.Tracks.First(t => t.Kind == TrackKind.Video).Clips[0];
+if (Array.IndexOf(args, "--slice-project") is int sliceOption && sliceOption >= 0)
+{
+    var start = new SequenceTime(7201 * SequenceTime.TicksPerSecond);
+    var sixSeconds = new SequenceTime(6 * SequenceTime.TicksPerSecond);
+    foreach (var clip in sequence.Tracks.SelectMany(track => track.Clips))
+    {
+        var from = clip.MapToSource(start);
+        Apply(new TrimClip(sequenceId, clip.Id, default, from, from.Shift(sixSeconds)));
+    }
+    Apply(new PatchClipColor(sequenceId, firstVideo.Id, new(Exposure: .14, Contrast: 1.07)));
+    var second = MediaAssetProbe.Import(Guid.NewGuid(), Path.GetFullPath(args[sliceOption + 1]));
+    var secondVideo = second.Asset.Streams.First(item => item.Kind == TrackKind.Video);
+    var secondStart = new SourcePosition(secondVideo.Start ?? second.ContainerStart);
+    Apply(new AddAsset(second.Asset));
+    var main = sequence.Tracks.First(track => track.Kind == TrackKind.Video);
+    Apply(new InsertClip(sequenceId, main.Id, new(Guid.NewGuid(), second.Asset.Id, secondVideo.Index,
+        new(13 * SequenceTime.TicksPerSecond / 2), secondStart, secondStart.Shift(new(2 * SequenceTime.TicksPerSecond)), new("Second source"))));
+    Guid overlay = Guid.NewGuid();
+    Apply(new AddTrack(sequenceId, overlay, TrackKind.Video, main.Order + 1, "Qualification overlay"));
+    Apply(new InsertClip(sequenceId, overlay, new(Guid.NewGuid(), second.Asset.Id, secondVideo.Index,
+        new(SequenceTime.TicksPerSecond / 2), secondStart, secondStart.Shift(new(3 * SequenceTime.TicksPerSecond)),
+        new("Fractional effect", Opacity: .4m, Video: new(Scale: .8, Saturation: .8, Region: new("pixelate", .1, .1, .4, .35))))));
+    var mic = engine.Query().Sequence(sequenceId).Tracks.First(track => track.Kind == TrackKind.Audio).Clips[0];
+    var caption = new CaptionWord(Guid.NewGuid(), mic.AssetId, mic.StreamIndex,
+        mic.SourceIn.Shift(new(SequenceTime.TicksPerSecond)), mic.SourceIn.Shift(new(3 * SequenceTime.TicksPerSecond)),
+        "Qualification");
+    Apply(new SetCreatorSettings(sequenceId, new(1, [caption], new(), [], [])));
+    await engine.SaveAsync(Path.Combine(output, "source.valencia"), token);
+    return;
+}
+if (args.Contains("--project-only"))
+{
+    await engine.SaveAsync(Path.Combine(output, "source.valencia"), token);
+    return;
+}
+if (args.Contains("--audio-index"))
+{
+    var measurements = new List<object>();
+    foreach (var stream in imported.Asset.Streams.Where(s => s.Kind == TrackKind.Audio))
+    {
+        var timer = Stopwatch.StartNew();
+        var index = MediaIndex.Build(imported.Asset, stream.Index, token);
+        measurements.Add(new { index, elapsedMs = timer.Elapsed.TotalMilliseconds });
+    }
+    await File.WriteAllTextAsync(Path.Combine(output, "audio-index.json"), EngineJson.Write(measurements), token);
+    return;
+}
+if (args.Contains("--export-comparison"))
+{
+    var measurements = new List<object>();
+    var end = new SequenceTime(Math.Min(sequence.Duration.Ticks, 8 * SequenceTime.TicksPerSecond));
+    Environment.SetEnvironmentVariable("VALENCIA_VIDEO_DECODER", "software");
+    foreach (int pass in new[] { 0, 1 })
+    foreach (string backend in pass == 0 ? new[] { "h264", "h264-nvenc" } : new[] { "h264-nvenc", "h264" })
+    {
+        var encoder = ExportCatalog.Encoder(backend);
+        encoder = encoder with { Options = ["-preset", backend == "h264" ? "veryfast" : "p4", "-b:v", "12M", "-g", "120"] };
+        var result = await SequenceExport.RunAsync(snapshot, sequenceId, Path.Combine(output, $"{backend}-{pass}.mp4"),
+            cancellation: token, range: (default, end), encoder: encoder);
+        measurements.Add(new { pass, result });
+    }
+    await File.WriteAllTextAsync(Path.Combine(output, "export-comparison.json"), EngineJson.Write(new
+    {
+        source, imported.Asset, measurements,
+        scope = "Same 8-second source range, software decode, output size, 12 Mb/s target, GOP, AAC and render path. Encoder speed/rate control algorithms differ."
+    }), token);
+    return;
+}
+if (args.Contains("--proxy-comparison"))
+{
+    string cache = Path.Combine(output, "proxies");
+    Environment.SetEnvironmentVariable("VALENCIA_PROXY_DIR", cache);
+    Environment.SetEnvironmentVariable("VALENCIA_PREVIEW_PROXY", "always");
+    var timer = Stopwatch.StartNew();
+    var proxy = await MediaProxy.GenerateAsync(imported.Asset, video.Index, token);
+    double buildMs = timer.Elapsed.TotalMilliseconds;
+    timer.Restart();
+    var reopened = await MediaProxy.GenerateAsync(imported.Asset, video.Index, token);
+    double reuseMs = timer.Elapsed.TotalMilliseconds;
+    if (reopened != proxy) throw new InvalidDataException("Proxy generation did not reuse the published file.");
+    var measurements = new List<object>();
+    var randomSeek = new Random(20261127);
+    using var original = new SequenceEvaluator(snapshot, sequenceId, retainVideoHistory: true);
+    using var preview = new SequenceEvaluator(snapshot, sequenceId, useProxies: true, retainVideoHistory: true);
+    for (int index = 0; index < 40; index++)
+    {
+        var at = new SequenceTime(firstVideo.Start.Ticks + (long)(randomSeek.NextDouble() *
+            Math.Max(0, firstVideo.Duration.Ticks - SequenceTime.TicksPerSecond / 4)));
+        timer.Restart();
+        var sourceFrame = original.Video(at, token);
+        double originalMs = timer.Elapsed.TotalMilliseconds;
+        timer.Restart();
+        var proxyFrame = preview.Video(at, token);
+        double proxyMs = timer.Elapsed.TotalMilliseconds;
+        if (!proxyFrame.PrimaryUsesProxy || !sourceFrame.SourceTimestamps!.Value.SequenceEqual(proxyFrame.SourceTimestamps!.Value))
+            throw new InvalidDataException($"Proxy changed the selected picture timestamp at {at.TotalSeconds:F6}s.");
+        measurements.Add(new { index, at, originalMs, proxyMs, proxyFrame.SourceTimestamps });
+    }
+    await File.WriteAllTextAsync(Path.Combine(output, "proxy-comparison.json"), EngineJson.Write(new
+    {
+        source, cache, proxy, buildMs, reuseMs, measurements,
+        scope = "Source-sized software composition with matched original and proxy cursor requests. UI latency is measured in the native smoke."
+    }), token);
+    return;
+}
+if (args.Contains("--decode-comparison"))
+{
+    var capability = VideoDecodeProvider.Probe();
+    var measurements = new List<object>();
+    var seekRandom = new Random(20261127);
+    // Time selection is deliberately independent of logical frame rate and exercises both directions.
+    var positions = new[] { 0L }.Concat(Enumerable.Range(0, 40).Select(_ =>
+        (long)(seekRandom.NextDouble() * Math.Max(0, firstVideo.Duration.Ticks - SequenceTime.TicksPerSecond / 4))));
+    using var software = new SequenceEvaluator(snapshot, sequenceId, useHardwareDecode: false);
+    using var hardware = new SequenceEvaluator(snapshot, sequenceId, useHardwareDecode: true);
+    byte[]? referencePixels = null, selectedPixels = null;
+    int query = 0;
+    foreach (long ticks in positions)
+    {
+        var time = new SequenceTime(firstVideo.Start.Ticks + ticks);
+        var timer = Stopwatch.StartNew();
+        var reference = software.Video(time, token);
+        double softwareMs = timer.Elapsed.TotalMilliseconds;
+        timer.Restart();
+        var selected = hardware.Video(time, token);
+        double hardwareMs = timer.Elapsed.TotalMilliseconds;
+        if (reference.VideoClips.Length != 1 || reference.SourceTimestamps is not { Length: 1 }
+            || selected.SourceTimestamps is not { Length: 1 }
+            || !reference.SourceTimestamps.Value.SequenceEqual(selected.SourceTimestamps.Value))
+            throw new InvalidDataException($"Timestamp mismatch after seek at {time.TotalSeconds:F6}s.");
+        var (maximum, mean, high) = ComparePixels(reference.Rgba, selected.Rgba);
+        measurements.Add(new { request = query++, ticks, softwareMs, hardwareMs, selected.SourceTimestamps, selected.PrimaryDecode,
+            referenceFormat = reference.PrimaryDecode, maximumRgbDelta = maximum, meanRgbDelta = mean, channelsAbove8 = high });
+        referencePixels ??= reference.Rgba;
+        selectedPixels ??= selected.Rgba;
+    }
+    await File.WriteAllBytesAsync(Path.Combine(output, "first-software.rgba"), referencePixels!, token);
+    await File.WriteAllBytesAsync(Path.Combine(output, "first-d3d11-request.rgba"), selectedPixels!, token);
+    await File.WriteAllTextAsync(Path.Combine(output, "decode-comparison.json"), EngineJson.Write(new
+    {
+        source, imported.Asset, capability, importMs, measurements, runtime = Environment.Version.ToString(),
+        peakWorkingSetBytes = Process.GetCurrentProcess().PeakWorkingSet64,
+        scope = "Paired source-size seek requests on two independent authoritative evaluators. Times exclude pixel comparison and UI."
+    }), token);
+    return;
+}
 if (args.Contains("--scrub-seeks"))
 {
     if (!OperatingSystem.IsWindows()) throw new PlatformNotSupportedException("Audio-device seek comparison requires Windows.");
@@ -76,7 +224,8 @@ if (args.Contains("--audio-seeks"))
             var timer = Stopwatch.StartNew();
             var pcm = evaluator.Audio(at, 0, 2048, token);
             var measurement = new { pass, second, elapsedMs = timer.Elapsed.TotalMilliseconds,
-                sampleCount = pcm.Length, finite = pcm.All(float.IsFinite) };
+                sampleCount = pcm.Length, finite = pcm.All(float.IsFinite),
+                pcmSha256 = Convert.ToHexString(SHA256.HashData(MemoryMarshal.AsBytes(pcm.AsSpan()))) };
             measurements.Add(measurement);
             Console.Error.WriteLine(EngineJson.Write(measurement));
             await File.WriteAllTextAsync(Path.Combine(output, "audio-seeks.json"), EngineJson.Write(new
@@ -171,3 +320,19 @@ var resultData = new
 await File.WriteAllTextAsync(Path.Combine(output, "headless.json"), EngineJson.Write(resultData), token);
 await engine.SaveAsync(Path.Combine(output, "source.valencia"), token);
 Console.WriteLine(EngineJson.Write(resultData));
+
+static (int Maximum, double Mean, long ChannelsAbove8) ComparePixels(byte[] reference, byte[] selected)
+{
+    if (reference.Length != selected.Length) throw new InvalidDataException("Decoded output dimensions do not match.");
+    int maximum = 0;
+    long total = 0, high = 0;
+    for (int offset = 0; offset < reference.Length; offset++)
+    {
+        if ((offset & 3) == 3) continue;
+        int delta = Math.Abs(reference[offset] - selected[offset]);
+        maximum = Math.Max(delta, maximum);
+        total += delta;
+        if (delta > 8) high++;
+    }
+    return (maximum, (double)total / (reference.Length * .75), high);
+}

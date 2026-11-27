@@ -1,0 +1,1740 @@
+{
+  "milestone": "M3d",
+  "version": "0.3.0-rc.3",
+  "validationDate": "2026-11-27",
+  "scope": "Single Windows 11 workstation, RTX 3070 driver 610.88, Ryzen 7 7700X, FFmpeg 7.1.4 staging. See MEDIA_QUALIFICATION.md.",
+  "baselineNative1080": {
+    "seconds": 10.007150800000002,
+    "selectedFps": 59.457483142954125,
+    "maximumSkewSeconds": 0.06535416666666666,
+    "underrunFrames": 0,
+    "drawLoopMilliseconds": {
+      "samples": 1300,
+      "p50": 5.6503,
+      "p95": 8.8286,
+      "p99": 14.5672,
+      "maximum": 119.5517
+    }
+  },
+  "exactAudio": {
+    "baseline": {
+      "firstPassMilliseconds": {
+        "samples": 6,
+        "p50": 92.5421,
+        "p95": 10020.8787,
+        "p99": 10020.8787,
+        "maximum": 10020.8787
+      },
+      "warmMilliseconds": {
+        "samples": 6,
+        "p50": 91.6179,
+        "p95": 121.4169,
+        "p99": 121.4169,
+        "maximum": 121.4169
+      },
+      "firstSeek5952Ms": 10020.8787
+    },
+    "cold": {
+      "firstPassMilliseconds": {
+        "samples": 6,
+        "p50": 101.4525,
+        "p95": 9718.085,
+        "p99": 9718.085,
+        "maximum": 9718.085
+      },
+      "warmMilliseconds": {
+        "samples": 6,
+        "p50": 89.2158,
+        "p95": 103.974,
+        "p99": 103.974,
+        "maximum": 103.974
+      },
+      "firstSeek5952Ms": 9718.085
+    },
+    "reopened": {
+      "firstPassMilliseconds": {
+        "samples": 6,
+        "p50": 115.2809,
+        "p95": 179.7822,
+        "p99": 179.7822,
+        "maximum": 179.7822
+      },
+      "warmMilliseconds": {
+        "samples": 6,
+        "p50": 88.1027,
+        "p95": 101.3068,
+        "p99": 101.3068,
+        "maximum": 101.3068
+      },
+      "firstSeek5952Ms": 179.7822
+    },
+    "pcmHashesMatchAcrossProcesses": true,
+    "indexChecksumRecovery": {
+      "index-new": [
+        {
+          "index": {
+            "streamIndex": 1,
+            "policy": "Progressive original decoded sample-count anchors at two-second intervals; forward epochs preserved",
+            "through": {
+              "timestamp": {
+                "value": "-21",
+                "numerator": 1,
+                "denominator": 1000
+              },
+              "offset": {
+                "ticks": "3050901504000"
+              }
+            },
+            "anchors": 6,
+            "reusedPersistentAnchors": false,
+            "persistedAnchors": 6
+          },
+          "elapsedMs": 158.3607
+        },
+        {
+          "index": {
+            "streamIndex": 2,
+            "policy": "Progressive original decoded sample-count anchors at two-second intervals; forward epochs preserved",
+            "through": {
+              "timestamp": {
+                "value": "-21",
+                "numerator": 1,
+                "denominator": 1000
+              },
+              "offset": {
+                "ticks": "3050901504000"
+              }
+            },
+            "anchors": 6,
+            "reusedPersistentAnchors": false,
+            "persistedAnchors": 6
+          },
+          "elapsedMs": 129.507
+        }
+      ],
+      "index-reopened": [
+        {
+          "index": {
+            "streamIndex": 1,
+            "policy": "Progressive original decoded sample-count anchors at two-second intervals; forward epochs preserved",
+            "through": {
+              "timestamp": {
+                "value": "-21",
+                "numerator": 1,
+                "denominator": 1000
+              },
+              "offset": {
+                "ticks": "3050901504000"
+              }
+            },
+            "anchors": 6,
+            "reusedPersistentAnchors": true,
+            "persistedAnchors": 6
+          },
+          "elapsedMs": 59.5711
+        },
+        {
+          "index": {
+            "streamIndex": 2,
+            "policy": "Progressive original decoded sample-count anchors at two-second intervals; forward epochs preserved",
+            "through": {
+              "timestamp": {
+                "value": "-21",
+                "numerator": 1,
+                "denominator": 1000
+              },
+              "offset": {
+                "ticks": "3050901504000"
+              }
+            },
+            "anchors": 6,
+            "reusedPersistentAnchors": true,
+            "persistedAnchors": 6
+          },
+          "elapsedMs": 45.5405
+        }
+      ],
+      "index-after-corruption": [
+        {
+          "index": {
+            "streamIndex": 1,
+            "policy": "Progressive original decoded sample-count anchors at two-second intervals; forward epochs preserved",
+            "through": {
+              "timestamp": {
+                "value": "-21",
+                "numerator": 1,
+                "denominator": 1000
+              },
+              "offset": {
+                "ticks": "3050901504000"
+              }
+            },
+            "anchors": 6,
+            "reusedPersistentAnchors": false,
+            "persistedAnchors": 6
+          },
+          "elapsedMs": 138.8612
+        },
+        {
+          "index": {
+            "streamIndex": 2,
+            "policy": "Progressive original decoded sample-count anchors at two-second intervals; forward epochs preserved",
+            "through": {
+              "timestamp": {
+                "value": "-21",
+                "numerator": 1,
+                "denominator": 1000
+              },
+              "offset": {
+                "ticks": "3050901504000"
+              }
+            },
+            "anchors": 6,
+            "reusedPersistentAnchors": true,
+            "persistedAnchors": 6
+          },
+          "elapsedMs": 51.4394
+        }
+      ]
+    }
+  },
+  "decode": {
+    "final-1440": {
+      "softwareMilliseconds": {
+        "samples": 41,
+        "p50": 252.9668,
+        "p95": 442.4968,
+        "p99": 476.4158,
+        "maximum": 476.4158
+      },
+      "requestedD3d11Milliseconds": {
+        "samples": 41,
+        "p50": 495.9536,
+        "p95": 1195.5355,
+        "p99": 1273.2572,
+        "maximum": 1273.2572
+      },
+      "actualBackend": "d3d11va",
+      "observedPlanes": "nv12",
+      "fallback": null,
+      "downloadMilliseconds": {
+        "samples": 41,
+        "p50": 94.6413,
+        "p95": 122.9257,
+        "p99": 123.7317,
+        "maximum": 123.7317
+      },
+      "normalizeMilliseconds": {
+        "samples": 41,
+        "p50": 0.2383,
+        "p95": 0.2988,
+        "p99": 0.8675,
+        "maximum": 0.8675
+      },
+      "selectedPictures": 41,
+      "maximumRgbDelta": 0,
+      "independentFfprobeSeeks": [
+        {
+          "requestedTicks": 3314992608695,
+          "independentPts": 200448
+        },
+        {
+          "requestedTicks": 756504275489,
+          "independentPts": 45568
+        },
+        {
+          "requestedTicks": 6051479051238,
+          "independentPts": 365824
+        },
+        {
+          "requestedTicks": 2687884513392,
+          "independentPts": 162304
+        }
+      ]
+    },
+    "final-long": {
+      "softwareMilliseconds": {
+        "samples": 41,
+        "p50": 95.7874,
+        "p95": 205.0023,
+        "p99": 219.2602,
+        "maximum": 219.2602
+      },
+      "requestedD3d11Milliseconds": {
+        "samples": 41,
+        "p50": 154.2137,
+        "p95": 328.4598,
+        "p99": 340.6985,
+        "maximum": 340.6985
+      },
+      "actualBackend": "d3d11va",
+      "observedPlanes": "nv12",
+      "fallback": null,
+      "downloadMilliseconds": {
+        "samples": 41,
+        "p50": 22.4123,
+        "p95": 30.9887,
+        "p99": 33.0993,
+        "maximum": 33.0993
+      },
+      "normalizeMilliseconds": {
+        "samples": 41,
+        "p50": 0.127,
+        "p95": 0.196,
+        "p99": 0.563,
+        "maximum": 0.563
+      },
+      "selectedPictures": 41,
+      "maximumRgbDelta": 0,
+      "independentFfprobeSeeks": [
+        {
+          "requestedTicks": 1001431263513127,
+          "independentPts": 3942408
+        },
+        {
+          "requestedTicks": 228533551015779,
+          "independentPts": 899698
+        },
+        {
+          "requestedTicks": 1828100701192355,
+          "independentPts": 7196809
+        },
+        {
+          "requestedTicks": 811987205450611,
+          "independentPts": 3196619
+        }
+      ]
+    },
+    "hevc-sdr10-2997.mp4": {
+      "softwareMilliseconds": {
+        "samples": 41,
+        "p50": 14.5384,
+        "p95": 26.5619,
+        "p99": 27.7204,
+        "maximum": 27.7204
+      },
+      "requestedD3d11Milliseconds": {
+        "samples": 41,
+        "p50": 9.5178,
+        "p95": 28.349,
+        "p99": 246.3744,
+        "maximum": 246.3744
+      },
+      "actualBackend": "d3d11va",
+      "observedPlanes": "p010le",
+      "fallback": null,
+      "downloadMilliseconds": {
+        "samples": 41,
+        "p50": 2.3505,
+        "p95": 4.9779,
+        "p99": 6.8092,
+        "maximum": 6.8092
+      },
+      "normalizeMilliseconds": {
+        "samples": 41,
+        "p50": 0.5159,
+        "p95": 0.5976,
+        "p99": 0.9983,
+        "maximum": 0.9983
+      },
+      "selectedPictures": 41,
+      "maximumRgbDelta": 0,
+      "independentFfprobeSeeks": [
+        {
+          "requestedTicks": 533736991766,
+          "independentPts": 62062
+        },
+        {
+          "requestedTicks": 121802478593,
+          "independentPts": 14014
+        },
+        {
+          "requestedTicks": 974330445284,
+          "independentPts": 114114
+        },
+        {
+          "requestedTicks": 432768203051,
+          "independentPts": 51051
+        }
+      ]
+    },
+    "av1-final": {
+      "softwareMilliseconds": {
+        "samples": 41,
+        "p50": 19.1829,
+        "p95": 41.1215,
+        "p99": 71.0933,
+        "maximum": 71.0933
+      },
+      "requestedD3d11Milliseconds": {
+        "samples": 41,
+        "p50": 3.5426,
+        "p95": 10.7183,
+        "p99": 367.0808,
+        "maximum": 367.0808
+      },
+      "actualBackend": "d3d11va",
+      "observedPlanes": "nv12",
+      "fallback": null,
+      "downloadMilliseconds": {
+        "samples": 41,
+        "p50": 1.2534,
+        "p95": 2.0209,
+        "p99": 2.866,
+        "maximum": 2.866
+      },
+      "normalizeMilliseconds": {
+        "samples": 41,
+        "p50": 0.0213,
+        "p95": 0.0297,
+        "p99": 0.6448,
+        "maximum": 0.6448
+      },
+      "selectedPictures": 41,
+      "maximumRgbDelta": 0,
+      "independentFfprobeSeeks": [
+        {
+          "requestedTicks": 526967915950,
+          "independentPts": 4000
+        },
+        {
+          "requestedTicks": 120257728604,
+          "independentPts": 2400
+        },
+        {
+          "requestedTicks": 961973578970,
+          "independentPts": 5700
+        },
+        {
+          "requestedTicks": 427279655653,
+          "independentPts": 3667
+        }
+      ]
+    },
+    "invalid-adapter": {
+      "softwareMilliseconds": {
+        "samples": 41,
+        "p50": 18.3303,
+        "p95": 33.1433,
+        "p99": 43.4642,
+        "maximum": 43.4642
+      },
+      "requestedD3d11Milliseconds": {
+        "samples": 41,
+        "p50": 17.2384,
+        "p95": 33.1943,
+        "p99": 233.7073,
+        "maximum": 233.7073
+      },
+      "actualBackend": "software",
+      "observedPlanes": "yuv420p10le",
+      "fallback": "Create D3D11VA decoder device: Unknown error occurred (-1313558101).",
+      "downloadMilliseconds": {
+        "samples": 41,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "maximum": 0
+      },
+      "normalizeMilliseconds": {
+        "samples": 41,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "maximum": 0
+      },
+      "selectedPictures": 41,
+      "maximumRgbDelta": 0
+    },
+    "unsupported-chroma": {
+      "softwareMilliseconds": {
+        "samples": 41,
+        "p50": 1.3616,
+        "p95": 2.933,
+        "p99": 51.6291,
+        "maximum": 51.6291
+      },
+      "requestedD3d11Milliseconds": {
+        "samples": 41,
+        "p50": 1.4138,
+        "p95": 2.7137,
+        "p99": 334.8351,
+        "maximum": 334.8351
+      },
+      "actualBackend": "software",
+      "observedPlanes": "yuv444p",
+      "fallback": "The driver/decoder negotiated a software pixel format.",
+      "downloadMilliseconds": {
+        "samples": 41,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "maximum": 0
+      },
+      "normalizeMilliseconds": {
+        "samples": 41,
+        "p50": 0,
+        "p95": 0,
+        "p99": 0,
+        "maximum": 0
+      },
+      "selectedPictures": 41,
+      "maximumRgbDelta": 0
+    },
+    "amd-adapter": {
+      "softwareMilliseconds": {
+        "samples": 41,
+        "p50": 131.3116,
+        "p95": 236.7423,
+        "p99": 255.9917,
+        "maximum": 255.9917
+      },
+      "requestedD3d11Milliseconds": {
+        "samples": 41,
+        "p50": 203.9935,
+        "p95": 344.351,
+        "p99": 380.3685,
+        "maximum": 380.3685
+      },
+      "actualBackend": "d3d11va",
+      "observedPlanes": "nv12",
+      "fallback": null,
+      "downloadMilliseconds": {
+        "samples": 41,
+        "p50": 44.2092,
+        "p95": 49.4237,
+        "p99": 50.946,
+        "maximum": 50.946
+      },
+      "normalizeMilliseconds": {
+        "samples": 41,
+        "p50": 0.22,
+        "p95": 0.3032,
+        "p99": 1.1207,
+        "maximum": 1.1207
+      },
+      "selectedPictures": 41,
+      "maximumRgbDelta": 0
+    }
+  },
+  "proxy": {
+    "buildMs": 7597.4449,
+    "reuseMs": 7.5848,
+    "profile": "VP9 short GOP",
+    "bytes": 4167044,
+    "originalSeekMilliseconds": {
+      "samples": 40,
+      "p50": 233.616,
+      "p95": 443.1483,
+      "p99": 464.1171,
+      "maximum": 464.1171
+    },
+    "proxySeekMilliseconds": {
+      "samples": 40,
+      "p50": 28.571,
+      "p95": 33.7582,
+      "p99": 35.2612,
+      "maximum": 35.2612
+    }
+  },
+  "nativeTransfer1440": {
+    "traceFrames": 3456,
+    "omitted": 0,
+    "downloadedPlaneBytes": 5529600,
+    "hostDownloadMilliseconds": {
+      "samples": 1499,
+      "p50": 2.9345,
+      "p95": 8.1913,
+      "p99": 9.1635,
+      "maximum": 11.4152
+    },
+    "uploadHostMilliseconds": {
+      "samples": 1499,
+      "p50": 4.1359,
+      "p95": 5.6656,
+      "p99": 6.5039,
+      "maximum": 7.9039
+    },
+    "uploadGpuMilliseconds": {
+      "samples": 1499,
+      "p50": 2.181472,
+      "p95": 3.354432,
+      "p99": 3.832192,
+      "maximum": 4.526976
+    }
+  },
+  "native": {
+    "1440-d3d11va": {
+      "outcome": "passed",
+      "GpuName": "NVIDIA GeForce RTX 3070",
+      "Start": 2,
+      "playbackSeconds": 25.0062987,
+      "timeToPlaybackSeconds": 4.5744361,
+      "sequenceVideo": {
+        "Width": 2560,
+        "Height": 1440,
+        "FrameRate": {
+          "Numerator": 60,
+          "Denominator": 1
+        }
+      },
+      "distinctPresented": 1500,
+      "presentedFps": 59.98488692770834,
+      "backends": {
+        "d3d11va": 1500
+      },
+      "ownedPixels": 1500,
+      "proxyPictures": 0,
+      "MaximumAvSkew": 0.04916666666666725,
+      "UnderrunFrames": 0,
+      "ValidationAvailable": true,
+      "ValidationErrorCount": 0,
+      "background": "export",
+      "backgroundResult": "completed, 300 frames in 3.56s",
+      "cadenceMilliseconds": {
+        "samples": 1499,
+        "p50": 15.43169999999705,
+        "p95": 22.16669999999965,
+        "p99": 23.9912000000011,
+        "maximum": 54.430800000000445
+      },
+      "resources": {
+        "startedAt": "2026-11-27T09:29:12.5437039+00:00",
+        "firstProgramMonitorCaptureUpperBoundMs": null,
+        "exitCode": 0,
+        "wallSeconds": 30.9739783,
+        "sampledProcessPeakWorkingSetBytes": 1470791680,
+        "processCpuSeconds": 33.21875,
+        "sampledDedicatedGpuBytes": 431009792,
+        "sampledSharedGpuBytes": 361816064,
+        "gpuMemorySamples": 57,
+        "positiveVideoDecodeEngineSamples": 49,
+        "peakVideoDecodeEngineUtilization": 100.0,
+        "scope": "WDDM per-process GPU observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "steadyWorkingSetBytes": {
+        "samples": 29,
+        "p50": 813228032,
+        "p95": 936067072,
+        "p99": 965898240,
+        "maximum": 965898240
+      }
+    },
+    "1440-software": {
+      "outcome": "passed",
+      "GpuName": "NVIDIA GeForce RTX 3070",
+      "Start": 2,
+      "playbackSeconds": 25.0016966,
+      "timeToPlaybackSeconds": 4.6027259,
+      "sequenceVideo": {
+        "Width": 2560,
+        "Height": 1440,
+        "FrameRate": {
+          "Numerator": 60,
+          "Denominator": 1
+        }
+      },
+      "distinctPresented": 1491,
+      "presentedFps": 59.635952865694726,
+      "backends": {
+        "software": 1491
+      },
+      "ownedPixels": 1491,
+      "proxyPictures": 0,
+      "MaximumAvSkew": 0.04708333333333403,
+      "UnderrunFrames": 0,
+      "ValidationAvailable": true,
+      "ValidationErrorCount": 0,
+      "background": "export",
+      "backgroundResult": "completed, 300 frames in 2.51s",
+      "cadenceMilliseconds": {
+        "samples": 1490,
+        "p50": 15.314300000000003,
+        "p95": 22.44310000000027,
+        "p99": 28.25850000000152,
+        "maximum": 48.117399999999755
+      },
+      "resources": {
+        "startedAt": "2026-11-27T09:28:39.8189210+00:00",
+        "firstProgramMonitorCaptureUpperBoundMs": null,
+        "exitCode": 0,
+        "wallSeconds": 32.7062545,
+        "sampledProcessPeakWorkingSetBytes": 1198743552,
+        "processCpuSeconds": 43.015625,
+        "sampledDedicatedGpuBytes": 106356736,
+        "sampledSharedGpuBytes": 62742528,
+        "gpuMemorySamples": 58,
+        "positiveVideoDecodeEngineSamples": 0,
+        "peakVideoDecodeEngineUtilization": 0.0,
+        "scope": "WDDM per-process GPU observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "steadyWorkingSetBytes": {
+        "samples": 29,
+        "p50": 696795136,
+        "p95": 713142272,
+        "p99": 716509184,
+        "maximum": 716509184
+      }
+    },
+    "1440-work-proxy": {
+      "outcome": "passed",
+      "GpuName": "NVIDIA GeForce RTX 3070",
+      "Start": 3,
+      "playbackSeconds": 21.0011726,
+      "timeToPlaybackSeconds": 4.3822825,
+      "sequenceVideo": {
+        "Width": 2560,
+        "Height": 1440,
+        "FrameRate": {
+          "Numerator": 60,
+          "Denominator": 1
+        }
+      },
+      "distinctPresented": 1250,
+      "presentedFps": 59.520486013242895,
+      "backends": {
+        "software": 1250
+      },
+      "ownedPixels": 1250,
+      "proxyPictures": 0,
+      "MaximumAvSkew": 0.04945833333333027,
+      "UnderrunFrames": 0,
+      "ValidationAvailable": true,
+      "ValidationErrorCount": 0,
+      "background": "proxy",
+      "backgroundResult": "completed, cache hit False, 8118.98ms",
+      "cadenceMilliseconds": {
+        "samples": 1249,
+        "p50": 15.28219999999969,
+        "p95": 22.576499999999555,
+        "p99": 27.456000000000813,
+        "maximum": 104.45040000000105
+      },
+      "resources": {
+        "startedAt": "2026-11-27T09:44:09.9824975+00:00",
+        "firstProgramMonitorCaptureUpperBoundMs": null,
+        "exitCode": 0,
+        "wallSeconds": 26.6611537,
+        "sampledProcessPeakWorkingSetBytes": 800333824,
+        "processCpuSeconds": 30.53125,
+        "sampledDedicatedGpuBytes": 110362624,
+        "sampledSharedGpuBytes": 62775296,
+        "gpuMemorySamples": 49,
+        "positiveVideoDecodeEngineSamples": 0,
+        "peakVideoDecodeEngineUtilization": 0.0,
+        "scope": "WDDM per-process GPU observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "steadyWorkingSetBytes": {
+        "samples": 25,
+        "p50": 662364160,
+        "p95": 725827584,
+        "p99": 726253568,
+        "maximum": 726253568
+      }
+    },
+    "1440-work-transcript": {
+      "outcome": "passed",
+      "GpuName": "NVIDIA GeForce RTX 3070",
+      "Start": 3,
+      "playbackSeconds": 21.0025576,
+      "timeToPlaybackSeconds": 4.5230918,
+      "sequenceVideo": {
+        "Width": 2560,
+        "Height": 1440,
+        "FrameRate": {
+          "Numerator": 60,
+          "Denominator": 1
+        }
+      },
+      "distinctPresented": 1252,
+      "presentedFps": 59.61178747106496,
+      "backends": {
+        "software": 1252
+      },
+      "ownedPixels": 1252,
+      "proxyPictures": 0,
+      "MaximumAvSkew": 0.06708333333333272,
+      "UnderrunFrames": 0,
+      "ValidationAvailable": true,
+      "ValidationErrorCount": 0,
+      "background": "transcript",
+      "backgroundResult": "failed, cache hit False, 0.00ms",
+      "cadenceMilliseconds": {
+        "samples": 1251,
+        "p50": 15.041899999999941,
+        "p95": 21.90219999999954,
+        "p99": 27.39569999999958,
+        "maximum": 66.14430000000038
+      },
+      "resources": {
+        "startedAt": "2026-11-27T09:44:36.6556898+00:00",
+        "firstProgramMonitorCaptureUpperBoundMs": null,
+        "exitCode": 0,
+        "wallSeconds": 27.1532642,
+        "sampledProcessPeakWorkingSetBytes": 1598365696,
+        "processCpuSeconds": 32.9375,
+        "sampledDedicatedGpuBytes": 371609600,
+        "sampledSharedGpuBytes": 67637248,
+        "gpuMemorySamples": 49,
+        "positiveVideoDecodeEngineSamples": 0,
+        "peakVideoDecodeEngineUtilization": 0.0,
+        "scope": "WDDM per-process GPU observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "steadyWorkingSetBytes": {
+        "samples": 25,
+        "p50": 681017344,
+        "p95": 739246080,
+        "p99": 739823616,
+        "maximum": 739823616
+      }
+    },
+    "effects-batched": {
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "EffectValidationAvailable": true,
+      "EffectValidationErrors": 0,
+      "ValidationAvailable": true,
+      "ValidationErrorCount": 0,
+      "EffectTransferTotals": {
+        "Dispatches": 48,
+        "SourceUploads": 48,
+        "TargetUploads": 24,
+        "TargetReadbacks": 24
+      },
+      "comparisons": [
+        {
+          "mode": "color",
+          "sampledAtSeconds": 2,
+          "maximumChannelDelta": 1,
+          "meanChannelDelta": 3.014081790123457e-08,
+          "frames": 12,
+          "firstSoftwareMs": 364.9831,
+          "firstVulkanMs": 403.0862,
+          "softwareMedianMs": 53.0257,
+          "vulkanMedianMs": 9.5632
+        },
+        {
+          "mode": "pixelate",
+          "sampledAtSeconds": 1.5,
+          "maximumChannelDelta": 1,
+          "meanChannelDelta": 1.0046939300411523e-08,
+          "frames": 12,
+          "firstSoftwareMs": 432.9838,
+          "firstVulkanMs": 396.9175,
+          "softwareMedianMs": 40.6536,
+          "vulkanMedianMs": 12.7915
+        }
+      ]
+    },
+    "final-scrub-always": {
+      "outcome": "passed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "runtime": "10.0.15",
+      "trials": 24,
+      "pointerMoves": 2400,
+      "callbackFailures": 0,
+      "injectedCallbackFailureReported": true,
+      "sourceToTimelineSwitch": true,
+      "pauseCancelsPendingPlay": true,
+      "reversePlayback": true,
+      "reversePauseResume": true,
+      "forwardAfterReverse": true,
+      "reverseTransitionPictures": 0,
+      "reversePictures": 240,
+      "reverseUnderruns": 0,
+      "livePlayheadBeforeDecode": true,
+      "medianMs": 44.8631,
+      "p95Ms": 53.3213,
+      "seekRequests": 44,
+      "staleGenerationsRejected": 0,
+      "maximumAvSkewSeconds": 0.030124999999999957,
+      "underrunFrames": 0,
+      "validationAvailable": true,
+      "validationErrors": 0,
+      "revisionUnchanged": true,
+      "scope": "Native GPU/audio window and actual coordinate/capture handlers with scripted mouse input.",
+      "requestToDisplayedFrameMs": {
+        "samples": 24,
+        "p50": 44.4519,
+        "p95": 53.3213,
+        "p99": 56.568,
+        "maximum": 56.568
+      },
+      "backwardDragMs": {
+        "samples": 12,
+        "p50": 24.7763,
+        "p95": 30.1134,
+        "p99": 30.1134,
+        "maximum": 30.1134
+      },
+      "resources": {
+        "startedAt": "2026-11-27T09:43:40.3556750+00:00",
+        "firstProgramMonitorCaptureUpperBoundMs": null,
+        "exitCode": 0,
+        "wallSeconds": 14.5686214,
+        "sampledProcessPeakWorkingSetBytes": 1150492672,
+        "processCpuSeconds": 14.9375,
+        "sampledDedicatedGpuBytes": 106356736,
+        "sampledSharedGpuBytes": 62767104,
+        "gpuMemorySamples": 25,
+        "positiveVideoDecodeEngineSamples": 0,
+        "peakVideoDecodeEngineUtilization": 0.0,
+        "scope": "WDDM per-process GPU observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "steadyWorkingSetBytes": {
+        "samples": 14,
+        "p50": 796966912,
+        "p95": 1150222336,
+        "p99": 1150222336,
+        "maximum": 1150222336
+      }
+    },
+    "final-scrub-never": {
+      "outcome": "failed",
+      "gpu": "NVIDIA GeForce RTX 3070",
+      "runtime": "10.0.15",
+      "trials": 24,
+      "pointerMoves": 2400,
+      "callbackFailures": 0,
+      "injectedCallbackFailureReported": true,
+      "sourceToTimelineSwitch": true,
+      "pauseCancelsPendingPlay": true,
+      "reversePlayback": true,
+      "reversePauseResume": true,
+      "forwardAfterReverse": true,
+      "reverseTransitionPictures": 0,
+      "reversePictures": 94,
+      "reverseUnderruns": 0,
+      "livePlayheadBeforeDecode": true,
+      "medianMs": 128.30295,
+      "p95Ms": 160.7496,
+      "seekRequests": 44,
+      "staleGenerationsRejected": 0,
+      "maximumAvSkewSeconds": 1.5241875,
+      "underrunFrames": 0,
+      "validationAvailable": true,
+      "validationErrors": 0,
+      "revisionUnchanged": true,
+      "scope": "Native GPU/audio window and actual coordinate/capture handlers with scripted mouse input.",
+      "requestToDisplayedFrameMs": {
+        "samples": 24,
+        "p50": 127.4327,
+        "p95": 160.7496,
+        "p99": 166.0551,
+        "maximum": 166.0551
+      },
+      "backwardDragMs": {
+        "samples": 12,
+        "p50": 20.9426,
+        "p95": 127.3266,
+        "p99": 127.3266,
+        "maximum": 127.3266
+      },
+      "resources": {
+        "startedAt": "2026-11-27T09:43:54.9434385+00:00",
+        "firstProgramMonitorCaptureUpperBoundMs": null,
+        "exitCode": 1,
+        "wallSeconds": 15.0158715,
+        "sampledProcessPeakWorkingSetBytes": 1463926784,
+        "processCpuSeconds": 38.1875,
+        "sampledDedicatedGpuBytes": 106356736,
+        "sampledSharedGpuBytes": 62767104,
+        "gpuMemorySamples": 27,
+        "positiveVideoDecodeEngineSamples": 0,
+        "peakVideoDecodeEngineUtilization": 0.0,
+        "scope": "WDDM per-process GPU observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "steadyWorkingSetBytes": {
+        "samples": 14,
+        "p50": 1118912512,
+        "p95": 1463742464,
+        "p99": 1463742464,
+        "maximum": 1463742464
+      }
+    },
+    "long-continuous": {
+      "outcome": "passed",
+      "GpuName": "NVIDIA GeForce RTX 3070",
+      "Start": 6910,
+      "playbackSeconds": 60.001167099999996,
+      "timeToPlaybackSeconds": 15.1132122,
+      "sequenceVideo": {
+        "Width": 1920,
+        "Height": 1080,
+        "FrameRate": {
+          "Numerator": 60,
+          "Denominator": 1
+        }
+      },
+      "distinctPresented": 3542,
+      "presentedFps": 59.032185058946965,
+      "backends": {
+        "d3d11va": 3542
+      },
+      "ownedPixels": 3542,
+      "proxyPictures": 0,
+      "MaximumAvSkew": 0.125,
+      "UnderrunFrames": 0,
+      "ValidationAvailable": true,
+      "ValidationErrorCount": 0,
+      "background": "analysis",
+      "backgroundResult": "completed, cache hit False, 10009.76ms",
+      "cadenceMilliseconds": {
+        "samples": 3541,
+        "p50": 15.157299999998486,
+        "p95": 22.14779999999905,
+        "p99": 23.736399999997104,
+        "maximum": 770.3628000000009
+      },
+      "resources": {
+        "startedAt": "2026-11-27T09:33:06.4938289+00:00",
+        "firstProgramMonitorCaptureUpperBoundMs": null,
+        "exitCode": 0,
+        "wallSeconds": 77.5268089,
+        "sampledProcessPeakWorkingSetBytes": 881659904,
+        "processCpuSeconds": 71.765625,
+        "sampledDedicatedGpuBytes": 254705664,
+        "sampledSharedGpuBytes": 91115520,
+        "gpuMemorySamples": 144,
+        "positiveVideoDecodeEngineSamples": 113,
+        "peakVideoDecodeEngineUtilization": 34.0,
+        "scope": "WDDM per-process GPU observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "steadyWorkingSetBytes": {
+        "samples": 73,
+        "p50": 566128640,
+        "p95": 590069760,
+        "p99": 667066368,
+        "maximum": 667066368
+      }
+    },
+    "packaged-long-cancel-proxy": {
+      "outcome": "passed",
+      "GpuName": "NVIDIA GeForce RTX 3070",
+      "Start": 6910,
+      "playbackSeconds": 8.0036328,
+      "timeToPlaybackSeconds": 3.7929701,
+      "sequenceVideo": {
+        "Width": 1920,
+        "Height": 1080,
+        "FrameRate": {
+          "Numerator": 60,
+          "Denominator": 1
+        }
+      },
+      "distinctPresented": 479,
+      "presentedFps": 59.84782310352869,
+      "backends": {
+        "d3d11va": 479
+      },
+      "ownedPixels": 479,
+      "proxyPictures": 0,
+      "MaximumAvSkew": 0.03304166666657693,
+      "UnderrunFrames": 0,
+      "ValidationAvailable": true,
+      "ValidationErrorCount": 0,
+      "background": "proxy",
+      "backgroundResult": "running at end of the measured interval; cancellation requested",
+      "cadenceMilliseconds": {
+        "samples": 478,
+        "p50": 15.04180000000055,
+        "p95": 22.367799999999605,
+        "p99": 28.192499999999843,
+        "maximum": 39.34779999999982
+      },
+      "resources": {
+        "startedAt": "2026-11-27T09:53:20.1778618+00:00",
+        "firstProgramMonitorCaptureUpperBoundMs": null,
+        "exitCode": 0,
+        "wallSeconds": 13.2551217,
+        "sampledProcessPeakWorkingSetBytes": 786640896,
+        "processCpuSeconds": 14.5,
+        "sampledDedicatedGpuBytes": 196317184,
+        "sampledSharedGpuBytes": 106954752,
+        "gpuMemorySamples": 24,
+        "positiveVideoDecodeEngineSamples": 15,
+        "peakVideoDecodeEngineUtilization": 28.0,
+        "scope": "WDDM per-process GPU observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "steadyWorkingSetBytes": {
+        "samples": 13,
+        "p50": 539361280,
+        "p95": 694558720,
+        "p99": 694558720,
+        "maximum": 694558720
+      }
+    },
+    "packaged-long-transcript": {
+      "outcome": "passed",
+      "GpuName": "NVIDIA GeForce RTX 3070",
+      "Start": 6910,
+      "playbackSeconds": 40.0017613,
+      "timeToPlaybackSeconds": 3.6864243,
+      "sequenceVideo": {
+        "Width": 1920,
+        "Height": 1080,
+        "FrameRate": {
+          "Numerator": 60,
+          "Denominator": 1
+        }
+      },
+      "distinctPresented": 2398,
+      "presentedFps": 59.94736036785461,
+      "backends": {
+        "d3d11va": 2398
+      },
+      "ownedPixels": 2398,
+      "proxyPictures": 0,
+      "MaximumAvSkew": 0.06391666666604578,
+      "UnderrunFrames": 0,
+      "ValidationAvailable": true,
+      "ValidationErrorCount": 0,
+      "background": "transcript",
+      "backgroundResult": "completed, cache hit False, 23011.83ms",
+      "cadenceMilliseconds": {
+        "samples": 2397,
+        "p50": 14.97829999999567,
+        "p95": 22.122300000000372,
+        "p99": 24.10199999999918,
+        "maximum": 63.011300000000325
+      },
+      "resources": {
+        "startedAt": "2026-11-27T09:52:34.8786413+00:00",
+        "firstProgramMonitorCaptureUpperBoundMs": null,
+        "exitCode": 0,
+        "wallSeconds": 45.272678,
+        "sampledProcessPeakWorkingSetBytes": 1499660288,
+        "processCpuSeconds": 52.96875,
+        "sampledDedicatedGpuBytes": 438030336,
+        "sampledSharedGpuBytes": 130170880,
+        "gpuMemorySamples": 84,
+        "positiveVideoDecodeEngineSamples": 76,
+        "peakVideoDecodeEngineUtilization": 28.0,
+        "scope": "WDDM per-process GPU observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "steadyWorkingSetBytes": {
+        "samples": 43,
+        "p50": 646455296,
+        "p95": 835543040,
+        "p99": 861114368,
+        "maximum": 861114368
+      }
+    },
+    "packaged-obs-1440": {
+      "outcome": "passed",
+      "GpuName": "NVIDIA GeForce RTX 3070",
+      "Start": 1,
+      "playbackSeconds": 10.0039196,
+      "timeToPlaybackSeconds": 3.9665056,
+      "sequenceVideo": {
+        "Width": 2560,
+        "Height": 1440,
+        "FrameRate": {
+          "Numerator": 60,
+          "Denominator": 1
+        }
+      },
+      "distinctPresented": 601,
+      "presentedFps": 60.076452433704084,
+      "backends": {
+        "d3d11va": 601
+      },
+      "ownedPixels": 601,
+      "proxyPictures": 0,
+      "MaximumAvSkew": 0.03483333333333327,
+      "UnderrunFrames": 0,
+      "ValidationAvailable": true,
+      "ValidationErrorCount": 0,
+      "background": "none",
+      "backgroundResult": "none",
+      "cadenceMilliseconds": {
+        "samples": 600,
+        "p50": 15.532500000000837,
+        "p95": 22.863599999999096,
+        "p99": 29.590199999999456,
+        "maximum": 40.02349999999932
+      },
+      "resources": {
+        "startedAt": "2026-11-27T09:52:19.2382325+00:00",
+        "firstProgramMonitorCaptureUpperBoundMs": null,
+        "exitCode": 0,
+        "wallSeconds": 15.6294796,
+        "sampledProcessPeakWorkingSetBytes": 1033658368,
+        "processCpuSeconds": 17.21875,
+        "sampledDedicatedGpuBytes": 268713984,
+        "sampledSharedGpuBytes": 215105536,
+        "gpuMemorySamples": 28,
+        "positiveVideoDecodeEngineSamples": 19,
+        "peakVideoDecodeEngineUtilization": 29.0,
+        "scope": "WDDM per-process GPU observations every >=500ms; process CPU/RAM excludes FFmpeg export child; OS caches not flushed"
+      },
+      "steadyWorkingSetBytes": {
+        "samples": 14,
+        "p50": 801611776,
+        "p95": 861954048,
+        "p99": 861954048,
+        "maximum": 861954048
+      }
+    }
+  },
+  "matchedExports": [
+    {
+      "encoder": "h264",
+      "run": 0,
+      "seconds": 4.2421358,
+      "frames": 480,
+      "bytes": 12347229,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 2560,
+            "height": 1440,
+            "avg_frame_rate": "60/1",
+            "nb_read_frames": "480"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "avg_frame_rate": "0/0",
+            "nb_read_frames": "375"
+          }
+        ],
+        "format": {
+          "duration": "8.000000"
+        }
+      },
+      "decodedPcmSha256": "9510d0629f95ac089b7bd09dad2b8ff9f2187ed371a10a112edcb69a0cb6e526"
+    },
+    {
+      "encoder": "h264-nvenc",
+      "run": 0,
+      "seconds": 3.0142391,
+      "frames": 480,
+      "bytes": 12583846,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 2560,
+            "height": 1440,
+            "avg_frame_rate": "60/1",
+            "nb_read_frames": "480"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "avg_frame_rate": "0/0",
+            "nb_read_frames": "375"
+          }
+        ],
+        "format": {
+          "duration": "8.000000"
+        }
+      },
+      "decodedPcmSha256": "9510d0629f95ac089b7bd09dad2b8ff9f2187ed371a10a112edcb69a0cb6e526"
+    },
+    {
+      "encoder": "h264-nvenc",
+      "run": 1,
+      "seconds": 2.8585115,
+      "frames": 480,
+      "bytes": 12583846,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 2560,
+            "height": 1440,
+            "avg_frame_rate": "60/1",
+            "nb_read_frames": "480"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "avg_frame_rate": "0/0",
+            "nb_read_frames": "375"
+          }
+        ],
+        "format": {
+          "duration": "8.000000"
+        }
+      },
+      "decodedPcmSha256": "9510d0629f95ac089b7bd09dad2b8ff9f2187ed371a10a112edcb69a0cb6e526"
+    },
+    {
+      "encoder": "h264",
+      "run": 1,
+      "seconds": 4.0431275,
+      "frames": 480,
+      "bytes": 12347229,
+      "ffprobe": {
+        "programs": [],
+        "stream_groups": [],
+        "streams": [
+          {
+            "codec_name": "h264",
+            "codec_type": "video",
+            "width": 2560,
+            "height": 1440,
+            "avg_frame_rate": "60/1",
+            "nb_read_frames": "480"
+          },
+          {
+            "codec_name": "aac",
+            "codec_type": "audio",
+            "avg_frame_rate": "0/0",
+            "nb_read_frames": "375"
+          }
+        ],
+        "format": {
+          "duration": "8.000000"
+        }
+      },
+      "decodedPcmSha256": "9510d0629f95ac089b7bd09dad2b8ff9f2187ed371a10a112edcb69a0cb6e526"
+    }
+  ],
+  "creator": {
+    "outcome": "passed",
+    "capability": {
+      "backend": "d3d11va",
+      "deviceAvailable": true,
+      "detail": "Device initialized. The driver must negotiate the actual source and return a D3D11 surface.",
+      "codecConfigurations": [
+        "h264",
+        "hevc",
+        "av1",
+        "vp9",
+        "mpeg2video",
+        "vc1"
+      ],
+      "requiresSourceProbe": true
+    },
+    "revision": "13",
+    "edited": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m3d\\creator-proof-3\\edited.valencia",
+    "applied": "48DE5E5F8CC3E28370BE50CF87C978CA6FEC19F344D316BDC52BABD08E085B1D",
+    "renders": [
+      {
+        "jobId": "bfb4d222-8cea-45a8-8392-1384b4901e60",
+        "projectId": "b4bf35a2-6f1a-408d-927a-3a2e201553e5",
+        "revision": "13",
+        "state": "completed",
+        "frames": "510",
+        "totalFrames": "510",
+        "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m3d\\creator-proof-3\\landscape.mp4",
+        "encoder": "h264-nvenc",
+        "elapsedSeconds": 21.213496,
+        "bytes": "13979481",
+        "lint": {
+          "version": 1,
+          "measured": {
+            "container": "mov,mp4,m4a,3gp,3g2,mj2",
+            "videoCodec": "h264",
+            "audioCodec": "aac",
+            "width": 1920,
+            "height": 1080,
+            "frameRate": "60/1",
+            "durationSeconds": 8.5,
+            "integratedLufs": -19.29,
+            "truePeakDb": -2.55,
+            "bytes": "13979481"
+          },
+          "findings": [
+            {
+              "severity": "advisory",
+              "code": "BLACK_INTERVAL",
+              "message": "Black output for 0.50s across a picture gap.",
+              "atTicks": "1524096000000"
+            }
+          ],
+          "hasErrors": false
+        }
+      },
+      {
+        "jobId": "b3878755-a7e3-4953-84dc-fd3f4fb33af9",
+        "projectId": "b4bf35a2-6f1a-408d-927a-3a2e201553e5",
+        "revision": "13",
+        "state": "completed",
+        "frames": "240",
+        "totalFrames": "240",
+        "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m3d\\creator-proof-3\\short.mp4",
+        "encoder": "h264-nvenc",
+        "elapsedSeconds": 4.1889492,
+        "bytes": "6927148",
+        "lint": {
+          "version": 1,
+          "measured": {
+            "container": "mov,mp4,m4a,3gp,3g2,mj2",
+            "videoCodec": "h264",
+            "audioCodec": "aac",
+            "width": 1080,
+            "height": 1920,
+            "frameRate": "60/1",
+            "durationSeconds": 4,
+            "integratedLufs": -19.08,
+            "truePeakDb": -2.55,
+            "bytes": "6927148"
+          },
+          "findings": [],
+          "hasErrors": false
+        }
+      }
+    ],
+    "independently": [
+      {
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "avg_frame_rate": "60/1"
+            },
+            {
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "sample_rate": "48000",
+              "avg_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "duration": "8.500000"
+          }
+        },
+        "pcmBytes": 48000,
+        "frameSha256": "d836846c29a48bafa317917939779787c2438744e5797d6bbc35ef8870631a5a"
+      },
+      {
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1920,
+              "avg_frame_rate": "60/1"
+            },
+            {
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "sample_rate": "48000",
+              "avg_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "duration": "4.000000"
+          }
+        },
+        "pcmBytes": 48000,
+        "frameSha256": "9d9a5d63741e2898aea5117813d68693f237759e6b2f75f8bae23193d748c9d2"
+      }
+    ],
+    "gapMaximum": 0,
+    "secondSourceFrameSha256": "550dda837aafa06b852765b2054aa6e4a3f593e70cb3f8309b2dfbc02fd74d17",
+    "wallSeconds": 27.188000000081956,
+    "workspace": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m3d\\creator-proof-3"
+  },
+  "release": {
+    "version": "0.3.0-rc.3",
+    "installedFiles": 638,
+    "installedBytes": 220980679,
+    "archives": [
+      {
+        "sha256": "062C6DD461F2A9ACC07BC8D35C9A7A0996697F925C623BCB0814AAA0E44BFCF8",
+        "name": "Valencia-0.3.0-rc.3-media-sources.zip",
+        "bytes": 85172073
+      },
+      {
+        "sha256": "2EF7035758FB2F3D4FE3C3FA075E2CA238A529C23B688E85FD5BCA2C9DB7A740",
+        "name": "Valencia-0.3.0-rc.3-sources.zip",
+        "bytes": 540349916
+      },
+      {
+        "sha256": "448506A8BE69E7D6DB9EF5E93CE62C2FCE3F991648E0FFAA9D468B536ECB4C7F",
+        "name": "Valencia-0.3.0-rc.3-win-x64-portable.zip",
+        "bytes": 86698992
+      },
+      {
+        "sha256": "28C889D8D32A494A055BB244ADF82E6FD1AF5D4C5B60EA9297A32312FB6A0B6A",
+        "name": "Valencia-0.3.0-rc.3-win-x64-setup.exe",
+        "bytes": 76731813
+      }
+    ]
+  },
+  "lifecycle": {
+    "previousVersion": "0.3.0-rc.2",
+    "installedVersion": "0.3.0-rc.3",
+    "installLocation": "C:\\Users\\yuech\\AppData\\Local\\Temp\\Valencia-m3d-rc3-708cb6ca0b5e42a6bd288e693ae9bfa7\\Install",
+    "installedBytes": 225797911,
+    "installedFiles": 640,
+    "shortcutTarget": "C:\\Users\\yuech\\AppData\\Local\\Temp\\Valencia-m3d-rc3-708cb6ca0b5e42a6bd288e693ae9bfa7\\Install\\Valencia.App.exe",
+    "signature": "NotSigned",
+    "testDataSha256": "8C51909DF5F8213320545C05E2C8EE11A19EE801AC0E1DFCB50A8CE66A4DB8C1",
+    "setupSha256": "28C889D8D32A494A055BB244ADF82E6FD1AF5D4C5B60EA9297A32312FB6A0B6A",
+    "portableSha256": "448506A8BE69E7D6DB9EF5E93CE62C2FCE3F991648E0FFAA9D468B536ECB4C7F",
+    "upgradePreservedData": true,
+    "uninstallPreservedData": true
+  },
+  "analyzedCreator": {
+    "outcome": "passed",
+    "workspace": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m3d\\analyzed-creator-final",
+    "analyzedSourceSeconds": 10800,
+    "words": 36,
+    "planSha256": "5AFE5814F519500091114A8309A372C2E3E643565A8606E24312AC98037775B2",
+    "artifacts": {
+      "audio": {
+        "jobId": "cb7df7ed-0674-41ee-ba0c-706410473983",
+        "assetId": "9f0f215f-f8f6-44fe-a81b-208df3df96e7",
+        "key": "0C12F372DBA03B7A0973133AF6F598585AF66ADF71B0BA49A53EA4172F375E3F",
+        "state": "completed",
+        "progress": 1,
+        "processedUnits": "518401024",
+        "cacheHit": false,
+        "cacheReadMs": 1.0459,
+        "analysisMs": 9059.7937,
+        "cacheWriteMs": 311.1088
+      },
+      "transcript": {
+        "jobId": "ddf338c0-bba4-430b-a08b-b7ff426f83c3",
+        "assetId": "9f0f215f-f8f6-44fe-a81b-208df3df96e7",
+        "key": "5B61B553CC6F830CDA9747184A69EF5D6AABCC8DF04EA39C9A1C66D53B509FE6",
+        "state": "completed",
+        "progress": 1,
+        "processedUnits": "172800341",
+        "cacheHit": false,
+        "cacheReadMs": 0.0714,
+        "analysisMs": 20956.217,
+        "cacheWriteMs": 7.6446
+      }
+    },
+    "settings": {
+      "audio": "0C12F372DBA03B7A0973133AF6F598585AF66ADF71B0BA49A53EA4172F375E3F",
+      "transcript": "5B61B553CC6F830CDA9747184A69EF5D6AABCC8DF04EA39C9A1C66D53B509FE6",
+      "ranges": [
+        {
+          "start": "7201s",
+          "end": "7211s",
+          "score": 1,
+          "reason": "Controlled speech"
+        },
+        {
+          "start": "7213s",
+          "end": "7225s",
+          "score": 0.9,
+          "reason": "Second controlled speech passage"
+        }
+      ],
+      "target": "18s",
+      "minimum": "3s",
+      "maximum": "12s",
+      "shorts": 1,
+      "shortDuration": "5s",
+      "width": 1920,
+      "height": 1080,
+      "musicStreams": [
+        2
+      ]
+    },
+    "renders": [
+      {
+        "jobId": "03a512e1-2b97-48df-9451-1c838646ab32",
+        "projectId": "60da6151-ddf0-47b3-8714-ff724fadceba",
+        "revision": "4",
+        "state": "completed",
+        "frames": "1080",
+        "totalFrames": "1080",
+        "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m3d\\analyzed-creator-final\\creator-0.mp4",
+        "encoder": "h264-nvenc",
+        "elapsedSeconds": 9.4881151,
+        "bytes": "29109100",
+        "lint": {
+          "version": 1,
+          "measured": {
+            "container": "mov,mp4,m4a,3gp,3g2,mj2",
+            "videoCodec": "h264",
+            "audioCodec": "aac",
+            "width": 1920,
+            "height": 1080,
+            "frameRate": "60/1",
+            "durationSeconds": 18,
+            "integratedLufs": -18.37,
+            "truePeakDb": -0.97,
+            "bytes": "29109100"
+          },
+          "findings": [
+            {
+              "severity": "advisory",
+              "code": "CUT_INSIDE_WORD",
+              "message": "An audio edit boundary intersects the aligned word 'Valencia.'.",
+              "suggestion": "Listen around the cut and adjust it if the word is unintentionally truncated.",
+              "atTicks": "0",
+              "clip": "C-F2QwGOThTplH7230qFCtEQ",
+              "track": "T-M_4_O44BScyOqEFBcmgGQg"
+            },
+            {
+              "severity": "advisory",
+              "code": "CUT_INSIDE_WORD",
+              "message": "An audio edit boundary intersects the aligned word 'begins'.",
+              "suggestion": "Listen around the cut and adjust it if the word is unintentionally truncated.",
+              "atTicks": "2540160000000",
+              "clip": "C-1-ILINr8tkFDEUYFwFw7Uw",
+              "track": "T-M_4_O44BScyOqEFBcmgGQg"
+            }
+          ],
+          "hasErrors": false
+        }
+      },
+      {
+        "jobId": "2dae66a6-fea2-456b-badb-8f14f7429d71",
+        "projectId": "60da6151-ddf0-47b3-8714-ff724fadceba",
+        "revision": "4",
+        "state": "completed",
+        "frames": "300",
+        "totalFrames": "300",
+        "output": "C:\\Users\\yuech\\source\\repos\\ValenciaNLE\\artifacts\\local\\m3d\\analyzed-creator-final\\creator-1.mp4",
+        "encoder": "h264-nvenc",
+        "elapsedSeconds": 3.9340945,
+        "bytes": "8249479",
+        "lint": {
+          "version": 1,
+          "measured": {
+            "container": "mov,mp4,m4a,3gp,3g2,mj2",
+            "videoCodec": "h264",
+            "audioCodec": "aac",
+            "width": 1080,
+            "height": 1920,
+            "frameRate": "60/1",
+            "durationSeconds": 5,
+            "integratedLufs": -18.69,
+            "truePeakDb": -0.97,
+            "bytes": "8249479"
+          },
+          "findings": [
+            {
+              "severity": "advisory",
+              "code": "CUT_INSIDE_WORD",
+              "message": "An audio edit boundary intersects the aligned word 'Valencia.'.",
+              "suggestion": "Listen around the cut and adjust it if the word is unintentionally truncated.",
+              "atTicks": "0",
+              "clip": "C-F2QwGOThTplH7230qFCtEQ",
+              "track": "T-M_4_O44BScyOqEFBcmgGQg"
+            }
+          ],
+          "hasErrors": false
+        }
+      }
+    ],
+    "independently": [
+      {
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1920,
+              "height": 1080,
+              "avg_frame_rate": "60/1"
+            },
+            {
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "sample_rate": "48000",
+              "avg_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "duration": "18.000000"
+          }
+        },
+        "pcmBytes": 48000,
+        "frameSha256": "05798f2ca356594b397fbe6adcfbc1bec5eb3126c6caf1b583587bf3215e4488"
+      },
+      {
+        "probe": {
+          "programs": [],
+          "stream_groups": [],
+          "streams": [
+            {
+              "codec_name": "h264",
+              "codec_type": "video",
+              "width": 1080,
+              "height": 1920,
+              "avg_frame_rate": "60/1"
+            },
+            {
+              "codec_name": "aac",
+              "codec_type": "audio",
+              "sample_rate": "48000",
+              "avg_frame_rate": "0/0"
+            }
+          ],
+          "format": {
+            "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+            "duration": "5.000000"
+          }
+        },
+        "pcmBytes": 48000,
+        "frameSha256": "d73bc8ae2d0c890defb1e843035505ce816dfe40eb97ccf26b6bb9fffb05cf5a"
+      }
+    ],
+    "wallSeconds": 66.0
+  },
+  "pureToneTranscriptControl": {
+    "jobId": "1b8b8ae9-089e-4969-968a-1f79dea7dd55",
+    "assetId": "d78d3c51-6923-4c0c-9b81-1bc44f9a4c22",
+    "key": "A23FBB23FA4454C1FB7A977FAE85A78C3B4029F1041EA122F5CD0BA043F80978",
+    "state": "failed",
+    "progress": 1,
+    "processedUnits": "576171",
+    "cacheHit": false,
+    "error": "Whisper reached its decoding limit before emitting end-of-text.",
+    "cacheReadMs": 0,
+    "analysisMs": 0,
+    "cacheWriteMs": 0,
+    "issue": {
+      "code": "JOB_FAILED",
+      "message": "Whisper reached its decoding limit before emitting end-of-text.",
+      "subject": "1b8b8ae9-089e-4969-968a-1f79dea7dd55"
+    }
+  },
+  "cancelledProxyFiles": [
+    ".write.lock"
+  ],
+  "releaseTests": [
+    {
+      "project": "Valencia.Core.Tests.dll",
+      "passed": 84
+    },
+    {
+      "project": "Valencia.Persistence.Tests.dll",
+      "passed": 27
+    },
+    {
+      "project": "Valencia.Programming.Tests.dll",
+      "passed": 105
+    },
+    {
+      "project": "Valencia.Tests.dll",
+      "passed": 216
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # Valencia Windows x64 distribution
 
-The 0.3.0-rc.1 bundle contains the desktop, CLI, stdio MCP entry point, .NET runtime, precompiled shaders, fonts and shared FFmpeg. Windows supplies the Vulkan driver, audio devices and system fonts. The app stores recovery, analysis, queue and managed models below `%LOCALAPPDATA%\Valencia`. Set `VALENCIA_DATA_DIR` before launch to choose an alternate data directory. Shortcuts and OBS credentials use their existing user settings locations.
+The 0.3.0-rc.3 bundle contains the desktop, CLI, stdio MCP entry point, .NET runtime, precompiled shaders, fonts and shared FFmpeg with D3D11VA decoding. Windows supplies D3D11 and audio, and the GPU vendor supplies the Vulkan and video decoder drivers. The app stores recovery, analysis, durable audio seek anchors, proxies, the render queue and managed models below `%LOCALAPPDATA%\Valencia`. Set `VALENCIA_DATA_DIR` before launch to choose an alternate data directory. Shortcuts and OBS credentials use their existing user settings locations.
 
 ## Build
 

@@ -8,6 +8,29 @@ namespace Valencia.Tests;
 public sealed class SequencePreviewTests(TimelineFixture fixture) : IClassFixture<TimelineFixture>
 {
     [Fact]
+    public void OpaqueScaledPreviewMatchesIntegerSamplingAndKeepsTheLetterboxOpaque()
+    {
+        var sequence = fixture.Snapshot.Document.Sequences[0];
+        var track = sequence.Tracks.First(item => item.Kind == TrackKind.Video);
+        var single = sequence with { Tracks = [track with { Clips = [track.Clips[0]] }] };
+        var original = fixture.Snapshot with { Document = fixture.Snapshot.Document with { Sequences = [single] } };
+        var widened = single with { Video = single.Video with { Width = 320, Height = 320 } };
+        var scaled = original with { Document = original.Document with { Sequences = [widened] } };
+        using var reference = new SequenceEvaluator(original, single.Id);
+        using var preview = new SequenceEvaluator(scaled, single.Id);
+        var at = track.Clips[0].Start;
+        var source = reference.Video(at, default);
+        var actual = preview.Video(at, default);
+        Assert.Equal((160, 90), (source.Width, source.Height));
+        var expected = new byte[320 * 320 * 4];
+        for (int alpha = 3; alpha < expected.Length; alpha += 4) expected[alpha] = 255;
+        for (int y = 0; y < 180; y++)
+        for (int x = 0; x < 320; x++)
+            source.Rgba.AsSpan(((y / 2) * 160 + x / 2) * 4, 3).CopyTo(expected.AsSpan(((y + 70) * 320 + x) * 4, 3));
+        Assert.Equal(expected, actual.Rgba);
+    }
+
+    [Fact]
     public void BackwardDragConsumesRetainedPicturesWithoutRepeatedKeyframeDecoding()
     {
         using var history = new SequenceEvaluator(fixture.Snapshot, TimelineFixture.Id(4), retainVideoHistory: true);

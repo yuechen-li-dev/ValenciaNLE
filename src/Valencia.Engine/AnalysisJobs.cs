@@ -32,7 +32,7 @@ public sealed class AnalysisJobs(EditingEngine engine, AnalysisCache cache) : IA
         scenes.Validate();
         string fingerprint = AnalysisCache.Fingerprint(asset.SourcePath);
         string parameters = request.Kind == "transcript" ? AnalysisJson.Write(transcription) : request.Kind == "audio" ? AnalysisJson.Write(audio) : AnalysisJson.Write(scenes);
-        string algorithm = request.Kind == "transcript" ? WhisperTranscriber.Algorithm : request.Kind == "audio" ? MediaAnalyzer.AudioAlgorithm : request.Kind == "loudness" ? "FFmpeg7.1/loudnorm/BS.1770-4/v1" : request.Kind is "proxy" or "index" ? "media-resource-v1/" + request.Kind : MediaAnalyzer.SceneAlgorithm;
+        string algorithm = request.Kind == "transcript" ? WhisperTranscriber.Algorithm : request.Kind == "audio" ? MediaAnalyzer.AudioAlgorithm : request.Kind == "loudness" ? "FFmpeg7.1/loudnorm/BS.1770-4/v1" : request.Kind is "proxy" or "index" ? MediaResourceAnalyzer.Algorithm(request.Kind) : MediaAnalyzer.SceneAlgorithm;
         var ocr = request.Ocr ?? new OcrSettings();
         OcrProvider? provider = null;
         if (request.Kind == "ocr")
@@ -65,7 +65,9 @@ public sealed class AnalysisJobs(EditingEngine engine, AnalysisCache cache) : IA
                     var token = job.Cancellation.Token;
                     var timer = Stopwatch.StartNew();
                     var artifact = await cache.ReadAsync(key, token).ConfigureAwait(false);
-                    if (request.Kind == "index") artifact = null; // The native decoder/sample index is process-local.
+                    // Reopen the durable anchors themselves. A retained analysis summary cannot
+                    // prove that the bounded seek cache still holds those anchors.
+                    if (request.Kind == "index") artifact = null;
                     if (request.Kind == "proxy" && artifact?.Proxy is { } proxy && MediaProxy.Resolve(asset with { ProxyKey = proxy.Key }, asset.Streams.First(s => s.Index == request.StreamIndex)) is null) artifact = null;
                     double readMs = timer.Elapsed.TotalMilliseconds, analysisMs = 0, writeMs = 0;
                     bool hit = artifact is not null;

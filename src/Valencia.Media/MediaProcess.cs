@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.ComponentModel;
 using System.Text;
 
 namespace Valencia.Media;
@@ -36,10 +37,14 @@ public static class MediaProcess
     public static async Task<string> RunAsync(IEnumerable<string> arguments, CancellationToken cancellation)
         => (await CaptureAsync(arguments, cancellation).ConfigureAwait(false)).Error;
 
+    internal static async Task RunBackgroundAsync(IEnumerable<string> arguments, CancellationToken cancellation)
+        => _ = await CaptureAsync(FfmpegRuntime.Executable, arguments, cancellation, background: true).ConfigureAwait(false);
+
     public static Task<(string Output, string Error)> CaptureAsync(IEnumerable<string> arguments, CancellationToken cancellation)
         => CaptureAsync(FfmpegRuntime.Executable, arguments, cancellation);
 
-    public static async Task<(string Output, string Error)> CaptureAsync(string executable, IEnumerable<string> arguments, CancellationToken cancellation)
+    public static async Task<(string Output, string Error)> CaptureAsync(string executable, IEnumerable<string> arguments,
+        CancellationToken cancellation, bool background = false)
     {
         var start = new ProcessStartInfo(executable)
         {
@@ -47,6 +52,7 @@ public static class MediaProcess
         };
         foreach (string argument in arguments) start.ArgumentList.Add(argument);
         using var process = Process.Start(start) ?? throw new InvalidOperationException("FFmpeg could not start.");
+        if (background) SetBackgroundPriority(process);
         using var registration = cancellation.Register(() => { try { if (!process.HasExited) process.Kill(true); } catch (InvalidOperationException) { } });
         var error = ReadTail(process.StandardError);
         var output = ReadTail(process.StandardOutput);
@@ -56,6 +62,13 @@ public static class MediaProcess
         cancellation.ThrowIfCancellationRequested();
         if (process.ExitCode != 0) throw new InvalidOperationException("FFmpeg failed: " + text);
         return (stdout, text);
+    }
+
+    internal static void SetBackgroundPriority(Process process)
+    {
+        if (!OperatingSystem.IsWindows()) return;
+        try { process.PriorityClass = ProcessPriorityClass.BelowNormal; }
+        catch (Exception error) when (error is Win32Exception or InvalidOperationException) { }
     }
     private static async Task<string> ReadTail(StreamReader reader)
     {

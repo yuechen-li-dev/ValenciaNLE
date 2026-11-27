@@ -3,7 +3,7 @@ param(
     [string]$Output = 'artifacts/local/m3b/release',
     [string]$Vendor = 'artifacts/local/m3b/vendor',
     [string]$InnoCompiler,
-    [ValidatePattern('^0\.3\.0-rc\.[0-9]+$')][string]$Version = '0.3.0-rc.1',
+    [ValidatePattern('^0\.3\.0-rc\.[0-9]+$')][string]$Version = '0.3.0-rc.3',
     [switch]$SkipInstaller
 )
 $ErrorActionPreference = 'Stop'
@@ -64,6 +64,8 @@ try {
         if (-not ($encoders -match ('\s'+[regex]::Escape($encoder)+'\s'))) { throw "Staged FFmpeg lacks $encoder." }
     }
     if ($encoders -match '\slibx26[45]\s') { throw 'The standard distribution contains a forbidden compatibility encoder.' }
+    $accelerators = & $ffmpeg -hide_banner -hwaccels
+    if ($LASTEXITCODE -ne 0 -or 'd3d11va' -notin $accelerators) { throw 'Staged FFmpeg lacks D3D11VA decode support.' }
 
     $licenseRoot = (New-Item -ItemType Directory (Join-Path $stage 'licenses/media')).FullName
     foreach ($name in 'COPYING.LGPLv2.1','LICENSE.md','CREDITS') {
@@ -84,7 +86,9 @@ try {
     }
     $versionLog | Set-Content -LiteralPath (Join-Path $licenseRoot 'FFMPEG-BUILD.txt')
     $encoders | Set-Content -LiteralPath (Join-Path $licenseRoot 'FFMPEG-ENCODERS.txt')
-    foreach ($doc in 'DISTRIBUTION.md','THIRD_PARTY_COMPONENTS.md','EXPORT_PROFILES.md','M3B.md','M3A_AGENT_GUIDE.md','M3C.md','EDITORIAL_WORKFLOWS.md') {
+    $accelerators | Set-Content -LiteralPath (Join-Path $licenseRoot 'FFMPEG-HWACCELS.txt')
+    foreach ($doc in 'DISTRIBUTION.md','THIRD_PARTY_COMPONENTS.md','EXPORT_PROFILES.md','M3B.md','M3A_AGENT_GUIDE.md','M3C.md','EDITORIAL_WORKFLOWS.md',
+        'M3D.md','MEDIA_PERFORMANCE_ARCHITECTURE.md','MEDIA_QUALIFICATION.md') {
         Copy-Item -LiteralPath (Join-Path $repo "docs/$doc") -Destination (Join-Path $stage 'docs')
     }
     Copy-Item -LiteralPath (Join-Path $repo 'examples/agent-time.ts') -Destination $stage

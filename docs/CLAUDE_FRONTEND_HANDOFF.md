@@ -1,5 +1,13 @@
 # Claude native frontend handoff
 
+## M3d media diagnostics
+
+The transport still owns seek generations, and paused preview remains video-only. Inspect `SequenceFrame.PrimaryDecode` and `PrimaryUsesProxy` for the presented source path. Device initialization and source negotiation are separate checks. `VALENCIA_VIDEO_DECODER=d3d11va` selects forward hardware decoding. The software history remains active for reverse and paused scrubbing.
+
+The editor schedules one eligible insertion for proxy preparation through the existing analysis queue. It reports completion or failure in the status line, and Cancel stops the preparation. Prepare and apply remain separate for editorial operations. Automatic cache entries do not mutate the saved project.
+
+[Media architecture](MEDIA_PERFORMANCE_ARCHITECTURE.md) · [Qualification](MEDIA_QUALIFICATION.md)
+
 ## Pointer feedback and client title bar (2026-11-16)
 
 **Remaining hardware blocker:** rapid scrubbing now reproduces the historical
