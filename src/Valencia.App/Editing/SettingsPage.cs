@@ -335,5 +335,7 @@ internal sealed class SettingsPage
     private static UiNode Outline(double x, double y, double w, double h, uint color) =>
         StandardUI.Place(UI.Rect(borderColor: ColorToken.Hex(color), borderThickness: 2), x, y, Math.Max(1, w), Math.Max(1, h));
     private static UiNode Text(string text, double x, double y, double w, TextSize size, uint color) =>
-        StandardUI.Place(UI.Text(text, color: ColorToken.Hex(color), size: size), x, y, Math.Max(1, w), Line(text, size));
+        // MSDF faces centre on their ink (see EditorView.Text); hinted data text keeps its baseline grid.
+        StandardUI.Place(UI.Text(text, color: ColorToken.Hex(color), size: size,
+            alignY: TypeScale.UsesRaster(size) ? TextAlignY.Top : TextAlignY.Center), x, y, Math.Max(1, w), Line(text, size));
 }

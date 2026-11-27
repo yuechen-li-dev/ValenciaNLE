@@ -7,5 +7,6 @@
     <ProjectReference Include="../../src/Valencia.App/Valencia.App.csproj" />
     <ProjectReference Include="../../src/Valencia.Core/Valencia.Core.csproj" />
     <ProjectReference Include="../../src/Valencia.Media/Valencia.Media.csproj" />
+    <ProjectReference Include="$(CopelandRoot)/tests/Machina.UI/Machina.Testing/Machina.Testing.csproj" />
   </ItemGroup>
 </Project>

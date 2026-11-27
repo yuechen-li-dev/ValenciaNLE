@@ -1,4 +1,5 @@
 using Machina.Core.Styling;
+using Machina.Layout.Geometry;
 using Valencia.Rendering;
 
 namespace Valencia.App.Editing;
@@ -46,11 +47,11 @@ internal static class BarLayout
         padding = tight;
         var w = Widths(items, lowest, size, padding);
         double moreWidth = NativeUiText.Width(BarPlan.MoreLabel(items.Count), size) + 2 * padding;
-        var shown = Flow(items, w, all, rows, gap, groupGap, moreWidth + gap)!.Select(slot => slot.Index).ToList();
+        var shown = Flow(items, w, all, rows, gap, groupGap, moreWidth + gap).Select(slot => slot.Index).ToList();
         foreach (int pinned in all.Where(i => items[i].Pinned && !shown.Contains(i)))
         {
             // Evict unpinned items from the end until the pinned one fits.
-            while (shown.Count > 0 && Flow(items, w, [.. shown, pinned], rows, gap, groupGap, moreWidth + gap)!.Count < shown.Count + 1)
+            while (shown.Count > 0 && Flow(items, w, [.. shown, pinned], rows, gap, groupGap, moreWidth + gap).Count < shown.Count + 1)
             {
                 int victim = shown.FindLastIndex(i => !items[i].Pinned);
                 if (victim < 0) break;
@@ -59,14 +60,27 @@ internal static class BarLayout
             shown.Add(pinned);
             shown.Sort();
         }
-        var slots = Label(items, Flow(items, w, shown, rows, gap, groupGap, moreWidth + gap)!, lowest);
-        var overflow = all.Except(slots.Select(slot => slot.Index)).ToList();
-        if (overflow.Count == 0) return new(lowest, slots, [], null);
         int lastRow = rows.Count - 1;
-        var onLast = slots.Where(slot => slot.Row == lastRow).ToList();
-        double end = onLast.Count == 0 ? rows[lastRow].Left : onLast[^1].X + onLast[^1].Width + gap;
-        string label = BarPlan.MoreLabel(overflow.Count);
-        return new(lowest, slots, overflow, new BarSlot(-1, end, NativeUiText.Width(label, size) + 2 * padding, label, lastRow));
+        double rowEnd = rows[lastRow].Left + rows[lastRow].Width;
+        while (true)
+        {
+            var slots = Label(items, Flow(items, w, shown, rows, gap, groupGap, moreWidth + gap), lowest);
+            var overflow = all.Except(slots.Select(slot => slot.Index)).ToList();
+            if (overflow.Count == 0) return new(lowest, slots, [], null);
+            var onLast = slots.Where(slot => slot.Row == lastRow).ToList();
+            double end = onLast.Count == 0 ? rows[lastRow].Left : onLast[^1].X + onLast[^1].Width + gap;
+            string label = BarPlan.MoreLabel(overflow.Count);
+            double labelWidth = NativeUiText.Width(label, size) + 2 * padding;
+            if (end + labelWidth <= rowEnd + LinearFit.Tolerance)
+                return new(lowest, slots, overflow, new BarSlot(-1, end, labelWidth, label, lastRow));
+            // Every overflowed item must stay reachable: make room for the menu tab by moving the last unpinned
+            // visible item into it, rather than dropping the menu and stranding the overflow.
+            // Only pinned items left and still no room: a menu tab overlapping them would be worse, so the bar is
+            // simply too narrow to offer the menu (the degenerate case; normal widths always reach the branch above).
+            int victim = shown.FindLastIndex(i => !items[i].Pinned);
+            if (victim < 0) return new(lowest, slots, overflow, null);
+            shown.RemoveAt(victim);
+        }
     }
 
     public static string Label(BarItem item, BarForm form) => form switch { BarForm.Full => item.Full, BarForm.Short => item.Short, _ => item.Code };
@@ -79,27 +93,13 @@ internal static class BarLayout
 
     /// <summary>Places chosen items in order across the rows; stops at the first item that does not fit.
     /// <paramref name="reserve"/> is kept free at the end of the last row (for the menu tab).</summary>
-    private static List<BarSlot>? Flow(IReadOnlyList<BarItem> items, double[] widths, IReadOnlyList<int> chosen,
+    private static List<BarSlot> Flow(IReadOnlyList<BarItem> items, double[] widths, IReadOnlyList<int> chosen,
         IReadOnlyList<(double Left, double Width)> rows, double gap, double groupGap, double reserve)
     {
-        var slots = new List<BarSlot>(chosen.Count);
-        int row = 0; double x = rows[0].Left; bool first = true;
-        foreach (int i in chosen)
-        {
-            while (true)
-            {
-                double start = first ? x : x + gap + (items[i].GroupStart ? groupGap : 0);
-                double limit = rows[row].Left + rows[row].Width - (row == rows.Count - 1 ? reserve : 0);
-                if (start + widths[i] <= limit + .001)
-                {
-                    slots.Add(new(i, start, widths[i], "", row));
-                    x = start + widths[i]; first = false;
-                    break;
-                }
-                if (++row >= rows.Count) return slots;
-                x = rows[row].Left; first = true;
-            }
-        }
-        return slots;
+        var measured = chosen.Select(index => new LinearItem(widths[index], items[index].GroupStart ? groupGap : 0)).ToArray();
+        var lanes = rows.Select(row => new LinearLane(row.Left, Math.Max(0, row.Width))).ToArray();
+        return LinearFit.Place(measured, lanes, gap, reserve)
+            .Select((slot, index) => new BarSlot(chosen[index], slot.Start, slot.Length, "", slot.Lane))
+            .ToList();
     }
 }

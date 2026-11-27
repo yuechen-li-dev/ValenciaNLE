@@ -322,6 +322,19 @@ The [GPU text rendering correction](UI_TEXT_RENDERING_FIX.md) supersedes the ear
 - Entrance/exit run from the clip's edges; transform keys live on the title's own clock, so trimming the head keeps keys on the text. Footage-only effects (speed, freeze, colour, region, motion, gain) are refused on titles.
 - `SequenceDocument.Titles` is a read model of title clips. Old projects stored a sequence title layer under the JSON name `Titles`; `TitleMigration` turns it into clips on new tracks when the project opens, and it is never written back.
 
+## Headless command palette preview
+
+Run from the repository root to save a PNG of the real palette declaration with the `edit` query and its popup open.
+
+```powershell
+$env:VALENCIA_PALETTE_PREVIEW_PNG = Join-Path $PWD 'artifacts/local/palette.png'
+dotnet test tests/Valencia.Tests -c Release --filter FullyQualifiedName~PaletteCanRenderHeadlessly
+Remove-Item Env:VALENCIA_PALETTE_PREVIEW_PNG
+```
+
+The test uses the Machina CPU reference rasterizer. Use it to check placement, clipping and widget states.
+It draws reference glyphs for the text. The native layout smoke captures the desktop fonts and editor behind the palette.
+
 ## M3a — agent proposals and editing authority
 
 - The **Script** picker accepts `*.agent.json` prepare requests in addition to trusted Copeland. The native proposal card shows the deterministic summary and base revision, with Apply/Cancel. The file is data, never evaluated as code. Apply uses the live `Editor.Session`, refreshes the monitor via the usual seek path, and creates one editor undo entry; rejecting leaves history unchanged. Stale or mismatched requests show machine code and readable guidance in the status bar.

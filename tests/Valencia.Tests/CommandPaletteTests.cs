@@ -1,7 +1,9 @@
 using Machina.Layout.Rows;
 using Machina.Pipeline;
+using Machina.Presentation;
 using Machina.Runtime.Input;
 using Machina.Standard.Widgets;
+using Machina.Testing;
 using Valencia.App.Editing;
 using Valencia.Rendering;
 using Xunit;
@@ -86,6 +88,39 @@ public sealed class CommandPaletteTests
         var run = session.Handle(new UiKeyChanged(UiKey.Enter, true, false, UiModifiers.None));
         Assert.Equal("RippleDelete", run.Changes.OfType<WidgetSelectionChanged>().Single().Keys.Single());
         Assert.Contains(run.Changes, c => c is WidgetOpenChanged { Open: false });
+    }
+
+    [Fact]
+    public void PaletteCanRenderHeadlessly()
+    {
+        const int width = 1280, height = 720;
+        var commands = Commands();
+        using var session = new WidgetSession();
+        var pipeline = new MachinaWidgetPipeline();
+        var context = new EditorWindow.PaletteContext("Review.valencia", 42, null);
+        MachinaPreparedPresentation Prepare() => pipeline.PrepareOverlayContent(session,
+            w => EditorWindow.PaletteDeclaration(w, commands, "edit", width, height, 64, context),
+            width, height, new(NativeUiText.Instance), style: EditorWindow.PaletteStyle);
+        Prepare();
+        Assert.True(session.Focus(EditorWindow.PaletteId.Child("input")));
+        var frame = Prepare();
+        Assert.Contains(EditorWindow.PaletteId.Child("popup"), frame.Resolved.Nodes.Keys);
+        Assert.Contains(frame.PresentationFrame.Operations.OfType<PositionedTextOperation>(),
+            text => text.Text.Contains("REVIEW.VALENCIA", StringComparison.Ordinal));
+
+        string? previewPath = Environment.GetEnvironmentVariable("VALENCIA_PALETTE_PREVIEW_PNG");
+        string path = previewPath ?? Path.Combine(Path.GetTempPath(), $"valencia-palette-{Guid.NewGuid():N}.png");
+        try
+        {
+            var surface = HeadlessPreview.WritePng(frame, path);
+            Assert.True(File.Exists(path));
+            Assert.NotEqual(surface.GetPixel(0, 0), surface.GetPixel(width / 2, 75));
+        }
+        finally
+        {
+            if (previewPath is null)
+                File.Delete(path);
+        }
     }
 
     [Fact]

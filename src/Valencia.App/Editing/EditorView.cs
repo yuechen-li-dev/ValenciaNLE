@@ -1162,8 +1162,14 @@ internal sealed partial class EditorView
         StandardUI.Place(UI.Rect(borderColor: ColorToken.Hex(color), borderThickness: 1), x, y, Math.Max(1, w), Math.Max(1, h));
 
     /// <summary>Text box at least as tall as the measured line, so glyphs are never clipped.</summary>
+    /// <remarks>
+    /// MSDF faces (command and display) centre on their ink. Their line box is 1.25 em with the baseline at 0.8 em, which
+    /// reserves descender room that all-caps titles and timecode never use, so top alignment drew them ~0.19 em high.
+    /// Hinted data text (Xs/Sm) keeps its baseline grid so mixed-case rows line up.
+    /// </remarks>
     private static UiNode Text(string text, double x, double y, double w, double h, TextSize size = TextSize.Sm, uint color = Ui.Bone, TextAlignX alignX = TextAlignX.Left) =>
-        StandardUI.Place(UI.Text(text, color: ColorToken.Hex(color), size: size, alignX: alignX), x, y, Math.Max(1, w), Math.Max(h, Line(text, size)));
+        StandardUI.Place(UI.Text(text, color: ColorToken.Hex(color), size: size, alignX: alignX,
+            alignY: TypeScale.UsesRaster(size) ? TextAlignY.Top : TextAlignY.Center), x, y, Math.Max(1, w), Math.Max(h, Line(text, size)));
     /// <summary>Text vertically centred on a row.</summary>
     private static UiNode TextIn(string text, double x, double rowY, double w, double rowHeight, TextSize size = TextSize.Sm, uint color = Ui.Bone, TextAlignX alignX = TextAlignX.Left)
     {

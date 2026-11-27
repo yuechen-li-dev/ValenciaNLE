@@ -50,6 +50,16 @@ public sealed class BarLayoutTests
     }
 
     [Fact]
+    public void OverflowButtonDoesNotExtendBeyondAnExtremelyNarrowBar()
+    {
+        var plan = BarLayout.Fit(Tabs, 10, 1, TextSize.Md, 7, 4, 0);
+
+        Assert.Empty(plan.Slots);
+        Assert.Equal(Tabs.Length, plan.Overflow.Count);
+        Assert.Null(plan.More);
+    }
+
+    [Fact]
     public void RowsFillInOrderAndOnlyTheLastRowHoldsTheMenuTab()
     {
         double one = Need(BarForm.Full) / 2;
@@ -79,5 +89,46 @@ public sealed class BarLayoutTests
         var reachable = shown.Select(e => e.Value.Name).Concat(editor.TabOverflow.Select(t => t.Action)).ToHashSet();
         Assert.Superset(new HashSet<string> { "Tab:Media", "Tab:Transcript", "Tab:Record", "Tab:Mix" }, reachable);
         if (editor.TabOverflow.Count > 0) Assert.Contains(prepared.Lowering.Actions, entry => entry.Value.Name == "TabMore");
+    }
+
+    [Fact]
+    public void OverflowAlwaysKeepsAReachableMenuTab()
+    {
+        // Narrow enough that the pinned tab plus "+N" barely fit: the menu tab must still be there for every overflowed item.
+        var pinned = Tabs.Select((t, i) => i == 2 ? t with { Pinned = true } : t).ToArray();
+        for (double width = 40; width <= Need(BarForm.Code, 4); width += 3)
+        {
+            var plan = BarLayout.Fit(pinned, 0, width, TextSize.Md, 7, 4, 0);
+            if (plan.Overflow.Count == 0) continue;
+            Assert.Equal(Tabs.Length, plan.Slots.Count + plan.Overflow.Count);
+            // The menu tab is only ever missing when nothing but pinned items is left on a bar too narrow for it.
+            if (plan.More is not { } more) Assert.All(plan.Slots, slot => Assert.True(pinned[slot.Index].Pinned, $"width {width}"));
+            else Assert.True(more.X + more.Width <= width + .01, $"width {width}");
+        }
+    }
+
+}
+
+/// <summary>Regression: placed MSDF text ignored its alignment and all-caps display text drew ~0.19 em high.</summary>
+public sealed class TypeAlignmentTests(TimelineFixture fixture) : IClassFixture<TimelineFixture>
+{
+    [Fact]
+    public void DisplayAndCommandTextCentreOnTheirInkInsideTheirBox()
+    {
+        var editor = new EditorDocument();
+        editor.Open(fixture.Snapshot, "fixture.valencia");
+        var prepared = new EditorView().Prepare(editor, new(editor), false, false, 1280, 720);
+        var texts = prepared.PresentationFrame.Operations.OfType<PositionedTextOperation>().ToArray();
+        var title = texts.Single(t => t.Text == "SEQUENCE");
+        Assert.Equal(TextAlignY.Center, title.Style.AlignY);
+        var wordmark = texts.Single(t => t.Text == "VALENCIA");
+        Assert.Equal(TextAlignY.Center, wordmark.Style.AlignY);
+        // The PGM badge's label fills the badge, so its centring has a box to centre in.
+        var badge = texts.Single(t => t.Text == "PGM");
+        Assert.Equal(TextAlignX.Center, badge.Style.AlignX);
+        Assert.Equal(NativeUiText.Width("PGM", TextSize.Md) + 14, badge.Rect.Width, 1);
+        // Data text keeps its baseline grid.
+        Assert.All(texts.Where(t => t.Style.Size is TextSize.Xs or TextSize.Sm && !t.SourceId.EndsWith(".label", StringComparison.Ordinal)),
+            t => Assert.Equal(TextAlignY.Top, t.Style.AlignY)); // button labels centre themselves
     }
 }

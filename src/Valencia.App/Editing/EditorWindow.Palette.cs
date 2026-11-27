@@ -147,14 +147,11 @@ internal sealed partial class EditorWindow
         void Fill(uint color, double nx, double ny, double nw, double nh) => Add(UI.Rect(color: ColorToken.Hex(color), width: Math.Max(1, nw), height: Math.Max(1, nh)), nx, ny, nw, nh);
         void Frame(uint color, double nx, double ny, double nw, double nh) =>
             Add(UI.Rect(width: nw, height: nh, style: new UiStyle(BorderColor: ColorToken.Hex(color), BorderThickness: 1)), nx, ny, nw, nh);
-        // Measured placement: a line box is laid out at its measured size, so alignment is done here, not by the box.
         double LineHeight(string text, TextSize size) => NativeUiText.Instance.MeasureText(text, new TextStyle(Size: size)).Height;
         void Text(string text, double nx, double ny, double nw, double nh, uint color, TextSize size, TextAlignX align = TextAlignX.Left)
         {
-            string shown = NativeUiText.Ellipsize(text, Math.Max(1, nw), size);
-            double tw = Math.Min(nw, NativeUiText.Width(shown, size) + 2), th = LineHeight(shown, size);
-            double tx = align switch { TextAlignX.Right => nx + nw - tw, TextAlignX.Center => nx + (nw - tw) / 2, _ => nx };
-            Add(w.TextLine(shown, Math.Max(1, tw), th, ColorToken.Hex(color), size: size), tx, ny + (nh - th) / 2, tw, th);
+            if (nw <= 0 || nh <= 0) return;
+            Add(w.TextLine(text, nw, nh, ColorToken.Hex(color), alignX: align, size: size), nx, ny, nw, nh);
         }
 
         // Dim the editor, then the slate.
