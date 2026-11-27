@@ -65,6 +65,14 @@ internal sealed class EditorDocument
     public bool HasAgentProposal { get; set; }
     public bool TranscriptMode { get; set; }
     public bool ControlsMode { get; set; }
+    /// <summary>The Mix tab: one strip per audio track plus the master.</summary>
+    public bool MixMode { get; set; }
+    /// <summary>Meter ballistics, fed from the playback output tap every UI frame.</summary>
+    public AudioMeter Meter { get; } = new();
+    /// <summary>Window-space fader travel for each mix strip ("master" or a track id), written by the view.</summary>
+    public Dictionary<string, Machina.Layout.Geometry.Rect> MixFaders { get; } = [];
+    /// <summary>The fader being dragged and its uncommitted level.</summary>
+    public (string Key, double Db)? FaderPreview { get; set; }
     public bool ObsMode { get; set; }
     public string ObsConnection { get; set; } = "Disconnected";
     public string ObsRecording { get; set; } = "No recording session";

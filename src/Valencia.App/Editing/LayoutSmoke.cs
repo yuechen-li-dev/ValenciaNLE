@@ -33,9 +33,26 @@ internal sealed class LayoutSmoke(string directory)
     [
         ("panel-transcript", w => { w.Editor.TranscriptMode = true; w.Editor.ObsMode = false; }),
         ("panel-record", w => { w.Editor.ObsMode = true; w.Editor.TranscriptMode = false; }),
+        // Mix tab with fixed meter readings: one hot strip with a latched over, one nominal, one quiet, master near the ceiling.
+        ("panel-mix", w =>
+        {
+            var e = w.Editor; e.ObsMode = false; e.TranscriptMode = false; e.MixMode = true;
+            var audio = e.Sequence.Tracks.Where(t => t.Kind == TrackKind.Audio).ToArray();
+            e.Meter.Pinned = true;
+            double[][] readings = [[-2, -9, -1, 1], [-12, -20, -10, 0], [-30, -38, -28, 0]];
+            for (int i = 0; i < audio.Length; i++)
+            {
+                var r = readings[i % readings.Length];
+                if (!e.Meter.Tracks.TryGetValue(audio[i].Id, out var channel)) e.Meter.Tracks[audio[i].Id] = channel = new();
+                channel.Set(r[0], r[1], r[2], r[3] > 0);
+            }
+            e.Meter.Left.Set(-3, -14, -1.2, false); e.Meter.Right.Set(-4, -15, -2.5, false);
+            if (audio.FirstOrDefault(t => t.Clips.Length > 0) is { } track) { e.SelectedClip = track.Clips[0].Id; e.TargetTrack = track.Id; }
+        }),
         ("editing-selection", w =>
         {
-            var e = w.Editor; e.ObsMode = false; e.TranscriptMode = false; e.Magnetic = true;
+            var e = w.Editor; e.ObsMode = false; e.TranscriptMode = false; e.MixMode = false; e.Magnetic = true;
+            e.Meter.Pinned = false;
             e.SelectedClip = e.Sequence.Tracks.First(t => t.Kind == TrackKind.Video && t.Clips.Length > 0).Clips[0].Id;
             e.MarkIn = T(1); e.MarkOut = T(3);
         }),

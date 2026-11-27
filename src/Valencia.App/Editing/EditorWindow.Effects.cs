@@ -233,6 +233,23 @@ internal sealed partial class EditorWindow
             }
             return true;
         }
+        if (action is "fadeIn+" or "fadeIn-" or "fadeOut+" or "fadeOut-" or "cleanup+" or "cleanup-")
+        {
+            if (Editor.Selection is { } clip)
+            {
+                var audio = clip.Properties.Audio ?? new();
+                int step = action.EndsWith('+') ? 1 : -1;
+                long quarter = SequenceTime.TicksPerSecond / 4, longest = clip.Duration.Ticks;
+                audio = action[..^1] switch
+                {
+                    "fadeIn" => audio with { FadeInTicks = Math.Clamp(audio.FadeInTicks + step * quarter, 0, Math.Max(0, longest - audio.FadeOutTicks)) },
+                    "fadeOut" => audio with { FadeOutTicks = Math.Clamp(audio.FadeOutTicks + step * quarter, 0, Math.Max(0, longest - audio.FadeInTicks)) },
+                    _ => audio with { NoiseReductionDb = Math.Clamp(audio.NoiseReductionDb + step * 3, 0, 24) },
+                };
+                if (audio != (clip.Properties.Audio ?? new())) CommitEffect(new SetClipProperties(Editor.SequenceId, clip.Id, clip.Properties with { Audio = audio }));
+            }
+            return true;
+        }
         if (EditorEffects.SelectedTransform(Editor) is not { } target) return true;
         if (action == "prev" || action == "next")
         {

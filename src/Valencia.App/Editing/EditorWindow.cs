@@ -216,7 +216,7 @@ internal sealed partial class EditorWindow : IDisposable
             Editor.Reversing = resume && reverseRequested && (opening is not null || desired)
                 || Playback is { IsPlaying: true, IsReverse: true };
             UpdateFullscreenControls(now);
-            if (now - lastUi >= .1) Prepare();
+            if (now - lastUi >= (MetersMoving ? .05 : .1)) Prepare();
             else if (feedbackDirty) RefreshFeedback();
             if (contextDirty || contextMenu is not null) HandlePointer(() => RefreshContextMenu());
             cursor.Set(Settings.IsOpen ? Settings.Cursor : PointerCursor());
@@ -252,6 +252,7 @@ internal sealed partial class EditorWindow : IDisposable
         if (Editor.Card is { } card && (clock.Elapsed.TotalSeconds > Editor.CardUntil
             || card.Kind == TitleCardKind.Proposal && Editor.ProposedCut is null && Editor.ProposedTextCut is null && !Editor.HasAgentProposal)) Editor.Card = null;
         if (Settings.IsOpen) { PrepareSettings(); return; }
+        UpdateMeters();
         var result = view.TryPrepare(Editor, Gesture, Playback?.IsPlaying == true || resume && (opening is not null || desired), razor,
             Graphics.Window.Size.X, Graphics.Window.Size.Y, job is not null);
         if (result.Case is not Ok<Machina.Pipeline.MachinaPreparedPresentation> ready)
@@ -646,8 +647,9 @@ internal sealed partial class EditorWindow : IDisposable
                 case "ToggleSnap": Editor.Snapping = !Editor.Snapping; Editor.Status = Editor.Snapping ? "Snapping on." : "Snapping off."; break;
                 case "ToggleLink": Editor.LinkedSelection = !Editor.LinkedSelection; Editor.Status = Editor.LinkedSelection ? "Linked selection on: audio and video move together." : "Linked selection off: clips edit independently."; break;
                 case "ToggleMagnet": Editor.Magnetic = !Editor.Magnetic; Editor.Status = Editor.Magnetic ? "Magnetic timeline on: deletes ripple, same-track moves reorder, overwrite inserts." : "Magnetic timeline off."; break;
-                case "Tab:Media": case "Tab:Transcript": case "Tab:Record": case "Tab:Controls":
+                case "Tab:Media": case "Tab:Transcript": case "Tab:Record": case "Tab:Mix": case "Tab:Controls":
                     Editor.TranscriptMode = name == "Tab:Transcript";
+                    Editor.MixMode = name == "Tab:Mix";
                     Editor.ObsMode = name == "Tab:Record";
                     Editor.ControlsMode = name == "Tab:Controls";
                     break;
@@ -674,6 +676,7 @@ internal sealed partial class EditorWindow : IDisposable
                 case "AddVideo": case "AddAudio":
                     Editor.Commit(new AddTrack(Editor.SequenceId, Guid.NewGuid(), name == "AddVideo" ? TrackKind.Video : TrackKind.Audio, Editor.Sequence.Tracks.Length, name == "AddVideo" ? "Video" : "Audio")); break;
                 default:
+                    if (MixAction(name)) break;
                     if (name.StartsWith("TranscriptWord:", StringComparison.Ordinal)) { SelectTranscriptWord(int.Parse(name[15..])); break; }
                     if (name.StartsWith("Asset:", StringComparison.Ordinal)) { Editor.SelectedAsset = Guid.Parse(name[6..]); if (Editor.Source is not null) OpenSelectedSource(); }
                     else if (name.StartsWith("Target:", StringComparison.Ordinal)) Editor.TargetTrack = Guid.Parse(name[7..]);
@@ -734,7 +737,7 @@ internal sealed partial class EditorWindow : IDisposable
         diagnostics.Record("pointer-down", generation, Editor.Playhead.Ticks, $"x={p.X};y={p.Y}");
         diagnostics.Save(); // persist the last gesture even if a native fault prevents managed unwinding
         var viewport = Editor.Viewport;
-        if (BeginMonitorEffect(p.X, p.Y) || BeginTimelineEffect(p.X, p.Y)) return;
+        if (BeginFader(p.X, p.Y) || BeginMonitorEffect(p.X, p.Y) || BeginTimelineEffect(p.X, p.Y)) return;
         if (p.X >= viewport.ClipLeft && p.X <= viewport.ClipRight && p.Y >= view.Layout.RulerY && p.Y < viewport.TrackTop + viewport.VisibleTracks * viewport.Row)
         {
             PauseTransport(); ExitSource();
@@ -849,6 +852,7 @@ internal sealed partial class EditorWindow : IDisposable
             if (scrubbing) UpdateFullscreenScrub(p.X);
             return;
         }
+        if (MoveFader(p.X)) return;
         if (Editor.EffectDrag is { } effect) { effect.Move(Editor.Session, p.X, p.Y); lastUi = -1; }
         else if (Gesture.Active) { Gesture.Move(p.X, p.Y); lastUi = -1; }
         else if (scrubbing) UpdateScrubTarget(p.X);
@@ -865,7 +869,8 @@ internal sealed partial class EditorWindow : IDisposable
         feedbackDirty |= feedback.Release(new(p.X, p.Y));
         if (IsFullscreen) { FullscreenPointerUp(p); return; }
         diagnostics.Record("pointer-up", generation, Editor.Playhead.Ticks);
-        if (Editor.EffectDrag is not null) ReleaseEffect(p.X, p.Y);
+        if (ReleaseFader(p.X)) { }
+        else if (Editor.EffectDrag is not null) ReleaseEffect(p.X, p.Y);
         else if (Gesture.Active) { Gesture.Move(p.X, p.Y); if (Gesture.Release()) Seek(Editor.Playhead); ReleasePointer(); }
         else if (scrubbing)
         {
@@ -885,7 +890,7 @@ internal sealed partial class EditorWindow : IDisposable
         Editor.ScrubTarget = pendingScrub = null;
         scrubSnapPoints = null;
     }
-    private void CancelGesture() { CloseContextMenu(); Gesture.Cancel(); Editor.EffectDrag = null; ClearScrub(); fullscreenVideoPressed = false; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
+    private void CancelGesture() { CloseContextMenu(); faderDragging = false; Editor.FaderPreview = null; Gesture.Cancel(); Editor.EffectDrag = null; ClearScrub(); fullscreenVideoPressed = false; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
     private nint WindowHandle => Graphics.Window.Native?.Win32?.Hwnd ?? 0;
     private void CapturePointer()
     {

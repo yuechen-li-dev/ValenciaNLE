@@ -27,7 +27,10 @@ internal sealed record EditorLayout(EditorLayoutProfile Profile, int Width, int 
     public int HeaderRows => Header.Height > HeaderRowHeight ? 2 : 1;
     public int TransportRows => Transport.Height > TransportRowHeight + 1 ? 2 : 1;
     public int ToolbarRows => Toolbar.Height > ToolbarRowHeight + 1 ? 2 : 1;
-    public double ClipRight => Width - Gap;
+    /// <summary>Desktop docks the master edge meter on the timeline's right edge.</summary>
+    public const double EdgeMeterWidth = 26;
+    public double ClipRight => Width - Gap - (Portrait ? 0 : EdgeMeterWidth);
+    public bool HasEdgeMeter => !Portrait;
     public double TrackTop => RulerY + RulerHeight;
     public double StatusY => Height - StatusHeight;
     public double FooterReserve => StatusHeight;

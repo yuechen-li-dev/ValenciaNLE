@@ -55,10 +55,12 @@ internal sealed partial class EditorView
             Word = Style(null, Bone, size: TextSize.Sm), WordSelected = Style(Orange, Ink, size: TextSize.Sm), WordSpeaking = Style(Ultramarine, Bone, size: TextSize.Sm),
             TrackVideo = Style(Ultramarine, Bone, size: TextSize.Xl), TrackAudio = Style(Raise, Bone, size: TextSize.Xl), TrackTarget = Style(Orange, Ink, size: TextSize.Xl),
             CardApply = Style(Ink, Card), CardCancel = Style(null, Ink, Ink);
+        /// <summary>A borderless readout that is also a button (mix levels: click for unity).</summary>
+        public static StandardButtonStyle Value(uint foreground) => Style(null, foreground, size: TextSize.Sm);
     }
 
-    private enum PanelTab { Media, Transcript, Record, Controls }
-    private static readonly string[] TabNames = ["Media", "Transcript", "Record", "Controls"];
+    private enum PanelTab { Media, Transcript, Record, Mix, Controls }
+    private static readonly string[] TabNames = ["Media", "Transcript", "Record", "Mix", "Controls"];
 
     public Result<MachinaPreparedPresentation, EditorFailure> TryPrepare(EditorDocument editor,
         TimelineGesture gesture, bool playing, bool razor, int width, int height, bool jobRunning = false)
@@ -541,6 +543,7 @@ internal sealed partial class EditorView
             float snapX = (float)viewport.X(snap);
             if (snapX >= viewport.ClipLeft && snapX <= viewport.ClipRight) quads.Add(new(snapX - 1, (float)rulerY, 2, (float)(viewport.TrackBottom - rulerY), Ui.Cyan));
         }
+        EdgeMeter(children, quads, editor, layout);
         void ClipRect(TimelineClip c, float y, uint color, bool ring)
         {
             float left = (float)Math.Clamp(viewport.X(c.Start), viewport.ClipLeft, viewport.ClipRight), right = (float)Math.Clamp(viewport.X(c.End), viewport.ClipLeft, viewport.ClipRight);
@@ -636,10 +639,12 @@ internal sealed partial class EditorView
     private static IReadOnlyList<UiNode> Panel(EditorDocument editor, Rect panel, bool compact, bool inlineInspector)
     {
         var items = new List<UiNode>();
+        editor.MixFaders.Clear();
         double width = panel.Width - 2 * Pad, height = panel.Height;
         var tab = editor.ControlsMode && inlineInspector ? PanelTab.Controls
-            : editor.ObsMode ? PanelTab.Record : editor.TranscriptMode ? PanelTab.Transcript : PanelTab.Media;
-        bool card = tab != PanelTab.Controls && !compact && height >= 300;
+            : editor.ObsMode ? PanelTab.Record : editor.TranscriptMode ? PanelTab.Transcript : editor.MixMode ? PanelTab.Mix : PanelTab.Media;
+        // The Mix tab trades the title card for strips until the panel is tall enough for both.
+        bool card = tab != PanelTab.Controls && !compact && height >= (tab == PanelTab.Mix ? 520 : 300);
         double y = Pad;
         if (card)
         {
@@ -687,6 +692,7 @@ internal sealed partial class EditorView
         {
             case PanelTab.Media: MediaTab(items, editor, width, top, bottom, compact); break;
             case PanelTab.Transcript: TranscriptTab(items, editor, width, top, bottom); break;
+            case PanelTab.Mix: MixTab(items, editor, panel, width, top, bottom, compact); break;
             case PanelTab.Controls:
                 if (bottom - top >= 32)
                 {
@@ -703,6 +709,7 @@ internal sealed partial class EditorView
     {
         PanelTab.Media => $"{editor.Session.Snapshot.Document.Assets.Length} ITEMS",
         PanelTab.Transcript => editor.Transcript?.Transcript is { } t ? $"{t.Words.Length} WORDS" : "NO TRANSCRIPT",
+        PanelTab.Mix => $"{editor.Sequence.Tracks.Count(t => t.Kind == TrackKind.Audio)} CH" + (editor.SoloedAudioTracks.Count > 0 ? $" / {editor.SoloedAudioTracks.Count} SOLO" : ""),
         _ => "OBS " + editor.ObsConnection.ToUpperInvariant(),
     };
 
@@ -719,6 +726,9 @@ internal sealed partial class EditorView
                 if (editor.Transcript?.Transcript is not { } transcript) return "TXT NONE > SELECT MEDIA, THEN SPEECH";
                 string first = editor.TranscriptFirstWord + 1 > transcript.Words.Length ? "-" : (editor.TranscriptFirstWord + 1).ToString(CultureInfo.InvariantCulture);
                 return $"TXT {IdCode(editor.Transcript.AssetId)} > {transcript.Words.Length} WORDS > FROM {first}";
+            case PanelTab.Mix:
+                return $"VLN-MIX > HOLD L {MeterScale.Text(editor.Meter.Left.HoldDb)} R {MeterScale.Text(editor.Meter.Right.HoldDb)} dBFS"
+                    + (editor.Meter.Over ? " > OVER" : "");
             default:
                 return "OBS " + editor.ObsConnection.ToUpperInvariant() + " > " + editor.ObsRecording.ToUpperInvariant();
         }
@@ -921,6 +931,22 @@ internal sealed partial class EditorView
             items.Add(TextIn(NativeUiText.Ellipsize(left, width - rightWidth - 12, TextSize.Xs), x, footerY + 1, width - rightWidth - 12, 21, TextSize.Xs, Ui.Edge));
             items.Add(TextIn(NativeUiText.Ellipsize(right, rightWidth, TextSize.Xs), x + width - rightWidth, footerY + 1, rightWidth, 21, TextSize.Xs, Ui.Edge, TextAlignX.Right));
         }
+        // Voice EQ: the three bands are drawn so the strip reads like the finished console, but the engine has no EQ yet.
+        void VoiceEq()
+        {
+            double rowHeight = compact ? 22 : 28;
+            if (y + rowHeight > footerY) return;
+            var size = compact ? TextSize.Xs : TextSize.Sm;
+            items.Add(TextIn("VOICE EQ", x, y, labelWidth, rowHeight, size, Ui.Edge));
+            double tag = NativeUiText.Width("NOT WIRED", TextSize.Xs) + 10, room = width - labelWidth - tag - 4;
+            double band = (room - 4) / 3;
+            string[] bands = ["Lo", "Mid", "Hi"];
+            for (int i = 0; i < bands.Length; i++)
+                items.Add(Button(bands[i] + " 0", "EqNotWired", x + labelWidth + i * (band + 2), y + 1, band, rowHeight - 3, Ui.Dim, key: "eq" + i));
+            items.Add(Box(x + width - tag, y + 5, tag, rowHeight - 10, Ui.Rule));
+            items.Add(TextIn("NOT WIRED", x + width - tag, y, tag, rowHeight, TextSize.Xs, Ui.Mute, TextAlignX.Center));
+            y += rowHeight;
+        }
         void SpeedControls(TimelineClip video)
         {
             double h = compact ? 22 : 26;
@@ -1010,8 +1036,15 @@ internal sealed partial class EditorView
             Row("Name", ClipName(editor, clip)); Row("Track", (track.Role is { } role ? role + " · " : "") + track.Name + (track.State.Locked ? " (locked)" : ""));
             if (track.Kind == TrackKind.Video && !track.State.Locked) SpeedControls(clip);
             if (track.Kind == TrackKind.Audio && !track.State.Locked)
+            {
+                var audio = clip.Properties.Audio ?? new();
                 Control("Clip gain", clip.Properties.Gain == 0 ? "-inf dB" : $"{20 * Math.Log10((double)clip.Properties.Gain):+0.0;-0.0;0.0} dB",
                     "clipGain", x, width, labelWidth);
+                Control("Fade in", FadeText(audio.FadeInTicks), "fadeIn", x, width, labelWidth);
+                Control("Fade out", FadeText(audio.FadeOutTicks), "fadeOut", x, width, labelWidth);
+                Control("Cleanup", audio.NoiseReductionDb <= 0 ? "off" : $"-{audio.NoiseReductionDb:0} dB noise", "cleanup", x, width, labelWidth);
+                VoiceEq();
+            }
             Row("Start", Timecode.Format(clip.Start, rate)); Row("End", Timecode.Format(clip.End, rate)); Row("Duration", Timecode.Format(clip.Duration, rate), Ui.Orange);
             Row("Source in", $"{SourceTime(clip.SourceIn).TotalSeconds:0.000} s");
             Row("Linked", group.Length > 1 ? $"{group.Length - 1} other clip{(group.Length > 2 ? "s" : "")}" : "none");
@@ -1036,6 +1069,7 @@ internal sealed partial class EditorView
 
     // ---------------------------------------------------------------- helpers
 
+    private static string FadeText(long ticks) => ticks <= 0 ? "none" : $"{ticks / (double)SequenceTime.TicksPerSecond:0.00} s";
     internal static string TitleStyleName(string style) => style switch
     {
         TitleStyles.Card => "Card", TitleStyles.LowerThird => "Lower third", _ => "Outline"
