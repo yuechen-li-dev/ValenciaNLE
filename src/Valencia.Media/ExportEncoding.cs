@@ -2,7 +2,27 @@ using Valencia.Core.Timeline;
 
 namespace Valencia.Media;
 
-public sealed record AudioFinish(double TargetLufs = -16, double TruePeakDb = -1, double LoudnessRange = 11)
+/// <summary>
+/// Where a file is going decides how loud it should be. YouTube, Shorts, TikTok, Reels and Spotify play back
+/// around -14 LUFS integrated; Apple Podcasts and spoken-word delivery use -16. Turning a quiet upload up is
+/// the platform's job only in theory (YouTube turns loud uploads down but never quiet ones up), so a video that
+/// ships at -16 plays 2 dB quieter than its neighbours.
+/// </summary>
+public static class LoudnessTargets
+{
+    public const double Video = -14, Podcast = -16;
+
+    public static (double Lufs, string Destination) For(string? name, int width, int height)
+    {
+        string n = (name ?? "").ToLowerInvariant();
+        if (n.Contains("podcast") || n.Contains("spoken") || n.Contains("audio only") || n.Contains("audio-only")) return (Podcast, "podcast");
+        return (Video, height > width ? "vertical short" : "video platform");
+    }
+
+    public static AudioFinish Finish(string? name, int width, int height) => new(For(name, width, height).Lufs);
+}
+
+public sealed record AudioFinish(double TargetLufs = LoudnessTargets.Video, double TruePeakDb = -1, double LoudnessRange = 11)
 {
     public void Validate()
     {

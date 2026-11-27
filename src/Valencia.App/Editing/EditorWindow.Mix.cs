@@ -59,25 +59,43 @@ internal sealed partial class EditorWindow
             }
             case "MixUnity": SetStripLevel(key, 0); return true;
             case "MixGain+": case "MixGain-":
-                SetStripLevel(key, Math.Round(StripLevel(key)) + (verb.EndsWith('+') ? 1 : -1));
+            {
+                double current = StripLevel(key);
+                SetStripLevel(key, Math.Round(current) + (verb.EndsWith('+') ? 1 : -1), Math.Max(MeterScale.FaderTop, current));
+            }
                 return true;
             default: return false;
         }
     }
+
+    /// <summary>The output the transport is viewing decides the loudness target, the same rule export finishing uses.</summary>
+    private (double Lufs, string Destination) MixTarget()
+    {
+        var sequence = Editor.Sequence;
+        var profile = sequence.Creator?.Profiles.FirstOrDefault(p => p.Id == Editor.SelectedProfile);
+        return profile is null ? LoudnessTargets.For(sequence.Name, sequence.Video.Width, sequence.Video.Height)
+            : LoudnessTargets.For(profile.Name, profile.Width, profile.Height);
+    }
+
+    private AudioFinish MonitorLoudnessFinish() => new(MixTarget().Lufs);
 
     private async Task NormalizeMix()
     {
         var snapshot = Editor.Session.Snapshot;
         var sequence = Editor.Sequence;
         if (sequence.Duration.Ticks == 0) { Editor.Status = "Add audio to the sequence before normalizing."; return; }
-        Editor.Status = "Measuring the program mix.";
+        var (target, destination) = MixTarget();
+        Editor.Status = $"Measuring the program mix for {destination} ({target:0} LUFS).";
         var token = jobCancellation?.Token ?? default;
         var measured = await Task.Run(() => LoudnessAnalyzer.MeasureForNormalizationAsync(snapshot, sequence.Id, token), token);
         token.ThrowIfCancellationRequested();
         if (!ReferenceEquals(snapshot, Editor.Session.Snapshot) || Editor.SequenceId != sequence.Id)
         { Editor.Status = "The sequence changed during loudness measurement."; return; }
-        if (measured.SafeGainDb is not { } gain)
+        measured = measured with { TargetLufs = target };
+        if (measured.SafeGainDb is not { } safe || measured.IntegratedLufs is not { } loudness)
         { Editor.Status = "The program mix has no measurable loudness."; return; }
+        // The master fader tops out at +12 dB; static gain never goes past what the fader can show and undo by hand.
+        double gain = Math.Round(Math.Min(safe, MeterScale.FaderTop), 1), wanted = target - loudness;
         var creator = sequence.Creator ?? new CreatorSettings(1, [], new(), [], [], PeakCeilingDb: 0);
         var updated = creator with { MasterGainDb = gain, PeakCeilingDb = measured.PeakCeilingDb };
         if (updated != creator)
@@ -85,12 +103,20 @@ internal sealed partial class EditorWindow
             if (!Editor.Commit(new SetCreatorSettings(sequence.Id, updated)).Success) return;
             RefreshMonitorMix();
         }
-        Editor.Status = FormattableString.Invariant($"Master {gain:+0.0;-0.0;0.0} dB · target {measured.TargetLufs:0} LUFS · peak ceiling {measured.PeakCeilingDb:0.#} dBTP.");
+        double reached = loudness + gain;
+        string limit = gain >= wanted - .05 ? ""
+            : safe <= MeterScale.FaderTop ? $"; true peak stops static gain at {measured.PeakCeilingDb:0.#} dBTP"
+            : "; the master fader stops at +12 dB";
+        Editor.Status = gain >= wanted - .05
+            ? FormattableString.Invariant($"Master {gain:+0.0;-0.0;0.0} dB: {reached:0.0} LUFS for {destination} (target {target:0}), ceiling {measured.PeakCeilingDb:0.#} dBTP.")
+            : FormattableString.Invariant($"Master {gain:+0.0;-0.0;0.0} dB reaches {reached:0.0} LUFS, short of {target:0} for {destination}{limit}. Export finishing makes up the rest.");
     }
 
-    private void SetStripLevel(string key, double db)
+    /// <param name="top">Highest level allowed; relative nudges pass the current level so a strip set past the fader's
+    /// travel (older projects, agent plans) steps down from where it is instead of jumping to +12.</param>
+    private void SetStripLevel(string key, double db, double top = MeterScale.FaderTop)
     {
-        db = Math.Round(Math.Clamp(db, MeterScale.Floor, MeterScale.FaderTop), 1);
+        db = Math.Round(Math.Clamp(db, MeterScale.Floor, Math.Min(30, top)), 1);
         if (Math.Abs(db - StripLevel(key)) < 1e-9) return;
         EditOperation operation;
         if (key == MasterStrip)

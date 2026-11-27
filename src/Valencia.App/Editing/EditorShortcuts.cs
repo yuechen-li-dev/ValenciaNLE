@@ -74,6 +74,12 @@ internal static class EditorShortcuts
         (EditorAction.GoToStart, new(KeyboardKey.Home)),
         (EditorAction.GoToEnd, new(KeyboardKey.End)),
         (EditorAction.Fullscreen, new(KeyboardKey.F11)),
+        // Panel tabs by number (Premiere uses Shift+number for its panels)
+        (EditorAction.Panel1, new(KeyboardKey.Number1, Shift)),
+        (EditorAction.Panel2, new(KeyboardKey.Number2, Shift)),
+        (EditorAction.Panel3, new(KeyboardKey.Number3, Shift)),
+        (EditorAction.Panel4, new(KeyboardKey.Number4, Shift)),
+        (EditorAction.Panel5, new(KeyboardKey.Number5, Shift)),
         // Marking and three-point editing
         (EditorAction.MarkIn, new(KeyboardKey.I)),
         (EditorAction.MarkOut, new(KeyboardKey.O)),
@@ -113,6 +119,7 @@ internal static class EditorShortcuts
         (EditorAction.Import, new(KeyboardKey.I, Ctrl)),
         (EditorAction.Export, new(KeyboardKey.M, Ctrl)),
         (EditorAction.KeyboardShortcuts, new(KeyboardKey.K, Ctrl | Alt)),
+        (EditorAction.CommandPalette, new(KeyboardKey.P, Ctrl | Shift)),
         // Valencia-only (no Premiere equivalent)
         (EditorAction.ObsMarker, new(KeyboardKey.M, Alt | Shift)),
     ];
@@ -133,6 +140,11 @@ internal static class EditorShortcuts
         EditorAction.GoToStart => ("Transport", "Go to sequence start"),
         EditorAction.GoToEnd => ("Transport", "Go to sequence end"),
         EditorAction.Fullscreen => ("View", "Toggle fullscreen monitor"),
+        EditorAction.Panel1 => ("View", "Panel tab 01 (Media)"),
+        EditorAction.Panel2 => ("View", "Panel tab 02 (Transcript)"),
+        EditorAction.Panel3 => ("View", "Panel tab 03 (Record)"),
+        EditorAction.Panel4 => ("View", "Panel tab 04 (Mix)"),
+        EditorAction.Panel5 => ("View", "Panel tab 05 (Controls)"),
         EditorAction.MarkIn => ("Marking", "Mark In"),
         EditorAction.MarkOut => ("Marking", "Mark Out"),
         EditorAction.ClearMarks => ("Marking", "Clear In and Out"),
@@ -167,6 +179,7 @@ internal static class EditorShortcuts
         EditorAction.Import => ("Project", "Import"),
         EditorAction.Export => ("Project", "Export media"),
         EditorAction.KeyboardShortcuts => ("Project", "Keyboard shortcuts"),
+        EditorAction.CommandPalette => ("View", "Command palette"),
         EditorAction.ObsMarker => ("Recording", "Mark OBS highlight"),
         _ => ("Other", action.ToString()),
     };
@@ -271,7 +284,8 @@ internal static class EditorShortcuts
     }
 
     private static bool CanYieldDefault(EditorAction action) => action is EditorAction.NewTitle or EditorAction.NewSequence or EditorAction.NextSequence
-        or EditorAction.AddSequenceMarker or EditorAction.NextSequenceMarker or EditorAction.PreviousSequenceMarker or EditorAction.Fullscreen;
+        or EditorAction.AddSequenceMarker or EditorAction.NextSequenceMarker or EditorAction.PreviousSequenceMarker or EditorAction.Fullscreen
+        or EditorAction.CommandPalette or EditorAction.Panel1 or EditorAction.Panel2 or EditorAction.Panel3 or EditorAction.Panel4 or EditorAction.Panel5;
 
     public static void Save(InputProfile profile, string path)
     {

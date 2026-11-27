@@ -55,6 +55,7 @@ internal sealed partial class EditorWindow
 
     private UiCursor PointerCursor()
     {
+        if (palette is not null) return palette.Cursor;
         if (contextMenu is not null) return contextMenu.Cursor;
         if (Gesture.Active) return Gesture.Edge == 0 ? UiCursor.Move : UiCursor.ResizeHorizontal;
         if (Editor.EffectDrag is { } effect) return effect.Operation is Valencia.Core.Editing.SetTrackTransition

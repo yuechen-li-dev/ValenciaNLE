@@ -253,4 +253,52 @@ public sealed class AudioMixTests(TimelineFixture fixture) : IClassFixture<Timel
         Assert.Equal(-6, measured.PeakCeilingDb);
         Assert.True(measured.SafeGainDb <= measured.PeakCeilingDb - measured.TruePeakDb);
     }
+
+    [Theory]
+    [InlineData("long-form", 1920, 1080, -14.0)]
+    [InlineData("short-1", 1080, 1920, -14.0)]
+    [InlineData("Weekly Podcast", 1920, 1080, -16.0)]
+    [InlineData("spoken word", 1280, 720, -16.0)]
+    [InlineData(null, 1280, 720, -14.0)]
+    public void LoudnessTargetFollowsTheDestination(string? name, int width, int height, double expected)
+    {
+        Assert.Equal(expected, LoudnessTargets.For(name, width, height).Lufs);
+        Assert.Equal(expected, LoudnessTargets.Finish(name, width, height).TargetLufs);
+    }
+
+    [Fact]
+    public void DeliveryPresetsAndTheDefaultFinishUseTheVideoPlatformTarget()
+    {
+        Assert.Equal(LoudnessTargets.Video, new AudioFinish().TargetLufs);
+        foreach (var preset in ExportCatalog.Presets.Where(p => p.Audio is not null))
+            Assert.Equal(LoudnessTargets.Video, preset.Audio!.TargetLufs);
+        new AudioFinish().Validate();
+    }
+
+    [Fact]
+    public void FourStreamerStripsFitTheMixTabAt720pAndMorePageWithTheWheel()
+    {
+        var editor = new EditorDocument();
+        editor.Open(fixture.Snapshot, "fixture.valencia");
+        int audio = editor.Sequence.Tracks.Count(t => t.Kind == TrackKind.Audio);
+        for (int i = audio; i < 4; i++)
+            Assert.True(editor.Commit(new AddTrack(editor.SequenceId, Guid.NewGuid(), TrackKind.Audio, editor.Sequence.Tracks.Length, "Audio")).Success);
+        editor.MixMode = true;
+        var view = new EditorView();
+        view.Prepare(editor, new(editor), false, false, 1280, 720);
+        var strips = editor.Sequence.Tracks.Where(t => t.Kind == TrackKind.Audio).Select(t => t.Id.ToString()).ToArray();
+        Assert.All(strips, id => Assert.True(editor.MixFaders.ContainsKey(id), $"strip {id}: panel {view.Layout.Panel}, {editor.MixPageSize} per page"));
+        Assert.Equal(0, editor.FirstMixTrack);
+
+        for (int i = 0; i < 6; i++)
+            Assert.True(editor.Commit(new AddTrack(editor.SequenceId, Guid.NewGuid(), TrackKind.Audio, editor.Sequence.Tracks.Length, "Audio")).Success);
+        view.Prepare(editor, new(editor), false, false, 1280, 720);
+        int shown = editor.MixFaders.Count - 1; // minus master
+        Assert.InRange(shown, 1, 9);
+        Assert.Equal(shown, editor.MixPageSize);
+        editor.FirstMixTrack = 99; // the wheel clamps; the view must too
+        view.Prepare(editor, new(editor), false, false, 1280, 720);
+        var last = editor.Sequence.Tracks.Last(t => t.Kind == TrackKind.Audio).Id.ToString();
+        Assert.True(editor.MixFaders.ContainsKey(last));
+    }
 }

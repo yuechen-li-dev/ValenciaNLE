@@ -83,7 +83,7 @@ internal sealed partial class EditorWindow
         string output = Path.GetFullPath(dialog.FileName);
         var snapshot = Editor.Session.Snapshot;
         var spec = new RenderSpecification(Editor.SequenceId, output, Editor.SelectedProfile, encoder.Id, preset,
-            preset?.Audio ?? (encoder.Id == "archive" ? null : new AudioFinish()), preset?.BurnCaptions ?? true, preset?.Quality);
+            preset?.Audio ?? (encoder.Id == "archive" ? null : MonitorLoudnessFinish()), preset?.BurnCaptions ?? true, preset?.Quality);
         RunJob(async () =>
         {
             var engine = await DesktopAgentEngineAsync();

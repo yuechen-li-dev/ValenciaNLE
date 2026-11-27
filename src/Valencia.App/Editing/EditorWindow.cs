@@ -100,11 +100,16 @@ internal sealed partial class EditorWindow : IDisposable
             mouse.MouseMove += (m, p) => HandlePointer(() => { if (!Settings.IsOpen) MouseMove(m, p); });
             mouse.Scroll += (m, wheel) => HandlePointer(() =>
             {
-                if (Settings.IsOpen || contextMenu is not null) return;
+                if (Settings.IsOpen || contextMenu is not null || palette is not null) return;
                 if (IsFullscreen) { if (wheel.Y != 0) Action(wheel.Y > 0 ? "VolumeUp" : "VolumeDown"); return; }
                 var point = Point(m); var media = view.Layout.Media;
                 if (point.X >= media.X && point.X < media.X + media.Width && point.Y >= media.Y && point.Y < media.Y + media.Height)
-                    Editor.FirstAsset = Math.Clamp(Editor.FirstAsset - (int)wheel.Y, 0, Math.Max(0, Editor.Session.Snapshot.Document.Assets.Length - Editor.MediaPageSize));
+                {
+                    if (Editor.MixMode && !Editor.ObsMode && !Editor.TranscriptMode)
+                        Editor.FirstMixTrack = Math.Clamp(Editor.FirstMixTrack - (int)wheel.Y, 0,
+                            Math.Max(0, Editor.Sequence.Tracks.Count(t => t.Kind == TrackKind.Audio) - Editor.MixPageSize));
+                    else Editor.FirstAsset = Math.Clamp(Editor.FirstAsset - (int)wheel.Y, 0, Math.Max(0, Editor.Session.Snapshot.Document.Assets.Length - Editor.MediaPageSize));
+                }
                 else if (keys.Control) Editor.Viewport.Zoom(Math.Pow(1.2, wheel.Y), Point(m).X);
                 else if (keys.Shift) Editor.Viewport.FirstTrack = Math.Clamp(Editor.Viewport.FirstTrack - (int)wheel.Y, 0, Math.Max(0, Editor.Sequence.Tracks.Length - Editor.Viewport.VisibleTracks));
                 else Editor.Viewport.Scroll(-wheel.Y * 90 - wheel.X * 90);
@@ -150,10 +155,11 @@ internal sealed partial class EditorWindow : IDisposable
             if (chromeRevision != chrome.VisualRevision) { chromeRevision = chrome.VisualRevision; lastUi = -1; }
             double now = clock.Elapsed.TotalSeconds;
             // Widget input is polled every iteration so the shared transport never accumulates stale events.
-            bool menuOwnsKeys = contextMenu is not null;
+            bool menuOwnsKeys = contextMenu is not null || palette is not null;
             foreach (var item in widgetInput.Poll().Events)
             {
                 if (Settings.IsOpen) widgetInput.SetPointerCapture(Settings.Handle(item, clock.Elapsed));
+                else if (palette is not null) HandlePointer(() => HandlePalette(item));
                 else if (contextMenu is not null) HandlePointer(() => HandleContextMenu(item));
             }
             // The keymap keeps running under Settings: it feeds InputMan's rebind capture. Commands are dropped there.
@@ -199,7 +205,7 @@ internal sealed partial class EditorWindow : IDisposable
             layoutSmoke?.Tick(this);
             fullscreenSmoke?.Tick(this);
             effectControlsSmoke?.Tick(this);
-            if (!ScriptedPointer && input.Mice.Count > 0 && !Settings.IsOpen && contextMenu is null)
+            if (!ScriptedPointer && input.Mice.Count > 0 && !Settings.IsOpen && contextMenu is null && palette is null)
             {
                 var point = input.Mice[0].Position;
                 if (observedNativePointer != point)
@@ -648,6 +654,12 @@ internal sealed partial class EditorWindow : IDisposable
                 case "ToggleSnap": Editor.Snapping = !Editor.Snapping; Editor.Status = Editor.Snapping ? "Snapping on." : "Snapping off."; break;
                 case "ToggleLink": Editor.LinkedSelection = !Editor.LinkedSelection; Editor.Status = Editor.LinkedSelection ? "Linked selection on: audio and video move together." : "Linked selection off: clips edit independently."; break;
                 case "ToggleMagnet": Editor.Magnetic = !Editor.Magnetic; Editor.Status = Editor.Magnetic ? "Magnetic timeline on: deletes ripple, same-track moves reorder, overwrite inserts." : "Magnetic timeline off."; break;
+                case "CommandPalette": OpenPalette(); break;
+                case "TabMore": OpenBarMenu(Editor.TabOverflow, "Panels"); break;
+                case "ToolMore": OpenBarMenu(Editor.ToolOverflow, "Timeline tools"); break;
+                case "HeaderMore": OpenBarMenu(Editor.HeaderOverflow, "Project"); break;
+                case "Panel1": case "Panel2": case "Panel3": case "Panel4": case "Panel5":
+                    Action(EditorView.TabActions[name[^1] - '1']); return;
                 case "Tab:Media": case "Tab:Transcript": case "Tab:Record": case "Tab:Mix": case "Tab:Controls":
                     Editor.TranscriptMode = name == "Tab:Transcript";
                     Editor.MixMode = name == "Tab:Mix";
@@ -729,7 +741,7 @@ internal sealed partial class EditorWindow : IDisposable
     internal double RulerY => view.Layout.RulerY;
     internal void PointerDown((double X, double Y) p)
     {
-        if (contextMenu is not null) return;
+        if (contextMenu is not null || palette is not null) return;
         pointerPosition = new(p.X, p.Y);
         feedbackDirty |= feedback.Press(new(p.X, p.Y));
         if (IsFullscreen) { FullscreenPointerDown(p); return; }
@@ -843,7 +855,7 @@ internal sealed partial class EditorWindow : IDisposable
     }
     internal void PointerMove((double X, double Y) p)
     {
-        if (contextMenu is not null) return;
+        if (contextMenu is not null || palette is not null) return;
         feedbackDirty |= feedback.Move(new(p.X, p.Y));
         pointerPosition = new(p.X, p.Y);
         if (IsFullscreen)
@@ -864,7 +876,7 @@ internal sealed partial class EditorWindow : IDisposable
     }
     internal void PointerUp((double X, double Y) p)
     {
-        if (contextMenu is not null) return;
+        if (contextMenu is not null || palette is not null) return;
         pointerPosition = new(p.X, p.Y);
         feedbackDirty |= feedback.Release(new(p.X, p.Y));
         if (IsFullscreen) { FullscreenPointerUp(p); return; }

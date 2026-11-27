@@ -5,6 +5,7 @@ using Valencia.Analysis;
 using Valencia.Core;
 using Valencia.Core.Editing;
 using Valencia.Core.Timeline;
+using Valencia.Media;
 
 namespace Valencia.Engine;
 
@@ -14,7 +15,7 @@ public sealed record CreatorRequest(Guid SequenceId, string TranscriptKey, strin
     string ShortTicks = "5080320000000", int Shorts = 3, int Width = 1280, int Height = 720,
     ImmutableArray<string>? Keywords = null, ImmutableArray<SourceMarker>? Markers = null, bool SourceOrder = true,
     double NoiseReductionDb = 12, double MusicGainDb = -12, double DuckDb = -12, bool Normalize = true,
-    double TargetLufs = -16, double PeakCeilingDb = -1, int DuckAttackMs = 80, int DuckReleaseMs = 300, int DuckHoldMs = 200,
+    double TargetLufs = LoudnessTargets.Video, double PeakCeilingDb = -1, int DuckAttackMs = 80, int DuckReleaseMs = 300, int DuckHoldMs = 200,
     ImmutableArray<int>? MusicStreamIndices = null, string MinimumSeparationTicks = "0");
 public sealed record HighlightCandidate(Guid Id, SequenceTime Start, SequenceTime End, double Score, ImmutableArray<string> Evidence,
     string? Topic = null);

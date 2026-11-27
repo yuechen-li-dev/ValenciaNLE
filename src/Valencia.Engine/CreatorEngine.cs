@@ -122,7 +122,6 @@ public sealed partial class EditingEngine
         var encoder = encoderId is not null || FfmpegRuntime.IsDistribution
             ? ExportCatalog.Encoder(encoderId ?? "vp9")
             : null;
-        var finish = new AudioFinish();
         var results = new List<ExportStatus>();
         foreach (var batch in profiles.Chunk(4))
         {
@@ -137,7 +136,7 @@ public sealed partial class EditingEngine
                     if (encoder is null)
                         ids.Add(Exports.Start(sequenceId, Policy is null ? output : Path.GetRelativePath(Policy.Root, output), p.Id));
                     else
-                        ids.Add((await Exports.EnqueueAsync(snapshot, new(sequenceId, output, p.Id, encoder.Id, null, finish, true, null),
+                        ids.Add((await Exports.EnqueueAsync(snapshot, new(sequenceId, output, p.Id, encoder.Id, null, LoudnessTargets.Finish(p.Name, p.Width, p.Height), true, null),
                             cancellation).ConfigureAwait(false)).JobId);
                 }
                 foreach (var id in ids)

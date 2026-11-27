@@ -28,12 +28,12 @@ internal sealed partial class EditorView
         var labels = TrackLabels(sequence);
         var tracks = sequence.Tracks.Where(t => t.Kind == TrackKind.Audio).ToArray();
         var solos = editor.SoloedAudioTracks;
-        double rowHeight = compact ? 46 : 56, masterHeight = compact ? 78 : 90;
+        double masterHeight = compact ? 62 : 74;
         double labelWidth = compact ? 34 : 42, side = 20;
         double barLeft = Pad + labelWidth + 6 + side + 2, barRight = Pad + width - side - 2;
 
         // Engraved legend: the dB scale every strip below shares.
-        double scaleHeight = 16;
+        double scaleHeight = 14;
         items.Add(TextIn("DB", Pad, top, labelWidth, scaleHeight, TextSize.Xs, Ui.Edge));
         // Unity is always engraved; other marks drop out where they would collide with a neighbour.
         double unityX = barLeft + MeterScale.Fader(0) * (barRight - barLeft);
@@ -50,14 +50,21 @@ internal sealed partial class EditorView
             items.Add(TextIn(text, lx, top, tw + 2, scaleHeight, TextSize.Xs, mark == 0 ? Ui.Bone : Ui.Edge));
             lastRight = lx + tw;
         }
-        double y = top + scaleHeight + 4;
+        double y = top + scaleHeight + 3;
         items.Add(Box(0, y - 2, panel.Width, 1, Ui.Rule));
 
         double masterTop = bottom - masterHeight;
-        int capacity = Math.Max(0, (int)((masterTop - 6 - y) / rowHeight));
+        // Strips tighten (56 -> 42 px) before any scroll, so a four-track streamer mix fits a 720p window.
+        double room = masterTop - 2 - y, full = compact ? 46 : 56, tight = compact ? 40 : 42;
+        double rowHeight = tracks.Length == 0 ? full : Math.Clamp(Math.Floor(room / tracks.Length), tight, full);
+        int capacity = Math.Max(0, (int)(room / rowHeight));
+        bool paged = tracks.Length > capacity, pageLabel = paged && room - 16 >= rowHeight;
+        if (pageLabel) capacity = (int)((room - 16) / rowHeight);
+        editor.MixPageSize = Math.Max(1, capacity);
+        editor.FirstMixTrack = Math.Clamp(editor.FirstMixTrack, 0, Math.Max(0, tracks.Length - capacity));
         if (tracks.Length == 0)
             items.Add(Text(NativeUiText.Ellipsize("No audio tracks. Add one from the toolbar.", width), Pad, y + 4, width, 18, color: Ui.Mute));
-        foreach (var track in tracks.Take(capacity))
+        foreach (var track in tracks.Skip(editor.FirstMixTrack).Take(capacity))
         {
             var processing = sequence.Creator?.Audio.FirstOrDefault(a => a.TrackId == track.Id);
             double gain = editor.FaderPreview is { } preview && preview.Key == track.Id.ToString() ? preview.Db : processing?.GainDb ?? 0;
@@ -89,8 +96,9 @@ internal sealed partial class EditorView
             y += rowHeight;
             items.Add(Box(Pad, y - 2, width, 1, Ui.RowRule));
         }
-        if (tracks.Length > capacity && capacity >= 0)
-            items.Add(Text($"+{tracks.Length - capacity} more audio tracks (enlarge the window)", Pad, y, width, 14, TextSize.Xs, Ui.Mute));
+        if (pageLabel)
+            items.Add(Text(NativeUiText.Ellipsize($"A{editor.FirstMixTrack + 1}-A{Math.Min(tracks.Length, editor.FirstMixTrack + capacity)} of {tracks.Length} (wheel)", width, TextSize.Xs),
+                Pad, y, width, 14, TextSize.Xs, Ui.Mute));
 
         // Master: stereo meter on the same scale, master fader, the clipper ceiling and the over lamp.
         var creator = sequence.Creator;
@@ -102,13 +110,18 @@ internal sealed partial class EditorView
         double mx0 = Pad + labelWidth + 6, mw = width - labelWidth - 6;
         bool over = editor.Meter.Over;
         double overWidth = NativeUiText.Width("OVER", TextSize.Md) + 14, mValueWidth = NativeUiText.Width("-60.0 DB", TextSize.Sm) + 10;
-        string peaks = $"L {MeterScale.Text(editor.Meter.Left.HoldDb)}  R {MeterScale.Text(editor.Meter.Right.HoldDb)}";
-        double peaksWidth = mw - overWidth - mValueWidth - 6;
-        items.Add(TextIn(NativeUiText.Ellipsize("PEAK " + peaks, peaksWidth, TextSize.Xs), mx0, my + 2, peaksWidth, 18, TextSize.Xs, Ui.Mute));
+        // Line one is the loudness readout; peak values already show as hold ticks here and on the edge meter.
+        string momentary = editor.Meter.MomentaryLufs?.ToString("0.0", CultureInfo.InvariantCulture) ?? "-";
+        double readoutWidth = mw - overWidth - mValueWidth - 6, lufsWidth = NativeUiText.Width(momentary, TextSize.Sm) + 4;
+        items.Add(TextIn(momentary, mx0, my + 2, lufsWidth, 18, TextSize.Sm, editor.Meter.MomentaryLufs is null ? Ui.Edge : Ui.Bone));
+        // The ceiling is also the red zone on the meter, so it is the first thing to go when the row is narrow.
+        string unit = $"LUFS M / CEIL {MeterScale.Text(ceiling)}";
+        if (NativeUiText.Width(unit, TextSize.Xs) > readoutWidth - lufsWidth - 4) unit = "LUFS M";
+        items.Add(TextIn(unit, mx0 + lufsWidth + 4, my + 2, readoutWidth - lufsWidth - 4, 18, TextSize.Xs, Ui.Mute));
         items.Add(Button(MeterScale.Text(masterGain) + " dB", "MixUnity:master", mx0 + mw - overWidth - mValueWidth - 2, my + 2, mValueWidth, 18,
             Ui.Value(Ui.Bone), caps: false));
         items.Add(Button("Over", "ClearOver", mx0 + mw - overWidth, my + 2, overWidth, 18, over ? Ui.Danger : Ui.Dim));
-        double pairY = my + 26, pairH = masterHeight - 70;
+        double pairY = my + 24, pairH = masterHeight - 54;
         double half = Math.Max(3, (pairH - 2) / 2);
         items.Add(Button("-", "MixGain-:master", barLeft - side - 2, pairY, side, pairH));
         items.Add(Button("+", "MixGain+:master", barRight + 2, pairY, side, pairH));
@@ -116,14 +129,11 @@ internal sealed partial class EditorView
         Strip(items, barLeft, pairY + half + 2, barRight - barLeft, half, editor.Meter.Right, masterGain, ceiling, notch: false);
         FaderNotch(items, barLeft, pairY, barRight - barLeft, pairH, masterGain);
         editor.MixFaders["master"] = new Rect(panel.X + barLeft, panel.Y + pairY, barRight - barLeft, pairH);
-        string momentary = editor.Meter.MomentaryLufs?.ToString("0.0", CultureInfo.InvariantCulture) ?? "–";
-        string footer = $"{momentary} LUFS M / CEIL {MeterScale.Text(ceiling)} dBFS";
-        double footerY = pairY + pairH + 2;
-        items.Add(TextIn(NativeUiText.Ellipsize(footer, mw, TextSize.Xs), mx0, footerY, mw, 14, TextSize.Xs, Ui.Edge));
+        double footerY = pairY + pairH + 4;
         double buttonWidth = (mw - 4) / 2;
-        items.Add(Button("Normalize", "NormalizeMix", mx0, footerY + 16, buttonWidth, 18));
-        items.Add(Button(editor.ListenBefore ? "Listen: Before" : "Listen: After", "ListenMix",
-            mx0 + buttonWidth + 4, footerY + 16, buttonWidth, 18, editor.ListenBefore ? Ui.Primary : Ui.Plain, caps: false));
+        items.Add(Button("Normalize", "NormalizeMix", mx0, footerY, buttonWidth, 18));
+        items.Add(Button(editor.ListenBefore ? "Listen before" : "Listen after", "ListenMix",
+            mx0 + buttonWidth + 4, footerY, buttonWidth, 18, editor.ListenBefore ? Ui.Primary : Ui.Plain));
     }
 
     /// <summary>A meter in a fader groove: segmented RMS fill, dimmer peak, hold tick, unity line and the fader notch.</summary>

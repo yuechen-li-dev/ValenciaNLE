@@ -131,8 +131,10 @@ public sealed class AudioStreamBuffer : IWaveProvider
         var levels = new LevelAccumulator();
         levels.Add(output[..delivered]);
         double? momentary = loudness.Observe(output[..delivered]);
-        var channels = trackLevels.Count == 0 ? FrozenDictionary<Guid, AudioOutputLevels>.Empty
-            : trackLevels.ToFrozenDictionary(pair => pair.Key, pair => pair.Value.Levels(frames));
+        // A plain dictionary: built on the device callback every buffer and read once or twice by the UI,
+        // so FrozenDictionary's construction-time analysis would cost more than it saves.
+        IReadOnlyDictionary<Guid, AudioOutputLevels> channels = trackLevels.Count == 0 ? FrozenDictionary<Guid, AudioOutputLevels>.Empty
+            : trackLevels.ToDictionary(pair => pair.Key, pair => pair.Value.Levels(frames));
         Volatile.Write(ref meterReading, frames == 0 ? AudioMeterReading.Empty : new(levels.Levels(frames), channels, momentary));
         lock (clockGate)
         {

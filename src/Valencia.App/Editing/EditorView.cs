@@ -61,6 +61,8 @@ internal sealed partial class EditorView
 
     private enum PanelTab { Media, Transcript, Record, Mix, Controls }
     private static readonly string[] TabNames = ["Media", "Transcript", "Record", "Mix", "Controls"];
+    private static readonly string[] TabCodes = ["Med", "Txt", "Rec", "Mix", "Ctl"];
+    internal static readonly string[] TabActions = [.. TabNames.Select(name => "Tab:" + name)];
 
     public Result<MachinaPreparedPresentation, EditorFailure> TryPrepare(EditorDocument editor,
         TimelineGesture gesture, bool playing, bool razor, int width, int height, bool jobRunning = false)
@@ -155,14 +157,32 @@ internal sealed partial class EditorView
         children.Add(TextIn("VALENCIA", 14, 0, mark + 4, rowH, TextSize.Xl));
         if (!two && 14 + mark + 10 + NativeUiText.Width("NLE", TextSize.Xs) < EditorLayout.HeaderCommandsLeft - 8)
             children.Add(TextIn("NLE", 14 + mark + 10, 2, 40, rowH, TextSize.Xs, Ui.Mute));
+        // Header commands follow the bar law: one size, Export pinned, the rest overflow to "+N" (never shrink per button).
         var commands = new[] { ("New", "New"), ("Open", "Open"), ("Save", "Save"), ("Save as", "SaveAs"), ("Import", "Import"), ("Export", "Export"), ("Settings", "Settings") };
         double gap = EditorLayout.HeaderCommandGap;
         double x = two ? Gap : EditorLayout.HeaderCommandsLeft, y = two ? rowH + 4 : 6;
-        double cell = two ? (width - 2 * Gap - (commands.Length - 1) * gap) / commands.Length : EditorLayout.HeaderCommandWidth;
-        foreach (var (label, action) in commands)
+        // Single-row headers keep room on the right for the project name.
+        double room = two ? width - 2 * Gap : Math.Max(0, width - 14 - Math.Min(260, width * .2) - x);
+        var items = commands.Select(c => new BarItem(c.Item2, c.Item1, c.Item1, c.Item1, Pinned: c.Item2 == "Export")).ToArray();
+        // Even cells when they fit (the command row reads as a keyboard of equal keys); content widths otherwise.
+        double even = two ? (room - (commands.Length - 1) * gap) / commands.Length : EditorLayout.HeaderCommandWidth;
+        bool evenFits = commands.All(c => NativeUiText.Width(c.Item1.ToUpperInvariant(), TextSize.Md) + 12 <= even)
+            && even * commands.Length + gap * (commands.Length - 1) <= room + .001;
+        if (evenFits)
+            foreach (var (label, action) in commands)
+            {
+                children.Add(Button(label, action, x, y, even, 28, action == "Export" ? Ui.Primary : Ui.Outline)); x += even + gap;
+            }
+        else
         {
-            children.Add(Button(label, action, x, y, cell, 28, action == "Export" ? Ui.Primary : Ui.Outline)); x += cell + gap;
+            var plan = BarLayout.Fit(items, x, room, TextSize.Md, padding: 10, gap: gap, groupGap: 0, lowest: BarForm.Full);
+            foreach (var slot in plan.Slots)
+                children.Add(Button(slot.Label, items[slot.Index].Action, slot.X, y, slot.Width, 28, items[slot.Index].Pinned ? Ui.Primary : Ui.Outline));
+            editor.HeaderOverflow = [.. plan.Overflow.Select(i => (items[i].Action, items[i].Full))];
+            x = plan.Slots.Count == 0 ? x : plan.Slots.Max(s => s.X + s.Width) + gap;
+            if (plan.More is { } more) { children.Add(Button(more.Label, "HeaderMore", more.X, y, more.Width, 28, Ui.Outline)); x = more.X + more.Width + gap; }
         }
+        if (evenFits) editor.HeaderOverflow = [];
         children.Add(Box(0, layout.Header.Height - 1, width, 1, Ui.Rule));
 
         double right = width - 14;
@@ -389,42 +409,45 @@ internal sealed partial class EditorView
         bool narrow = addWidth < 70;
         children.Add(Button(narrow ? "+V" : "+ Video", "AddVideo", bar.X, bar.Y, addWidth, 28));
         children.Add(Button(narrow ? "+A" : "+ Audio", "AddAudio", bar.X + addWidth + 2, bar.Y, addWidth, 28));
-        bool phone = layout.Profile == EditorLayoutProfile.VerticalPhone, keys = layout.Width >= 1360 && !phone;
-        // Labels carry their Premiere shortcut where there is room; the phone root keeps the core tools only.
-        string K(string label, string key) => keys ? label + " " + key : label;
-        var tools = new List<(string Label, string Action, StandardButtonStyle Style, bool GroupStart, (uint Color, bool On)? Pip)>
+        // Full labels carry the Premiere shortcut on desktop (touch roots have no keyboard); the bar steps down to plain
+        // names together, then overflows to "+N".
+        const double pipSpace = 18;
+        string K(string label, string key) => layout.Portrait ? label : label + " " + key;
+        var tools = new List<(BarItem Item, StandardButtonStyle Style, (uint Color, bool On)? Pip, string Menu)>
         {
-            (K("Select", "V"), "SelectTool", razor ? Ui.Plain : Ui.Primary, false, null), (K("Razor", "C"), "RazorTool", razor ? Ui.Primary : Ui.Plain, false, null),
-            ("Split", "Split", Ui.Plain, true, null), (phone ? "Del" : "Delete", "Delete", Ui.Plain, false, null), ("Ripple", "RippleDelete", Ui.Plain, false, null),
-            (phone ? "T" : "Title", "NewTitle", Ui.Plain, true, null),
+            (new("SelectTool", K("Select", "V"), "Select", "", Pinned: !razor), razor ? Ui.Plain : Ui.Primary, null, "Selection tool"),
+            (new("RazorTool", K("Razor", "C"), "Razor", "", Pinned: razor), razor ? Ui.Primary : Ui.Plain, null, "Razor tool"),
+            (new("Split", "Split", "Split", "", GroupStart: true), Ui.Plain, null, "Split at playhead"),
+            (new("Delete", "Delete", "Delete", ""), Ui.Plain, null, "Delete"),
+            (new("RippleDelete", "Ripple", "Ripple", ""), Ui.Plain, null, "Ripple delete"),
+            (new("NewTitle", "Title", "Title", "", GroupStart: true), Ui.Plain, null, "New title"),
+            (new("InsertEdit", K("Insert", ","), "Insert", "", GroupStart: true), Ui.Plain, null, "Insert"),
+            (new("OverwriteEdit", K("Overwrite", "."), "Overwrite", ""), Ui.Plain, null, "Overwrite"),
+            (new("Lift", K("Lift", ";"), "Lift", ""), Ui.Plain, null, "Lift"),
+            (new("Extract", K("Extract", "'"), "Extract", ""), Ui.Plain, null, "Extract"),
+            (new("Undo", "Undo", "Undo", "", GroupStart: true), Ui.Plain, null, "Undo"),
+            (new("Redo", "Redo", "Redo", ""), Ui.Plain, null, "Redo"),
+            (new("ToggleSnap", "Snap", "Snap", "", Extra: pipSpace, GroupStart: true), editor.Snapping ? Ui.Plain : Ui.Dim, (Ui.Cyan, editor.Snapping), "Snap: " + (editor.Snapping ? "on" : "off")),
+            (new("ToggleLink", "Link", "Link", "", Extra: pipSpace), editor.LinkedSelection ? Ui.Plain : Ui.Dim, (Ui.Orange, editor.LinkedSelection), "Linked selection: " + (editor.LinkedSelection ? "on" : "off")),
+            (new("ToggleMagnet", "Magnet", "Magnet", "", Extra: pipSpace), editor.Magnetic ? Ui.Plain : Ui.Dim, (Ui.Bone, editor.Magnetic), "Magnetic timeline: " + (editor.Magnetic ? "on" : "off")),
         };
-        if (!phone) tools.AddRange([(K("Insert", ","), "InsertEdit", Ui.Plain, true, null), (K("Overwrite", "."), "OverwriteEdit", Ui.Plain, false, null),
-            (K("Lift", ";"), "Lift", Ui.Plain, false, null), (K("Extract", "'"), "Extract", Ui.Plain, false, null)]);
-        tools.AddRange([("Undo", "Undo", Ui.Plain, true, null), ("Redo", "Redo", Ui.Plain, false, null),
-            ("Snap", "ToggleSnap", editor.Snapping ? Ui.Plain : Ui.Dim, true, (Ui.Cyan, editor.Snapping)),
-            ("Link", "ToggleLink", editor.LinkedSelection ? Ui.Plain : Ui.Dim, false, (Ui.Orange, editor.LinkedSelection)),
-            ("Magnet", "ToggleMagnet", editor.Magnetic ? Ui.Plain : Ui.Dim, false, (Ui.Bone, editor.Magnetic))]);
         double zoomWidth = 30 + 44 + 30 + 4;
-        double x = layout.ClipLeft, y = bar.Y, right = bar.X + bar.Width - (layout.ToolbarRows == 2 ? 0 : zoomWidth + 8);
-        // Reduce padding first. If the row is still tight, give the whole group proportionally smaller labels.
-        const double pipSpace = 18, gap = 2, groupGap = 8;
-        var widths = tools.Select(t => NativeUiText.Width(t.Label.ToUpperInvariant(), TextSize.Md)).ToArray();
-        double ink = widths.Sum();
-        double spacing = (tools.Count - 1) * gap + tools.Count(t => t.GroupStart) * groupGap + tools.Count(t => t.Pip is not null) * pipSpace;
-        double padding = layout.ToolbarRows == 2 ? 20 : Math.Clamp((right - x - spacing - ink) / tools.Count, 8, 20);
-        double scale = layout.ToolbarRows == 2 ? 1 : Math.Min(1, (right - x - spacing - padding * tools.Count) / ink);
-        for (int i = 0; i < tools.Count; i++)
+        bool twoRows = layout.ToolbarRows == 2;
+        (double, double)[] rows = twoRows
+            ? [(layout.ClipLeft, bar.X + bar.Width - layout.ClipLeft), (bar.X, bar.Width - zoomWidth - 8)]
+            : [(layout.ClipLeft, bar.X + bar.Width - zoomWidth - 8 - layout.ClipLeft)];
+        var plan = BarLayout.Fit(tools.Select(t => t.Item).ToArray(), rows, TextSize.Md, padding: 6, lowest: BarForm.Short);
+        editor.ToolOverflow = [.. plan.Overflow.Select(i => (tools[i].Item.Action, tools[i].Menu))];
+        foreach (var slot in plan.Slots)
         {
-            var tool = tools[i];
-            double w = widths[i] * scale + padding + (tool.Pip is null ? 0 : pipSpace);
-            if (tool.GroupStart) x += groupGap;
-            if (x + w > right && layout.ToolbarRows == 2 && y == bar.Y) { x = bar.X; y += EditorLayout.ToolbarRowHeight + 4; right = bar.X + bar.Width - zoomWidth - 8; }
-            if (x + w > right + .001) break;
+            var tool = tools[slot.Index];
+            double y = bar.Y + slot.Row * (EditorLayout.ToolbarRowHeight + 4);
             var style = tool.Pip is null ? tool.Style : tool.Style with { HorizontalPadding = pipSpace / 2 };
-            children.Add(Button(tool.Label, tool.Action, x, y, w, 28, style, key: "tool"));
-            if (tool.Pip is { } pip) children.Add(pip.On ? Box(x + 6, y + 11, 6, 6, pip.Color) : Frame(x + 6, y + 11, 6, 6, Ui.Edge));
-            x += w + gap;
+            children.Add(Button(slot.Label, tool.Item.Action, slot.X, y, slot.Width, 28, style, key: "tool"));
+            if (tool.Pip is { } pip) children.Add(pip.On ? Box(slot.X + 6, y + 11, 6, 6, pip.Color) : Frame(slot.X + 6, y + 11, 6, 6, Ui.Edge));
         }
+        if (plan.More is { } more)
+            children.Add(Button(more.Label, "ToolMore", more.X, bar.Y + more.Row * (EditorLayout.ToolbarRowHeight + 4), more.Width, 28, Ui.Outline, key: "tool"));
         double zx = bar.X + bar.Width - zoomWidth, zy = layout.ToolbarRows == 2 ? bar.Y + EditorLayout.ToolbarRowHeight + 4 : bar.Y;
         foreach (var (label, action) in new[] { ("-", "ZoomOut"), ("Fit", "ZoomFit"), ("+", "ZoomIn") })
         {
@@ -627,7 +650,7 @@ internal sealed partial class EditorView
             ? $"{Short(chosen.Properties.Name, 24)} {Timecode.Format(chosen.Start, rate)}-{Timecode.Format(chosen.End, rate)}  |  " : "";
         string marks = editor.MarkIn is not null || editor.MarkOut is not null
             ? $"In {Timecode.Format(editor.MarkIn ?? default, rate)} Out {Timecode.Format(editor.MarkOut ?? editor.Sequence.Duration, rate)}  |  " : "";
-        string hints = layout.Portrait ? "Space play | Ctrl+K split" : "Space play | I/O mark | Q/W trim | , insert | . overwrite | ; lift | ' extract | Ctrl+K split | Shift+wheel tracks";
+        string hints = layout.Portrait ? "Space play | Ctrl+K split" : "Ctrl+Shift+P commands | Space play | I/O mark | Q/W trim | , insert | . overwrite | ; lift | ' extract | Ctrl+K split | Shift+wheel tracks";
         double hintWidth = Math.Min(NativeUiText.Width(hints, TextSize.Xs) + 4, width * .5);
         string message = "> " + selection + marks + editor.Status;
         children.Add(TextIn(NativeUiText.Ellipsize(message, width - hintWidth - 16), 12, y + 1, width - hintWidth - 16, h - 1, TextSize.Sm, Ui.Bone));
@@ -660,20 +683,23 @@ internal sealed partial class EditorView
             items.Add(Box(0, y, panel.Width, 1, Ui.Rule));
             y += 6;
         }
+        // One bar law (BarLayout): every tab shares a size and a rung (01 MEDIA, 01 MED, 01); extras overflow to "+N".
         int tabCount = inlineInspector ? TabNames.Length : TabNames.Length - 1;
-        double tabWidth = width / tabCount;
-        for (int i = 0; i < tabCount; i++)
+        var tabs = Enumerable.Range(0, tabCount).Select(i => new BarItem("Tab:" + TabNames[i],
+            $"{i + 1:00} {TabNames[i]}", $"{i + 1:00} {TabCodes[i]}", $"{i + 1:00}", Pinned: (int)tab == i)).ToArray();
+        var plan = BarLayout.Fit(tabs, Pad, width, TextSize.Md, padding: 7, gap: 4, groupGap: 0);
+        editor.TabOverflow = [.. plan.Overflow.Select(i => (tabs[i].Action, TabNames[i]))];
+        foreach (var slot in plan.Slots)
         {
-            bool on = (int)tab == i;
-            string numbered = $"{i + 1:00} {TabNames[i]}".ToUpperInvariant();
-            string label = NativeUiText.Width(numbered, TextSize.Md) <= tabWidth - 8 ? numbered : TabNames[i].ToUpperInvariant();
-            items.Add(Button(label, "Tab:" + TabNames[i], Pad + i * tabWidth, y, tabWidth, 24, on ? Ui.TabOn : Ui.Tab));
+            bool on = (int)tab == slot.Index;
+            items.Add(Button(slot.Label, tabs[slot.Index].Action, slot.X, y, slot.Width, 24, on ? Ui.TabOn : Ui.Tab));
             if (on)
             {
-                double lw = Math.Min(tabWidth - 8, NativeUiText.Width(label, Fit(label, TextSize.Md, tabWidth - 6, 24)));
-                items.Add(Box(Pad + i * tabWidth + (tabWidth - lw) / 2, y + 22, lw, 2, Ui.Orange));
+                double lw = NativeUiText.Width(slot.Label.ToUpperInvariant(), TextSize.Md);
+                items.Add(Box(slot.X + (slot.Width - lw) / 2, y + 22, lw, 2, Ui.Orange));
             }
         }
+        if (plan.More is { } more) items.Add(Button(more.Label, "TabMore", more.X, y, more.Width, 24, Ui.Tab));
         double top = y + 24 + (tab == PanelTab.Controls ? 4 : 10), bottom = height - Pad;
         if (card)
         {

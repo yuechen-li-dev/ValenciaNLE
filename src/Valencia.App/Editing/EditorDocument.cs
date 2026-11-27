@@ -68,6 +68,13 @@ internal sealed class EditorDocument
     public bool ControlsMode { get; set; }
     /// <summary>The Mix tab: one strip per audio track plus the master.</summary>
     public bool MixMode { get; set; }
+    /// <summary>First audio strip shown when the Mix tab pages, and how many strips fit.</summary>
+    public int FirstMixTrack { get; set; }
+    public int MixPageSize { get; set; } = 1;
+    /// <summary>Panel tabs and toolbar commands that did not fit their bar this frame (action, menu label).</summary>
+    public IReadOnlyList<(string Action, string Label)> TabOverflow { get; set; } = [];
+    public IReadOnlyList<(string Action, string Label)> ToolOverflow { get; set; } = [];
+    public IReadOnlyList<(string Action, string Label)> HeaderOverflow { get; set; } = [];
     /// <summary>Meter ballistics, fed from the playback output tap every UI frame.</summary>
     public AudioMeter Meter { get; } = new();
     /// <summary>Window-space fader travel for each mix strip ("master" or a track id), written by the view.</summary>

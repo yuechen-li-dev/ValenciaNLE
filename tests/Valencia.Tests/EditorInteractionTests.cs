@@ -95,12 +95,15 @@ public sealed class EditorInteractionTests
         Assert.NotNull(editor.Viewport.Hit(editor.Sequence, layout.ClipLeft + 20, layout.TrackTop + 20));
         Assert.Null(editor.Viewport.Hit(editor.Sequence, layout.ClipLeft - 1, layout.TrackTop + 20));
         Assert.Null(editor.Viewport.Hit(editor.Sequence, layout.ClipLeft + 20, layout.TrackBottom));
-        // Save is the third header command: a wrapped row under the wordmark on narrow roots, beside it otherwise.
-        double gap = EditorLayout.HeaderCommandGap;
-        double cell = layout.HeaderRows == 2 ? (width - 2 * EditorLayout.Gap - 5 * gap) / 6.0 : EditorLayout.HeaderCommandWidth;
-        double saveX = (layout.HeaderRows == 2 ? EditorLayout.Gap : EditorLayout.HeaderCommandsLeft) + 2 * (cell + gap) + cell / 2;
-        double saveY = layout.HeaderRows == 2 ? EditorLayout.HeaderRowHeight + 18 : 20;
-        Assert.Equal("Save", prepared.HitTest.HitTest(new PointerPoint(saveX, saveY))?.Action.Name);
+        // Header commands follow the bar law: Save sits on the header row (hit-testable there) or in its "+N" menu; Export never overflows.
+        if (prepared.TryGetActionCenter(Machina.Core.Actions.UiAction.Named("Save"), out var save))
+        {
+            Assert.Equal("Save", prepared.HitTest.HitTest(save)?.Action.Name);
+            Assert.InRange(save.Y, layout.Header.Y, layout.Header.Y + layout.Header.Height);
+        }
+        else Assert.Contains(editor.HeaderOverflow, item => item.Action == "Save");
+        Assert.True(prepared.TryGetActionCenter(Machina.Core.Actions.UiAction.Named("Export"), out var export));
+        Assert.InRange(export.X, 0, width);
         Assert.True(prepared.TryGetActionCenter(Machina.Core.Actions.UiAction.Named("Fullscreen"), out _));
 
         var texts = prepared.PresentationFrame.Operations.OfType<PositionedTextOperation>().ToArray();
@@ -128,13 +131,17 @@ public sealed class EditorInteractionTests
             var prepared = view.Prepare(editor, new(editor), false, false, width, 670);
             var labels = prepared.PresentationFrame.Operations.OfType<PositionedTextOperation>()
                 .ToDictionary(text => text.SourceId);
+            // Every command stays reachable: on its bar at the shared command size, or in that bar's "+N" menu.
             foreach (string action in new[] { "Analyze", "RoughCut", "OverwriteEdit", "SelectTool", "Undo", "Redo", "ToggleSnap", "ToggleLink", "ToggleMagnet" })
             {
                 var entries = prepared.Lowering.Actions.Where(entry => entry.Value.Name == action).ToArray();
-                Assert.Equal(action == "OverwriteEdit" ? 2 : 1, entries.Length);
+                bool overflowed = editor.ToolOverflow.Any(item => item.Action == action);
+                Assert.Equal((action == "OverwriteEdit" ? 2 : 1) - (overflowed ? 1 : 0), entries.Length);
                 foreach (var entry in entries)
                     Assert.Equal(TextSize.Md, labels[entry.Key.Child("label").Value].Style.Size);
             }
+            if (editor.ToolOverflow.Count > 0) Assert.Contains(prepared.Lowering.Actions, entry => entry.Value.Name == "ToolMore");
+            Assert.True(width < 1280 || editor.ToolOverflow.Count == 0, $"Desktop toolbar overflowed at {width}px: {string.Join(",", editor.ToolOverflow.Select(t => t.Action))} toolbar {view.Layout.Toolbar} clipLeft {view.Layout.ClipLeft}");
         }
     }
 

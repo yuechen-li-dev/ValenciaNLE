@@ -81,9 +81,17 @@ internal sealed class LayoutSmoke(string directory)
             w.NewTitle("EPISODE 01", "The beginning");
         }),
         ("title-lower-third", w => { w.SetTitleStyle(TitleStyles.LowerThird); w.EditTitleText("YUECHEN LI", "Host"); }),
+        // Command palette over the editor with a typed query: ranked matches, shortcut column, top match highlighted.
+        ("command-palette", w =>
+        {
+            w.Editor.Card = null; w.Editor.ProposedCut = null;
+            w.OpenPalette();
+            foreach (char c in "ex") w.HandlePalette(new Machina.Runtime.Input.UiTextEntered(c.ToString()));
+        }),
         // Settings: the shortcut list mid-capture, then About.
         ("settings-shortcuts", w =>
         {
+            w.ClosePalette();
             w.Editor.Card = null; w.Editor.ProposedCut = null;
             w.OpenSettings(); w.Settings.BeginCapture("TogglePlay");
         }),

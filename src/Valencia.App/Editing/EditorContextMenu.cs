@@ -28,11 +28,12 @@ internal sealed partial class EditorWindow
     private bool contextDirty;
     private bool contextAnimating;
     private IReadOnlyList<WidgetOption> contextItems = [];
+    private string contextTitle = "Timeline actions";
 
     private void OpenContextMenu((double X, double Y) point)
     {
         CloseContextMenu();
-        if (Settings.IsOpen || IsFullscreen || view.IsCompact || view.Prepared is null || job is not null
+        if (palette is not null || Settings.IsOpen || IsFullscreen || view.IsCompact || view.Prepared is null || job is not null
             || Gesture.Active || Editor.EffectDrag is not null || scrubbing) return;
         var viewport = Editor.Viewport;
         if (point.X < viewport.ClipLeft || point.X >= viewport.ClipRight
@@ -58,6 +59,14 @@ internal sealed partial class EditorWindow
                 new("CancelRenderJob", "Cancel active render"), new("ProductDiagnostics", "System diagnostics"),
                 new("ManageSpeechModel", "Manage speech model")];
         contextItems = [.. contextItems, .. ContextEffects(point.X, point.Y)];
+        ShowMenu(point, "Timeline actions", contextItems);
+    }
+
+    /// <summary>Opens the shared popup menu at a window point. Choices run through <see cref="Action"/>.</summary>
+    private void ShowMenu((double X, double Y) point, string title, IReadOnlyList<WidgetOption> items)
+    {
+        contextItems = items;
+        contextTitle = title;
         pointer.Reset();
         feedbackDirty |= feedback.Clear();
         lastUi = -1;
@@ -81,7 +90,7 @@ internal sealed partial class EditorWindow
         var size = Graphics.Window.Size;
         if (size.X <= 0 || size.Y <= 0) return;
         contextFrame = contextPipeline.PrepareOverlay(contextMenu,
-            widgets => widgets.ContextMenu(TimelineMenu, "Timeline actions", contextAnchor, contextItems, elapsed: elapsed),
+            widgets => widgets.ContextMenu(TimelineMenu, contextTitle, contextAnchor, contextItems, elapsed: elapsed),
             size.X, size.Y, new(NativeUiText.Instance), style: ContextStyle);
         Graphics.UpdateOverlay(contextFrame.PresentationFrame);
         contextDirty = false;
@@ -122,6 +131,15 @@ internal sealed partial class EditorWindow
                 if (!RunContextEffect(choice)) Action(choice);
                 break;
         }
+    }
+
+    /// <summary>The "+N" tab of a bar: the items that did not fit, as a menu under the pointer.</summary>
+    private void OpenBarMenu(IReadOnlyList<(string Action, string Label)> overflow, string title)
+    {
+        if (overflow.Count == 0 || pointerPosition is not { } at) return;
+        CloseContextMenu();
+        if (Settings.IsOpen || IsFullscreen || view.IsCompact || job is not null || Gesture.Active || scrubbing) return;
+        ShowMenu((at.X, at.Y), title, [.. overflow.Select(item => new WidgetOption(item.Action, item.Label))]);
     }
 
     private void CloseContextMenu()

@@ -7,7 +7,8 @@ namespace Valencia.App.Editing;
 internal enum EditorAction { TogglePlay, Pause, Play, PlayReverse, Split, Delete, RippleDelete, Undo, Redo, Save, SaveAs, Open, Import, New, Export, SelectTool, RazorTool, Cancel, PreviousFrame, NextFrame, ObsMarker,
     MarkIn, MarkOut, ClearMarks, PreviousEdit, NextEdit, GoToStart, GoToEnd, RippleTrimPrevious, RippleTrimNext, InsertEdit, OverwriteEdit, Lift, Extract,
     NewSequence, NextSequence, AddSequenceMarker, NextSequenceMarker, PreviousSequenceMarker,
-    ToggleSnap, ZoomIn, ZoomOut, ZoomFit, KeyboardShortcuts, Fullscreen, NewTitle }
+    ToggleSnap, ZoomIn, ZoomOut, ZoomFit, KeyboardShortcuts, Fullscreen, NewTitle,
+    Panel1, Panel2, Panel3, Panel4, Panel5, CommandPalette }
 
 /// <summary>
 /// Silk keyboard adapter for the editor's InputMan profile. All shortcuts come from one data-driven profile
