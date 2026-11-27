@@ -29,6 +29,19 @@ public sealed class CommandPaletteTests
     }
 
     [Fact]
+    public void EveryCommandCarriesACapsCategoryShownBeforeItsLabel()
+    {
+        var commands = Commands();
+        Assert.All(commands, c => Assert.False(string.IsNullOrWhiteSpace(c.Category), c.Key));
+        Assert.Equal("EXPORT: Vertical 1080x1920", commands.Single(c => c.Key == "export-preset/vertical-1080x1920").Text);
+        Assert.Equal("PANEL: 04 (Mix)", commands.Single(c => c.Key == nameof(EditorAction.Panel4)).Text);
+        Assert.Equal("EDIT: Ripple delete", commands.Single(c => c.Key == nameof(EditorAction.RippleDelete)).Text);
+        // A group name finds the whole group; every ASCII category keeps the column tidy.
+        Assert.All(WidgetOptionFilters.Ranked(commands, "export").Take(5), c => Assert.Equal("Export", c.Category));
+        Assert.All(commands, c => Assert.True(c.Text.All(ch => ch < 128), c.Text));
+    }
+
+    [Fact]
     public void ToggleLabelsSayWhatRunningThemWillDo()
     {
         var editor = new EditorDocument { Magnetic = false };

@@ -57,6 +57,8 @@ internal sealed partial class EditorView
             CardApply = Style(Ink, Card), CardCancel = Style(null, Ink, Ink);
         /// <summary>A borderless readout that is also a button (mix levels: click for unity).</summary>
         public static StandardButtonStyle Value(uint foreground) => Style(null, foreground, size: TextSize.Sm);
+        /// <summary>The status-line prompt: orange text in a rule frame, like a terminal's caret.</summary>
+        public static readonly StandardButtonStyle Prompt = Style(null, Orange, Rule, TextSize.Sm);
     }
 
     private enum PanelTab { Media, Transcript, Record, Mix, Controls }
@@ -638,11 +640,15 @@ internal sealed partial class EditorView
 
     private static void Status(List<UiNode> children, EditorDocument editor, EditorLayout layout)
     {
-        double y = layout.StatusY, width = layout.Width - 2 * 12, h = EditorLayout.StatusHeight;
+        double y = layout.StatusY, h = EditorLayout.StatusHeight;
         children.Add(Box(0, y, layout.Width, 1, Ui.Rule));
+        // The status line is a prompt: ">CMD" opens the command palette, so nobody has to remember Ctrl+Shift+P.
+        double prompt = NativeUiText.Width(">CMD", TextSize.Sm) + 16;
+        children.Add(Button(">CMD", "CommandPalette", 4, y + 3, prompt, h - 5, Ui.Prompt));
+        double left = 4 + prompt + 8, width = layout.Width - left - 12;
         if (editor.EffectDrag?.Preview is { Success: false, Message: { } failure, Error: not Valencia.Core.Editing.EditError.NoChange })
         {
-            children.Add(TextIn(NativeUiText.Ellipsize(failure, width, TextSize.Sm), 12, y + 1, width, h - 1, TextSize.Sm, Ui.Alert));
+            children.Add(TextIn(NativeUiText.Ellipsize(failure, width, TextSize.Sm), left, y + 1, width, h - 1, TextSize.Sm, Ui.Alert));
             return;
         }
         var rate = editor.Sequence.Video.FrameRate;
@@ -650,10 +656,10 @@ internal sealed partial class EditorView
             ? $"{Short(chosen.Properties.Name, 24)} {Timecode.Format(chosen.Start, rate)}-{Timecode.Format(chosen.End, rate)}  |  " : "";
         string marks = editor.MarkIn is not null || editor.MarkOut is not null
             ? $"In {Timecode.Format(editor.MarkIn ?? default, rate)} Out {Timecode.Format(editor.MarkOut ?? editor.Sequence.Duration, rate)}  |  " : "";
-        string hints = layout.Portrait ? "Space play | Ctrl+K split" : "Ctrl+Shift+P commands | Space play | I/O mark | Q/W trim | , insert | . overwrite | ; lift | ' extract | Ctrl+K split | Shift+wheel tracks";
+        string hints = layout.Portrait ? "Space play | Ctrl+K split" : "Space play | I/O mark | Q/W trim | , insert | . overwrite | ; lift | ' extract | Ctrl+K split | Shift+wheel tracks";
         double hintWidth = Math.Min(NativeUiText.Width(hints, TextSize.Xs) + 4, width * .5);
-        string message = "> " + selection + marks + editor.Status;
-        children.Add(TextIn(NativeUiText.Ellipsize(message, width - hintWidth - 16), 12, y + 1, width - hintWidth - 16, h - 1, TextSize.Sm, Ui.Bone));
+        string message = selection + marks + editor.Status;
+        children.Add(TextIn(NativeUiText.Ellipsize(message, width - hintWidth - 16), left, y + 1, width - hintWidth - 16, h - 1, TextSize.Sm, Ui.Bone));
         children.Add(TextIn(NativeUiText.Ellipsize(hints, hintWidth, TextSize.Xs), layout.Width - 12 - hintWidth, y + 1, hintWidth, h - 1, TextSize.Xs, Ui.Edge, TextAlignX.Right));
     }
 
