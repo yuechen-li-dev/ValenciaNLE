@@ -6,7 +6,10 @@ namespace Valencia.Engine;
 
 public sealed record AnalysisRequest(Guid AssetId, int StreamIndex, string Kind, AudioSettings? Audio = null, SceneSettings? Scenes = null, TranscriptionSettings? Transcription = null);
 public sealed record AnalysisStatus(Guid JobId, Guid AssetId, string Key, string State, double Progress, long ProcessedUnits, bool CacheHit, string? Error,
-    double CacheReadMs = 0, double AnalysisMs = 0, double CacheWriteMs = 0);
+    double CacheReadMs = 0, double AnalysisMs = 0, double CacheWriteMs = 0)
+{
+    public AgentIssue? Issue => EditingEngine.JobIssue(State, Error, JobId);
+}
 
 /// <summary>Focused analysis queue: one decode pass, equivalent-request deduplication, 32 retained status records.</summary>
 public sealed class AnalysisJobs(EditingEngine engine, AnalysisCache cache) : IAsyncDisposable
@@ -85,6 +88,7 @@ public sealed class AnalysisJobs(EditingEngine engine, AnalysisCache cache) : IA
         }
     }
     public AnalysisStatus Status(Guid id) { lock (gate) return jobs[id].Status; }
+    public AnalysisStatus[] ActiveJobs() { lock (gate) return jobs.Values.Select(j => j.Status).Where(s => s.State == "running").ToArray(); }
     public void Cancel(Guid id) { lock (gate) jobs[id].Cancellation.Cancel(); }
     public async Task<AnalysisStatus> WaitAsync(Guid id, CancellationToken cancellation = default)
     {

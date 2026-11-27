@@ -8,6 +8,11 @@ public static unsafe class FfmpegRuntime
     private static bool initialized;
 
     public static string NativeDirectory { get; private set; } = string.Empty;
+    public static bool HasDecoder(string codec)
+    {
+        Initialize();
+        return ffmpeg.avcodec_find_decoder_by_name(codec) is not null;
+    }
     public static string DecoderIdentity
     {
         get

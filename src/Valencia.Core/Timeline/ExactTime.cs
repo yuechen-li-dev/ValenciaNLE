@@ -14,7 +14,8 @@ public readonly record struct SourcePosition(MediaTimestamp Timestamp, SequenceT
     public SourcePosition Shift(SequenceTime delta) => this with { Offset = new(checked(Offset.Ticks + delta.Ticks)) };
     public int CompareTo(SourcePosition other) => Fraction.From(this).CompareTo(Fraction.From(other));
     public bool EquivalentTo(SourcePosition other) => CompareTo(other) == 0;
-    public SequenceTime Since(SourcePosition other) => new((Fraction.From(this) - Fraction.From(other)).Ticks(TimeRounding.Exact));
+    public SequenceTime Since(SourcePosition other, TimeRounding rounding = TimeRounding.Exact) =>
+        new((Fraction.From(this) - Fraction.From(other)).Ticks(rounding));
 }
 
 public static class TimelineTime

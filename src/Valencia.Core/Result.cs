@@ -7,13 +7,15 @@ public sealed record Ok<T>(T Value);
 public sealed record Err<E>(E Error);
 
 /// <summary>
-/// A C# 15 union for recoverable operations. Match Ok, Err, and null explicitly:
+/// A closed result for recoverable operations. Match Case as Ok, Err, or null:
 /// default(Result&lt;T, E&gt;) contains null and is neither success nor failure.
 /// This is not an exception sandbox, a wire DTO, or a media-buffer transport.
 /// </summary>
-public union Result<T, E>(Ok<T>, Err<E>)
+public readonly struct Result<T, E>
 {
-    public static Result<T, E> Success(T value) => new Ok<T>(value);
+    private Result(object value) => Case = value;
+    public object? Case { get; }
+    public static Result<T, E> Success(T value) => new(new Ok<T>(value));
 
-    public static Result<T, E> Failure(E error) => new Err<E>(error);
+    public static Result<T, E> Failure(E error) => new(new Err<E>(error));
 }

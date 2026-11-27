@@ -1,6 +1,9 @@
 namespace Valencia.Engine;
 
-public sealed record CreatorJobStatus(Guid JobId, string State, string Phase, string? PlanKey, string? Error);
+public sealed record CreatorJobStatus(Guid JobId, string State, string Phase, string? PlanKey, string? Error)
+{
+    public AgentIssue? Issue => EditingEngine.JobIssue(State, Error, JobId);
+}
 
 /// <summary>One creator-planning/normalization worker and sixteen retained results. Planning never commits.</summary>
 public sealed class CreatorJobs(EditingEngine engine) : IAsyncDisposable
@@ -31,6 +34,7 @@ public sealed class CreatorJobs(EditingEngine engine) : IAsyncDisposable
         }
     }
     public CreatorJobStatus Status(Guid id) { lock (gate) return jobs[id].Status; }
+    public CreatorJobStatus[] ActiveJobs() { lock (gate) return jobs.Values.Select(j => j.Status).Where(s => s.State == "running").ToArray(); }
     public void Cancel(Guid id) { lock (gate) jobs[id].Cancellation.Cancel(); }
     public async Task<CreatorJobStatus> WaitAsync(Guid id, CancellationToken cancellation = default)
     {

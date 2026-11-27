@@ -34,6 +34,9 @@ public static class MediaProcess
         }
     }
     public static async Task<string> RunAsync(IEnumerable<string> arguments, CancellationToken cancellation)
+        => (await CaptureAsync(arguments, cancellation).ConfigureAwait(false)).Error;
+
+    public static async Task<(string Output, string Error)> CaptureAsync(IEnumerable<string> arguments, CancellationToken cancellation)
     {
         var start = new ProcessStartInfo(Environment.GetEnvironmentVariable("VALENCIA_FFMPEG_EXE") ?? "ffmpeg")
         {
@@ -46,10 +49,10 @@ public static class MediaProcess
         var output = ReadTail(process.StandardOutput);
         await process.WaitForExitAsync(CancellationToken.None).ConfigureAwait(false);
         string text = await error.ConfigureAwait(false);
-        await output.ConfigureAwait(false);
+        string stdout = await output.ConfigureAwait(false);
         cancellation.ThrowIfCancellationRequested();
         if (process.ExitCode != 0) throw new InvalidOperationException("FFmpeg failed: " + text);
-        return text;
+        return (stdout, text);
     }
     private static async Task<string> ReadTail(StreamReader reader)
     {

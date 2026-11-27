@@ -11,7 +11,10 @@ public sealed record AssetStream(int Index, TrackKind Kind, string Codec,
     int? Width = null, int? Height = null, int? SampleRate = null, int? Channels = null, FrameRate? FrameRate = null);
 
 /// <summary>SourcePath is absolute in memory; persistence relocates it relative to the project file where possible.</summary>
-public sealed record MediaAsset(Guid Id, string Name, string SourcePath, string Container, ImmutableArray<AssetStream> Streams, string? ProxyKey = null);
+public sealed record MediaAsset(Guid Id, string Name, string SourcePath, string Container, ImmutableArray<AssetStream> Streams, string? ProxyKey = null)
+{
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? Role { get; init; }
+}
 public sealed record VideoFormat(int Width, int Height, FrameRate FrameRate);
 public sealed record TrackState(bool Locked = false, bool Muted = false, bool Visible = true);
 public sealed record ClipProperties(string Name = "", bool Enabled = true, decimal Opacity = 1m, decimal Gain = 1m,
@@ -79,6 +82,7 @@ public sealed record TimelineTrack(Guid Id, TrackKind Kind, int Order, string Na
     ImmutableArray<TimelineClip> Clips)
 {
     public ImmutableArray<TimelineTransition> Transitions { get; init; } = [];
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? Role { get; init; }
 }
 public sealed record SequenceMarker(Guid Id, SequenceTime At, string Label);
 

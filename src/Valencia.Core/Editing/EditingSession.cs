@@ -61,6 +61,7 @@ public sealed class EditingSession
                     candidate = EditReducer.Apply(candidate, command.Operation);
                     DocumentValidator.Validate(candidate);
                 }
+                catch (EditConstraintException error) { return Fail(transaction.Id, EditError.InvalidEdit, error.Message, index) with { Constraint = error.Detail }; }
                 catch (ArgumentException error) { return Fail(transaction.Id, EditError.InvalidEdit, error.Message, index); }
                 catch (OverflowException error) { return Fail(transaction.Id, EditError.Overflow, error.Message, index); }
             }

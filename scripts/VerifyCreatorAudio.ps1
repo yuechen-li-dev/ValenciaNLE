@@ -1,7 +1,8 @@
-param([string]$Directory='artifacts/local/m2d')
+param([string]$Directory='artifacts/local/m2d', [string]$SourcePath)
 $ErrorActionPreference='Stop'
 $directoryPath=(Resolve-Path $Directory).Path
-$outputs=Join-Path $directoryPath 'outputs';$source=Join-Path $directoryPath 'three-hour.mkv'
+$outputs=Join-Path $directoryPath 'outputs'
+$source=if ($SourcePath) { (Resolve-Path $SourcePath).Path } else { Join-Path $directoryPath 'three-hour.mkv' }
 $plan=Get-Content (Join-Path $outputs 'creator-plan.json') -Raw|ConvertFrom-Json
 $settings=($plan.operations|Where-Object operation -eq creator).settings
 $microphone=@($plan.operations|Where-Object { $_.operation -eq 'insert' -and $_.clip.streamIndex -eq 1 }|Sort-Object {[long]$_.clip.start})

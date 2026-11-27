@@ -152,7 +152,7 @@ internal sealed partial class EditorWindow : IDisposable
             if ((Gesture.Active || scrubbing || Editor.EffectDrag is not null) && GetCapture() != WindowHandle) CancelGesture();
             if (job?.IsCompleted == true)
             {
-                if (job.GetAwaiter().GetResult() is Err<EditorFailure> failed) ReportFailure(failed.Error);
+                if (job.GetAwaiter().GetResult().Case is Err<EditorFailure> failed) ReportFailure(failed.Error);
                 job = null;
                 lastUi = -1;
             }
@@ -237,13 +237,13 @@ internal sealed partial class EditorWindow : IDisposable
         Editor.ObsRecording = Obs is { } obs ? obs.Recording.Snapshot.State + " / " + obs.Recording.Snapshot.Markers.Length + " markers" : "No recording session";
         Editor.Recording = Obs?.Recording.Snapshot.State == "recording";
         if (Editor.Card is { } card && (clock.Elapsed.TotalSeconds > Editor.CardUntil
-            || card.Kind == TitleCardKind.Proposal && Editor.ProposedCut is null && Editor.ProposedTextCut is null)) Editor.Card = null;
+            || card.Kind == TitleCardKind.Proposal && Editor.ProposedCut is null && Editor.ProposedTextCut is null && !Editor.HasAgentProposal)) Editor.Card = null;
         if (Settings.IsOpen) { PrepareSettings(); return; }
         var result = view.TryPrepare(Editor, Gesture, Playback?.IsPlaying == true || resume && (opening is not null || desired), razor,
             Graphics.Window.Size.X, Graphics.Window.Size.Y, job is not null);
-        if (result is not Ok<Machina.Pipeline.MachinaPreparedPresentation> ready)
+        if (result.Case is not Ok<Machina.Pipeline.MachinaPreparedPresentation> ready)
         {
-            if (result is Err<EditorFailure> failed) ReportFailure(failed.Error);
+            if (result.Case is Err<EditorFailure> failed) ReportFailure(failed.Error);
             else ReportFailure(new("layout", "Uninitialized preparation result.", false, null));
             return; // Retain the last valid frame and hit-test tree.
         }
@@ -479,7 +479,7 @@ internal sealed partial class EditorWindow : IDisposable
                 chrome.Invoke(button);
                 return;
             }
-            if (name == "Cancel") { CancelGesture(); jobCancellation?.Cancel(); Editor.ProposedCut = null; Editor.ProposedTextCut = null; return; }
+            if (name == "Cancel") { CancelGesture(); jobCancellation?.Cancel(); Editor.ProposedCut = null; Editor.ProposedTextCut = null; RejectAgentProposal(); return; }
             if (job is not null) return;
             if (EffectAction(name)) { lastUi = -1; return; }
             // Timeline edits act on the program playhead; leave source mode first (as clicking the timeline panel does in Premiere).
@@ -514,9 +514,15 @@ internal sealed partial class EditorWindow : IDisposable
                 case "RoughCut": RunJob(ProposeRoughCut); break;
                 case "ApplyCut": RunJob(ApplyRoughCut); break;
                 case "CancelCut": Editor.ProposedCut = null; Editor.Status = "Rough cut cancelled; no edits applied."; break;
+                case "ApplyAgentPlan": RunJob(ApplyAgentProposal); break;
+                case "RejectAgentPlan": RejectAgentProposal(); break;
+                case "CreateAgentCheckpoint": RunJob(() => ShowAgentCheckpoints(create: true)); break;
+                case "ListAgentCheckpoints": RunJob(() => ShowAgentCheckpoints(create: false)); break;
                 case "RunScript":
-                    if (Pick(false, "Copeland TS (*.ts, *.tsx)|*.ts;*.tsx", "Run Copeland TS") is { } scriptPath)
+                    if (Pick(false, "Copeland TS or agent plan|*.ts;*.tsx;*.agent.json", "Run trusted script or review an agent plan") is { } scriptPath)
                     {
+                        if (scriptPath.EndsWith(".agent.json", StringComparison.OrdinalIgnoreCase))
+                        { RunJob(() => ReviewAgentProposal(scriptPath)); break; }
                         bool workflow = scriptPath.EndsWith(".workflow.ts", StringComparison.OrdinalIgnoreCase)
                             || scriptPath.EndsWith(".workflow.tsx", StringComparison.OrdinalIgnoreCase);
                         RunJob(() => workflow ? RunWorkflow(scriptPath) : RunTrustedScript(scriptPath));
@@ -869,7 +875,7 @@ internal sealed partial class EditorWindow : IDisposable
     internal void HandlePointer(Action action)
     {
         var result = EditorOperation.Try("input", () => { action(); return new Completed(); });
-        if (result is Err<EditorFailure> failed)
+        if (result.Case is Err<EditorFailure> failed)
         {
             InputFailures++;
             CancelGesture();
@@ -911,6 +917,7 @@ internal sealed partial class EditorWindow : IDisposable
         pausedPreview.Dispose();
         qualificationSmoke?.Dispose();
         obsEngine?.DisposeAsync().AsTask().GetAwaiter().GetResult();
+        agentProposalEngine?.DisposeAsync().AsTask().GetAwaiter().GetResult();
         scriptHost.Dispose(); chrome.Dispose(); cursor.Dispose(); input.Dispose(); Graphics.Dispose(); seekCancellation?.Dispose(); jobCancellation?.Dispose();
         SynchronizationContext.SetSynchronizationContext(previousContext);
     }

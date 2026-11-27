@@ -10,21 +10,21 @@ public sealed class ResultTests
     {
         Result<string, string> success = Result<string, string>.Success("value");
         Result<string, string> failure = Result<string, string>.Failure("reason");
-        Assert.True(success is Ok<string> { Value: "value" });
-        Assert.True(failure is Err<string> { Error: "reason" });
-        Assert.False(success is Err<string>);
-        Assert.False(failure is Ok<string>);
+        Assert.True(success.Case is Ok<string> { Value: "value" });
+        Assert.True(failure.Case is Err<string> { Error: "reason" });
+        Assert.False(success.Case is Err<string>);
+        Assert.False(failure.Case is Ok<string>);
     }
 
     [Fact]
     public void ExactInt64ValuesDoNotPassThroughDouble()
     {
         Result<long, string> result = Result<long, string>.Success(9_007_199_254_740_993L);
-        Assert.Equal(9_007_199_254_740_993L, result switch
+        Assert.Equal(9_007_199_254_740_993L, result.Case switch
         {
             Ok<long> value => value.Value,
             Err<string> => -1,
-            null => -2
+            _ => -2
         });
     }
 
@@ -32,8 +32,8 @@ public sealed class ResultTests
     public void DefaultUnionIsExplicitlyUninitialized()
     {
         Result<int, string> result = default;
-        Assert.True(result is null);
-        Assert.False(result is Ok<int>);
-        Assert.False(result is Err<string>);
+        Assert.True(result.Case is null);
+        Assert.False(result.Case is Ok<int>);
+        Assert.False(result.Case is Err<string>);
     }
 }

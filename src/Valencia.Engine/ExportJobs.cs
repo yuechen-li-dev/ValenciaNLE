@@ -4,7 +4,10 @@ using Valencia.Media;
 namespace Valencia.Engine;
 
 public sealed record ExportStatus(Guid JobId, Guid ProjectId, string Revision, string State, long Frames, long TotalFrames,
-    string Output, string? Error);
+    string Output, string? Error)
+{
+    public AgentIssue? Issue => EditingEngine.JobIssue(State, Error, JobId);
+}
 
 /// <summary>One export at a time, at most 32 retained job records. Independent of editing commits and playback.</summary>
 public sealed class ExportJobs(EditingEngine engine) : IAsyncDisposable
@@ -55,6 +58,7 @@ public sealed class ExportJobs(EditingEngine engine) : IAsyncDisposable
         }
     }
     public ExportStatus Status(Guid id) { lock (gate) return jobs[id].Status; }
+    public ExportStatus[] ActiveJobs() { lock (gate) return jobs.Values.Select(j => j.Status).Where(s => s.State is "running" or "queued").ToArray(); }
     public void Cancel(Guid id) { lock (gate) jobs[id].Cancellation.Cancel(); }
     public async Task<ExportStatus> WaitAsync(Guid id, CancellationToken cancellation = default)
     {

@@ -16,7 +16,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
     private static readonly string[] ToolNames = ["project_info", "timeline_query", "validate_edit_plan", "apply_edit_plan", "run_export", "export_status", "cancel_export",
         "start_analysis", "analysis_status", "analysis_result", "cancel_analysis", "create_roughcut", "transcript_query", "create_textedit",
         "start_creator", "creator_status", "cancel_creator", "apply_creator", "caption_plan", "correct_transcript",
-        "obs_connect", "obs_status", "obs_record", "obs_marker", "obs_import", "effects_list", "source_frame", "review_timeline"];
+        "obs_connect", "obs_status", "obs_record", "obs_marker", "obs_import", "effects_list", "source_frame", "review_timeline", .. AgentContracts.Methods];
 
     public async Task RunAsync(TextReader input, TextWriter output, CancellationToken cancellation)
     {
@@ -40,7 +40,8 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
                     string requested = request.GetProperty("params").GetProperty("protocolVersion").GetString()!;
                     if (requested != ProtocolVersion) throw new ArgumentException("Supported MCP protocol: " + ProtocolVersion);
                     initialized = true;
-                    result = new { protocolVersion = ProtocolVersion, capabilities = new { tools = new { } }, serverInfo = new { name = "Valencia", version = "M2e" } };
+                    result = new { protocolVersion = ProtocolVersion, capabilities = new { tools = new { } }, serverInfo = new { name = "Valencia", version = "M3a" },
+                        instructions = "Start with session_info (no arguments), edit_objects and footage_query. This stdio process owns a separate headless session; nothing is saved implicitly." };
                 }
                 else
                 {
@@ -48,7 +49,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
                     result = method switch
                     {
                         "ping" => new { },
-                        "tools/list" => new { tools = ToolNames.Select(name => new { name, description = "Valencia engine v1: " + name, inputSchema = InputSchema(name) }) },
+                        "tools/list" => new { tools = ToolNames.Select(name => new { name, description = DescribeTool(name), inputSchema = InputSchema(name) }) },
                         "tools/call" => await Call(request.GetProperty("params"), cancellation).ConfigureAwait(false),
                         _ => throw new ArgumentException("Unsupported MCP method.")
                     };
@@ -69,7 +70,29 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
     {
         string name = parameters.GetProperty("name").GetString()!;
         if (!ToolNames.Contains(name)) throw new ArgumentException("Unknown tool.");
-        var arguments = parameters.GetProperty("arguments");
+        var arguments = parameters.TryGetProperty("arguments", out var payload) ? payload : JsonSerializer.SerializeToElement(new { });
+        if (AgentContracts.RequestType(name) is not null)
+        {
+            AgentReply reply = await engine.AgentAsync(name, arguments, cancellation).ConfigureAwait(false);
+            string json = EngineJson.Write(reply);
+            if (System.Text.Encoding.UTF8.GetByteCount(json) > 131072)
+            {
+                reply = new(AgentContracts.Version, reply.Revision, Issue: new("RESPONSE_LIMIT", "Agent response exceeds 128 KiB.",
+                    "Request fewer samples or a smaller page."));
+                json = EngineJson.Write(reply);
+            }
+            var content = new List<object> { new { type = "text", text = json } };
+            if (reply.Result is AgentObservation images && arguments.TryGetProperty("inlineImage", out var inline) && inline.ValueKind == JsonValueKind.True)
+            {
+                long bytes = images.Files.Sum(path => new FileInfo(path).Length);
+                if (bytes <= 512 * 1024)
+                    foreach (string path in images.Files)
+                        content.Add(new { type = "image", mimeType = "image/png", data = Convert.ToBase64String(await File.ReadAllBytesAsync(path, cancellation)) });
+                else
+                    content.Add(new { type = "text", text = "PNG previews exceed the 512-KiB inline budget. The rendered PNG files are available at the returned paths." });
+            }
+            return new { content, structuredContent = new { apiVersion = 1, result = reply }, isError = !reply.Ok };
+        }
         object value;
         bool failed = false;
         try
@@ -113,7 +136,13 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
         catch (Exception error) when (error is not OperationCanceledException)
         {
             failed = true;
-            value = new { apiVersion = 1, code = "TOOL_REJECTED", message = error.Message, revision = EngineJson.Exact(engine.Session.Snapshot.Revision) };
+            string code = error switch
+            {
+                UnauthorizedAccessException => "PATH_POLICY", FileNotFoundException when name is "analysis_result" or "transcript_query" => "ANALYSIS_MISSING",
+                FileNotFoundException => "MISSING_MEDIA", KeyNotFoundException => "UNKNOWN_REFERENCE",
+                NotSupportedException => "UNSUPPORTED_CAPABILITY", _ => "TOOL_REJECTED"
+            };
+            value = new { apiVersion = 1, code, message = error.Message, revision = EngineJson.Exact(engine.Session.Snapshot.Revision) };
         }
         return new { content = new[] { new { type = "text", text = EngineJson.Write(value) } }, structuredContent = new { apiVersion = 1, result = value }, isError = failed };
     }
@@ -302,6 +331,12 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
     }
     private static JsonObject InputSchema(string tool)
     {
+        if (AgentContracts.RequestType(tool) is { } requestType)
+        {
+            var catalog = EditPlanSchema.Catalog;
+            var root = catalog.Definitions.OfType<TsonTypeAliasDefinition>().Single(definition => definition.Name == requestType);
+            return AttachDefinitions(Shape(root.Shape), catalog);
+        }
         var properties = new JsonObject { ["projectId"] = new JsonObject { ["type"] = "string" } };
         var required = new JsonArray("projectId");
         void Field(string name, bool mandatory = false)
@@ -383,18 +418,82 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
         var result = new JsonObject { ["type"] = "object", ["properties"] = properties, ["required"] = required, ["additionalProperties"] = false };
         if (tool is "validate_edit_plan" or "apply_edit_plan" or "review_timeline")
         {
-            var definitions = new JsonObject();
-            foreach (var definition in EditPlanSchema.Catalog.Definitions.OfType<TsonTypeAliasDefinition>()) definitions[definition.Name] = Shape(definition.Shape);
-            result["$defs"] = definitions;
+            AttachDefinitions(result, EditPlanSchema.Catalog);
         }
         if (tool is "start_analysis" or "create_roughcut" or "create_textedit" or "start_creator" or "correct_transcript" or "obs_connect")
         {
-            var definitions = new JsonObject();
-            foreach (var definition in AnalysisContracts.Catalog.Definitions.OfType<TsonTypeAliasDefinition>()) definitions[definition.Name] = Shape(definition.Shape);
-            result["$defs"] = definitions;
+            AttachDefinitions(result, AnalysisContracts.Catalog);
         }
         return result;
     }
+    private static JsonObject AttachDefinitions(JsonObject root, TsonCatalog catalog)
+    {
+        var index = catalog.Definitions.OfType<TsonTypeAliasDefinition>().ToDictionary(d => d.Name);
+        var definitions = new JsonObject();
+        Visit(root);
+        if (definitions.Count > 0) root["$defs"] = definitions;
+        return root;
+
+        void Visit(JsonNode? node)
+        {
+            if (node is JsonObject obj)
+            {
+                if (obj["$ref"] is JsonValue reference)
+                {
+                    string name = reference.GetValue<string>()["#/$defs/".Length..];
+                    if (!definitions.ContainsKey(name))
+                    {
+                        var definition = Shape(index[name].Shape);
+                        definitions[name] = definition;
+                        Visit(definition);
+                    }
+                }
+                foreach (var item in obj) Visit(item.Value);
+            }
+            else if (node is JsonArray array)
+                foreach (var item in array) Visit(item);
+        }
+    }
+
+    private static string DescribeTool(string name) => name switch
+    {
+        "session_info" => "Start here. No arguments required. Read the attached headless project ID, revision, default sequence, analysis kinds, jobs and codec/observation capabilities. Example: {}.",
+        "edit_objects" => "Read paged sequence, asset, track, clip, marker or profile handles. Optional revision pins the read; use role for all matches and at or start/end in sequence time for clips. Example with projectId: kind:'clip', at:'1s', limit:8.",
+        "footage_query" => "Read independent cached analyses as a bounded footage index. Start with kind:'summary'; then select asset/stream, artifact keys, source-container or sequence time, kind, and predicates. Requires projectId and revision. Example: kind:'matches', transcriptContains:'let’s go', minimumSeparation:'8s'. Continue with nextOffset and artifactSet.",
+        "agent_plan" => "Prepare an immutable dry-run candidate, inspect, list, compare, discard or explicitly commit it. Requires projectId/revision; prepare takes a sequence handle and typed operations; compare takes candidate and other. Example: action:'prepare', plan:{sequence:<sequence>,operations:[{operation:'delete',clipId:<clip>}]}. Commit mutates this session; stale candidates never rebase silently.",
+        "agent_history" => "Undo or redo one transaction in this running headless session; action:'save' writes a snapshot to output. Requires projectId/revision, and workspace-relative .valencia output for save. Example: action:'undo'. History is not loaded from disk.",
+        "agent_checkpoint" => "Create, list, inspect, explicitly restore or delete in-memory named checkpoints. Requires projectId/revision; name except for list. Restore is an undoable commit; checkpoints disappear when the server exits. Example: action:'create', name:'Before cleanup'.",
+        "observe" => "Render labelled PNGs of original frames, current/candidate composites, paired comparison, cached source audio or bounded rendered mix. Requires projectId/revision, mode, new workspace PNG output. Example: mode:'sequence', at:['1s','2s'], output:'review.png', inlineImage:true. Source requires asset+stream; paired requires candidate+beforeOutput. Returns actual sample metadata.",
+        "project_info" => "Read project, revision and missing media; projectId required. Set compact:true to avoid full document output; large results are rejected. No mutation. Prefer session_info to discover identity.",
+        "timeline_query" => "Read sequences, tracks, active clips or an intersecting range. Requires projectId; sequenceId selects a sequence. atTicks or rangeStart/rangeEnd are exact sequence ticks as strings. Example with sequenceId: atTicks:'0'. No mutation.",
+        "validate_edit_plan" => "Dry-run a canonical v1 plan without mutating. Requires projectId, revision and a matching plan. Positions in ticks unless represented as rational source positions. Inspect valid, changes and issues. Prefer agent_plan prepare for readable time and handles.",
+        "apply_edit_plan" => "Atomically commit a canonical v1 plan to this session, not to disk. Requires projectId, current revision and matching plan. Returns resulting revision or structured validation issues. Stale/invalid plans do not apply.",
+        "run_export" => "Start H.264/AAC export from the requested revision. Requires projectId/revision, sequenceId and workspace-relative output; optional profileId. Background job; poll export_status with jobId. No project edits.",
+        "export_status" => "Read a background export job using projectId and returned jobId. Includes progress, errors or terminal state.",
+        "cancel_export" => "Request cancellation of an export using projectId and jobId; poll export_status for the terminal state. No project edit.",
+        "start_analysis" => "Start or reuse an independent source artifact. Requires projectId and typed request with assetId, streamIndex, kind (e.g. 'audio'). Background job; poll analysis_status, then use its key with footage_query or analysis_result.",
+        "analysis_status" => "Read analysis job state, key, progress and error using projectId and jobId. Use the key only once complete.",
+        "analysis_result" => "Read cached artifact metadata or a bounded page. Requires projectId and key; optional kind, offset, limit, level. Example: kind:'silence', limit:16. Artifacts can be evicted or stale.",
+        "cancel_analysis" => "Request cancellation of a source analysis using projectId and jobId; inspect analysis_status. No project edit.",
+        "create_roughcut" => "Preview a silence-based ripple plan from a cached audio artifact. Requires projectId, revision, sequenceId and key; optional typed policy. Returns a proposal; no commit. Ranges use source alignment.",
+        "transcript_query" => "Read/search a cached transcript using projectId and key. Supply query (e.g. 'important announcement'), or rangeStart/rangeEnd as container-relative tick strings; offset/limit bound detail. No edit.",
+        "create_textedit" => "Build a plan that retains or removes timestamped transcript words. Requires projectId/revision and typed request naming sequence, transcript and word IDs. Rejects unaligned or unsupported source layouts. Does not commit.",
+        "start_creator" => "Start background planning for a long edit and vertical profiles. Requires projectId/revision and typed request with sequence and completed transcript/audio keys. Time fields use exact ticks. Poll creator_status; does not commit.",
+        "creator_status" => "Read planner job state and a compact proposal reference/summary using projectId and jobId; inspect terminal errors or use the plan key with apply_creator.",
+        "cancel_creator" => "Cancel a background creator job by projectId and jobId. No edit; poll creator_status for completion.",
+        "apply_creator" => "Explicitly commit a completed creator plan using projectId, revision and proposal key. Mutates only this session, rejects stale revision.",
+        "caption_plan" => "Build an uncommitted caption plan using projectId, revision, sequenceId and aligned transcript key. Keep source timing; review then commit the plan.",
+        "correct_transcript" => "Publish a corrected analysis artifact without changing project timeline or original artifact. Requires projectId and typed corrections request; returns the new artifact key.",
+        "obs_connect" => "Connect to OBS explicitly. Requires projectId and typed request with workspace-relative recording root and manifest; optional endpoint. Does not start recording.",
+        "obs_status" => "Read connected OBS state and manifest summary with projectId. Connect first; no mutation.",
+        "obs_record" => "Control connected OBS with projectId and action (e.g. 'start' or 'stop'). Explicit server permission required. This changes external OBS recording state, not timeline revision.",
+        "obs_marker" => "Log an approximate OBS output-duration marker with projectId, note, and optional kind. Example: note:'Highlight'. Requires connected recording workflow; timestamp is not media PTS.",
+        "obs_import" => "Import completion-proven OBS files into the current project. Requires projectId and revision; uses attached manifest. Mutates project assets and returns current revision.",
+        "effects_list" => "List supported versioned clip effects and presets; requires projectId. No project mutation.",
+        "source_frame" => "Write an ungraded source PNG. Requires projectId, assetId, stream, atTicks (stream-start offset), and new workspace output. Optional maxEdge and paired x/y pixel-edge coordinates. Returns actual decoded PTS.",
+        "review_timeline" => "Write current or v1-plan composited PNG/MP4. Requires projectId/revision, sequenceId, typed selection and new workspace output; optional canonical plan. Example: selection:{kind:'frame',atTicks:['0']}. Bounded; no edit.",
+        _ => throw new ArgumentException("Unknown tool name.")
+    };
     private static JsonObject Shape(TsonTypeReference type)
     {
         switch (type.Kind)

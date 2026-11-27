@@ -50,7 +50,8 @@ internal sealed partial class EditorWindow
                 new("RippleDelete", "Ripple delete", clip.Track.State.Locked),
                 new("seek", "Move playhead here")
             ]
-            : [new("seek", "Move playhead here"), new("marker", "Add marker here")];
+            : [new("seek", "Move playhead here"), new("marker", "Add marker here"),
+                new("CreateAgentCheckpoint", "Checkpoint this revision"), new("ListAgentCheckpoints", "Show session checkpoints")];
         contextItems = [.. contextItems, .. ContextEffects(point.X, point.Y)];
         pointer.Reset();
         feedbackDirty |= feedback.Clear();

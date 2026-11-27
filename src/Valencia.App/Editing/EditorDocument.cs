@@ -48,6 +48,7 @@ internal sealed class EditorDocument
     public Valencia.Engine.RoughCutProposal? ProposedCut { get; set; }
     public Valencia.Analysis.AnalysisArtifact? Transcript { get; set; }
     public Valencia.Engine.TextEditProposal? ProposedTextCut { get; set; }
+    public bool HasAgentProposal { get; set; }
     public bool TranscriptMode { get; set; }
     public bool ControlsMode { get; set; }
     public bool ObsMode { get; set; }
@@ -95,6 +96,7 @@ internal sealed class EditorDocument
         SelectedTitle = SelectedClip = SelectedProfile = TargetTrack = null;
         MarkIn = MarkOut = null;
         ProposedCut = null;
+        HasAgentProposal = false;
         ProposedTextCut = null;
         Card = null;
         Viewport.Reset();
@@ -114,7 +116,7 @@ internal sealed class EditorDocument
     public void New()
     {
         SelectedProfile = null;
-        Waveforms.Clear(); ProposedCut = null; Transcript = null; ProposedTextCut = null; TranscriptMode = ControlsMode = false;
+        Waveforms.Clear(); ProposedCut = null; Transcript = null; ProposedTextCut = null; HasAgentProposal = false; TranscriptMode = ControlsMode = false;
         Session = new(ProjectDocument.Create(Guid.NewGuid(), "Untitled")); SequenceId = Guid.NewGuid();
         Commit(SequenceSetup(SequenceId, "Main", new(1280, 720, new(30, 1)), 48000));
         Session = new(Session.Snapshot); // Required sequence/track setup is the baseline.
@@ -123,7 +125,7 @@ internal sealed class EditorDocument
     public void Open(ProjectSnapshot snapshot, string path)
     {
         SelectedProfile = null;
-        Waveforms.Clear(); ProposedCut = null; Transcript = null; ProposedTextCut = null; TranscriptMode = ControlsMode = false;
+        Waveforms.Clear(); ProposedCut = null; Transcript = null; ProposedTextCut = null; HasAgentProposal = false; TranscriptMode = ControlsMode = false;
         if (snapshot.Document.Sequences.IsDefaultOrEmpty) throw new InvalidDataException("Project has no sequence. Create a sequence before editing it.");
         Session = new(snapshot); SequenceId = snapshot.Document.Sequences[0].Id; SavedDocument = snapshot.Document; ProjectPath = path;
         SelectedTitle = SelectedClip = null; SelectedAsset = snapshot.Document.Assets.FirstOrDefault()?.Id; TargetTrack = null; FirstAsset = 0; Viewport.Reset(); Playhead = default; MarkIn = null; MarkOut = null; Source = null; SourceMarks.Clear();

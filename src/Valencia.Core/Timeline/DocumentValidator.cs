@@ -2,6 +2,11 @@ namespace Valencia.Core.Timeline;
 
 public static class DocumentValidator
 {
+    internal static void ValidateRole(string? role) => Require(role is null ||
+        (role.Length is >= 1 and <= 32 && role[0] is >= 'a' and <= 'z' &&
+         role.All(c => c is >= 'a' and <= 'z' || char.IsAsciiDigit(c) || c == '-')),
+        "Role must be 1..32 lowercase ASCII letters, digits or hyphens, starting with a letter.");
+
     public static void Validate(ProjectDocument project)
     {
         ArgumentNullException.ThrowIfNull(project);
@@ -13,6 +18,7 @@ public static class DocumentValidator
         {
             Require(asset is not null, "Null asset.");
             AddId(asset!.Id);
+            ValidateRole(asset.Role);
             Require(asset.Id != TitleClips.AssetId, "That asset ID is reserved for title clips.");
             Require(asset.Name is not null && asset.Container is not null && !string.IsNullOrWhiteSpace(asset.SourcePath)
                 && Path.IsPathFullyQualified(asset.SourcePath) && asset.SourcePath == Path.GetFullPath(asset.SourcePath),
@@ -63,6 +69,7 @@ public static class DocumentValidator
                 var track = sequence.Tracks[order];
                 Require(track is not null, "Null track.");
                 AddId(track!.Id);
+                ValidateRole(track.Role);
                 Require(track.Order == order && track.State is not null && track.Name is not null && Enum.IsDefined(track.Kind)
                     && !track.Clips.IsDefault, "Tracks require contiguous order and valid fields.");
                 long previousEnd = 0;
@@ -102,8 +109,12 @@ public static class DocumentValidator
                         _ = clip.SourceOut.Since(transform.Origin);
                         transform.Curve!.Validate();
                     }
-                    if (stream!.Start is { } start) Require(clip.SourceIn.CompareTo(new(start)) >= 0, "Clip starts before source bounds.");
-                    if (stream.End is { } end) Require(clip.SourceOut.CompareTo(new(end)) <= 0, "Clip ends after source bounds.");
+                    if (stream!.Start is { } start && clip.SourceIn.CompareTo(new(start)) < 0)
+                        throw new Editing.EditConstraintException("Clip starts before source bounds.",
+                            new("SOURCE_RANGE", clip.Id, new { requestedIn = clip.SourceIn, minimumIn = new SourcePosition(start) }));
+                    if (stream.End is { } end && clip.SourceOut.CompareTo(new(end)) > 0)
+                        throw new Editing.EditConstraintException("Clip ends after source bounds.",
+                            new("SOURCE_RANGE", clip.Id, new { requestedOut = clip.SourceOut, maximumOut = new SourcePosition(end) }));
                     void CheckPosition(SourcePosition p) => Require(p.Timestamp.Numerator == stream!.TimeBaseNumerator &&
                         p.Timestamp.Denominator == stream.TimeBaseDenominator, "Clip timestamp must preserve its stream timebase.");
                 }

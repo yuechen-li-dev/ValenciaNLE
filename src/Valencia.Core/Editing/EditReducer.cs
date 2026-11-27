@@ -8,6 +8,11 @@ internal static class EditReducer
     public static ProjectDocument Apply(ProjectDocument document, EditOperation operation)
     {
         if (operation is AddAsset add) return document with { Assets = document.Assets.Add(add.Asset) };
+        if (operation is SetAssetRole assetRole)
+        {
+            int index = Index(document.Assets, a => a.Id == assetRole.AssetId, "asset");
+            return document with { Assets = document.Assets.SetItem(index, document.Assets[index] with { Role = assetRole.Role }) };
+        }
         if (operation is RelinkAsset relink)
         {
             ArgumentNullException.ThrowIfNull(relink.Asset);
@@ -21,7 +26,7 @@ internal static class EditReducer
         {
             AddTrack x => x.SequenceId, InsertClip x => x.SequenceId, MoveClip x => x.SequenceId,
             TrimClip x => x.SequenceId, SplitClip x => x.SequenceId, DeleteClip x => x.SequenceId,
-            RippleDelete x => x.SequenceId, SetTrackState x => x.SequenceId,
+            RippleDelete x => x.SequenceId, SetTrackState x => x.SequenceId, SetTrackRole x => x.SequenceId,
             SetCreatorSettings x => x.SequenceId, SetClipProperties x => x.SequenceId,
             SetOutputFraming x => x.SequenceId,
             PatchClipColor x => x.SequenceId, SetClipRegion x => x.SequenceId, SetClipMotion x => x.SequenceId,
@@ -89,6 +94,12 @@ internal static class EditReducer
         var tracks = sequence.Tracks;
         switch (operation)
         {
+            case SetTrackRole role:
+            {
+                int index = Index(tracks, t => t.Id == role.TrackId, "track");
+                tracks = tracks.SetItem(index, tracks[index] with { Role = role.Role });
+                break;
+            }
             case AddTrack x:
                 DocumentValidator.Require(x.Order >= 0 && x.Order <= tracks.Length, "Invalid track insertion order.");
                 tracks = tracks.Insert(x.Order, new(x.TrackId, x.Kind, x.Order, x.Name, new(), []));
@@ -211,7 +222,9 @@ internal static class EditReducer
                         break;
                     case SplitClip x:
                     {
-                        DocumentValidator.Require(x.At.Ticks > clip.Start.Ticks && x.At.Ticks < clip.End.Ticks, "Split must be strictly inside the clip.");
+                        if (x.At.Ticks <= clip.Start.Ticks || x.At.Ticks >= clip.End.Ticks)
+                            throw new EditConstraintException("Split must be strictly inside the clip.",
+                                new("SPLIT_OUTSIDE_CLIP", clip.Id, new { requested = x.At, startExclusive = clip.Start, endExclusive = clip.End }));
                         var left = clip.Slice(clip.Start, x.At);
                         var right = clip.Slice(x.At, clip.End) with { Id = x.RightClipId };
                         // A split title plays continuously: the entrance stays on the left half, the exit on the right.
@@ -399,6 +412,13 @@ internal static class EditReducer
     private static TimelineTrack WithClips(TimelineTrack track, ImmutableArray<TimelineClip> clips, ImmutableArray<MediaAsset> assets)
     {
         track = track with { Clips = [.. clips.OrderBy(c => c.Start.Ticks).ThenBy(c => c.Id)] };
+        for (int i = 1; i < track.Clips.Length; i++)
+        {
+            var before = track.Clips[i - 1]; var after = track.Clips[i];
+            if (before.End.Ticks > after.Start.Ticks)
+                throw new EditConstraintException("Clips must be non-overlapping.",
+                    new("CLIP_OVERLAP", track.Id, new { before.Id, before.End, conflictingClip = after.Id, conflictingStart = after.Start }));
+        }
         if (track.Transitions.IsEmpty) return track;
         return track with { Transitions = [.. TransitionRules.Windows(track, assets.ToDictionary(asset => asset.Id), prune: true)
             .Select(window => window.Transition)] };
@@ -410,7 +430,10 @@ internal static class EditReducer
         long duration = clip.Duration.Ticks, entrance = Math.Clamp(title.EntranceTicks, 0, Math.Max(0, duration));
         return clip with { Title = title with { EntranceTicks = entrance, ExitTicks = Math.Clamp(title.ExitTicks, 0, Math.Max(0, duration - entrance)) } };
     }
-    private static void Unlocked(TimelineTrack track) => DocumentValidator.Require(!track.State.Locked, "Track is locked.");
+    private static void Unlocked(TimelineTrack track)
+    {
+        if (track.State.Locked) throw new EditConstraintException("Track is locked.", new("TRACK_LOCKED", track.Id));
+    }
     private static int Index<T>(ImmutableArray<T> items, Func<T, bool> predicate, string kind)
     {
         for (int i = 0; i < items.Length; i++) if (predicate(items[i])) return i;

@@ -90,7 +90,17 @@ public sealed class HeadlessProtocolTests : IAsyncLifetime
         Assert.Equal("2025-11-25", initialization.GetProperty("result").GetProperty("protocolVersion").GetString());
         await process.StandardInput.WriteLineAsync("{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}");
         var tools = await Request("tools/list", new { });
-        Assert.Equal(28, tools.GetProperty("result").GetProperty("tools").GetArrayLength());
+        Assert.Equal(35, tools.GetProperty("result").GetProperty("tools").GetArrayLength());
+        var allTools = tools.GetProperty("result").GetProperty("tools").EnumerateArray().ToArray();
+        Assert.All(allTools, entry => Assert.DoesNotContain("Valencia engine v1:", entry.GetProperty("description").GetString()!));
+        var first = Assert.Single(allTools, entry => entry.GetProperty("name").GetString() == "session_info");
+        Assert.Empty(first.GetProperty("inputSchema").GetProperty("required").EnumerateArray());
+        var agentPlanSchema = Assert.Single(allTools, entry => entry.GetProperty("name").GetString() == "agent_plan");
+        Assert.True(agentPlanSchema.GetProperty("inputSchema").GetProperty("$defs").TryGetProperty("AgentOperation", out _));
+        var overview = Value(await Tool("session_info", new { }));
+        Assert.Equal("headlessWorkspace", overview.GetProperty("result").GetProperty("authority").GetString());
+        var invalidArgs = await Tool("edit_objects", new { projectId = ProjectId, kind = "invalid" });
+        Assert.Equal("INVALID_REQUEST", Value(invalidArgs).GetProperty("issue").GetProperty("code").GetString());
         var effects = Value(await Tool("effects_list", new { projectId = ProjectId }));
         Assert.Equal("basic-color", effects.GetProperty("effects")[0].GetProperty("id").GetString());
         Assert.Equal("cover", effects.GetProperty("effects")[1].GetProperty("modes")[2].GetString());
@@ -114,11 +124,53 @@ public sealed class HeadlessProtocolTests : IAsyncLifetime
         Assert.True(denied.GetProperty("result").GetProperty("isError").GetBoolean());
         var wrongProject = await Tool("project_info", new { projectId = Guid.NewGuid() });
         Assert.True(wrongProject.GetProperty("result").GetProperty("isError").GetBoolean());
+        var undo = Value(await Tool("agent_history", new { projectId = ProjectId,
+            revision = committed.GetProperty("currentRevision").GetString(), action = "undo" }));
+        Assert.True(undo.GetProperty("ok").GetBoolean());
+        var redo = Value(await Tool("agent_history", new { projectId = ProjectId,
+            revision = undo.GetProperty("revision").GetString(), action = "redo" }));
+        Assert.True(redo.GetProperty("ok").GetBoolean());
         process.StandardInput.Close();
         await process.WaitForExitAsync().WaitAsync(TimeSpan.FromSeconds(10));
         Assert.Equal(0, process.ExitCode);
         Assert.True(string.IsNullOrWhiteSpace(await errors));
         Assert.Single((await new ProjectFile().LoadAsync(ProjectPath)).Snapshot.Document.Sequences[0].Tracks[0].Clips);
+    }
+
+    [Fact]
+    public async Task ActualCliAgentBatchKeepsHistoryAndCopelandFacadeReturnsNativeTicks()
+    {
+        var initial = Create();
+        await new ProjectFile().SaveAsync(ProjectPath, initial);
+        string script = Path.Combine(root, "agent.ts");
+        await File.WriteAllTextAsync(script, """
+            using Valencia.Scripting;
+            function run(api: ScriptApi): string {
+                const seq = api.FirstSequence();
+                const start = api.PositionTicks(seq, "1s");
+                return api.DescribePosition(seq, api.AddTicks(start, 9007199254740993L));
+            }
+            """);
+        var ran = await Cli("script", "run", script, "--project", ProjectPath);
+        Assert.Equal(0, ran.Exit);
+        using var decoded = JsonDocument.Parse(JsonDocument.Parse(ran.Output).RootElement.GetProperty("returnValue").GetString()!);
+        Assert.Equal("9007453270740993", decoded.RootElement.GetProperty("ticks").GetString());
+        var revision = initial.Snapshot.Revision;
+        string requests = Path.Combine(root, "agent.jsonl");
+        var lines = new object[]
+        {
+            new { method = "session_info", request = new { } },
+            new { method = "agent_checkpoint", request = new { projectId = ProjectId, revision, action = "create", name = "Original" } },
+            new { method = "agent_checkpoint", request = new { projectId = ProjectId, revision, action = "list" } },
+            new { method = "agent_history", request = new { projectId = ProjectId, revision, action = "undo" } }
+        };
+        await File.WriteAllLinesAsync(requests, lines.Select(EngineJson.Write));
+        var batch = await Cli("agent", "run", ProjectPath, "--requests", requests);
+        Assert.Equal(2, batch.Exit);
+        var output = batch.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries).Select(l => JsonDocument.Parse(l).RootElement.Clone()).ToArray();
+        Assert.Equal(4, output.Length);
+        Assert.Equal("Original", output[2].GetProperty("result")[0].GetProperty("name").GetString());
+        Assert.Equal("NOTHING_TO_UNDO", output[3].GetProperty("issue").GetProperty("code").GetString());
     }
     [Fact]
     public void WorkspaceRejectsTraversalRootedPathsAndSourceAliases()

@@ -1,0 +1,644 @@
+{
+  "schemaVersion": 1,
+  "milestone": "M3a",
+  "dateLocal": "2026-11-26",
+  "timeZone": "America/Los_Angeles",
+  "method": "Deterministic harness, real processes, no model, tokenizer or human intervention counts",
+  "baselineCommit": "3f65435",
+  "framework": "net10.0",
+  "fixture": {
+    "assets": 2,
+    "trackClipCounts": [
+      16,
+      16,
+      16,
+      2
+    ],
+    "marker": "Opening",
+    "captionWords": 1143,
+    "profiles": 4,
+    "primary": "controlled synthetic three-hour source",
+    "secondary": "NASA narration B-roll"
+  },
+  "comparable": {
+    "before": {
+      "calls": 13,
+      "failedCalls": 2,
+      "requestBytes": 3752,
+      "responseBytes": 231715,
+      "planWithCorrectionMs": 53.65,
+      "callerArithmetic": [
+        "Read raw start ticks",
+        "Add 254016000000 ticks for one second",
+        "Serialize exact tick strings"
+      ],
+      "samples": [
+        {
+          "call": "initialize",
+          "phase": "workflow",
+          "requestBytes": 155,
+          "responseBytes": 145,
+          "ms": 219.98,
+          "failed": false
+        },
+        {
+          "call": "tools/list",
+          "phase": "workflow",
+          "requestBytes": 59,
+          "responseBytes": 120783,
+          "ms": 32.98,
+          "failed": false
+        },
+        {
+          "call": "project_info",
+          "phase": "workflow",
+          "requestBytes": 145,
+          "responseBytes": 719,
+          "ms": 33.55,
+          "failed": true
+        },
+        {
+          "call": "project_info",
+          "phase": "workflow",
+          "requestBytes": 160,
+          "responseBytes": 2444,
+          "ms": 4.36,
+          "failed": false
+        },
+        {
+          "call": "timeline_query",
+          "phase": "workflow",
+          "requestBytes": 199,
+          "responseBytes": 69702,
+          "ms": 3.95,
+          "failed": false
+        },
+        {
+          "call": "analysis_result",
+          "phase": "workflow",
+          "requestBytes": 221,
+          "responseBytes": 11481,
+          "ms": 56.18,
+          "failed": false
+        },
+        {
+          "call": "analysis_result",
+          "phase": "workflow",
+          "requestBytes": 221,
+          "responseBytes": 2152,
+          "ms": 579.81,
+          "failed": false
+        },
+        {
+          "call": "transcript_query",
+          "phase": "workflow",
+          "requestBytes": 265,
+          "responseBytes": 5908,
+          "ms": 26.11,
+          "failed": false
+        },
+        {
+          "call": "analysis_result",
+          "phase": "workflow",
+          "requestBytes": 248,
+          "responseBytes": 5320,
+          "ms": 594.71,
+          "failed": false
+        },
+        {
+          "call": "validate_edit_plan",
+          "phase": "workflow",
+          "requestBytes": 468,
+          "responseBytes": 730,
+          "ms": 26.61,
+          "failed": true
+        },
+        {
+          "call": "validate_edit_plan",
+          "phase": "workflow",
+          "requestBytes": 479,
+          "responseBytes": 5335,
+          "ms": 23.19,
+          "failed": false
+        },
+        {
+          "call": "review_timeline",
+          "phase": "workflow",
+          "requestBytes": 656,
+          "responseBytes": 1661,
+          "ms": 254.91,
+          "failed": false
+        },
+        {
+          "call": "apply_edit_plan",
+          "phase": "workflow",
+          "requestBytes": 476,
+          "responseBytes": 5335,
+          "ms": 2.29,
+          "failed": false
+        }
+      ]
+    },
+    "after": {
+      "calls": 10,
+      "failedCalls": 1,
+      "requestBytes": 2389,
+      "responseBytes": 133892,
+      "planWithCorrectionMs": 91.57,
+      "callerArithmetic": [],
+      "samples": [
+        {
+          "call": "initialize",
+          "phase": "workflow",
+          "requestBytes": 155,
+          "responseBytes": 316,
+          "ms": 201.98,
+          "failed": false
+        },
+        {
+          "call": "tools/list",
+          "phase": "workflow",
+          "requestBytes": 59,
+          "responseBytes": 91521,
+          "ms": 36.91,
+          "failed": false
+        },
+        {
+          "call": "session_info",
+          "phase": "workflow",
+          "requestBytes": 95,
+          "responseBytes": 3860,
+          "ms": 91.24,
+          "failed": false
+        },
+        {
+          "call": "footage_query",
+          "phase": "workflow",
+          "requestBytes": 179,
+          "responseBytes": 4054,
+          "ms": 20.17,
+          "failed": false
+        },
+        {
+          "call": "footage_query",
+          "phase": "workflow",
+          "requestBytes": 449,
+          "responseBytes": 11010,
+          "ms": 759.98,
+          "failed": false
+        },
+        {
+          "call": "edit_objects",
+          "phase": "workflow",
+          "requestBytes": 223,
+          "responseBytes": 4500,
+          "ms": 7.76,
+          "failed": false
+        },
+        {
+          "call": "agent_plan",
+          "phase": "workflow",
+          "requestBytes": 361,
+          "responseBytes": 1181,
+          "ms": 37.35,
+          "failed": true
+        },
+        {
+          "call": "agent_plan",
+          "phase": "workflow",
+          "requestBytes": 361,
+          "responseBytes": 4715,
+          "ms": 54.13,
+          "failed": false
+        },
+        {
+          "call": "observe",
+          "phase": "workflow",
+          "requestBytes": 290,
+          "responseBytes": 8037,
+          "ms": 183.42,
+          "failed": false
+        },
+        {
+          "call": "agent_plan",
+          "phase": "workflow",
+          "requestBytes": 217,
+          "responseBytes": 4698,
+          "ms": 2.52,
+          "failed": false
+        }
+      ]
+    },
+    "analysisCallsBefore": 4,
+    "analysisCallsAfter": 2,
+    "correctionCallsBoth": 1
+  },
+  "newWorkflow": {
+    "calls": [
+      {
+        "call": "agent_history",
+        "phase": "extension",
+        "requestBytes": 179,
+        "responseBytes": 565,
+        "ms": 1.38,
+        "failed": false
+      },
+      {
+        "call": "agent_history",
+        "phase": "extension",
+        "requestBytes": 179,
+        "responseBytes": 565,
+        "ms": 0.19,
+        "failed": false
+      },
+      {
+        "call": "agent_plan",
+        "phase": "extension",
+        "requestBytes": 217,
+        "responseBytes": 848,
+        "ms": 0.88,
+        "failed": true
+      },
+      {
+        "call": "agent_checkpoint",
+        "phase": "extension",
+        "requestBytes": 205,
+        "responseBytes": 921,
+        "ms": 1.65,
+        "failed": false
+      },
+      {
+        "call": "edit_objects",
+        "phase": "extension",
+        "requestBytes": 215,
+        "responseBytes": 2183,
+        "ms": 1.53,
+        "failed": false
+      },
+      {
+        "call": "agent_plan",
+        "phase": "extension",
+        "requestBytes": 550,
+        "responseBytes": 4016,
+        "ms": 8.33,
+        "failed": false
+      },
+      {
+        "call": "agent_plan",
+        "phase": "extension",
+        "requestBytes": 552,
+        "responseBytes": 4016,
+        "ms": 13.69,
+        "failed": false
+      },
+      {
+        "call": "agent_plan",
+        "phase": "extension",
+        "requestBytes": 253,
+        "responseBytes": 7851,
+        "ms": 0.7,
+        "failed": false
+      },
+      {
+        "call": "observe",
+        "phase": "extension",
+        "requestBytes": 328,
+        "responseBytes": 11418,
+        "ms": 218.64,
+        "failed": false
+      },
+      {
+        "call": "observe",
+        "phase": "extension",
+        "requestBytes": 278,
+        "responseBytes": 3945,
+        "ms": 21.47,
+        "failed": false
+      },
+      {
+        "call": "observe",
+        "phase": "extension",
+        "requestBytes": 483,
+        "responseBytes": 20439,
+        "ms": 524.5,
+        "failed": false
+      },
+      {
+        "call": "observe",
+        "phase": "extension",
+        "requestBytes": 282,
+        "responseBytes": 3819,
+        "ms": 384.69,
+        "failed": false
+      },
+      {
+        "call": "agent_plan",
+        "phase": "extension",
+        "requestBytes": 217,
+        "responseBytes": 3998,
+        "ms": 4.97,
+        "failed": false
+      },
+      {
+        "call": "edit_objects",
+        "phase": "extension",
+        "requestBytes": 228,
+        "responseBytes": 909,
+        "ms": 0.18,
+        "failed": false
+      },
+      {
+        "call": "agent_history",
+        "phase": "extension",
+        "requestBytes": 226,
+        "responseBytes": 597,
+        "ms": 22.13,
+        "failed": false
+      },
+      {
+        "call": "agent_checkpoint",
+        "phase": "extension",
+        "requestBytes": 206,
+        "responseBytes": 623,
+        "ms": 1.98,
+        "failed": false
+      }
+    ],
+    "currentInlineImageChecked": true,
+    "reopenedRevision": "14",
+    "copeland": {
+      "success": true,
+      "returnValue": "{\"ticks\":\"9007453270740993\",\"seconds\":\"35460.180739563622\",\"space\":\"sequence\",\"frame\":\"1063805\",\"timecode\":\"09:51:00:05\",\"rate\":{\"numerator\":30,\"denominator\":1}}",
+      "diagnostics": [],
+      "cacheHit": false,
+      "elapsedMs": 1811.343
+    }
+  },
+  "tests": {
+    "suites": [
+      {
+        "assembly": "Valencia.Core.Tests",
+        "passed": 84,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "assembly": "Valencia.Persistence.Tests",
+        "passed": 23,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "assembly": "Valencia.Tests",
+        "passed": 215,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "assembly": "Valencia.Programming.Tests",
+        "passed": 99,
+        "failed": 0,
+        "skipped": 0
+      }
+    ],
+    "total": 421,
+    "failed": 0,
+    "skipped": 0
+  },
+  "native": {
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "runtime": "10.0.15",
+    "outcome": "passed",
+    "agentPlanOnLiveSession": true,
+    "agentCheckpointOnLiveSession": true,
+    "saveReopenSemanticEquality": true,
+    "details": {
+      "path": "artifacts/local/m3a/native-qualified/result.json",
+      "bytes": 1275,
+      "sha256": "b3c6d8f46df39cd39813ea3d6969209b80cba5714d6552275bc6271cf41833c0"
+    }
+  },
+  "creator": {
+    "reopenedRevision": "7",
+    "duration": {
+      "before": {
+        "ticks": "2743378134336000",
+        "seconds": "10800.021",
+        "space": "sequence",
+        "frame": "324000",
+        "timecode": "03:00:00:00",
+        "rate": {
+          "numerator": 30,
+          "denominator": 1
+        }
+      },
+      "after": {
+        "ticks": "152409600000000",
+        "seconds": "600",
+        "space": "sequence",
+        "frame": "18000",
+        "timecode": "00:10:00:00",
+        "rate": {
+          "numerator": 30,
+          "denominator": 1
+        }
+      },
+      "deltaTicks": "-2590968534336000"
+    },
+    "captions": 1143,
+    "masterGainDb": 2.17,
+    "profiles": [
+      {
+        "id": "deb6a9d6-57cd-856f-4598-511c08344964",
+        "name": "long-form",
+        "width": 320,
+        "height": 180,
+        "frameRate": {
+          "numerator": 30,
+          "denominator": 1
+        },
+        "fit": "fit",
+        "focalX": 0.5,
+        "focalY": 0.5,
+        "captionY": 0.84,
+        "start": {
+          "ticks": "0"
+        },
+        "end": {
+          "ticks": "152409600000000"
+        }
+      },
+      {
+        "id": "9aad4f1a-2dba-e5cd-2a5a-2b54c4b9a440",
+        "name": "short-1",
+        "width": 180,
+        "height": 320,
+        "frameRate": {
+          "numerator": 30,
+          "denominator": 1
+        },
+        "fit": "fill",
+        "focalX": 0.5,
+        "focalY": 0.5,
+        "captionY": 0.78,
+        "start": {
+          "ticks": "31227033600000"
+        },
+        "end": {
+          "ticks": "34004275200000"
+        }
+      },
+      {
+        "id": "9706d620-41fa-fe3e-7750-a0c0314ff6a9",
+        "name": "short-2",
+        "width": 180,
+        "height": 320,
+        "frameRate": {
+          "numerator": 30,
+          "denominator": 1
+        },
+        "fit": "fill",
+        "focalX": 0.5,
+        "focalY": 0.5,
+        "captionY": 0.78,
+        "start": {
+          "ticks": "90429696000000"
+        },
+        "end": {
+          "ticks": "93206937600000"
+        }
+      },
+      {
+        "id": "ddf946d7-57b2-10a5-97de-e075e331fdf6",
+        "name": "short-3",
+        "width": 180,
+        "height": 320,
+        "frameRate": {
+          "numerator": 30,
+          "denominator": 1
+        },
+        "fit": "fill",
+        "focalX": 0.5,
+        "focalY": 0.5,
+        "captionY": 0.78,
+        "start": {
+          "ticks": "149632358400000"
+        },
+        "end": {
+          "ticks": "152409600000000"
+        }
+      }
+    ],
+    "longFormIndependentIntegratedLufs": -18.47,
+    "longFormIndependentTruePeakDbTP": -0.85,
+    "videoChecks": 61,
+    "audioChecks": 7,
+    "videoVerification": {
+      "path": "artifacts/local/m3a/creator-2/independent-video.json",
+      "bytes": 13541,
+      "sha256": "a11b9f6a192336f72ee0569e43ac2ce0175f147058eb50b913cc6a7731b1dc0a"
+    },
+    "audioVerification": {
+      "path": "artifacts/local/m3a/creator-2/independent-audio.json",
+      "bytes": 2214,
+      "sha256": "993213524013373986d000d4c83adc5ace4922c61b1f1932e89a53bbcdd54568"
+    },
+    "files": [
+      {
+        "path": "artifacts/local/m3a/creator-2/outputs/long-form.mp4",
+        "bytes": 44006885,
+        "sha256": "973eeb7bc26a24ba8c799457b415e6707a478851bf6136f7c162b6e3771bed66"
+      },
+      {
+        "path": "artifacts/local/m3a/creator-2/outputs/short-1.mp4",
+        "bytes": 839883,
+        "sha256": "9f077e4e1dd91dac5b401a9d6635d0dd1970efab4234bb7b37f5946907eedfc9"
+      },
+      {
+        "path": "artifacts/local/m3a/creator-2/outputs/short-2.mp4",
+        "bytes": 838940,
+        "sha256": "7ea8e640fdd2e29e3952a69c42747c1e4bcf121a62f67fba7d20bec828d017a7"
+      },
+      {
+        "path": "artifacts/local/m3a/creator-2/outputs/short-3.mp4",
+        "bytes": 848647,
+        "sha256": "69d1bdc859cb67d04d255a71cdb468e8490ad1f5e9a2528ce082e22e91257fc4"
+      }
+    ]
+  },
+  "dominatus": {
+    "preview": {
+      "state": "AwaitingSelection",
+      "rules": [
+        "discover",
+        "prepare",
+        "render",
+        "await-selection"
+      ]
+    },
+    "applied": {
+      "state": "Done",
+      "rules": [
+        "discover",
+        "prepare",
+        "render",
+        "await-selection",
+        "apply",
+        "save",
+        "done"
+      ]
+    }
+  },
+  "proofs": [
+    {
+      "path": "artifacts/local/m3a/baseline-qualified/evidence.json",
+      "bytes": 2928,
+      "sha256": "10a08a3d341133db1eca21c8a63d679c74c24f09fb42d7444ab18acddc835c84"
+    },
+    {
+      "path": "artifacts/local/m3a/proof-qualified/evidence.json",
+      "bytes": 7840,
+      "sha256": "0a15e3899a1b4eb5130837f5d1eebecec47d048c3e3d0435f918b5f4d3637e0b"
+    },
+    {
+      "path": "artifacts/local/m3a/proof-delivery/evidence.json",
+      "bytes": 7845,
+      "sha256": "32735583576c58d7176bcd4f1113f186110c2fe45fbba31064c247e696cf4977"
+    },
+    {
+      "path": "artifacts/local/m3a/creator-2/outputs/evidence.json",
+      "bytes": 37028,
+      "sha256": "0f80faf307ff4153dd242468446b9dddf2dbf955e8d6a640c693ba9b7b31b692"
+    },
+    {
+      "path": "artifacts/local/m3a/proof-qualified/dominatus-preview.json",
+      "bytes": 7890,
+      "sha256": "74c3e7de0999eddb59922cc7663778d976a64a950aee59d0ea6e9c828b41cc4b"
+    },
+    {
+      "path": "artifacts/local/m3a/proof-qualified/dominatus-applied.json",
+      "bytes": 10059,
+      "sha256": "d90431ee58df9f23cf0617d561a4c68935b781f50b94654a4dd84466bfe92bf0"
+    },
+    {
+      "path": "artifacts/local/m3a/proof-delivery/candidate.png",
+      "bytes": 45371,
+      "sha256": "4961bbbe791f58b0458fa1ead9d3aa5e7c7122e4a24256a04b1ab5212e672a2e"
+    },
+    {
+      "path": "artifacts/local/m3a/proof-delivery/source-audio.png",
+      "bytes": 11709,
+      "sha256": "d2431ebb70fa7c9db23088ba921b155e86d4977de6d0f21bb95268fc451d0d76"
+    },
+    {
+      "path": "artifacts/local/m3a/proof-delivery/pair-before.png",
+      "bytes": 44437,
+      "sha256": "22d34438bf746be81c47db12ad48ed6dbe9b6666a5229b5dd385dbf855f3f593"
+    },
+    {
+      "path": "artifacts/local/m3a/proof-delivery/pair-after.png",
+      "bytes": 45425,
+      "sha256": "d8efcbb8eae0016b13a48033005b65fc18399691cc00df01469c6947af611965"
+    }
+  ]
+}

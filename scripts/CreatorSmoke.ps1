@@ -1,5 +1,5 @@
 param(
-    [string]$CliPath = 'src/Valencia.Cli/bin/Release/net11.0/Valencia.Cli.exe',
+    [string]$CliPath = 'src/Valencia.Cli/bin/Release/net10.0/Valencia.Cli.exe',
     [int]$RecordingSeconds = 10800,
     [int]$TargetSeconds = 600,
     [switch]$ReuseFixture,

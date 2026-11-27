@@ -17,7 +17,7 @@ internal sealed class EditorSynchronizationContext : SynchronizationContext
                 work.Callback(work.State);
                 return new Completed();
             });
-            if (result is Err<EditorFailure> failed)
+            if (result.Case is Err<EditorFailure> failed)
             {
                 if (report is not null) report(failed.Error);
                 else Console.Error.WriteLine(failed.Error.Cause);

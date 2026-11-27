@@ -134,7 +134,7 @@ public sealed partial class EditingEngine : IAsyncDisposable
             cancellation.ThrowIfCancellationRequested();
             long revision = EngineJson.Int64(plan.ProjectRevision);
             if (revision != before.Revision)
-                throw new ArgumentException("Project revision is stale.");
+                return Invalid("Project revision is stale.", AgentStale(revision, before.Revision));
             if (plan.SchemaVersion != 1 || plan.ProjectId != before.Document.Id || plan.Operations.IsDefaultOrEmpty || plan.Operations.Length > 500)
                 throw new ArgumentException("Invalid plan schema, project identity or operation count.");
             // Direct typed plans receive exactly the same compiler-owned schema validation as wire plans.
@@ -154,7 +154,7 @@ public sealed partial class EditingEngine : IAsyncDisposable
             var transaction = new EditTransaction(Guid.NewGuid(), 1, revision,
                 [.. plan.Operations.Select(op => new EditCommand(Guid.NewGuid(), 1, op.ToCore(plan.SequenceId)))]);
             var result = commit ? Session.Execute(transaction) : Session.Preview(transaction);
-            if (!result.Success) return Invalid(result.Message ?? result.Error.ToString());
+            if (!result.Success) return Invalid(result.Message ?? result.Error.ToString(), ReportEditFailure(result, revision));
             var after = result.Snapshot;
             var changes = Diff(before.Document, after.Document);
             var outputProfiles = DiffOutputFraming(plan, before, after);
@@ -164,6 +164,8 @@ public sealed partial class EditingEngine : IAsyncDisposable
             var affected = changes.SelectMany(c => new[] { c.ClipId, c.BeforeTrack ?? Guid.Empty, c.AfterTrack ?? Guid.Empty })
                 .Concat(plan.Operations.OfType<TrackStatePlan>().Select(o => o.TrackId))
                 .Concat(plan.Operations.OfType<AddTrackPlan>().Select(o => o.TrackId))
+                .Concat(plan.Operations.OfType<TrackRolePlan>().Select(o => o.TrackId))
+                .Concat(plan.Operations.OfType<AssetRolePlan>().Select(o => o.AssetId))
                 .Concat(plan.Operations.OfType<CreatorPlan>().Select(_ => plan.SequenceId))
                 .Concat(outputProfiles.SelectMany(change => new[] { plan.SequenceId, change.ProfileId }))
                 .Concat(titles.SelectMany(change => new[] { plan.SequenceId, change.TitleId }))
@@ -184,8 +186,33 @@ public sealed partial class EditingEngine : IAsyncDisposable
         {
             return Invalid(error.Message);
         }
-        PlanResult Invalid(string message) => new(1, false, false, plan.ProjectRevision, EngineJson.Exact(Session.Snapshot.Revision),
-            EngineJson.Exact(Session.Snapshot.Revision), false, [], [], null, [message]);
+        PlanResult Invalid(string message, AgentIssue? issue = null) => new(1, false, false, plan.ProjectRevision, EngineJson.Exact(Session.Snapshot.Revision),
+            EngineJson.Exact(Session.Snapshot.Revision), false, [], [], null, [message], Issues: [issue ?? new("INVALID_PLAN", message)]);
+    }
+    internal static AgentIssue AgentStale(long requested, long current) => new("STALE_REVISION", "Project revision is stale.",
+        "Refresh session_info and re-evaluate the edit against that revision; no changes were applied.",
+        Constraints: new { requested, current });
+
+    internal static AgentIssue ReportEditFailure(EditResult result, long expected)
+    {
+        if (result.Error == EditError.StaleRevision) return AgentStale(expected, result.Revision);
+        var detail = result.Constraint;
+        string code = detail?.Code ?? result.Error switch
+        {
+            EditError.NothingToUndo => "NOTHING_TO_UNDO", EditError.NothingToRedo => "NOTHING_TO_REDO",
+            EditError.InvalidCommand => "INVALID_COMMAND", EditError.NoChange => "NO_CHANGE",
+            EditError.Overflow => "TIME_RANGE", _ => "INVALID_EDIT"
+        };
+        (string kind, string? hint) = code switch
+        {
+            "TRACK_LOCKED" => ("track", "Unlock the named track explicitly or target an unlocked track."),
+            "CLIP_OVERLAP" => ("track", "Select an empty range on this track or a different unlocked track."),
+            "SOURCE_RANGE" => ("clip", "Keep the source range inside the reported stream bounds."),
+            "SPLIT_OUTSIDE_CLIP" => ("clip", "Choose a position strictly within the reported clip range, on its supported grid."),
+            _ => ("clip", null)
+        };
+        return new(code, result.Message ?? code, hint, detail is null ? null : AgentHandles.For(kind, detail.Subject),
+            result.FailedCommandIndex, detail?.Bounds);
     }
     private static ImmutableArray<TransitionChange> DiffTransitions(Guid sequence, ProjectSnapshot before, ProjectSnapshot after)
     {

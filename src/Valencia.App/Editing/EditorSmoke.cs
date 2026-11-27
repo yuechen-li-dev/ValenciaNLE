@@ -75,6 +75,47 @@ internal sealed class EditorSmoke(string directory)
                 Require(e.Playhead == T(1), "Next sequence marker did not seek to the marker.");
                 Require(e.History(false).Success && DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document),
                     "One undo did not restore the document after the workflow.");
+                string proposal = Path.Combine(directory, "native.agent.json");
+                var basis = e.Session.Snapshot;
+                File.WriteAllText(proposal, Valencia.Engine.EngineJson.Write(new
+                {
+                    projectId = basis.Document.Id, revision = basis.Revision, action = "prepare",
+                    plan = new
+                    {
+                        sequence = Valencia.Engine.AgentHandles.For("sequence", e.SequenceId),
+                        operations = new[] { new { operation = "trackRole", role = "game", trackId = Valencia.Engine.AgentHandles.For("track", e.Sequence.Tracks[0].Id) } }
+                    }
+                }));
+                operation = window.ReviewAgentProposal(proposal);
+                phase = -4;
+                break;
+            case -4:
+                Require(e.HasAgentProposal && e.Card?.Kind == TitleCardKind.Proposal && e.Sequence.Tracks[0].Role is null,
+                    "Agent preview did not present an unapplied native proposal.");
+                window.Action("RejectAgentPlan");
+                Require(!e.HasAgentProposal && DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document), "Reject changed the editor document.");
+                operation = window.ReviewAgentProposal(Path.Combine(directory, "native.agent.json"));
+                phase = -5;
+                break;
+            case -5:
+                Require(e.HasAgentProposal, "The native proposal could not be reopened.");
+                operation = window.ApplyAgentProposal();
+                phase = -6;
+                break;
+            case -6:
+                Require(!e.HasAgentProposal && e.Sequence.Tracks[0].Role == "game", "The editor did not observe the committed role.");
+                window.Action("Undo");
+                Require(DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document), "Native undo did not revert the agent proposal.");
+                operation = window.ShowAgentCheckpoints(create: true);
+                phase = -7;
+                break;
+            case -7:
+                Require(e.Status.Contains("checkpoint created", StringComparison.Ordinal), "Desktop checkpoint could not be created.");
+                operation = window.ShowAgentCheckpoints(create: false);
+                phase = -8;
+                break;
+            case -8:
+                Require(e.Status.Contains("1 session checkpoint", StringComparison.Ordinal), "Desktop checkpoint state did not reach the status bar.");
                 Guid first = e.SequenceId;
                 window.Action("NewSequence");
                 Require(e.SequenceId != first && e.Session.Snapshot.Document.Assets.Length == 1, "New sequence replaced the project.");
@@ -164,7 +205,7 @@ internal sealed class EditorSmoke(string directory)
                     syntheticFrameP95Ms = window.FrameMilliseconds.Order().ElementAt((int)(window.FrameMilliseconds.Count * .95)),
                     syntheticClipCount = 5000, inputProposalMs = largeInputMs, renderedBenchmarkFrames = 120,
                     export = Path.Combine(directory, "edited.mp4"), saveReopenSemanticEquality = true,
-                    copelandScriptOnLiveSession = true
+                    copelandScriptOnLiveSession = true, agentPlanOnLiveSession = true, agentCheckpointOnLiveSession = true
                 }, new JsonSerializerOptions { WriteIndented = true }));
                 Require(window.MaximumAvSkew <= .15, $"Editor video/audio skew exceeded 150 ms: {window.MaximumAvSkew:0.000}s. See result.json.");
                 PlaybackQualification.Require(window.MaximumAvSkew, window.Graphics.ValidationErrorCount);

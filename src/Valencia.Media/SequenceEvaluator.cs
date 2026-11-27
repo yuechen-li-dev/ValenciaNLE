@@ -10,6 +10,8 @@ public sealed record SequenceFrame(SequenceTime Time, int Width, int Height, byt
 {
     public long ReadyHostTicks { get; init; }
     public double EvaluationMilliseconds { get; init; }
+    public IReadOnlyDictionary<Guid, MediaTimestamp>? DecodedByClip { get; init; }
+    public CaptionLine? ReviewCaption { get; init; }
 }
 
 /// <summary>Worker-confined source resolution shared verbatim by preview and offline export. Owns at most 8 active cursors of each kind.</summary>
@@ -64,7 +66,7 @@ public sealed class SequenceEvaluator : IDisposable
             .Concat(queries.TransitionBoundaries(sequenceId).Select(time => time.Ticks)).Distinct().Order()];
     }
 
-    public SequenceFrame Video(SequenceTime time, CancellationToken cancellation)
+    public SequenceFrame Video(SequenceTime time, CancellationToken cancellation, bool includeReviewMetadata = false)
     {
         long started = System.Diagnostics.Stopwatch.GetTimestamp();
         var evaluated = queries.Evaluate(sequenceId, time);
@@ -74,6 +76,8 @@ public sealed class SequenceEvaluator : IDisposable
         int width = profile?.Width ?? Sequence.Video.Width, height = profile?.Height ?? Sequence.Video.Height;
         var pixels = new byte[checked(width * height * 4)];
         var timestamps = ImmutableArray.CreateBuilder<MediaTimestamp>();
+        var decoded = includeReviewMetadata ? new Dictionary<Guid, MediaTimestamp>() : null;
+        CaptionLine? caption = null;
         for (int i = 3; i < pixels.Length; i += 4) pixels[i] = 255;
         for (int i = 0; i < active.Length; i++) // higher track order is on top
         {
@@ -94,11 +98,16 @@ public sealed class SequenceEvaluator : IDisposable
         }
         if (Sequence.Creator is { } creator && captionIndex.At(evaluated.Where(clip =>
             clip.Transition is null || (clip.Clip.Start.Ticks <= time.Ticks && time.Ticks < clip.Clip.End.Ticks))) is { } line)
+        {
             CreatorRenderer.Captions(pixels, width, height, line, creator.CaptionStyle, profile?.CaptionY, captionFont!);
+            caption = line;
+        }
         return new(time, width, height, pixels, [.. active.Select(a => a.Clip.Id)], timestamps.ToImmutable())
         {
             ReadyHostTicks = System.Diagnostics.Stopwatch.GetTimestamp(),
-            EvaluationMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds
+            EvaluationMilliseconds = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds,
+            DecodedByClip = decoded,
+            ReviewCaption = includeReviewMetadata ? caption : null
         };
 
         void Draw(ActiveClip a, byte[] target)
@@ -127,6 +136,7 @@ public sealed class SequenceEvaluator : IDisposable
             if (source is not null)
             {
                 timestamps.Add(source.SourceTimestamp);
+                if (decoded is not null) decoded[a.Clip.Id] = source.SourceTimestamp;
                 var effects = a.Clip.Properties.Video;
                 float opacity = (float)a.Clip.Properties.Opacity;
                 double rotation = 0;

@@ -136,6 +136,24 @@ public sealed class ScriptApi
     public int TrackCount(string sequence) { Check(); return engine.Query().Tracks(Guid.Parse(sequence)).Length; }
     public string Revision() { Check(); return EngineJson.Exact(engine.Session.Snapshot.Revision); }
     public string ProjectId() { Check(); return engine.Session.Snapshot.Document.Id.ToString(); }
+    public string Agent(string method, string requestJson)
+    {
+        Check();
+        using var request = System.Text.Json.JsonDocument.Parse(requestJson);
+        if (method is "observe" or "agent_history" or "agent_checkpoint") RequireDirectScript();
+        return EngineJson.Write(engine.AgentAsync(method, request.RootElement, cancellation).GetAwaiter().GetResult());
+    }
+    public long PositionTicks(string sequence, string time)
+    {
+        Check();
+        return AgentTime.Position(time, sequence: AgentHandles.Sequence(engine.Session.Snapshot.Document, sequence)).Ticks;
+    }
+    public string DescribePosition(string sequence, long ticks)
+    {
+        Check();
+        var selected = AgentHandles.Sequence(engine.Session.Snapshot.Document, sequence);
+        return EngineJson.Write(AgentTime.Describe(new(ticks), "sequence", selected.Video.FrameRate));
+    }
     public string ProjectFile() { Check(); return engine.ProjectPath ?? throw new InvalidOperationException("No project file in this scope."); }
     public string FirstTrack(string sequence, string kind) { Check(); return engine.Query().Tracks(Guid.Parse(sequence)).First(t => t.Kind == Enum.Parse<TrackKind>(kind, true)).Id.ToString(); }
     public string FirstClipOnTrack(string sequence, string track) { Check(); return engine.Query().Clips(Guid.Parse(sequence), Guid.Parse(track)).First().Id.ToString(); }

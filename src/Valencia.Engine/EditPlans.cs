@@ -26,6 +26,8 @@ public sealed record ClipDto(Guid Id, Guid AssetId, int StreamIndex, string Star
 [JsonDerivedType(typeof(DeletePlan), "delete")]
 [JsonDerivedType(typeof(RipplePlan), "rippleDelete")]
 [JsonDerivedType(typeof(TrackStatePlan), "trackState")]
+[JsonDerivedType(typeof(TrackRolePlan), "trackRole")]
+[JsonDerivedType(typeof(AssetRolePlan), "assetRole")]
 [JsonDerivedType(typeof(AddTrackPlan), "addTrack")]
 [JsonDerivedType(typeof(CreatorPlan), "creator")]
 [JsonDerivedType(typeof(PropertiesPlan), "properties")]
@@ -160,6 +162,14 @@ public sealed record TransitionPlan(Guid TrackId, Guid TransitionId, TransitionS
         ? null : new(TransitionId, Transition.OutgoingClipId, Transition.IncomingClipId, Transition.BeforeTicks, Transition.AfterTicks));
 }
 public sealed record SourcePrecondition(Guid AssetId, string Fingerprint);
+public sealed record TrackRolePlan(Guid TrackId, string? Role = null) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new SetTrackRole(sequenceId, TrackId, Role);
+}
+public sealed record AssetRolePlan(Guid AssetId, string? Role = null) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new SetAssetRole(AssetId, Role);
+}
 public sealed record EditPlan(int SchemaVersion, Guid ProjectId, string ProjectRevision, Guid SequenceId,
     ImmutableArray<PlanOperation> Operations, string? Note = null, ImmutableArray<SourcePrecondition>? SourcePreconditions = null);
 public sealed record ClipChange(string Kind, Guid ClipId, Guid? BeforeTrack, Guid? AfterTrack, TimelineClip? Before, TimelineClip? After);
@@ -171,7 +181,7 @@ public sealed record PlanResult(int ApiVersion, bool Valid, bool Committed, stri
     string CurrentRevision, bool CanCommit, ImmutableArray<Guid> AffectedIds, ImmutableArray<ClipChange> Changes,
     SequenceTime? ResultingDuration, ImmutableArray<string> Diagnostics, ImmutableArray<OutputProfileChange>? OutputProfiles = null,
     ImmutableArray<TitleChange>? Titles = null, ImmutableArray<TransitionChange>? Transitions = null,
-    ImmutableArray<TrackGainChange>? TrackGain = null);
+    ImmutableArray<TrackGainChange>? TrackGain = null, ImmutableArray<AgentIssue>? Issues = null);
 
 public static class EditPlanSchema
 {

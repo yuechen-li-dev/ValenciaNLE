@@ -11,6 +11,20 @@ public sealed record SourceFrameInfo(Guid AssetId, int Stream, SequenceTime Requ
 /// <summary>A single ungraded source frame and an optional normalized pixel-edge coordinate.</summary>
 public static class SourceFrameThumbnail
 {
+    public static VideoFrame Read(MediaAsset asset, int streamIndex, SequenceTime offset, CancellationToken cancellation = default)
+    {
+        var stream = asset.Streams.FirstOrDefault(s => s.Index == streamIndex && s.Kind == TrackKind.Video)
+            ?? throw new ArgumentException("Source frame requires a video stream.");
+        if (offset.Ticks < 0) throw new ArgumentException("Source offset must be nonnegative.");
+        if ((long)(stream.Width ?? 0) * (stream.Height ?? 0) > 16_777_216)
+            throw new NotSupportedException("Source thumbnails support inputs up to 16 megapixels.");
+        var origin = stream.Start ?? new MediaTimestamp(0, stream.TimeBaseNumerator, stream.TimeBaseDenominator);
+        var position = new SourcePosition(origin).Shift(offset);
+        if (stream.End is { } end && position.CompareTo(new(end)) >= 0)
+            throw new ArgumentException("Requested offset is at or after the video stream end.");
+        return SequenceEvaluator.ReadSourceFrame(asset, stream, position, cancellation);
+    }
+
     public static SourceFrameInfo Write(MediaAsset asset, int streamIndex, SequenceTime offset, int maximumEdge, string output,
         SourcePoint? imagePoint = null, CancellationToken cancellation = default)
     {
@@ -20,15 +34,7 @@ public static class SourceFrameThumbnail
             throw new ArgumentException("Source thumbnail output must be a new .png file.");
         string fullPath = Path.GetFullPath(output);
         if (File.Exists(fullPath)) throw new IOException("Source thumbnail output already exists.");
-        var stream = asset.Streams.FirstOrDefault(s => s.Index == streamIndex && s.Kind == TrackKind.Video)
-            ?? throw new ArgumentException("Source frame requires a video stream.");
-        if ((long)(stream.Width ?? 0) * (stream.Height ?? 0) > 16_777_216)
-            throw new NotSupportedException("Source thumbnails support inputs up to 16 megapixels.");
-        var origin = stream.Start ?? new MediaTimestamp(0, stream.TimeBaseNumerator, stream.TimeBaseDenominator);
-        var position = new SourcePosition(origin).Shift(offset);
-        if (stream.End is { } end && position.CompareTo(new(end)) >= 0)
-            throw new ArgumentException("Requested offset is at or after the video stream end.");
-        var frame = SequenceEvaluator.ReadSourceFrame(asset, stream, position, cancellation);
+        var frame = Read(asset, streamIndex, offset, cancellation);
         double scale = Math.Min(1, (double)maximumEdge / Math.Max(frame.Width, frame.Height));
         int width = Math.Max(1, (int)Math.Round(frame.Width * scale)), height = Math.Max(1, (int)Math.Round(frame.Height * scale));
         SourcePoint? point = null;

@@ -71,7 +71,7 @@ internal sealed partial class EditorView
         int firstTrack = editor.Viewport.FirstTrack;
         int visibleClips = VisibleClips;
         var result = EditorOperation.Try("layout", () => Prepare(editor, gesture, playing, razor, width, height, jobRunning));
-        if (result is Err<EditorFailure>)
+        if (result.Case is Err<EditorFailure>)
         {
             editor.Viewport.Configure(Layout, editor.Sequence.Tracks.Length);
             editor.Viewport.FirstTrack = firstTrack;
@@ -264,7 +264,8 @@ internal sealed partial class EditorView
         if (paper)
         {
             double apply = NativeUiText.Width("APPLY", TextSize.Md) + 28, cancel = NativeUiText.Width("CANCEL  ESC", TextSize.Md) + 28;
-            string applyAction = editor.ProposedCut is not null ? "ApplyCut" : "ApplyTextCut", cancelAction = editor.ProposedCut is not null ? "CancelCut" : "CancelTextCut";
+            string applyAction = editor.HasAgentProposal ? "ApplyAgentPlan" : editor.ProposedCut is not null ? "ApplyCut" : "ApplyTextCut";
+            string cancelAction = editor.HasAgentProposal ? "RejectAgentPlan" : editor.ProposedCut is not null ? "CancelCut" : "CancelTextCut";
             children.Add(Button("Apply", applyAction, x, bottom - 30, apply, 30, Ui.CardApply, key: "card"));
             children.Add(Button("Cancel  Esc", cancelAction, x + apply + 8, bottom - 30, cancel, 30, Ui.CardCancel, key: "card"));
             double dataLeft = x + apply + cancel + 24;
@@ -575,7 +576,7 @@ internal sealed partial class EditorView
         double nameHeight = Line("A", TextSize.Xs);
         bool showName = height >= toggleHeight + nameHeight + 10 && inner > 30;
         double toggleY = showName ? y + (height - toggleHeight - nameHeight - 4) / 2 + nameHeight + 4 : y + (height - toggleHeight) / 2;
-        if (showName) children.Add(Text(NativeUiText.Ellipsize(track.Name.ToUpperInvariant(), inner, TextSize.Xs), x, toggleY - nameHeight - 4, inner, nameHeight, TextSize.Xs, Ui.Mute));
+        if (showName) children.Add(Text(NativeUiText.Ellipsize((track.Role is { } role ? role + " · " : "") + track.Name, inner, TextSize.Xs), x, toggleY - nameHeight - 4, inner, nameHeight, TextSize.Xs, Ui.Mute));
         children.Add(Button("L", "Lock:" + track.Id, x, toggleY, toggle, toggleHeight, track.State.Locked ? Ui.Danger : Ui.Plain));
         children.Add(Button(video ? "H" : "M", "State:" + track.Id, x + toggle + 2, toggleY, toggle, toggleHeight, off ? Ui.Danger : Ui.Plain));
     }
@@ -777,12 +778,13 @@ internal sealed partial class EditorView
             double nameWidth = width - 14 - rightWidth;
             if (compact)
             {
-                items.Add(TextIn(NativeUiText.Ellipsize(asset.Name, nameWidth), Pad + 10, y, nameWidth, rowHeight));
+                items.Add(TextIn(NativeUiText.Ellipsize(asset.Role is { } role ? role + " · " + asset.Name : asset.Name, nameWidth), Pad + 10, y, nameWidth, rowHeight));
             }
             else
             {
                 items.Add(Text(NativeUiText.Ellipsize(asset.Name, nameWidth), Pad + 10, y + 4, nameWidth, 16));
-                items.Add(Text(NativeUiText.Ellipsize(AssetMeta(asset), nameWidth, TextSize.Xs), Pad + 10, y + 22, nameWidth, 14, TextSize.Xs, Ui.Mute));
+                string detail = chosen ? Valencia.Engine.AgentHandles.For("asset", asset.Id) : AssetMeta(asset);
+                items.Add(Text(NativeUiText.Ellipsize((asset.Role is { } role ? role + " · " : "") + detail, nameWidth, TextSize.Xs), Pad + 10, y + 22, nameWidth, 14, TextSize.Xs, Ui.Mute));
                 items.Add(Text(duration, Pad + width - rightWidth, y + 4, rightWidth - 6, 16, alignX: TextAlignX.Right));
                 items.Add(Text(streams, Pad + width - rightWidth, y + 22, rightWidth - 6, 14, TextSize.Xs, Ui.Mute, TextAlignX.Right));
             }
@@ -1005,7 +1007,7 @@ internal sealed partial class EditorView
             var group = EditorEdits.Group(editor, clip.Id);
             string label = TrackLabels(editor.Sequence)[track.Id];
             Title("CLIP", label + " / " + (group.Length > 1 ? $"LINKED x{group.Length}" : "UNLINKED"));
-            Row("Name", ClipName(editor, clip)); Row("Track", track.Name + (track.State.Locked ? " (locked)" : ""));
+            Row("Name", ClipName(editor, clip)); Row("Track", (track.Role is { } role ? role + " · " : "") + track.Name + (track.State.Locked ? " (locked)" : ""));
             if (track.Kind == TrackKind.Video && !track.State.Locked) SpeedControls(clip);
             if (track.Kind == TrackKind.Audio && !track.State.Locked)
                 Control("Clip gain", clip.Properties.Gain == 0 ? "-inf dB" : $"{20 * Math.Log10((double)clip.Properties.Gain):+0.0;-0.0;0.0} dB",
@@ -1015,7 +1017,7 @@ internal sealed partial class EditorView
             Row("Linked", group.Length > 1 ? $"{group.Length - 1} other clip{(group.Length > 2 ? "s" : "")}" : "none");
             Row("Enabled", clip.Properties.Enabled ? "yes" : "no");
             if (track.Kind == TrackKind.Video) Row("Transform", "Place playhead inside clip");
-            Footer("CLIP " + IdCode(clip.Id), $"SRC {Timecode.Format(SourceTime(clip.SourceIn), rate)} > {Timecode.Format(SourceTime(clip.SourceOut), rate)}");
+            Footer(Valencia.Engine.AgentHandles.For("clip", clip.Id), Valencia.Engine.AgentHandles.For("track", track.Id));
             return items;
         }
         var sequence = editor.Sequence;
@@ -1028,7 +1030,7 @@ internal sealed partial class EditorView
         Row("Clips", clips.ToString(CultureInfo.InvariantCulture));
         Row("Outputs", sequence.Creator is { } creator && !creator.Profiles.IsDefaultOrEmpty ? string.Join(", ", creator.Profiles.Select(p => p.Name)) : "sequence only");
         Row("Timeline", string.Join("  ", new[] { editor.Snapping ? "snap" : "", editor.LinkedSelection ? "linked" : "unlinked", editor.Magnetic ? "magnetic" : "" }.Where(v => v.Length > 0)));
-        Footer("SEQ " + IdCode(editor.SequenceId), $"REV {editor.Session.Snapshot.Revision:0000}");
+        Footer(Valencia.Engine.AgentHandles.For("sequence", editor.SequenceId), $"REV {editor.Session.Snapshot.Revision:0000}");
         return items;
     }
 

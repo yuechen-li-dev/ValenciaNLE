@@ -33,6 +33,8 @@ public sealed record RippleDelete(Guid SequenceId, ImmutableArray<Guid> TrackIds
 public sealed record ShiftSequenceAnnotations(Guid SequenceId, SequenceTime At, SequenceTime Shift) : EditOperation;
 /// <summary>Permitted on a locked track, so it can be unlocked; other edits cannot bypass the lock.</summary>
 public sealed record SetTrackState(Guid SequenceId, Guid TrackId, TrackState State) : EditOperation;
+public sealed record SetTrackRole(Guid SequenceId, Guid TrackId, string? Role) : EditOperation;
+public sealed record SetAssetRole(Guid AssetId, string? Role) : EditOperation;
 public sealed record SetCreatorSettings(Guid SequenceId, CreatorSettings Settings) : EditOperation;
 /// <summary>Creates or updates a title clip from a cue (ID, range, content, optional track). See the reducer for placement.</summary>
 public sealed record SetTitle(Guid SequenceId, TitleCue Cue) : EditOperation;
@@ -61,4 +63,10 @@ public sealed record EditTransaction(Guid Id, int SchemaVersion, long ExpectedRe
 public sealed record SessionRequest(Guid Id, int SchemaVersion, long ExpectedRevision);
 public enum EditError { None, InvalidCommand, StaleRevision, InvalidEdit, Overflow, NoChange, NothingToUndo, NothingToRedo }
 public sealed record EditResult(bool Success, Guid RequestId, long Revision, ProjectSnapshot Snapshot,
-    EditError Error = EditError.None, string? Message = null, int? FailedCommandIndex = null);
+    EditError Error = EditError.None, string? Message = null, int? FailedCommandIndex = null, EditConstraint? Constraint = null);
+
+public sealed record EditConstraint(string Code, Guid Subject, object? Bounds = null);
+internal sealed class EditConstraintException(string message, EditConstraint detail) : ArgumentException(message)
+{
+    public EditConstraint Detail { get; } = detail;
+}

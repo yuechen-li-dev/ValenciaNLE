@@ -17,10 +17,10 @@ public sealed class EditorRecoveryTests
 
         var result = view.TryPrepare(editor, new(editor), false, false, 0, 0);
 
-        Assert.True(result is Err<EditorFailure>);
+        Assert.True(result.Case is Err<EditorFailure>);
         Assert.Same(prepared, view.Prepared);
         Assert.Same(snapshot, editor.Session.Snapshot);
-        Assert.True(view.TryPrepare(editor, new(editor), false, false, 1280, 720)
+        Assert.True(view.TryPrepare(editor, new(editor), false, false, 1280, 720).Case
             is Ok<Machina.Pipeline.MachinaPreparedPresentation>);
     }
 
@@ -29,9 +29,9 @@ public sealed class EditorRecoveryTests
     {
         var failure = await EditorOperation.TryAsync("open", () => throw new IOException("Invalid media"));
         var cancelled = await EditorOperation.TryAsync("save", () => Task.FromCanceled(new CancellationToken(true)));
-        Assert.True(failure is Err<EditorFailure> { Error: { Operation: "open", Cancelled: false } });
-        Assert.True(cancelled is Err<EditorFailure> { Error.Cancelled: true });
-        Assert.True(await EditorOperation.TryAsync("retry", () => Task.CompletedTask) is Ok<Completed>);
+        Assert.True(failure.Case is Err<EditorFailure> { Error: { Operation: "open", Cancelled: false } });
+        Assert.True(cancelled.Case is Err<EditorFailure> { Error.Cancelled: true });
+        Assert.True((await EditorOperation.TryAsync("retry", () => Task.CompletedTask)).Case is Ok<Completed>);
     }
 
     [Fact]

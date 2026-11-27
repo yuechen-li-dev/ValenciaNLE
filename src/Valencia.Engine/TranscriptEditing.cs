@@ -37,25 +37,25 @@ public static class TranscriptQueries
     }
     public static ImmutableArray<TranscriptMatch> Search(AnalysisArtifact artifact, string query, bool exactWord = false, int offset = 0, int limit = 64, int context = 3)
     {
-        if (query.Length is < 1 or > 1024 || offset < 0 || limit is < 1 or > 128 || context is < 0 or > 20) throw new ArgumentException("Invalid bounded transcript query.");
+        if (offset < 0 || limit is < 1 or > 128) throw new ArgumentException("Invalid bounded transcript page.");
+        return [.. EnumerateMatches(artifact, query, exactWord, context).Skip(offset).Take(limit)];
+    }
+    internal static IEnumerable<TranscriptMatch> EnumerateMatches(AnalysisArtifact artifact, string query, bool exactWord = false, int context = 3)
+    {
+        if (query.Length is < 1 or > 1024 || context is < 0 or > 20) throw new ArgumentException("Invalid transcript query.");
         var transcript = artifact.Transcript ?? throw new ArgumentException("Artifact is not a transcript.");
         string[] terms = query.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Select(WhisperTranscriber.Normalize).ToArray();
         if (terms.Length == 0 || terms.Any(t => t.Length == 0) || (exactWord && terms.Length != 1)) throw new ArgumentException("Query requires spoken words.");
         var words = transcript.Words;
-        var result = ImmutableArray.CreateBuilder<TranscriptMatch>();
-        int matched = 0;
         for (int i = 0; i + terms.Length <= words.Length; i++)
         {
             if (!terms.Select((term, j) => term == WhisperTranscriber.Normalize(words[i + j].Text)).All(x => x)) continue;
             if (words[i].Range.Epoch != words[i + terms.Length - 1].Range.Epoch) continue;
-            if (matched++ < offset) continue;
             int begin = Math.Max(0, i - context), end = Math.Min(words.Length, i + terms.Length + context);
-            result.Add(new(i, terms.Length, string.Join(" ", words.Skip(begin).Take(end - begin).Select(w => w.Text)),
+            yield return new(i, terms.Length, string.Join(" ", words.Skip(begin).Take(end - begin).Select(w => w.Text)),
                 [.. words.Skip(i).Take(terms.Length).Select(w => w.Id)], new(words[i].Range.Start, words[i + terms.Length - 1].Range.End, words[i].Range.Epoch),
-                words.Skip(i).Take(terms.Length).All(w => w.TimingUsable)));
-            if (result.Count == limit) break;
+                words.Skip(i).Take(terms.Length).All(w => w.TimingUsable));
         }
-        return result.ToImmutable();
     }
 }
 

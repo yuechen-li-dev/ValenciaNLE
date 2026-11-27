@@ -24,7 +24,7 @@ internal sealed partial class EditorWindow
     {
         if (!fullscreenTogglePending) return;
         fullscreenTogglePending = false;
-        if (EditorOperation.Try("fullscreen", () => { ToggleFullscreen(); return new Completed(); }) is Err<EditorFailure> error)
+        if (EditorOperation.Try("fullscreen", () => { ToggleFullscreen(); return new Completed(); }).Case is Err<EditorFailure> error)
             ReportFailure(error.Error);
     }
 
@@ -72,8 +72,8 @@ internal sealed partial class EditorWindow
         bool playing = Playback?.IsPlaying == true || resume && (opening is not null || desired);
         var result = EditorOperation.Try("fullscreen layout", () => view.PrepareFullscreen(Editor, width, height,
             fullscreenControlsVisible, playing, fullscreenVolume, fullscreenMuted));
-        if (result is Err<EditorFailure> failure) { ReportFailure(failure.Error); return; }
-        if (result is not Ok<Machina.Pipeline.MachinaPreparedPresentation> ready) return;
+        if (result.Case is Err<EditorFailure> failure) { ReportFailure(failure.Error); return; }
+        if (result.Case is not Ok<Machina.Pipeline.MachinaPreparedPresentation> ready) return;
         Graphics.ProgramMonitor = new(0, 0, width, height);
         Graphics.Canvas = view.Canvas;
         feedback.Refresh(ready.Value.HitTest);
