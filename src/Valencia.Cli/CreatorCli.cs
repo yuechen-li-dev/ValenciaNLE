@@ -56,7 +56,7 @@ internal static class CreatorCli
         }
         if (args is ["creator", "export", ..])
         {
-            Console.WriteLine(EngineJson.Write(await ExportAll(engine, sequence, Required("--output-dir"), cancellation)));
+            Console.WriteLine(EngineJson.Write(await engine.ExportProfilesAsync(sequence, Required("--output-dir"), cancellation, Option("--encoder"))));
             return 0;
         }
         if (args[0] == "captions" || args is ["creator", "plan", ..])
@@ -138,7 +138,7 @@ internal static class CreatorCli
         await engine.SaveAsync(project, cancellation);
         var reopened = await engine.OpenIntoAsync(project, engine.Session.Snapshot.Revision, cancellation);
         if (!reopened.Success) throw new InvalidOperationException(reopened.Message);
-        var exports = await ExportAll(engine, sequence, directory, cancellation);
+        var exports = await engine.ExportProfilesAsync(sequence, directory, cancellation, Option("--encoder"));
         var summary = new { committed = true, firstFrameMs, elapsedSeconds = timer.Elapsed.TotalSeconds, planFile, project, preview, stages, exports };
         await File.WriteAllTextAsync(Path.Combine(directory, "creator-result.json"), EngineJson.Write(summary), cancellation);
         Console.WriteLine(EngineJson.Write(summary));
@@ -155,9 +155,5 @@ internal static class CreatorCli
         var result = await engine.Analysis.WaitAsync(id, cancellation);
         if (result.State != "completed") throw new InvalidOperationException(result.Error ?? result.State);
         return await engine.Analysis.ResultAsync(result.Key, cancellation);
-    }
-    internal static async Task<ExportStatus[]> ExportAll(EditingEngine engine, Guid sequence, string directory, CancellationToken cancellation)
-    {
-        return await engine.ExportProfilesAsync(sequence, directory, cancellation);
     }
 }

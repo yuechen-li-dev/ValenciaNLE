@@ -90,7 +90,7 @@ public sealed class HeadlessProtocolTests : IAsyncLifetime
         Assert.Equal("2025-11-25", initialization.GetProperty("result").GetProperty("protocolVersion").GetString());
         await process.StandardInput.WriteLineAsync("{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}");
         var tools = await Request("tools/list", new { });
-        Assert.Equal(35, tools.GetProperty("result").GetProperty("tools").GetArrayLength());
+        Assert.Equal(28 + Valencia.Engine.AgentContracts.Methods.Length, tools.GetProperty("result").GetProperty("tools").GetArrayLength());
         var allTools = tools.GetProperty("result").GetProperty("tools").EnumerateArray().ToArray();
         Assert.All(allTools, entry => Assert.DoesNotContain("Valencia engine v1:", entry.GetProperty("description").GetString()!));
         var first = Assert.Single(allTools, entry => entry.GetProperty("name").GetString() == "session_info");

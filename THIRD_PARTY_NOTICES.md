@@ -11,7 +11,7 @@ Direct source integrations:
 
 Managed dependencies include **FFmpeg.AutoGen 7.1.1**, **NAudio.WinMM/Core 3.3.0**, **Silk.NET 2.23.0**, and the referenced libraries' explicit dependencies. [docs/dependencies.json](docs/dependencies.json) records resolved package versions, declared licenses and repository URLs. Package-supplied license/notice files are retained under `licenses/` when included in the packages.
 
-**FFmpeg.AutoGen is a binding, not FFmpeg itself.** Native FFmpeg DLLs are user-supplied and must match the documented ABI. No FFmpeg native binary is copied into Valencia's published output by the build. The native distribution's actual configure flags, libraries, source availability and applicable license terms remain its own distribution inventory; the managed binding's MIT license does not replace those terms. See [FFmpeg licensing](https://ffmpeg.org/legal.html).
+**FFmpeg.AutoGen** is the separately licensed managed binding. The Windows release includes shared FFmpeg and its software AV1, VP9 and Opus dependencies. The release inventory records the exact configure flags, versions, licenses and corresponding sources. Compatibility encoders resolve through the user's explicitly configured provider. See [third-party components](docs/THIRD_PARTY_COMPONENTS.md) and [FFmpeg licensing](https://ffmpeg.org/legal.html).
 
 M1b export additionally invokes the user-installed FFmpeg executable, using its **libx264** H.264 and native AAC encoders. Validation used Gyan FFmpeg 7.1.1 shared, built with GPL/version3 support. The executable and its codec libraries are not redistributed by this project. No new managed packages were added for M1b.
 

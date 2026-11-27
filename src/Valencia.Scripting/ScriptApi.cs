@@ -140,7 +140,7 @@ public sealed class ScriptApi
     {
         Check();
         using var request = System.Text.Json.JsonDocument.Parse(requestJson);
-        if (method is "observe" or "agent_history" or "agent_checkpoint") RequireDirectScript();
+        if (method is "observe" or "agent_history" or "agent_checkpoint" or "recovery" or "render_queue") RequireDirectScript();
         return EngineJson.Write(engine.AgentAsync(method, request.RootElement, cancellation).GetAwaiter().GetResult());
     }
     public long PositionTicks(string sequence, string time)

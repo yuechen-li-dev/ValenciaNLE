@@ -100,10 +100,10 @@ internal sealed partial class EditorWindow
         var snapshot = engine.Session.Snapshot;
         string name = "Revision " + EngineJson.Exact(snapshot.Revision);
         var request = JsonSerializer.SerializeToElement(new { projectId = snapshot.Document.Id, snapshot.Revision,
-            action = create ? "create" : "list", name = create ? name : null }, EngineJson.Options);
+            action = create ? "create" : "list", name = create ? name : null, durable = true }, EngineJson.Options);
         var reply = await engine.AgentAsync("agent_checkpoint", request, jobCancellation?.Token ?? default);
         if (!reply.Ok) { Editor.Status = AgentStatus(reply.Issue!); return; }
-        if (create) { Editor.Status = $"{name} checkpoint created for this desktop session."; return; }
+        if (create) { Editor.Status = $"{name} checkpoint created."; return; }
         var items = JsonSerializer.SerializeToElement(reply.Result, EngineJson.Options).EnumerateArray().ToArray();
         Editor.Status = items.Length == 0 ? "No checkpoints in this desktop session." :
             $"{items.Length} session checkpoint(s): " + string.Join(", ", items.Take(4).Select(item => item.GetProperty("name").GetString()));

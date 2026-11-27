@@ -4,6 +4,7 @@ using System.Text;
 using Valencia.Analysis;
 using Valencia.Core.Editing;
 using Valencia.Core.Timeline;
+using Valencia.Media;
 
 namespace Valencia.Engine;
 
@@ -80,11 +81,17 @@ public sealed partial class EditingEngine
         proposal.Preview.CanCommit, proposal.EstimatedDuration, proposal.Outputs, segments = proposal.Segments,
         candidateCount = proposal.Candidates.Length, candidates = proposal.Candidates.Take(16), operationCount = proposal.Plan.Operations.Length,
         proposal.Diagnostics, proposal.Loudness };
-    public async Task<ExportStatus[]> ExportProfilesAsync(Guid sequenceId, string directory, CancellationToken cancellation = default)
+    public async Task<ExportStatus[]> ExportProfilesAsync(Guid sequenceId, string directory, CancellationToken cancellation = default,
+        string? encoderId = null)
     {
         directory = OutputPath(directory);
-        var profiles = Query().Sequence(sequenceId).Creator?.Profiles ?? [];
+        var snapshot = Session.Snapshot;
+        var profiles = new TimelineQueries(snapshot).Sequence(sequenceId).Creator?.Profiles ?? [];
         if (profiles.IsEmpty) throw new ArgumentException("No output profiles configured.");
+        var encoder = encoderId is not null || FfmpegRuntime.IsDistribution
+            ? ExportCatalog.Encoder(encoderId ?? "vp9")
+            : null;
+        var finish = new AudioFinish();
         var results = new List<ExportStatus>();
         foreach (var batch in profiles.Chunk(4))
         {
@@ -93,9 +100,14 @@ public sealed partial class EditingEngine
             {
                 foreach (var p in batch)
                 {
-                    string output = Path.Combine(directory, p.Name.Length > 0 && p.Name.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_')
-                        ? p.Name + ".mp4" : p.Id.ToString("N") + ".mp4");
-                    ids.Add(Exports.Start(sequenceId, Policy is null ? output : Path.GetRelativePath(Policy.Root, output), p.Id));
+                    string name = p.Name.Length > 0 && p.Name.All(c => char.IsAsciiLetterOrDigit(c) || c is '-' or '_')
+                        ? p.Name : p.Id.ToString("N");
+                    string output = Path.Combine(directory, name + (encoder?.Extension ?? ".mp4"));
+                    if (encoder is null)
+                        ids.Add(Exports.Start(sequenceId, Policy is null ? output : Path.GetRelativePath(Policy.Root, output), p.Id));
+                    else
+                        ids.Add((await Exports.EnqueueAsync(snapshot, new(sequenceId, output, p.Id, encoder.Id, null, finish, true, null),
+                            cancellation).ConfigureAwait(false)).JobId);
                 }
                 foreach (var id in ids)
                 {

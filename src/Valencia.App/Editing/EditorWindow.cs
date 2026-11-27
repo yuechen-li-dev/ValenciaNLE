@@ -34,7 +34,7 @@ internal sealed partial class EditorWindow : IDisposable
     private bool feedbackDirty;
     private System.Numerics.Vector2? observedNativePointer;
     public TimelineGesture Gesture { get; }
-    private readonly ProjectFile files = new();
+    private readonly ProjectFile files = new(); // Explicit fixture round trips in the native controls smoke.
     private readonly Valencia.Scripting.CopelandScriptHost scriptHost = new();
     private readonly Dictionary<Guid, ImportedAsset> imports = [];
     private readonly Stopwatch clock = Stopwatch.StartNew();
@@ -113,7 +113,13 @@ internal sealed partial class EditorWindow : IDisposable
         // Native callbacks only invalidate state. Layout/font realization runs on the
         // normal event loop, never across GLFW's unmanaged callback boundary.
         Graphics.Window.Resize += _ => HandlePointer(() => { diagnostics.Record("resize", generation, Editor.Playhead.Ticks, $"size={Graphics.Window.Size};framebuffer={Graphics.Window.FramebufferSize}"); CancelGesture(); });
-        Graphics.Window.Closing += () => HandlePointer(() => { if (smokeDirectory is null && !DiscardAllowed()) { Graphics.Window.IsClosing = false; return; } jobCancellation?.Cancel(); seekCancellation?.Cancel(); Gesture.Cancel(); });
+        Graphics.Window.Closing += () => HandlePointer(() =>
+        {
+            if (smokeDirectory is null && !DiscardAllowed()) { Graphics.Window.IsClosing = false; return; }
+            cleanDocumentClose = true;
+            jobCancellation?.Cancel(); seekCancellation?.Cancel(); Gesture.Cancel();
+        });
+        if (smokeDirectory is null) autosave = CreateAutosave();
         if (smokeDirectory is not null && !ScriptedPointer)
         {
             if (resizeSmoke) layoutSmoke = new(smokeDirectory);
@@ -135,6 +141,8 @@ internal sealed partial class EditorWindow : IDisposable
         while (!Graphics.Window.IsClosing)
         {
             var frameClock = Stopwatch.StartNew(); Graphics.Window.DoEvents(); context.Pump(ReportFailure);
+            PollAutosave();
+            PollProductServices();
             if (!IsFullscreen) chrome.Update();
             if (chromeRevision != chrome.VisualRevision) { chromeRevision = chrome.VisualRevision; lastUi = -1; }
             double now = clock.Elapsed.TotalSeconds;
@@ -405,14 +413,11 @@ internal sealed partial class EditorWindow : IDisposable
     }
     public async Task OpenProject(string path)
     {
-        var candidate = await files.LoadAsync(path, jobCancellation?.Token ?? default);
-        Editor.Open(candidate.Snapshot, Path.GetFullPath(path)); imports.Clear(); Seek(default);
-        Editor.Status = candidate.MissingMedia.Length == 0 ? "Project opened." : $"Missing media: {candidate.MissingMedia.Length}. Select media and Relink.";
+        await OpenManagedProject(path);
     }
     public async Task SaveProject(string path)
     {
-        var saved = Editor.Session.Snapshot; await files.SaveAsync(path, saved, jobCancellation?.Token ?? default);
-        Editor.ProjectPath = Path.GetFullPath(path); Editor.SavedDocument = saved.Document; Editor.Status = "Project saved.";
+        await SaveManagedProject(path);
     }
     private void RunJob(Func<Task> action)
     {
@@ -432,13 +437,17 @@ internal sealed partial class EditorWindow : IDisposable
     {
         Playback?.Pause();
         CancelGesture();
-        await using var engine = new Valencia.Engine.EditingEngine(Editor.Session, projectPath: Editor.ProjectPath);
+        await using var engine = new Valencia.Engine.EditingEngine(Editor.Session, projectPath: Editor.ProjectPath,
+            diskVersion: projectVersion, desktopLease: projectLease);
         var result = await scriptHost.RunFileAsync(scriptPath, engine,
             cancellation: jobCancellation?.Token ?? default, allowProjectReplacement: false);
         if (engine.SavedDocument is { } saved)
         {
             Editor.SavedDocument = saved;
             Editor.ProjectPath = engine.ProjectPath;
+            projectVersion = engine.DiskVersion;
+            if (engine.ProjectPath is { } path && projectLease?.Matches(path) != true)
+                TryHoldProject(path);
         }
         Seek(Editor.Playhead);
         Editor.Status = result.Success ? "Script completed." : "Script failed: " + string.Join("; ", result.Diagnostics.Select(d => d.Message));
@@ -518,6 +527,11 @@ internal sealed partial class EditorWindow : IDisposable
                 case "RejectAgentPlan": RejectAgentProposal(); break;
                 case "CreateAgentCheckpoint": RunJob(() => ShowAgentCheckpoints(create: true)); break;
                 case "ListAgentCheckpoints": RunJob(() => ShowAgentCheckpoints(create: false)); break;
+                case "ProductDiagnostics": RunJob(ShowProductDiagnostics); break;
+                case "ManageSpeechModel": RunJob(ManageSpeechModel); break;
+                case "RenderQueueStatus": RunJob(ShowRenderQueue); break;
+                case "RetryRenderJob": RunJob(RetryDesktopRender); break;
+                case "CancelRenderJob": CancelRenderJob(); break;
                 case "RunScript":
                     if (Pick(false, "Copeland TS or agent plan|*.ts;*.tsx;*.agent.json", "Run trusted script or review an agent plan") is { } scriptPath)
                     {
@@ -531,7 +545,7 @@ internal sealed partial class EditorWindow : IDisposable
                 case "Import":
                     if (Pick(false, "Media|*.mp4;*.mkv;*.mov;*.wav;*.mp3;*.webm|All files|*.*", "Import media") is { } media) RunJob(() => Import(media)); break;
                 case "Insert": InsertSelected(); break;
-                case "New": if (DiscardAllowed()) { Editor.New(); imports.Clear(); Seek(default); } break;
+                case "New": if (DiscardAllowed()) { SwitchRecoveryRun(); ReleaseProject(); Editor.New(); imports.Clear(); Seek(default); } break;
                 case "NewSequence":
                     if (Editor.AddSequence().Success) { CancelGesture(); Seek(default); }
                     break;
@@ -568,14 +582,7 @@ internal sealed partial class EditorWindow : IDisposable
                     save ??= Pick(true, "Valencia project|*.valencia", "Save project");
                     if (save is not null) RunJob(() => SaveProject(save)); break;
                 case "Export":
-                    if (Pick(true, "MP4 video|*.mp4", "Export edited sequence") is { } output)
-                    {
-                        var snapshot = Editor.Session.Snapshot; var id = Editor.SequenceId;
-                        RunJob(async () => { await SequenceExport.RunAsync(snapshot, id, output, new Progress<ExportProgress>(p => Editor.Status = $"Export {p.Frames}/{p.TotalFrames}"), jobCancellation!.Token); Editor.Status = "Export complete: " + output;
-                            long bytes = File.Exists(output) ? new FileInfo(output).Length : 0;
-                            ShowCard(new(TitleCardKind.Export, "EXPORT", "COMPLETE.", "Written to " + Path.GetFileName(output) + ".",
-                                [$"{Path.GetFileName(output).ToUpperInvariant()} / {Timecode.Format(snapshot.Document.Sequences.First(s => s.Id == id).Duration, Editor.Sequence.Video.FrameRate)} / {bytes / 1048576.0:0.#} MB"])); });
-                    }
+                    QueueDesktopExport();
                     break;
                 case "Relink":
                     if (Editor.SelectedAsset is { } assetId && Pick(false, "Media|*.*", "Relink selected media") is { } replacement)
@@ -909,6 +916,7 @@ internal sealed partial class EditorWindow : IDisposable
         diagnostics.Record("shutdown", generation, Editor.Playhead.Ticks); diagnostics.Save();
         jobCancellation?.Cancel(); seekCancellation?.Cancel();
         while (job is { IsCompleted: false }) { context.Pump(); Thread.Sleep(1); }
+        FinishDocumentProtection();
         if (job is not null) try { job.GetAwaiter().GetResult(); } catch (OperationCanceledException) { } catch (Exception e) { Console.Error.WriteLine(e); }
         if (opening is not null) try { opening.GetAwaiter().GetResult()?.DisposeAsync().AsTask().GetAwaiter().GetResult(); } catch (OperationCanceledException) { } catch (Exception e) { Console.Error.WriteLine(e); }
         Playback?.DisposeAsync().AsTask().GetAwaiter().GetResult();

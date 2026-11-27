@@ -55,7 +55,7 @@ public sealed class ObsAccessTests : IAsyncLifetime
         {
             await Rpc("initialize", new { protocolVersion = "2025-11-25", capabilities = new { }, clientInfo = new { name = "OBS protocol qualification", version = "1" } });
             await process.StandardInput.WriteLineAsync("{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}");
-            Assert.Equal(35, (await Rpc("tools/list", new { })).GetProperty("result").GetProperty("tools").GetArrayLength());
+            Assert.Equal(28 + Valencia.Engine.AgentContracts.Methods.Length, (await Rpc("tools/list", new { })).GetProperty("result").GetProperty("tools").GetArrayLength());
             var connected = await Tool("obs_connect", new { projectId, request = new { endpoint = peer.Endpoint.ToString(), recordingRoot = "recordings", manifest = "session.json" } });
             Assert.False(connected.GetProperty("result").GetProperty("isError").GetBoolean(), connected.GetRawText());
             var started = await Tool("obs_record", new { projectId, action = "start" });

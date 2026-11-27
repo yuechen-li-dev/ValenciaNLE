@@ -9,6 +9,12 @@ internal static class Program
     public static int Main(string[] args)
     {
         if (args.Contains("--render-probe")) return RenderProbe.Run(args);
+        if (args is ["--doctor"])
+        {
+            var capabilities = Valencia.Engine.ProductDoctor.CheckAsync().GetAwaiter().GetResult();
+            Console.WriteLine(Valencia.Engine.EngineJson.Write(capabilities));
+            return capabilities.Checks.Any(c => c.Essential && !c.Available) ? 2 : 0;
+        }
         if (args.Contains("--help"))
         {
             Console.WriteLine("Valencia [media.mp4|project.valencia] (timeline editor)\nValencia --player video.mp4 (direct M0 player)\nValencia --smoke video.mp4 --output artifacts/local/smoke\nValencia --editor-smoke video.mp4 --output artifacts/local/m1b-smoke\nValencia --widget-gallery (shared native Machina controls)\nValencia --widgets-smoke --output artifacts/local/widgets-smoke\nEditor: Ctrl+I import, Ctrl+O open project, Ctrl+S save, Ctrl+E export, Ctrl+K split, Ctrl+Z undo, Ctrl+Shift+Z redo.");
@@ -61,6 +67,7 @@ internal static class Program
             string output = Path.GetFullPath(ValueAfter(args, "--output") ?? "artifacts/local/smoke");
             if (!args.Contains("--player") && (!smoke || editorSmoke))
             {
+                if (!smoke) path = Editing.RecoveryPrompt.Choose(path);
                 using var editor = new Editing.EditorWindow(path, editorSmoke ? output : null, analysisSmoke, transcriptSmoke, creatorSmoke,
                     qualificationSmoke, layoutSmoke, scrubSmoke, fullscreenSmoke, effectControlsSmoke); editor.Run();
             }
@@ -70,7 +77,7 @@ internal static class Program
         catch (Exception error)
         {
             Console.Error.WriteLine(error);
-            string directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Valencia", "Logs");
+            string directory = Path.Combine(Valencia.Core.ValenciaData.Root, "Logs");
             Directory.CreateDirectory(directory);
             File.WriteAllText(Path.Combine(directory, "last-error.txt"), error.ToString());
             if (!smoke)

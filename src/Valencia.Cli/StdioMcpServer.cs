@@ -40,7 +40,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
                     string requested = request.GetProperty("params").GetProperty("protocolVersion").GetString()!;
                     if (requested != ProtocolVersion) throw new ArgumentException("Supported MCP protocol: " + ProtocolVersion);
                     initialized = true;
-                    result = new { protocolVersion = ProtocolVersion, capabilities = new { tools = new { } }, serverInfo = new { name = "Valencia", version = "M3a" },
+                    result = new { protocolVersion = ProtocolVersion, capabilities = new { tools = new { } }, serverInfo = new { name = "Valencia", version = "M3b" },
                         instructions = "Start with session_info (no arguments), edit_objects and footage_query. This stdio process owns a separate headless session; nothing is saved implicitly." };
                 }
                 else
@@ -462,7 +462,11 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
         "footage_query" => "Read independent cached analyses as a bounded footage index. Start with kind:'summary'; then select asset/stream, artifact keys, source-container or sequence time, kind, and predicates. Requires projectId and revision. Example: kind:'matches', transcriptContains:'let’s go', minimumSeparation:'8s'. Continue with nextOffset and artifactSet.",
         "agent_plan" => "Prepare an immutable dry-run candidate, inspect, list, compare, discard or explicitly commit it. Requires projectId/revision; prepare takes a sequence handle and typed operations; compare takes candidate and other. Example: action:'prepare', plan:{sequence:<sequence>,operations:[{operation:'delete',clipId:<clip>}]}. Commit mutates this session; stale candidates never rebase silently.",
         "agent_history" => "Undo or redo one transaction in this running headless session; action:'save' writes a snapshot to output. Requires projectId/revision, and workspace-relative .valencia output for save. Example: action:'undo'. History is not loaded from disk.",
-        "agent_checkpoint" => "Create, list, inspect, explicitly restore or delete in-memory named checkpoints. Requires projectId/revision; name except for list. Restore is an undoable commit; checkpoints disappear when the server exits. Example: action:'create', name:'Before cleanup'.",
+        "agent_checkpoint" => "Create, list, inspect, restore or delete named checkpoints. Use durable:true to retain them across restarts. Restore is an undoable commit. Requires projectId/revision and name except for list.",
+        "recovery" => "List, inspect, recover, or discard completed interrupted autosaves within the workspace. Recover writes a new project at output. Requires projectId, revision, and an ID except for list.",
+        "export_options" => "List versioned export presets and encoder implementations, or run live device/encoder checks with probe:true. Requires projectId.",
+        "render_queue" => "Queue immutable revision-pinned exports, list or inspect jobs, cancel, retry, and lint. Pass item for enqueue, items for batch, and job for status/cancel/retry/lint.",
+        "model_options" => "Inspect optional model identity, supported backend, installation state, pinned download size and SHA-256. No arguments are required.",
         "observe" => "Render labelled PNGs of original frames, current/candidate composites, paired comparison, cached source audio or bounded rendered mix. Requires projectId/revision, mode, new workspace PNG output. Example: mode:'sequence', at:['1s','2s'], output:'review.png', inlineImage:true. Source requires asset+stream; paired requires candidate+beforeOutput. Returns actual sample metadata.",
         "project_info" => "Read project, revision and missing media; projectId required. Set compact:true to avoid full document output; large results are rejected. No mutation. Prefer session_info to discover identity.",
         "timeline_query" => "Read sequences, tracks, active clips or an intersecting range. Requires projectId; sequenceId selects a sequence. atTicks or rangeStart/rangeEnd are exact sequence ticks as strings. Example with sequenceId: atTicks:'0'. No mutation.",

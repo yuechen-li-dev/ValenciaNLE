@@ -8,7 +8,7 @@ public static class MediaProcess
 {
     public static async Task<string> WithInputAsync(IEnumerable<string> arguments, Func<Stream, Task> feed, CancellationToken cancellation)
     {
-        var start = new ProcessStartInfo(Environment.GetEnvironmentVariable("VALENCIA_FFMPEG_EXE") ?? "ffmpeg")
+        var start = new ProcessStartInfo(FfmpegRuntime.Executable)
         { UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true, RedirectStandardInput = true, RedirectStandardOutput = true };
         foreach (string argument in arguments) start.ArgumentList.Add(argument);
         using var process = Process.Start(start) ?? throw new InvalidOperationException("FFmpeg could not start.");
@@ -36,9 +36,12 @@ public static class MediaProcess
     public static async Task<string> RunAsync(IEnumerable<string> arguments, CancellationToken cancellation)
         => (await CaptureAsync(arguments, cancellation).ConfigureAwait(false)).Error;
 
-    public static async Task<(string Output, string Error)> CaptureAsync(IEnumerable<string> arguments, CancellationToken cancellation)
+    public static Task<(string Output, string Error)> CaptureAsync(IEnumerable<string> arguments, CancellationToken cancellation)
+        => CaptureAsync(FfmpegRuntime.Executable, arguments, cancellation);
+
+    public static async Task<(string Output, string Error)> CaptureAsync(string executable, IEnumerable<string> arguments, CancellationToken cancellation)
     {
-        var start = new ProcessStartInfo(Environment.GetEnvironmentVariable("VALENCIA_FFMPEG_EXE") ?? "ffmpeg")
+        var start = new ProcessStartInfo(executable)
         {
             UseShellExecute = false, CreateNoWindow = true, RedirectStandardError = true, RedirectStandardOutput = true
         };

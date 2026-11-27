@@ -157,6 +157,7 @@ internal static class AnalysisFixture
     public static async Task<string> Project(string root, string source)
     {
         string path = Path.Combine(root, "input.valencia");
+        if (File.Exists(path)) path = Path.Combine(root, Path.GetFileNameWithoutExtension(source) + ".valencia");
         await Run("dotnet", typeof(Valencia.Cli.Program).Assembly.Location, "project", "create", path, "--media", source);
         return path;
     }

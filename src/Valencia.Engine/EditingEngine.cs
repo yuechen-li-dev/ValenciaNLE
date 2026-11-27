@@ -18,16 +18,21 @@ public sealed partial class EditingEngine : IAsyncDisposable
     public WorkspacePolicy? Policy { get; }
     public string? ProjectPath { get; private set; }
     public ProjectDocument? SavedDocument { get; private set; }
-    public EditingEngine(EditingSession session, WorkspacePolicy? policy = null, string? projectPath = null, string? analysisDirectory = null)
+    public ProjectDiskVersion? DiskVersion { get; private set; }
+    private ProjectWriteLease? desktopLease;
+    public EditingEngine(EditingSession session, WorkspacePolicy? policy = null, string? projectPath = null, string? analysisDirectory = null,
+        ProjectDiskVersion? diskVersion = null, ProjectWriteLease? desktopLease = null)
     {
         Session = session;
         Policy = policy;
         ProjectPath = projectPath is null ? null : OutputPath(projectPath);
+        DiskVersion = diskVersion;
+        this.desktopLease = desktopLease;
         CheckMedia(session.Snapshot);
         Exports = new(this);
         CreatorJobs = new(this);
         string cache = analysisDirectory ?? (policy is not null ? Path.Combine(policy.Root, ".valencia-analysis")
-            : Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Valencia", "Analysis-v1"));
+            : Path.Combine(ValenciaData.Root, "Analysis-v1"));
         if (policy is not null) policy.Check(cache);
         Analysis = new(this, new Valencia.Analysis.AnalysisCache(cache));
     }
@@ -35,8 +40,9 @@ public sealed partial class EditingEngine : IAsyncDisposable
     public static async Task<EditingEngine> OpenAsync(string path, WorkspacePolicy? policy = null, CancellationToken cancellation = default)
     {
         string resolved = policy is null ? Path.GetFullPath(path) : policy.Resolve(path);
-        var loaded = await new ProjectFile().LoadAsync(resolved, cancellation).ConfigureAwait(false);
-        return new(new EditingSession(loaded.Snapshot), policy) { ProjectPath = resolved, SavedDocument = loaded.Snapshot.Document };
+        var (loaded, diskVersion) = await ProjectWriteLease.OpenAsync(resolved, cancellation).ConfigureAwait(false);
+        return new(new EditingSession(loaded.Snapshot), policy, diskVersion: diskVersion)
+            { ProjectPath = resolved, SavedDocument = loaded.Snapshot.Document };
     }
     public TimelineQueries Query() => new(Session.Snapshot);
     public SourceFrameInfo SourceFrame(Guid assetId, int stream, SequenceTime offset, string output, int maximumEdge = 640,
@@ -92,18 +98,24 @@ public sealed partial class EditingEngine : IAsyncDisposable
     {
         var snapshot = Session.Snapshot;
         string resolved = OutputPath(path);
-        await new ProjectFile().SaveAsync(resolved, snapshot, cancellation).ConfigureAwait(false);
+        if (Policy is not null && DiskVersion is { } original && string.Equals(original.Path, resolved, StringComparison.OrdinalIgnoreCase))
+            throw new ProjectConflictException("MCP sessions save to a new destination. Apply the proposal in the desktop to update its project.");
+        Directory.CreateDirectory(Path.GetDirectoryName(resolved)!);
+        var expected = DiskVersion is { } previous && string.Equals(previous.Path, resolved, StringComparison.OrdinalIgnoreCase) ? previous : null;
+        var lease = desktopLease?.Matches(resolved) == true ? desktopLease : null;
+        using var transient = lease is null ? ProjectWriteLease.Acquire(resolved) : null;
+        DiskVersion = await (lease ?? transient!).SaveAsync(snapshot, expected, cancellation).ConfigureAwait(false);
         ProjectPath = resolved;
         SavedDocument = snapshot.Document;
     }
     public async Task<EditResult> OpenIntoAsync(string path, long expectedRevision, CancellationToken cancellation = default)
     {
         string resolved = OutputPath(path);
-        var loaded = await new ProjectFile().LoadAsync(resolved, cancellation).ConfigureAwait(false);
+        var (loaded, diskVersion) = await ProjectWriteLease.OpenAsync(resolved, cancellation).ConfigureAwait(false);
         CheckMedia(loaded.Snapshot);
         cancellation.ThrowIfCancellationRequested();
         var result = Session.ReplaceProject(loaded.Snapshot, new(Guid.NewGuid(), 1, expectedRevision));
-        if (result.Success) { ProjectPath = resolved; SavedDocument = loaded.Snapshot.Document; }
+        if (result.Success) { ProjectPath = resolved; SavedDocument = loaded.Snapshot.Document; DiskVersion = diskVersion; }
         return result;
     }
     public string OutputPath(string path) => Policy is null ? Path.GetFullPath(path) : Policy.Resolve(path);

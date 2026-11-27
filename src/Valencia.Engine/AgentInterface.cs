@@ -6,6 +6,7 @@ using Copeland.TS.Tson;
 using Valencia.Core;
 using Valencia.Core.Editing;
 using Valencia.Core.Timeline;
+using Valencia.Persistence;
 
 namespace Valencia.Engine;
 
@@ -16,10 +17,11 @@ public static class AgentContracts
     {
         "session_info" => "AgentSession", "edit_objects" => "AgentObjects", "footage_query" => "AgentFootage",
         "agent_plan" => "AgentCandidate", "agent_history" => "AgentHistory", "agent_checkpoint" => "AgentCheckpoint",
-        "observe" => "AgentObserve", _ => null
+        "observe" => "AgentObserve", "recovery" => "RecoveryRequest", "export_options" => "ExportOptionsRequest",
+        "render_queue" => "RenderQueueRequest", "model_options" => "AgentSession", _ => null
     };
     public static readonly string[] Methods = ["session_info", "edit_objects", "footage_query", "agent_plan",
-        "agent_history", "agent_checkpoint", "observe"];
+        "agent_history", "agent_checkpoint", "observe", "recovery", "export_options", "render_queue", "model_options"];
     internal static readonly HashSet<string> EditOperations = typeof(PlanOperation).GetCustomAttributes<JsonDerivedTypeAttribute>()
         .Select(a => (string)a.TypeDiscriminator!).ToHashSet(StringComparer.Ordinal);
 }
@@ -76,8 +78,14 @@ public sealed partial class EditingEngine
                 "footage_query" => await FootageAsync(snapshot, request, cancellation).ConfigureAwait(false),
                 "agent_plan" => ManageCandidate(snapshot, request, cancellation),
                 "agent_history" => await AgentHistoryAsync(snapshot, request, cancellation).ConfigureAwait(false),
-                "agent_checkpoint" => ManageCheckpoint(snapshot, request),
+                "agent_checkpoint" => request.TryGetProperty("durable", out var durable) && durable.GetBoolean()
+                    ? await ManageDurableCheckpoint(snapshot, request, cancellation).ConfigureAwait(false) : ManageCheckpoint(snapshot, request),
                 "observe" => await ObserveAsync(snapshot, request, cancellation).ConfigureAwait(false),
+                "recovery" => await ManageRecoveryAsync(snapshot, request, cancellation).ConfigureAwait(false),
+                "export_options" => await ExportOptionsAsync(request, cancellation).ConfigureAwait(false),
+                "render_queue" => await ManageRenderQueue(snapshot, request, cancellation).ConfigureAwait(false),
+                "model_options" => new { version = 1, models = Valencia.Analysis.WhisperModels.List().Select(m =>
+                    new { m.Id, m.Revision, m.Sha256, m.DownloadBytes, m.Precision, m.SupportedByBackend, m.State }) },
                 _ => throw new InvalidOperationException("Agent contract is not routed.")
             };
             return new(AgentContracts.Version, Session.Snapshot.Revision, value);
@@ -88,6 +96,7 @@ public sealed partial class EditingEngine
         {
             string code = exception switch
             {
+                ProjectConflictException => "PROJECT_SAVE_CONFLICT",
                 OverflowException => "TIME_RANGE", FileNotFoundException => "MISSING_MEDIA",
                 UnauthorizedAccessException => "PATH_POLICY", NotSupportedException => "UNSUPPORTED_CAPABILITY",
                 FormatException or JsonException => "INVALID_REQUEST", _ => "REQUEST_REJECTED"
@@ -140,7 +149,7 @@ public sealed partial class EditingEngine
             jobs = new { exports = Exports.ActiveJobs(), creator = CreatorJobs.ActiveJobs() },
             editing = new { actions = AgentContracts.Methods, operationSchema = "AgentOperation", effects = "effects_list", Session.CanUndo, Session.CanRedo },
             codec = new { decoder, export }, observations = new[] { "source", "sequence", "candidate", "paired", "sourceAudio", "mixAudio" },
-            persistence = "Explicit save; history, candidates and checkpoints are in-memory for this session."
+            persistence = "Explicit save. Undo and candidates are session-local. Checkpoints can be persisted explicitly."
         };
     }
 
@@ -204,7 +213,8 @@ public sealed partial class EditingEngine
             string path = RequiredText(request, "output");
             string destination = OutputPath(path);
             if (File.Exists(destination)) throw AgentError("OUTPUT_EXISTS", "Agent save is Save As; choose a new project output.", path);
-            await new Persistence.ProjectFile().SaveAsync(destination, snapshot, cancellation).ConfigureAwait(false);
+            using var lease = ProjectWriteLease.Acquire(destination);
+            await lease.SaveAsync(snapshot, null, cancellation).ConfigureAwait(false);
             return new { action, priorRevision = snapshot.Revision, resultingRevision = snapshot.Revision, output = path };
         }
         var result = action == "undo" ? Undo(snapshot.Revision, cancellation) : Redo(snapshot.Revision, cancellation);

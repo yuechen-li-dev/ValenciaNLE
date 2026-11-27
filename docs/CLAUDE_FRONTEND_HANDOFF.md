@@ -297,5 +297,27 @@ The [GPU text rendering correction](UI_TEXT_RENDERING_FIX.md) supersedes the ear
 
 - The **Script** picker accepts `*.agent.json` prepare requests in addition to trusted Copeland. The native proposal card shows the deterministic summary and base revision, with Apply/Cancel. The file is data, never evaluated as code. Apply uses the live `Editor.Session`, refreshes the monitor via the usual seek path, and creates one editor undo entry; rejecting leaves history unchanged. Stale or mismatched requests show machine code and readable guidance in the status bar.
 - The clip inspector shows an immutable clip/track handle, sequence detail shows the sequence handle and revision, and track/media entries show roles. Handles are not display-position numbers. Roles can be assigned by a reviewed plan, and multiple tracks/assets can share one.
-- Right-click empty timeline or its ruler to checkpoint the current revision or list desktop session checkpoints. These local immutable snapshots are not auto-saves. There is no IPC between stdio and the desktop. For remote handoff, use an authored or canonical plan at the saved base revision; a candidate handle belongs only to the process that prepared it.
+- Right-click empty timeline or its ruler to create or list revision-named durable checkpoints. Use the agent interface to inspect or restore a checkpoint by name. There is no IPC between stdio and the desktop. For remote handoff, use an authored or canonical plan at the saved base revision. A candidate handle belongs to the process that prepared it.
 - Keep new native affordances using the existing editor actions, proposal card and Machina context menu. Further work can expose a role dropdown and richer checkpoint restore/diff UI without changing the engine or handle contract. See [M3a](M3A.md) and the [agent guide](M3A_AGENT_GUIDE.md).
+
+## M3b — recovery, render queue and distribution
+
+- `EditorWindow.Persistence.cs` owns the current file lease and background autosave lifecycle. `ProjectAutosave` receives committed snapshots from the editing session. `RecoveryRun` retains a bounded history of Deliverance generations. `RecoveryPrompt.Choose` presents startup choices before opening the editor. Recovering opens a dirty unnamed document. The explicit save path checks the lease and disk version through `ProjectWriteLease`.
+- `agent_checkpoint` accepts `durable: true` for create, list, inspect, restore and delete. `recovery` exposes list, inspect and recover-as through the revision-pinned engine. The desktop keeps undo/redo, plans, durable checkpoints and automatic recovery as distinct operations.
+- `ExportJobs.EnqueueAsync(ProjectSnapshot, RenderSpecification, CancellationToken)` captures a project revision, selected profile, encoder, finishing settings and media fingerprints. `render_queue` exposes enqueue, batch, list, status, cancel, retry and lint. A retry restarts encoding from the captured revision. Existing destination files produce an actionable error. Use the job ID to render status and preserve the returned lint findings and encoder availability reasons in UI.
+- `EditorWindow.Product.cs` uses the current export dialog and Machina menu for built-in presets, queue status, cancellation, retry, first-run diagnostics and optional model management. `ProductDoctor.CheckAsync` probes installed capabilities. The portable and installed hosts use the same media and shader paths. See [distribution](DISTRIBUTION.md) and [export profiles](EXPORT_PROFILES.md).
+
+For a queue action, supply the live sequence handle and current project revision. Keep the returned job ID even when the panel closes. On reopen, query `list` for the current project and use `status` to monitor one job. An `interrupted` record can use `retry` with a new destination. A terminal state carries the reported encoder, rendered revision, output path and any lint findings.
+
+```json
+{
+  "projectId": "<project UUID>",
+  "revision": "42",
+  "action": "enqueue",
+  "item": {
+    "sequence": "<sequence handle>",
+    "preset": "review-360p",
+    "output": "review.webm"
+  }
+}
+```

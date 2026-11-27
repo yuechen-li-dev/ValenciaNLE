@@ -1,0 +1,391 @@
+{
+  "version": "0.3.0-rc.1",
+  "validationDate": "2026-11-27",
+  "outcome": "qualified-local-release-candidate",
+  "release": {
+    "installedBytes": 225398313,
+    "installedFiles": 634,
+    "portableStageBytes": 220572853,
+    "portableStageFiles": 632,
+    "previousInstaller": "Locally generated 0.3.0-rc.0 fixture",
+    "startMenuShortcutVerified": true,
+    "upgradeRetainedData": true,
+    "uninstallRetainedData": true,
+    "signing": "NotSigned",
+    "archives": [
+      {
+        "name": "Valencia-0.3.0-rc.1-media-sources.zip",
+        "bytes": 85171807,
+        "sha256": "BA91F2A5D2FC4B207006BE6FC633A19DFCABC6F7302DB1850AA0A0C1D05A1489",
+        "path": "artifacts/local/m3b/verified/Valencia-0.3.0-rc.1-media-sources.zip"
+      },
+      {
+        "name": "Valencia-0.3.0-rc.1-sources.zip",
+        "bytes": 540271967,
+        "sha256": "23FC4283228A92531D243E7DB8C9858FF3829373C55F4101334701C3C506AF02",
+        "path": "artifacts/local/m3b/verified/Valencia-0.3.0-rc.1-sources.zip"
+      },
+      {
+        "name": "Valencia-0.3.0-rc.1-win-x64-portable.zip",
+        "bytes": 86544801,
+        "sha256": "0B0D33927E02F54A5823B286EDC70ABEADFC5E0E625FFFF6C659E18DBF5BFA7E",
+        "path": "artifacts/local/m3b/verified/Valencia-0.3.0-rc.1-win-x64-portable.zip"
+      },
+      {
+        "name": "Valencia-0.3.0-rc.1-win-x64-setup.exe",
+        "bytes": 76602881,
+        "sha256": "305664E4F21C4B3199F71AD3A6A068A5ACF49476E6A0771F260DC0267356783B",
+        "path": "artifacts/local/m3b/verified/Valencia-0.3.0-rc.1-win-x64-setup.exe"
+      }
+    ],
+    "hashes": "artifacts/local/m3b/verified/SHA256SUMS.txt"
+  },
+  "host": {
+    "os": "Windows 11 Pro 26H2 build 26300.10075",
+    "graphics": [
+      "NVIDIA GeForce RTX 3070",
+      "AMD Radeon(TM) Graphics"
+    ],
+    "nvidiaDriver": "32.0.16.1088",
+    "amdDriver": "32.0.21030.2001",
+    "runtime": ".NET 10.0.15",
+    "ffmpeg": "7.1.4",
+    "externalFfmpeg": "Gyan 7.1.1 full shared, explicitly selected for compatibility",
+    "isolation": "Extracted and installed outside the checkout. System-only PATH and bundled runtime verified. A developer SDK and GPU drivers remained installed on the workstation.",
+    "nativeValidationErrors": 0
+  },
+  "tests": {
+    "Valencia.Core.Tests": 84,
+    "Valencia.Persistence.Tests": 27,
+    "Valencia.Tests": 215,
+    "Valencia.Programming.Tests": 101,
+    "Copeland.TS.Backend.CSharp.Tests": 277,
+    "Aurelian.Graphics.Tests": 351
+  },
+  "encoderMatrix": [
+    {
+      "id": "vp9",
+      "implementation": "libvpx-vp9",
+      "execution": "software",
+      "container": "webm",
+      "video": "vp9",
+      "audio": "opus",
+      "avRate": "30000/1001",
+      "renderSeconds": 0.5540645,
+      "bytes": 305597,
+      "decodedAudioSamples": 288288,
+      "maxPictureSoundGapDeltaMs": 9.0
+    },
+    {
+      "id": "av1",
+      "implementation": "libaom-av1",
+      "execution": "software",
+      "container": "webm",
+      "video": "av1",
+      "audio": "opus",
+      "avRate": "30000/1001",
+      "renderSeconds": 2.431391,
+      "bytes": 204915,
+      "decodedAudioSamples": 288288,
+      "maxPictureSoundGapDeltaMs": 9.0
+    },
+    {
+      "id": "archive",
+      "implementation": "ffv1",
+      "execution": "software",
+      "container": "mkv",
+      "video": "ffv1",
+      "audio": "flac",
+      "avRate": "30000/1001",
+      "renderSeconds": 0.1462984,
+      "bytes": 3461350,
+      "decodedAudioSamples": 288288,
+      "maxPictureSoundGapDeltaMs": 4.0
+    },
+    {
+      "id": "svt-av1",
+      "implementation": "libsvtav1",
+      "execution": "software",
+      "container": "webm",
+      "video": "av1",
+      "audio": "opus",
+      "avRate": "30000/1001",
+      "renderSeconds": 0.3417603,
+      "bytes": 259514,
+      "decodedAudioSamples": 288288,
+      "maxPictureSoundGapDeltaMs": 9.0
+    },
+    {
+      "id": "h264",
+      "implementation": "libx264",
+      "execution": "software",
+      "container": "mp4",
+      "video": "h264",
+      "audio": "aac",
+      "avRate": "30000/1001",
+      "renderSeconds": 0.2536509,
+      "bytes": 324338,
+      "decodedAudioSamples": 288768,
+      "maxPictureSoundGapDeltaMs": 4.0
+    },
+    {
+      "id": "hevc",
+      "implementation": "libx265",
+      "execution": "software",
+      "container": "mp4",
+      "video": "hevc",
+      "audio": "aac",
+      "avRate": "30000/1001",
+      "renderSeconds": 0.3803544,
+      "bytes": 286273,
+      "decodedAudioSamples": 288768,
+      "maxPictureSoundGapDeltaMs": 4.0
+    },
+    {
+      "id": "h264-mf",
+      "implementation": "h264_mf",
+      "execution": "platform",
+      "container": "mp4",
+      "video": "h264",
+      "audio": "aac",
+      "avRate": "30000/1001",
+      "renderSeconds": 0.2770589,
+      "bytes": 569321,
+      "decodedAudioSamples": 288768,
+      "maxPictureSoundGapDeltaMs": 4.0
+    },
+    {
+      "id": "h264-nvenc",
+      "implementation": "h264_nvenc",
+      "execution": "hardware",
+      "container": "mp4",
+      "video": "h264",
+      "audio": "aac",
+      "avRate": "30000/1001",
+      "renderSeconds": 0.3272333,
+      "bytes": 1312544,
+      "decodedAudioSamples": 288768,
+      "maxPictureSoundGapDeltaMs": 4.0
+    },
+    {
+      "id": "hevc-nvenc",
+      "implementation": "hevc_nvenc",
+      "execution": "hardware",
+      "container": "mp4",
+      "video": "hevc",
+      "audio": "aac",
+      "avRate": "30000/1001",
+      "renderSeconds": 0.3172078,
+      "bytes": 1224285,
+      "decodedAudioSamples": 288768,
+      "maxPictureSoundGapDeltaMs": 4.0
+    }
+  ],
+  "presets": [
+    {
+      "id": "landscape-1080p60",
+      "width": 1920,
+      "height": 1080,
+      "framesPerSecond": {
+        "numerator": 60,
+        "denominator": 1
+      },
+      "encoder": "vp9",
+      "seconds": 2.5201945,
+      "bytes": 635734
+    },
+    {
+      "id": "landscape-1440p60",
+      "width": 2560,
+      "height": 1440,
+      "framesPerSecond": {
+        "numerator": 60,
+        "denominator": 1
+      },
+      "encoder": "av1",
+      "seconds": 11.9403071,
+      "bytes": 291511
+    },
+    {
+      "id": "vertical-1080x1920",
+      "width": 1080,
+      "height": 1920,
+      "framesPerSecond": {
+        "numerator": 60,
+        "denominator": 1
+      },
+      "encoder": "vp9",
+      "seconds": 1.3136809,
+      "bytes": 312398
+    },
+    {
+      "id": "review-360p",
+      "width": 640,
+      "height": 360,
+      "framesPerSecond": {
+        "numerator": 30,
+        "denominator": 1
+      },
+      "encoder": "vp9",
+      "seconds": 0.2807244,
+      "bytes": 117461
+    },
+    {
+      "id": "intermediate-1080p",
+      "width": 1920,
+      "height": 1080,
+      "framesPerSecond": {
+        "numerator": 30,
+        "denominator": 1
+      },
+      "encoder": "archive",
+      "seconds": 0.3650475,
+      "bytes": 2084542
+    }
+  ],
+  "unavailableEncoders": [
+    {
+      "id": "hevc-mf",
+      "reason": "FFmpeg failed: [hevc_mf @ 000002870dd2fc80] could not find any MFT for the given media type\r\n[hevc_mf @ 000002870dd2fc80] could not create MFT\r\n[vost#0:0/hevc_mf @ 000002870dd2fa00] Error while opening encoder - maybe incorrect parameters such as bit_rate, rate, width or height.\r\n[vf#0:0 @ 000002870dd2c780] Error sending frames to consumers: Function not implemented\r\n[vf#0:0 @ 000002870dd2c780] Task finished with error code: -40 (Function not implemented)\r\n[vf#0:0 @ 000002870dd2c780] Terminating"
+    },
+    {
+      "id": "av1-nvenc",
+      "reason": "FFmpeg failed: [av1_nvenc @ 00000253a91aff80] No capable devices found\r\n[vost#0:0/av1_nvenc @ 00000253a91ae5c0] Error while opening encoder - maybe incorrect parameters such as bit_rate, rate, width or height.\r\n[vf#0:0 @ 00000253a91cc440] Error sending frames to consumers: Generic error in an external library\r\n[vf#0:0 @ 00000253a91cc440] Task finished with error code: -542398533 (Generic error in an external library)\r\n[vf#0:0 @ 00000253a91cc440] Terminating thread with return code -542398533 (Ge"
+    },
+    {
+      "id": "av1-amf",
+      "reason": "FFmpeg failed: [av1_amf @ 00000211efe6c680] CreateComponent(AMFVideoEncoderHW_AV1) failed with error 30\r\n[vost#0:0/av1_amf @ 00000211efe6fa00] Error while opening encoder - maybe incorrect parameters such as bit_rate, rate, width or height.\r\n[vf#0:0 @ 00000211efe715c0] Error sending frames to consumers: Encoder not found\r\n[vf#0:0 @ 00000211efe715c0] Task finished with error code: -1129203192 (Encoder not found)\r\n[vf#0:0 @ 00000211efe715c0] Terminating thread with return code -1129203192 (Encoder"
+    },
+    {
+      "id": "av1-qsv",
+      "reason": "FFmpeg failed: [av1_qsv @ 0000017db8e0fc80] Error creating a MFX session: -9.\r\n[av1_qsv @ 0000017db8e0fc80] The current mfx implementation is not supported, try next mfx implementation.\r\n[av1_qsv @ 0000017db8e0fc80] Error creating a MFX session: -9.\r\n[vost#0:0/av1_qsv @ 0000017db8e0fa00] Error while opening encoder - maybe incorrect parameters such as bit_rate, rate, width or height.\r\n[vf#0:0 @ 0000017db8e11d00] Error sending frames to consumers: Unknown error occurred\r\n[vf#0:0 @ 0000017db8e11d0"
+    }
+  ],
+  "recovery": {
+    "nativeRecoveryPrompt": true,
+    "killedEditingProcess": true,
+    "killedDuringAutosave": true,
+    "killedDuringExplicitSave": true,
+    "killedDuringRender": true,
+    "preservedExplicitSave": true,
+    "lastGoodAutosaveGeneration": 1,
+    "cancelledPinnedRetry": true,
+    "deniedWrites": true,
+    "staleWriter": "ProjectConflictException"
+  },
+  "model": {
+    "id": "tiny.en",
+    "bytes": 77704715,
+    "sha256": "921E4CF8686FDD993DCD081A5DA5B6C365BFDE1162E72B08D75AC75289920B1F",
+    "downloadSeconds": 2.4205323,
+    "removalVerified": true
+  },
+  "creator": {
+    "sourceSeconds": 10800,
+    "freshAnalysis": [
+      {
+        "kind": "transcript",
+        "seconds": 17.063000000081956
+      },
+      {
+        "kind": "audio",
+        "seconds": 4.327999999979511
+      },
+      {
+        "kind": "scenes",
+        "seconds": 7.515999999945052
+      }
+    ],
+    "persistedRevision": "6",
+    "checkpointReloaded": true,
+    "batchSeconds": 144.75,
+    "workflowSeconds": 212.7970000000205,
+    "renderer": {
+      "rendererPeakWorkingSetBytes": 810323968,
+      "rendererCpuSeconds": 130.625
+    },
+    "decodedSourceFrameChecks": 55,
+    "captionTimeChecks": 5,
+    "dissolveMidpointChromaRatio": 0.5018,
+    "profiles": [
+      {
+        "name": "long-form",
+        "seconds": 599.4333333333333,
+        "encoder": "vp9",
+        "bytes": 42391839,
+        "integratedLufs": -16.7,
+        "truePeakDb": -1.4
+      },
+      {
+        "name": "short-1",
+        "seconds": 20.0,
+        "encoder": "av1",
+        "bytes": 883884,
+        "integratedLufs": -16.7,
+        "truePeakDb": -1.4
+      },
+      {
+        "name": "short-2",
+        "seconds": 20.0,
+        "encoder": "av1",
+        "bytes": 883668,
+        "integratedLufs": -16.7,
+        "truePeakDb": -1.4
+      },
+      {
+        "name": "short-3",
+        "seconds": 20.0,
+        "encoder": "av1",
+        "bytes": 881574,
+        "integratedLufs": -16.7,
+        "truePeakDb": -1.6
+      },
+      {
+        "name": "short-3",
+        "seconds": 20.0,
+        "encoder": "h264",
+        "bytes": 1544085,
+        "integratedLufs": -16.7,
+        "truePeakDb": -1.4
+      }
+    ],
+    "pairedAac": {
+      "sameRevision": "6",
+      "legacyWithoutFinishing": {
+        "integratedLufs": -18.48,
+        "truePeakDb": -0.7
+      },
+      "finished": {
+        "integratedLufs": -16.67,
+        "truePeakDb": -1.66,
+        "bytes": 44016626
+      }
+    }
+  },
+  "evidence": {
+    "install": "artifacts/local/m3b/verified-qualification/lifecycle.json",
+    "installed": "artifacts/local/m3b/verified-qualification/installed.json",
+    "portable": "artifacts/local/m3b/verified-qualification/portable.json",
+    "compatibility": "artifacts/local/m3b/verified-qualification/compatibility.json",
+    "storage": "artifacts/local/m3b/storage-proof.json",
+    "model": "artifacts/local/m3b/model-proof.json",
+    "layout": "artifacts/local/m3b/native-result.json",
+    "creator": "artifacts/local/m3b/creator-proof.json",
+    "preset": "artifacts/local/m3b/preset-proof.json",
+    "aac": "artifacts/local/m3b/paired-aac-final.json",
+    "sourceFrames": "artifacts/local/m3b/representative/independent-video.json",
+    "audioSync": "artifacts/local/m3b/audio-sync-final.json",
+    "transition": "artifacts/local/m3b/transition-proof.json",
+    "captions": "artifacts/local/m3b/caption-proof.json",
+    "startupRecovery": "artifacts/local/m3b/startup-recovery-proof.json",
+    "outputs": "artifacts/local/m3b/representative/outputs",
+    "tests": "artifacts/local/m3b/verified-tests",
+    "dependencyTests": "artifacts/local/m3b/final-tests"
+  },
+  "limits": [
+    "One local workstation and controlled synthetic source footage",
+    "Unsigned local candidate",
+    "No independent fresh VM, Store acceptance, or commercial codec clearance",
+    "Optional external codec providers require their own provenance and applicable terms"
+  ]
+}

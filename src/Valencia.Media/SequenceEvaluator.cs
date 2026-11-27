@@ -26,6 +26,7 @@ public sealed class SequenceEvaluator : IDisposable
     private readonly OutputProfile? profile;
     private readonly SKTypeface? captionFont;
     private readonly CaptionIndex captionIndex;
+    private readonly bool burnCaptions;
     private TitleRenderer? titleRenderer;
     private byte[]? dissolveBuffer;
     private readonly bool useProxies;
@@ -48,7 +49,7 @@ public sealed class SequenceEvaluator : IDisposable
     public int EffectValidationErrors => effectDevice?.ValidationErrors ?? 0;
     public static void PrepareEffectShader(string path) => ClipEffectShader.Prepare(path);
     public SequenceEvaluator(ProjectSnapshot snapshot, Guid sequenceId, OutputProfile? profile = null,
-        bool useProxies = false, bool retainVideoHistory = false, bool? useVulkanEffects = null)
+        bool useProxies = false, bool retainVideoHistory = false, bool? useVulkanEffects = null, bool burnCaptions = true)
     {
         DocumentValidator.Validate(snapshot.Document);
         FfmpegRuntime.Initialize();
@@ -58,7 +59,8 @@ public sealed class SequenceEvaluator : IDisposable
         this.retainVideoHistory = retainVideoHistory;
         gpuEffects = useVulkanEffects ?? string.Equals(Environment.GetEnvironmentVariable("VALENCIA_EFFECTS_BACKEND"), "vulkan", StringComparison.OrdinalIgnoreCase);
         captionIndex = new(Sequence);
-        if (Sequence.Creator is { Words.IsEmpty: false } creator) captionFont = CreatorRenderer.OpenFont(creator.CaptionStyle.Font);
+        this.burnCaptions = burnCaptions;
+        if (burnCaptions && Sequence.Creator is { Words.IsEmpty: false } creator) captionFont = CreatorRenderer.OpenFont(creator.CaptionStyle.Font);
         if (Sequence.AudioSampleRate is < 8000 or > 192000) throw new NotSupportedException("M1b audio supports sample rates from 8 kHz through 192 kHz.");
         if ((long)Sequence.Video.Width * Sequence.Video.Height > 8_294_400 || Sequence.Video.Width % 2 != 0 || Sequence.Video.Height % 2 != 0)
             throw new NotSupportedException("M1b supports even sequence dimensions up to 3840x2160 pixels.");
@@ -96,7 +98,7 @@ public sealed class SequenceEvaluator : IDisposable
             }
             else Draw(layer, pixels);
         }
-        if (Sequence.Creator is { } creator && captionIndex.At(evaluated.Where(clip =>
+        if (burnCaptions && Sequence.Creator is { } creator && captionIndex.At(evaluated.Where(clip =>
             clip.Transition is null || (clip.Clip.Start.Ticks <= time.Ticks && time.Ticks < clip.Clip.End.Ticks))) is { } line)
         {
             CreatorRenderer.Captions(pixels, width, height, line, creator.CaptionStyle, profile?.CaptionY, captionFont!);

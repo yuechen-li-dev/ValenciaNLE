@@ -1,4 +1,4 @@
-param([string]$Directory='artifacts/local/m2d', [string]$SourcePath)
+param([string]$Directory='artifacts/local/m2d', [string]$SourcePath, [switch]$Webm)
 $ErrorActionPreference='Stop'
 $directoryPath=(Resolve-Path $Directory).Path
 $outputs=Join-Path $directoryPath 'outputs'
@@ -34,13 +34,17 @@ public static class CreatorPixels {
 '@
 $results=[Collections.Generic.List[object]]::new()
 foreach($profile in $settings.profiles){
-    $file=Join-Path $outputs ($profile.name+'.mp4')
+    $file=Join-Path $outputs ($profile.name+$(if($Webm){'.webm'}else{'.mp4'}))
     $probe=(& ffprobe -v error -show_entries format=duration:stream=codec_name,width,height,sample_rate -of json $file | ConvertFrom-Json)
     if($LASTEXITCODE -ne 0){throw 'Independent probe failed.'}
     $expectedDuration=([decimal]$profile.end.ticks-[decimal]$profile.start.ticks)/$clock
     if([Math]::Abs([double]$probe.format.duration-[double]$expectedDuration) -gt .05){throw 'Output duration differs from its exact profile window.'}
-    if($probe.streams.codec_name -notcontains 'h264' -or $probe.streams.codec_name -notcontains 'aac'){throw 'H264/AAC streams required.'}
-    $video=$probe.streams|Where-Object codec_name -eq h264
+    $videoCodec=if($Webm){if($profile.name -eq 'long-form'){'vp9'}else{'av1'}}else{'h264'}
+    $audioCodec=if($Webm){'opus'}else{'aac'}
+    if($probe.streams.codec_name -notcontains $videoCodec -or $probe.streams.codec_name -notcontains $audioCodec){
+        throw "Expected $videoCodec/$audioCodec streams."
+    }
+    $video=$probe.streams|Where-Object codec_name -eq $videoCodec
     if($video.width -ne $profile.width -or $video.height -ne $profile.height){throw 'Output dimensions differ from profile.'}
     $times=[Collections.Generic.HashSet[long]]::new();[void]$times.Add(0)
     $frameCount=[long][Math]::Ceiling($expectedDuration*30)
@@ -67,7 +71,8 @@ foreach($profile in $settings.profiles){
         if($null -eq $wanted){throw 'No preceding source frame in independent demux interval.'}
         $scale=if($profile.fit -eq 'fill'){"scale=-2:$($profile.height):flags=neighbor,crop=$($profile.width):$($profile.height)"}else{"scale=$($profile.width):$($profile.height):flags=neighbor"}
         $reference=RunBytes @('-v','error','-copyts','-ss',(Number ([decimal][Math]::Max(0,[double]$target-11))),'-i',$source,'-vf',"select=eq(pts\,$wanted),$scale",'-frames:v','1','-fps_mode','passthrough','-pix_fmt','rgb24','-f','rawvideo','pipe:1')
-        $actual=RunBytes @('-v','error','-ss',(Number ([Math]::Max([decimal]0,$outputTime-([decimal]0.00001)))),'-i',$file,'-frames:v','1','-pix_fmt','rgb24','-f','rawvideo','pipe:1')
+        $seekTolerance=if($Webm){[decimal]0.002}else{[decimal]0.00001}
+        $actual=RunBytes @('-v','error','-ss',(Number ([Math]::Max([decimal]0,$outputTime-$seekTolerance))),'-i',$file,'-frames:v','1','-pix_fmt','rgb24','-f','rawvideo','pipe:1')
         $error=[CreatorPixels]::Error($actual,$reference,$profile.width,[int]($profile.height*.60))
         Write-Output "$($profile.name) frame=$frame target=$target pts=$wanted mae=$error"
         if($error -gt 14){throw "Independent source-selection mismatch: $($profile.name) frame=$frame sourcePts=$wanted mae=$error"}

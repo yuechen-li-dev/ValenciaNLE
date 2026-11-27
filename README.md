@@ -14,7 +14,7 @@ adds clock-paced preview and post-presentation timing checks. Current native tes
 pass; the historical 250 ms draw incident remains unexplained rather than being
 attributed to an unverified GPU fix.
 
-A native C#/.NET 10 video editor in development. Editing, trusted Copeland scripts, CLI and optional local MCP share the same engine. **M3a adds readable edit plans, a compact footage index, labelled candidate review and reversible agent sessions**; see the [milestone report](docs/M3A.md) and [agent usage guide](docs/M3A_AGENT_GUIDE.md). Product transcription uses Aurelian Whisper on Vulkan.
+A native C#/.NET 10 video editor in development. Editing, trusted Copeland scripts, CLI and optional local MCP share the same engine. [M3b](docs/M3B.md) adds a self-contained [Windows release](docs/DISTRIBUTION.md), autosave and recovery, durable checkpoints, and a persistent [export queue](docs/EXPORT_PROFILES.md). The [agent usage guide](docs/M3A_AGENT_GUIDE.md) covers revision-pinned editing and review. Product transcription uses Aurelian Whisper on Vulkan.
 
 Start with [M2E.md](docs/M2E.md), [qualification and limitations](docs/M2E_REAL_WORLD_QUALIFICATION.md), and the [frontend handoff](docs/CLAUDE_FRONTEND_HANDOFF.md). The controlled OBS-to-export PoC works; human editorial quality and broader footage remain unqualified. [Native Int64 and audio-seek fixes](docs/INT64_AUDIO_SEEK_FIX.md) add exact native scripting and fast indexed audio seeks; initial sample-count indexing still has a cold cost. [M2D.md](docs/M2D.md) retains creator commands and historical coverage.
 

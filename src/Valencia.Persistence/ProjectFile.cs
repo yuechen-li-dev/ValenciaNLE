@@ -9,13 +9,17 @@ using Valencia.Core.Timeline;
 namespace Valencia.Persistence;
 
 public sealed record MissingMedia(Guid AssetId, string ResolvedPath);
-public sealed record LoadedProject(ProjectSnapshot Snapshot, ImmutableArray<MissingMedia> MissingMedia);
+public sealed record LoadedProject(ProjectSnapshot Snapshot, ImmutableArray<MissingMedia> MissingMedia,
+    SnapshotMetadata? Metadata = null, string? Integrity = null);
+public sealed record SnapshotMetadata(string Kind, Guid ProjectId, long Revision, int ProjectSchema,
+    DateTimeOffset CapturedUtc, long Generation, string? OriginalPath = null, string? Name = null);
 public sealed record LoadCommitResult(LoadedProject Candidate, EditResult Commit);
 
 /// <summary>Captures immutable snapshots. Deliverance alone owns temporary files, flushing and atomic replacement.</summary>
 public sealed class ProjectFile
 {
     public const string ModuleId = "valencia.project";
+    private const string SnapshotModuleId = "valencia.snapshot";
     public const string ApplicationId = "ValenciaNLE";
     public const string Extension = ".valencia";
     private static readonly ProjectJsonSerializer Serializer = new();
@@ -23,8 +27,10 @@ public sealed class ProjectFile
     public Task SaveAsync(string path, EditingSession session, CancellationToken cancellation = default) =>
         SaveAsync(path, session.Snapshot, cancellation);
 
-    /// <summary>Also serves as the future autosave entry point: write a captured snapshot to a separate recovery path.</summary>
     public async Task SaveAsync(string path, ProjectSnapshot snapshot, CancellationToken cancellation = default)
+        => await WriteAsync(path, snapshot, null, cancellation).ConfigureAwait(false);
+
+    internal async Task WriteAsync(string path, ProjectSnapshot snapshot, SnapshotMetadata? metadata, CancellationToken cancellation)
     {
         cancellation.ThrowIfCancellationRequested();
         ArgumentNullException.ThrowIfNull(snapshot);
@@ -42,8 +48,10 @@ public sealed class ProjectFile
         }};
         var module = SaveModulePayload.Create(ModuleId, ProjectDocument.CurrentSchemaVersion, ModuleCriticality.Required,
             Serializer, new NoCompressionCodec(), stored);
-        await service.SaveAsync(slot, new SaveRequest(new(ApplicationId: ApplicationId, ApplicationVersion: "M2d",
-            ApplicationSaveVersion: ProjectDocument.CurrentSchemaVersion), [module]), cancellation).ConfigureAwait(false);
+        SaveModulePayload[] modules = metadata is null ? [module] : [module,
+            SaveModulePayload.Create(SnapshotModuleId, 1, ModuleCriticality.Optional, Serializer, new NoCompressionCodec(), metadata)];
+        await service.SaveAsync(slot, new SaveRequest(new(ApplicationId: ApplicationId, ApplicationVersion: "M3b",
+            ApplicationSaveVersion: ProjectDocument.CurrentSchemaVersion), modules), cancellation).ConfigureAwait(false);
     }
 
     /// <summary>Loading has no session side effects. Missing media is reported, never decoded or silently removed.</summary>
@@ -52,7 +60,8 @@ public sealed class ProjectFile
         cancellation.ThrowIfCancellationRequested();
         var (service, slot, directory) = Open(path);
         var loaded = await service.LoadAsync(slot,
-            [new SaveModuleDefinition(ModuleId, ProjectDocument.CurrentSchemaVersion, ModuleCriticality.Required)],
+            [new SaveModuleDefinition(ModuleId, ProjectDocument.CurrentSchemaVersion, ModuleCriticality.Required),
+             new SaveModuleDefinition(SnapshotModuleId, 1, ModuleCriticality.Optional)],
             new LoadCompatibility(ApplicationId: ApplicationId, ApplicationSaveVersion: ProjectDocument.CurrentSchemaVersion),
             cancellation).ConfigureAwait(false);
         if (loaded.GetModule(ModuleId).SerializerId != Serializer.Id) throw new InvalidDataException("Unsupported project serializer.");
@@ -76,7 +85,13 @@ public sealed class ProjectFile
             if (!File.Exists(asset.SourcePath)) missing.Add(new(asset.Id, asset.SourcePath));
         }
         cancellation.ThrowIfCancellationRequested();
-        return new(snapshot, missing.ToImmutable());
+        SnapshotMetadata? metadata = loaded.Modules.Any(module => module.Id == SnapshotModuleId)
+            ? loaded.Deserialize<SnapshotMetadata>(SnapshotModuleId, service.Options.Serializers) : null;
+        if (metadata is not null && (metadata.ProjectId != snapshot.Document.Id || metadata.Revision != snapshot.Revision ||
+            metadata.ProjectSchema != snapshot.Document.SchemaVersion || metadata.Generation < 0 ||
+            metadata.Kind is not ("autosave" or "checkpoint" or "export")))
+            throw new InvalidDataException("Stored snapshot metadata does not match the project.");
+        return new(snapshot, missing.ToImmutable(), metadata, loaded.GetModule(ModuleId).SemanticHash);
     }
 
     /// <summary>Concurrent editing wins: a stale expected revision rejects replacement after asynchronous loading.</summary>

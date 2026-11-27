@@ -7,6 +7,7 @@ using Machina.Standard.Widgets;
 using Valencia.Core;
 using Valencia.Core.Editing;
 using Valencia.Core.Timeline;
+using Valencia.Media;
 using Valencia.Rendering;
 using Ui = Valencia.App.Editing.EditorView.Ui;
 
@@ -51,7 +52,11 @@ internal sealed partial class EditorWindow
                 new("seek", "Move playhead here")
             ]
             : [new("seek", "Move playhead here"), new("marker", "Add marker here"),
-                new("CreateAgentCheckpoint", "Checkpoint this revision"), new("ListAgentCheckpoints", "Show session checkpoints")];
+                new("CreateAgentCheckpoint", "Checkpoint this revision"), new("ListAgentCheckpoints", "Show project checkpoints"),
+                .. ExportCatalog.Presets.Select(preset => new WidgetOption("export-preset/" + preset.Id, "Export " + preset.Name)),
+                new("RenderQueueStatus", "Show render queue"), new("RetryRenderJob", "Retry interrupted render"),
+                new("CancelRenderJob", "Cancel active render"), new("ProductDiagnostics", "System diagnostics"),
+                new("ManageSpeechModel", "Manage speech model")];
         contextItems = [.. contextItems, .. ContextEffects(point.X, point.Y)];
         pointer.Reset();
         feedbackDirty |= feedback.Clear();
@@ -109,6 +114,9 @@ internal sealed partial class EditorWindow
             case "marker":
                 if (Editor.Commit(new SetSequenceMarker(Editor.SequenceId, new SequenceMarker(Guid.NewGuid(), contextTime, "Marker"))).Success)
                     Editor.Status = $"Marker added at {Timecode.Format(contextTime, Editor.Sequence.Video.FrameRate)}.";
+                break;
+            case { } preset when preset.StartsWith("export-preset/", StringComparison.Ordinal):
+                QueueDesktopExport(preset["export-preset/".Length..]);
                 break;
             case not null:
                 if (!RunContextEffect(choice)) Action(choice);
