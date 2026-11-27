@@ -24,6 +24,7 @@ public static class Program
                 Console.WriteLine("Valencia.Cli project info|create <project> [--media file]\nValencia.Cli timeline list <project>\nValencia.Cli script run <script.ts> --project <project> [--save-as file]\nValencia.Cli plan validate|apply <plan.json|plan.obj.ts> --project <project> [--save-as file]\nValencia.Cli schema export\nValencia.Cli export <project> --sequence <id> --output <file>\nValencia.Cli mcp --root <directory> --project <relative.valencia>");
                 Console.WriteLine("Valencia.Cli analyze waveform|silence|activity|scenes|audio <project> --asset <id> --stream <index> [--settings file.obj.ts]\nValencia.Cli roughcut plan <project> --analysis <key> [--sequence <id>] [--policy file.obj.ts] [--output plan.json]\nValencia.Cli roughcut apply <project> --plan <file> [--save-as <file>]\nValencia.Cli schema export --analysis");
                 Console.WriteLine("Valencia.Cli workflow preview|run <file.ts> --project <project> [--sequence <id>] [--revision <number>] [--args <json>] [--entry name] [--save-as file (run only)]");
+                Console.WriteLine("Valencia.Cli workflow list | info <workflow> | prepare <workflow> --project <project> --settings <file.obj.ts|json> [--plan-out <new.json>]");
                 Console.WriteLine("Valencia.Cli plan review <file> | workflow review <script.ts> --project <project> --output <new.png|new.mp4> [--at <ticks[,ticks...]> | --start <ticks> --end <ticks>] [--profile <id>] [--max-edge 640]\nValencia.Cli timeline review <project> --output <new.png|new.mp4> [--sequence <id>] [same review options]");
                 Console.WriteLine("Valencia.Cli effects list\nValencia.Cli source frame <project> --asset <id> --stream <index> --at <source-offset-ticks> --output <new.png> [--max-edge 640] [--x <pixel edge> --y <pixel edge>]");
                 Console.WriteLine("Valencia.Cli agent call <method> --project <project> [--request file.json]\nValencia.Cli agent run <project> [--requests file.jsonl]  (one session, stdin by default)");
@@ -39,6 +40,7 @@ public static class Program
             }
             if (args[0] == "obs") return await ObsCli.RunAsync(args, cancellation.Token);
             if (args[0] == "agent") return await AgentCli.RunAsync(args, cancellation.Token);
+            if (args is ["workflow", "list" or "info" or "prepare", ..]) return await EditorialCli.RunAsync(args, cancellation.Token);
             if (args[0] is "doctor" or "models" or "recovery" or "update") return await ProductCli.RunAsync(args, cancellation.Token);
             if (args is ["effects", "list"])
             {
@@ -151,8 +153,9 @@ public static class Program
             {
                 var request = Option(args, "--settings") is { } settingsFile
                     ? AnalysisContracts.Parse<AnalysisRequest>(await File.ReadAllTextAsync(settingsFile, cancellation.Token), "AnalysisRequest", settingsFile)
-                    : new AnalysisRequest(Guid.Parse(Required(args, "--asset")), int.Parse(Required(args, "--stream")), analysisKind == "scenes" ? "scenes" : "audio");
-                if (analysisKind is not ("waveform" or "silence" or "activity" or "scenes" or "audio")) throw new ArgumentException("Unknown analysis kind.");
+                    : new AnalysisRequest(Guid.Parse(Required(args, "--asset")), int.Parse(Required(args, "--stream")),
+                        analysisKind is "scenes" or "ocr" ? analysisKind : "audio");
+                if (analysisKind is not ("waveform" or "silence" or "activity" or "scenes" or "audio" or "ocr")) throw new ArgumentException("Unknown analysis kind.");
                 var id = engine.Analysis.Start(request);
                 while (engine.Analysis.Status(id).State == "running")
                 {

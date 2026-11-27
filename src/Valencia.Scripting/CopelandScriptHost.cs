@@ -30,6 +30,11 @@ public sealed partial class CopelandScriptHost : IDisposable
     public Task<ScriptResult> RunAsync(string source, string path, EditingEngine engine, string entryPoint = "run", CancellationToken cancellation = default, bool allowProjectReplacement = true)
         => InvokeAsync(source, path, entryPoint, new ScriptApi(engine, cancellation, allowProjectReplacement), cancellation);
 
+    internal Task<ScriptResult> RunEditorialAsync(string source, string entryPoint, EditingEngine engine,
+        EditorialInputs inputs, CancellationToken cancellation) =>
+        InvokeAsync(source, "editorial-workflows.ts", entryPoint,
+            new ScriptApi(engine, cancellation, allowProjectReplacement: false, workflow: null, editorial: inputs), cancellation);
+
     private async Task<ScriptResult> InvokeAsync(string source, string path, string entryPoint, ScriptApi api, CancellationToken cancellation)
     {
         var elapsed = Stopwatch.StartNew();

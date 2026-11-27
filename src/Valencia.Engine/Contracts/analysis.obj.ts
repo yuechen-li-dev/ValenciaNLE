@@ -4,7 +4,8 @@ type AudioSettings = { thresholdDb?: number; activeDb?: number; windowMs?: numbe
 type SceneSettings = { threshold?: number; everyNthFrame?: number; };
 type TranscriptionSettings = { model?: "tiny.en" | "large-v3"; language?: string; chunkSeconds?: number; overlapSeconds?: number; threads?: number; alignment?: "native" | "dtw"; };
 type TextEditRequest = { sequenceId: string; transcriptKey: string; mode: "retain" | "remove"; wordIds: string[]; occurrenceIds?: string[]; paddingMs?: number; };
-type AnalysisRequest = { assetId: string; streamIndex: number; kind: "audio" | "scenes" | "transcript" | "loudness" | "proxy" | "index"; audio?: AudioSettings; scenes?: SceneSettings; transcription?: TranscriptionSettings; };
+type OcrSettings = { startMs?: number; cadenceMs?: number; maximumFrames?: number; maximumEdge?: number; language?: string; minimumConfidence?: number; };
+type AnalysisRequest = { assetId: string; streamIndex: number; kind: "audio" | "scenes" | "transcript" | "loudness" | "proxy" | "index" | "ocr"; audio?: AudioSettings; scenes?: SceneSettings; transcription?: TranscriptionSettings; ocr?: OcrSettings; };
 type RoughCutPolicy = { minimumSegmentMs?: number; minimumRemovalMs?: number; prePaddingMs?: number; postPaddingMs?: number; mergeDistanceMs?: number; maximumRetainedGapMs?: number; targetDurationMs?: number; };
 type Timestamp = { value: string; numerator: number; denominator: number; totalSeconds?: number; };
 type Offset = { ticks: string; totalSeconds?: number; };
@@ -23,9 +24,12 @@ type LoudnessData = { integratedLufs?: number; truePeakDb?: number; loudnessRang
 type ProxyData = { version: number; key: string; sourceIdentity: string; sourceStream: number; width: number; height: number; codec: string; clockPolicy: string; videoIdentity: string; bytes: string; };
 type SourceIndexData = { streamIndex: number; policy: string; through: Position; anchors: number; };
 type SourceMarker = { start: string; end: string; label: string; };
-type CreatorRequest = { sequenceId: string; transcriptKey: string; audioKey: string; sceneKey?: string; targetTicks?: string; minimumTicks?: string; maximumTicks?: string; shortTicks?: string; shorts?: number; width?: number; height?: number; keywords?: string[]; markers?: SourceMarker[]; sourceOrder?: boolean; noiseReductionDb?: number; musicGainDb?: number; duckDb?: number; normalize?: boolean; targetLufs?: number; peakCeilingDb?: number; duckAttackMs?: number; duckReleaseMs?: number; duckHoldMs?: number; musicStreamIndices?: number[]; };
+type CreatorRequest = { sequenceId: string; transcriptKey: string; audioKey: string; sceneKey?: string; targetTicks?: string; minimumTicks?: string; maximumTicks?: string; shortTicks?: string; shorts?: number; width?: number; height?: number; keywords?: string[]; markers?: SourceMarker[]; sourceOrder?: boolean; noiseReductionDb?: number; musicGainDb?: number; duckDb?: number; normalize?: boolean; targetLufs?: number; peakCeilingDb?: number; duckAttackMs?: number; duckReleaseMs?: number; duckHoldMs?: number; musicStreamIndices?: number[]; minimumSeparationTicks?: string; };
 type TranscriptCorrection = { wordId: string; text: string; };
 type TranscriptCorrections = { key: string; edits: TranscriptCorrection[]; };
-type AnalysisArtifact = { schemaVersion: number; key: string; assetId: string; fingerprint: string; streamIndex: number; kind: "audio" | "scenes" | "transcript" | "transcriptChunk" | "loudness" | "proxy" | "index"; algorithm: string; parameters: string; decoderPolicy: string; containerStart: Timestamp; status: "complete"; sampleRate: number; channels: number; processedUnits: string; waveform: WaveLevel[]; silence: SourceRange[]; activity: EnergyInterval[]; scenes: SceneChange[]; diagnostics: string[]; transcript?: TranscriptData; loudness?: LoudnessData; proxy?: ProxyData; index?: SourceIndexData; };
+type ObservationBox = { x: number; y: number; width: number; height: number; };
+type SourceObservation = { range: SourceRange; text: string; provider: string; version: string; configuration: string;
+    evidence: string; confidence?: number; box?: ObservationBox; track?: string; keywords?: string[]; };
+type AnalysisArtifact = { schemaVersion: number; key: string; assetId: string; fingerprint: string; streamIndex: number; kind: "audio" | "scenes" | "transcript" | "transcriptChunk" | "loudness" | "proxy" | "index" | "ocr" | "topics" | "visual" | "speakers" | "subjects" | "beats" | "annotations"; algorithm: string; parameters: string; decoderPolicy: string; containerStart: Timestamp; status: "complete"; sampleRate: number; channels: number; processedUnits: string; waveform: WaveLevel[]; silence: SourceRange[]; activity: EnergyInterval[]; scenes: SceneChange[]; diagnostics: string[]; transcript?: TranscriptData; loudness?: LoudnessData; proxy?: ProxyData; index?: SourceIndexData; observations?: SourceObservation[]; };
 
 

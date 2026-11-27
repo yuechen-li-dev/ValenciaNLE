@@ -5,6 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/Valencia.Engine/Valencia.Engine.csproj" />
+    <ProjectReference Include="../../src/Valencia.Scripting/Valencia.Scripting.csproj" />
     <ProjectReference Include="$(DominatusRoot)/src/Dominatus.OptFlow/Dominatus.OptFlow.csproj" />
   </ItemGroup>
 </Project>

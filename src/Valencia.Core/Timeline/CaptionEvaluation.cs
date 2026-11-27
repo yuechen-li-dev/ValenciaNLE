@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 
 namespace Valencia.Core.Timeline;
 
-public sealed record CaptionLine(ImmutableArray<CaptionWord> Words, int ActiveWord);
+public sealed record CaptionLine(ImmutableArray<CaptionWord> Words, int ActiveWord, double Opacity = 1);
 
 /// <summary>Source-aligned caption evaluation. Edits change placement, never transcription clocks.</summary>
 public static class CaptionEvaluation

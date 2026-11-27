@@ -3,6 +3,7 @@ using System.Text.Json.Nodes;
 using Dominatus.Core.Transitions;
 using Dominatus.OptFlow;
 using Valencia.Engine;
+using Valencia.Scripting;
 
 if (args is not ([_, _] or [_, _, "--apply", _]))
 {
@@ -13,8 +14,13 @@ using var cancel = new CancellationTokenSource();
 Console.CancelKeyPress += (_, e) => { e.Cancel = true; cancel.Cancel(); };
 await using var engine = await EditingEngine.OpenAsync(args[0], cancellation: cancel.Token);
 using var input = JsonDocument.Parse(await File.ReadAllTextAsync(args[1], cancel.Token));
+var root = input.RootElement;
+string? workflow = root.TryGetProperty("workflow", out var namedWorkflow) ? namedWorkflow.GetString() : null;
+JsonElement? authoredPlan = root.TryGetProperty("plan", out var planInput) ? planInput : null;
+if ((workflow is null) == (authoredPlan is null)) throw new ArgumentException("Supply one authored plan or a registered workflow.");
 var context = new RunnerInput(EngineJson.Int64(input.RootElement.GetProperty("revision").GetString()!),
-    input.RootElement.GetProperty("plan"), input.RootElement.GetProperty("observation"), args.Length == 4 ? args[3] : null);
+    authoredPlan, workflow, root.TryGetProperty("settings", out var settings) ? settings : null,
+    root.GetProperty("observation"), args.Length == 4 ? args[3] : null);
 var flow = Transition.For<Phase, Signal, RunnerInput, Effect>();
 var machine = flow.Define(
 [
@@ -23,12 +29,18 @@ var machine = flow.Define(
     {
         var result = Read(done.Reply);
         var project = result.GetProperty("projectId").GetString()!;
-        return new(new Preparing(project, done.Reply.Revision), [new("agent_plan",
-            new { projectId = project, revision = ctx.ExpectedRevision, action = "prepare", plan = ctx.Plan })]);
+        Effect prepare = ctx.Workflow is null
+            ? new("agent_plan", new { projectId = project, revision = ctx.ExpectedRevision, action = "prepare", plan = ctx.Plan })
+            : new(EditorialWorkflows.Method, new { projectId = project, revision = ctx.ExpectedRevision, action = "prepare",
+                workflow = ctx.Workflow, settings = ctx.Settings });
+        return new(new Preparing(project, done.Reply.Revision), [prepare]);
     }),
     flow.On<Preparing, Completed>("render", static (state, done, ctx) =>
     {
-        var candidate = Read(done.Reply).GetProperty("candidate").GetString()!;
+        var data = Read(done.Reply);
+        if (ctx.Workflow is not null && !data.TryGetProperty("preparation", out data))
+            return new(new Failed("NO_EDITORIAL_PLAN"));
+        var candidate = data.GetProperty("candidate").GetString()!;
         var observation = JsonNode.Parse(ctx.Observation.GetRawText())!.AsObject();
         observation["projectId"] = state.Project;
         observation["revision"] = EngineJson.Exact(state.Revision);
@@ -61,7 +73,10 @@ for (int step = 0; step < 8; step++)
     if (phase is Done or Failed || phase is AwaitingSelection && context.SaveAs is null) break;
     if (phase is AwaitingSelection) { signal = new Selected(); continue; } // Only an explicit --apply supplies this input.
     Effect effect = result.Effects.Single();
-    var reply = await engine.AgentAsync(effect.Method, JsonSerializer.SerializeToElement(effect.Request, EngineJson.Options), cancel.Token);
+    var request = JsonSerializer.SerializeToElement(effect.Request, EngineJson.Options);
+    var reply = effect.Method == EditorialWorkflows.Method
+        ? await EditorialWorkflows.InvokeAsync(engine, request, cancel.Token)
+        : await engine.AgentAsync(effect.Method, request, cancel.Token);
     responses.Add(reply);
     signal = reply.Ok ? new Completed(reply) : new Rejected(reply.Issue!);
 }
@@ -70,7 +85,8 @@ return phase is Done or AwaitingSelection ? 0 : 2;
 
 static JsonElement Read(AgentReply reply) => JsonSerializer.SerializeToElement(reply.Result, EngineJson.Options);
 
-sealed record RunnerInput(long ExpectedRevision, JsonElement Plan, JsonElement Observation, string? SaveAs);
+sealed record RunnerInput(long ExpectedRevision, JsonElement? Plan, string? Workflow, JsonElement? Settings,
+    JsonElement Observation, string? SaveAs);
 sealed record Effect(string Method, object Request);
 abstract record Phase;
 sealed record Discovering : Phase;

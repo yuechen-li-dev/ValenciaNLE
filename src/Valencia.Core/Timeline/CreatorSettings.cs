@@ -28,7 +28,10 @@ public sealed record GainPoint(SequenceTime Time, double GainDb);
 public sealed record TrackAudio(Guid TrackId, double GainDb, ImmutableArray<GainPoint> Envelope);
 public sealed record FramingPoint(SequenceTime Time, double X, double Y, double Scale = 1);
 public sealed record CaptionWord(Guid Id, Guid AssetId, int StreamIndex, SourcePosition Start, SourcePosition End, string Text);
-public sealed record CaptionStyle(string Font = "Arial", int Size = 40, uint Color = 0xFFFFFFFF, uint Highlight = 0xFFFF00FF, double Y = .84);
+public sealed record CaptionStyle(string Font = "Arial", int Size = 40, uint Color = 0xFFFFFFFF, uint Highlight = 0xFFFF00FF, double Y = .84,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? WordsPerLine = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? Backdrop = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] int? FadeMs = null);
 public sealed record OutputProfile(Guid Id, string Name, int Width, int Height, FrameRate FrameRate,
     string Fit = "fit", double FocalX = .5, double FocalY = .5, double CaptionY = .84,
     SequenceTime Start = default, SequenceTime? End = null, ImmutableArray<FramingPoint>? Framing = null);
@@ -54,7 +57,10 @@ public static class CreatorSemantics
         DocumentValidator.Require(double.IsFinite(value.MasterGainDb) && value.MasterGainDb is >= -60 and <= 30
             && double.IsFinite(value.PeakCeilingDb) && value.PeakCeilingDb is >= -12 and <= 0, "Invalid master gain/peak ceiling.");
         DocumentValidator.Require(value.CaptionStyle is not null && value.CaptionStyle.Font is "Arial" or "Consolas"
-            && value.CaptionStyle.Size is >= 8 and <= 200 && Unit(value.CaptionStyle.Y), "Unsupported caption font/style.");
+            && value.CaptionStyle.Size is >= 8 and <= 200 && Unit(value.CaptionStyle.Y)
+            && value.CaptionStyle.WordsPerLine is null or >= 1 and <= 12
+            && value.CaptionStyle.Backdrop is null or "plate" or "outline" or "shadow"
+            && value.CaptionStyle.FadeMs is null or >= 0 and <= 500, "Unsupported caption font/style.");
         var wordIds = new HashSet<Guid>();
         foreach (var word in value.Words)
         {

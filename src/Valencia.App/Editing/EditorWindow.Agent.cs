@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Valencia.Core.Editing;
 using Valencia.Engine;
+using Valencia.Scripting;
 
 namespace Valencia.App.Editing;
 
@@ -26,15 +27,18 @@ internal sealed partial class EditorWindow
         if (new FileInfo(path).Length > 1_048_576) throw new InvalidDataException("Agent plan request exceeds 1 MiB.");
         CancellationToken token = jobCancellation?.Token ?? default;
         using var input = JsonDocument.Parse(await File.ReadAllTextAsync(path, token));
+        bool editorial = path.EndsWith(".editorial.json", StringComparison.OrdinalIgnoreCase);
         if (input.RootElement.ValueKind != JsonValueKind.Object || !input.RootElement.TryGetProperty("action", out var action)
-            || action.ValueKind != JsonValueKind.String || action.GetString() != "prepare")
-            throw new InvalidDataException("An .agent.json file contains an agent_plan request with action: prepare.");
+            || action.ValueKind != JsonValueKind.String || (action.GetString() != "prepare" && !(editorial && action.GetString() == "compose")))
+            throw new InvalidDataException("Use a prepare request or an editorial composition.");
         var session = Editor.Session;
         var basis = session.Snapshot;
-        if (input.RootElement.TryGetProperty("creatorKey", out _))
+        if (!editorial && input.RootElement.TryGetProperty("creatorKey", out _))
             throw new InvalidDataException("A desktop handoff requires an authored or canonical plan, not a headless session's creator key.");
         var engine = await DesktopAgentEngineAsync();
-        var result = await engine.AgentAsync("agent_plan", input.RootElement, token);
+        var result = editorial
+            ? await EditorialWorkflows.InvokeAsync(engine, input.RootElement, token)
+            : await engine.AgentAsync("agent_plan", input.RootElement, token);
         if (!result.Ok)
         {
             Editor.Status = AgentStatus(result.Issue!);
@@ -42,6 +46,11 @@ internal sealed partial class EditorWindow
         }
         if (!ReferenceEquals(Editor.Session, session) || !ReferenceEquals(session.Snapshot, basis)) return;
         var data = JsonSerializer.SerializeToElement(result.Result, EngineJson.Options);
+        if (editorial && !data.TryGetProperty("preparation", out data))
+        {
+            Editor.Status = "Editorial review produced observations without an edit plan.";
+            return;
+        }
         string handle = data.GetProperty("candidate").GetString()!;
         string summary = data.GetProperty("summary").GetProperty("text").GetString()!;
         PauseTransport();

@@ -38,7 +38,7 @@ public sealed partial class TranscriptionTests
         {
             await Rpc("initialize", new { protocolVersion = "2025-11-25", capabilities = new { }, clientInfo = new { name = "M2d protocol test", version = "1" } });
             await process.StandardInput.WriteLineAsync("{\"jsonrpc\":\"2.0\",\"method\":\"notifications/initialized\"}");
-            Assert.Equal(28 + Valencia.Engine.AgentContracts.Methods.Length, (await Rpc("tools/list", new { })).GetProperty("result").GetProperty("tools").GetArrayLength());
+            Assert.Equal(29 + Valencia.Engine.AgentContracts.Methods.Length, (await Rpc("tools/list", new { })).GetProperty("result").GetProperty("tools").GetArrayLength());
             var previewPlan = new EditPlan(1, projectId, revision, request.SequenceId,
                 [new TitlePlan(Guid.NewGuid(), "PROPOSED", 0, Valencia.Core.SequenceTime.TicksPerSecond)]);
             var review = Data(await Tool("review_timeline", new

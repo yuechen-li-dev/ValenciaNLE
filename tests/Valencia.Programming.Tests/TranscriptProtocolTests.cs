@@ -52,7 +52,7 @@ public sealed partial class TranscriptionTests
             Assert.Contains("transcript_query", discovery.GetRawText());
             var submitted = Data(await Tool("start_analysis", new { projectId, request = new AnalysisRequest(asset, 1, "transcript") }));
             var state = await Wait(submitted.GetProperty("jobId").GetGuid(), "analysis_status");
-            Assert.Equal("completed", state.GetProperty("state").GetString());
+            Assert.True(state.GetProperty("state").GetString() == "completed", state.GetRawText());
             string key = state.GetProperty("key").GetString()!;
             var matches = Data(await Tool("transcript_query", new { projectId, key, query = "important announcement" }));
             var rangeWords = Data(await Tool("transcript_query", new { projectId, key, rangeStart = "0", rangeEnd = "25401600000000", limit = 128 }));
@@ -69,7 +69,8 @@ public sealed partial class TranscriptionTests
             var stale = await Tool("create_textedit", new { projectId, revision, request = requested });
             Assert.True(stale.GetProperty("result").GetProperty("isError").GetBoolean());
             var exported = Data(await Tool("run_export", new { projectId, revision = applied.GetProperty("resultingRevision").GetString(), sequenceId = sequence, output = "text-edit.mp4" }));
-            Assert.Equal("completed", (await Wait(exported.GetProperty("jobId").GetGuid(), "export_status")).GetProperty("state").GetString());
+            var exportState = await Wait(exported.GetProperty("jobId").GetGuid(), "export_status");
+            Assert.True(exportState.GetProperty("state").GetString() == "completed", exportState.GetRawText());
             using var probe = JsonDocument.Parse(await AnalysisFixture.Run("ffprobe", "-v", "error", "-show_entries", "format=duration:stream=codec_name", "-of", "json", Path.Combine(root, "text-edit.mp4")));
             Assert.InRange(double.Parse(probe.RootElement.GetProperty("format").GetProperty("duration").GetString()!, System.Globalization.CultureInfo.InvariantCulture), .3, 3);
             process.StandardInput.Close();

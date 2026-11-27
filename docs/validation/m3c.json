@@ -1,0 +1,230 @@
+{
+  "milestone": "M3c",
+  "validationDate": "2026-11-27",
+  "version": "0.3.0-rc.2",
+  "release": {
+    "installedFiles": 636,
+    "installedBytes": 225640800,
+    "archives": [
+      {
+        "sha256": "6C463F6745B380A7FA8337FE90F9BA7AC24CBE81F160C38374ADC1705AA9A7E0",
+        "name": "Valencia-0.3.0-rc.2-media-sources.zip",
+        "bytes": 85171807,
+        "path": "artifacts/local/m3c/verified/Valencia-0.3.0-rc.2-media-sources.zip"
+      },
+      {
+        "sha256": "AF14C6ED1856660070565645797E59E94A6D970D2554C01A51EBE290E3B481A7",
+        "name": "Valencia-0.3.0-rc.2-sources.zip",
+        "bytes": 540315465,
+        "path": "artifacts/local/m3c/verified/Valencia-0.3.0-rc.2-sources.zip"
+      },
+      {
+        "sha256": "FAC2EEB6B5BB51710936D34BD8935D85506B3A87774F3BC0AFA709F9C84DC58C",
+        "name": "Valencia-0.3.0-rc.2-win-x64-portable.zip",
+        "bytes": 86621853,
+        "path": "artifacts/local/m3c/verified/Valencia-0.3.0-rc.2-win-x64-portable.zip"
+      },
+      {
+        "sha256": "868EF84397F6A70436FD8F7248B96438EE48804538363A7EADA609B9D92915CA",
+        "name": "Valencia-0.3.0-rc.2-win-x64-setup.exe",
+        "bytes": 76664396,
+        "path": "artifacts/local/m3c/verified/Valencia-0.3.0-rc.2-win-x64-setup.exe"
+      }
+    ],
+    "previousVersion": "0.3.0-rc.1",
+    "signing": "NotSigned",
+    "upgradeRetainedData": true,
+    "uninstallRetainedData": true,
+    "nativeEditorSmoke": true,
+    "installedAndPortableRecovery": true,
+    "compatibleEncoders": [
+      "vp9",
+      "av1",
+      "archive",
+      "svt-av1",
+      "h264",
+      "hevc",
+      "h264-mf",
+      "h264-nvenc",
+      "hevc-nvenc"
+    ]
+  },
+  "host": {
+    "platform": "Windows 11 Pro x64",
+    "gpu": "NVIDIA GeForce RTX 3070",
+    "runtime": "10.0.15",
+    "isolation": "Install and extraction under Windows TEMP; system-only PATH; bundled runtime verified."
+  },
+  "tests": {
+    "releasePassed": 431,
+    "editorialRegressionTests": 4,
+    "failures": 0,
+    "skips": 0
+  },
+  "creator": {
+    "sourceSeconds": 10800,
+    "planOperations": 52,
+    "canonicalPlanSha256": "411B1DC575944B14C9816FA880C8C1EB033F428E6E35C1276D043C4D05047376",
+    "copelandCliMcpEqual": true,
+    "finalBundleCanonicalPlanEqual": true,
+    "beforeRevision": "3",
+    "savedRevision": "6",
+    "cachedAnalysis": [
+      "F273084D37D28387C31952503EA62B05E39902E21C1F1FFAB7E138215CEC52CB",
+      "BE1BFE895B08805C03FD09E50EFF1F35DC11201B9CB72B7DA4C58A4A44BA6CAB",
+      "65F2086C26EB1082F0C017F7078E678FA9D91BEE244843D42F2299AF96595039"
+    ],
+    "topicCandidates": 3,
+    "renderBatchSeconds": 99.48499999998603,
+    "rendererResources": {
+      "rendererPeakWorkingSetBytes": 293142528,
+      "rendererCpuSeconds": 102.4375
+    },
+    "sourceFrameChecks": 61,
+    "captionChecks": 10,
+    "outputs": [
+      {
+        "name": "long-form",
+        "seconds": 600.0,
+        "width": 320,
+        "height": 180,
+        "encoder": "vp9",
+        "integratedLufs": -16.7,
+        "truePeakDb": -1.4,
+        "renderSeconds": 61.738064,
+        "bytes": 42625435,
+        "lintErrors": false,
+        "output": "artifacts/local/m3c/demonstration/outputs/long-form.webm"
+      },
+      {
+        "name": "short-1",
+        "seconds": 10.933333333333334,
+        "width": 180,
+        "height": 320,
+        "encoder": "av1",
+        "integratedLufs": -16.4,
+        "truePeakDb": -1.5,
+        "renderSeconds": 8.7718512,
+        "bytes": 477427,
+        "lintErrors": false,
+        "output": "artifacts/local/m3c/demonstration/outputs/short-1.webm"
+      },
+      {
+        "name": "short-2",
+        "seconds": 10.933333333333334,
+        "width": 180,
+        "height": 320,
+        "encoder": "av1",
+        "integratedLufs": -16.4,
+        "truePeakDb": -1.5,
+        "renderSeconds": 9.125655,
+        "bytes": 482979,
+        "lintErrors": false,
+        "output": "artifacts/local/m3c/demonstration/outputs/short-2.webm"
+      },
+      {
+        "name": "short-3",
+        "seconds": 10.933333333333334,
+        "width": 180,
+        "height": 320,
+        "encoder": "av1",
+        "integratedLufs": -16.4,
+        "truePeakDb": -1.5,
+        "renderSeconds": 9.2369788,
+        "bytes": 483893,
+        "lintErrors": false,
+        "output": "artifacts/local/m3c/demonstration/outputs/short-3.webm"
+      }
+    ],
+    "matchedWireBenchmark": {
+      "canonicalSubmission": {
+        "requestBytes": 506976,
+        "responseBytes": 9525,
+        "calls": 1,
+        "seconds": 0.23400000005494803
+      },
+      "registeredWorkflow": {
+        "requestBytes": 575,
+        "responseBytes": 39663,
+        "calls": 1,
+        "seconds": 34.06299999996554
+      },
+      "review": {
+        "requestBytes": 322,
+        "responseBytes": 19001,
+        "calls": 1,
+        "seconds": 0.15600000007543713
+      }
+    }
+  },
+  "highlightConstraints": {
+    "expectedAndObservedMontageSourceStarts": [
+      2400,
+      4,
+      630
+    ],
+    "requiredExcludedSeparationAndTopicOrdering": true,
+    "minimumSeparationSeconds": 15
+  },
+  "observations": {
+    "topicBoundaryFixture": true,
+    "tesseract": {
+      "version": "5.5.0.20241111",
+      "slideHeadings": 2,
+      "slideFrames": 8,
+      "cacheReuse": true,
+      "realSampleFrames": 12,
+      "realAnalysisMs": 1977.6767
+    },
+    "externalSubject": {
+      "returnedBoxes": 8,
+      "framingKeys": 8,
+      "maximumNormalizedTravelPerSecond": 0.22
+    },
+    "localDiarization": false,
+    "localSubjectDetection": false,
+    "localBeatDetection": false,
+    "localVisualDescription": false
+  },
+  "humanNarration": {
+    "source": "NASA Goddard SVS 12312, local qualification copy",
+    "topic": "Lagrange 1",
+    "retainedTimedWords": 61,
+    "duration": 26.808,
+    "humanEditorialReview": false
+  },
+  "dominatus": {
+    "reached": "AwaitingSelection",
+    "effects": [
+      [
+        "session_info"
+      ],
+      [
+        "editorial_workflow"
+      ],
+      [
+        "observe"
+      ],
+      []
+    ]
+  },
+  "evidence": {
+    "creator": "artifacts/local/m3c/creator-proof.json",
+    "sourceFrames": "artifacts/local/m3c/demonstration/independent-video.json",
+    "captions": "artifacts/local/m3c/caption-proof.json",
+    "ocr": "artifacts/local/m3c/ocr-fixture/result.json",
+    "ocrCache": "artifacts/local/m3c/ocr-fixture/cache-proof.json",
+    "subject": "artifacts/local/m3c/subject-proof.json",
+    "realFootage": "artifacts/local/m3c/human/probe.json",
+    "humanOcr": "artifacts/local/m3c/human/ocr-result.json",
+    "native": "artifacts/local/m3c/native-result.json",
+    "dominatus": "artifacts/local/m3c/dominatus-proof.json",
+    "constraints": "artifacts/local/m3c/verified-constraints.json",
+    "tests": "artifacts/local/m3c/verified-tests",
+    "install": "artifacts/local/m3c/verified-install/lifecycle.json",
+    "portable": "artifacts/local/m3c/verified-install/portable.json",
+    "installed": "artifacts/local/m3c/verified-install/installed.json",
+    "compatibility": "artifacts/local/m3c/verified-install/compatibility.json",
+    "separation": "artifacts/local/m3c/verified-separation.json"
+  }
+}

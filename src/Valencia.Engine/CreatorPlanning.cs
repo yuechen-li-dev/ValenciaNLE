@@ -15,8 +15,11 @@ public sealed record CreatorRequest(Guid SequenceId, string TranscriptKey, strin
     ImmutableArray<string>? Keywords = null, ImmutableArray<SourceMarker>? Markers = null, bool SourceOrder = true,
     double NoiseReductionDb = 12, double MusicGainDb = -12, double DuckDb = -12, bool Normalize = true,
     double TargetLufs = -16, double PeakCeilingDb = -1, int DuckAttackMs = 80, int DuckReleaseMs = 300, int DuckHoldMs = 200,
-    ImmutableArray<int>? MusicStreamIndices = null);
-public sealed record HighlightCandidate(Guid Id, SequenceTime Start, SequenceTime End, double Score, ImmutableArray<string> Evidence);
+    ImmutableArray<int>? MusicStreamIndices = null, string MinimumSeparationTicks = "0");
+public sealed record HighlightCandidate(Guid Id, SequenceTime Start, SequenceTime End, double Score, ImmutableArray<string> Evidence,
+    string? Topic = null);
+public sealed record CreatorSelection(ImmutableArray<HighlightCandidate> Ranked, ImmutableArray<HighlightCandidate> Required,
+    ImmutableArray<HighlightCandidate> Excluded, bool DiversifyTopics);
 public sealed record RetainedSegment(Guid CandidateId, SequenceTime SourceStart, SequenceTime SourceEnd, SequenceTime TimelineStart);
 public sealed record CreatorProposal(string Key, EditPlan Plan, PlanResult Preview, ImmutableArray<HighlightCandidate> Candidates,
     ImmutableArray<RetainedSegment> Segments, ImmutableArray<OutputProfile> Outputs, SequenceTime EstimatedDuration,
@@ -86,13 +89,17 @@ public static class CreatorPlanning
             int cuts = scenes?.Scenes.Count(s => { long at = AnalysisTime.Normalize(new(s.Timestamp), scenes.ContainerStart).Ticks; return at >= begin && at < end; }) ?? 0;
             double score = seed.Weight + Math.Min(1, activeTicks / (end - begin)) + Math.Min(cuts, 10) * .05;
             var id = Id($"candidate-v1|{transcript.Key}|{begin}|{end}");
-            result.Add(new(id, new(begin), new(end), score, [seed.Reason, $"{words.Length} timed words", $"{cuts} visual-change candidates", "Heuristic evidence; human editorial quality unqualified"]));
+            string? topic = seed.Reason.StartsWith("transcript keyword: ", StringComparison.Ordinal)
+                ? seed.Reason["transcript keyword: ".Length..] : null;
+            result.Add(new(id, new(begin), new(end), score,
+                [seed.Reason, $"{words.Length} timed words", $"{cuts} visual-change candidates", "Heuristic evidence; human editorial quality unqualified"], topic));
         }
         return [.. result.DistinctBy(c => c.Id).OrderByDescending(c => c.Score).ThenBy(c => c.Start.Ticks).Take(512)];
     }
 
     public static (EditPlan Plan, ImmutableArray<RetainedSegment> Segments, CreatorSettings Settings, ImmutableArray<string> Diagnostics) Plan(
-        ProjectSnapshot snapshot, CreatorRequest request, AnalysisArtifact transcript, AnalysisArtifact audio, ImmutableArray<HighlightCandidate> candidates)
+        ProjectSnapshot snapshot, CreatorRequest request, AnalysisArtifact transcript, AnalysisArtifact audio,
+        ImmutableArray<HighlightCandidate> candidates, IReadOnlySet<Guid>? required = null)
     {
         var sequence = new TimelineQueries(snapshot).Sequence(request.SequenceId);
         var asset = snapshot.Document.Assets.First(a => a.Id == transcript.AssetId);
@@ -115,27 +122,33 @@ public static class CreatorPlanning
             throw new ArgumentException("Music stream selection must refer to independent nonspeech source audio streams.");
         long target = Positive(request.TargetTicks), min = Positive(request.MinimumTicks);
         long shortLength = Positive(request.ShortTicks);
-        if (target > 3600L * SequenceTime.TicksPerSecond || request.Shorts is < 0 or > 8 || !request.SourceOrder
+        long separation = EngineJson.Int64(request.MinimumSeparationTicks);
+        if (target > 3600L * SequenceTime.TicksPerSecond || request.Shorts is < 0 or > 8 || separation is < 0 or > 914457600000000
             || !new[] { request.NoiseReductionDb, request.MusicGainDb, request.DuckDb, request.TargetLufs, request.PeakCeilingDb }.All(double.IsFinite)
             || request.NoiseReductionDb is < 0 or > 40 || request.MusicGainDb is < -60 or > 0 || request.DuckDb is < -60 or > 0
             || request.TargetLufs is < -30 or > -8 || request.PeakCeilingDb is < -12 or > 0
             || request.DuckAttackMs is < 0 or > 10000 || request.DuckReleaseMs is < 0 or > 10000 || request.DuckHoldMs is < 0 or > 10000)
-            throw new ArgumentException("Unsupported creator duration/selection/audio policy. Only source-order assembly is implemented.");
+            throw new ArgumentException("Unsupported creator duration, separation, selection or audio policy.");
         var selected = new List<HighlightCandidate>();
         long total = 0;
         foreach (var candidate in candidates)
         {
-            if (selected.Any(c => c.Start.Ticks < candidate.End.Ticks && c.End.Ticks > candidate.Start.Ticks)) continue;
             long available = target - total;
             if (available < min) break;
             var start = TimelineTime.SnapToFrame(candidate.Start, sequence.Video.FrameRate, TimeRounding.Floor);
-            var end = TimelineTime.SnapToFrame(new(Math.Min(candidate.End.Ticks, candidate.Start.Ticks + available)), sequence.Video.FrameRate, TimeRounding.Floor);
+            bool mustKeep = required?.Contains(candidate.Id) == true;
+            long limit = mustKeep ? candidate.End.Ticks : Math.Min(candidate.End.Ticks, candidate.Start.Ticks + available);
+            var end = TimelineTime.SnapToFrame(new(limit), sequence.Video.FrameRate, TimeRounding.Floor);
             if (end.Ticks - start.Ticks < min) continue;
+            if (end.Ticks - start.Ticks > available) continue;
+            if (selected.Any(c => c.Start.Ticks - separation < end.Ticks && c.End.Ticks + separation > start.Ticks)) continue;
             selected.Add(candidate with { Start = start, End = end });
             total += end.Ticks - start.Ticks;
         }
+        if (required is not null && !required.IsSubsetOf(selected.Select(c => c.Id)))
+            throw new ArgumentException("Required source ranges conflict with duration, separation or each other.");
         if (selected.Count == 0) throw new ArgumentException("No suitable retained material; refusing to fabricate highlights.");
-        selected = selected.OrderBy(c => c.Start.Ticks).ToList();
+        if (request.SourceOrder) selected = selected.OrderBy(c => c.Start.Ticks).ToList();
         var operations = ImmutableArray.CreateBuilder<PlanOperation>();
         foreach (var track in tracks) operations.Add(new DeletePlan(track.Clips[0].Id));
         var segments = ImmutableArray.CreateBuilder<RetainedSegment>();
@@ -183,7 +196,8 @@ public static class CreatorPlanning
         var settings = new CreatorSettings(1, captionWords, new(), profiles.ToImmutable(), trackAudio, PeakCeilingDb: request.PeakCeilingDb);
         operations.Add(new CreatorPlan(settings));
         var plan = new EditPlan(1, snapshot.Document.Id, EngineJson.Exact(snapshot.Revision), sequence.Id, operations.ToImmutable(),
-            "Explainable source-order creator cut. Heuristics are not human editorial judgment.", [new(asset.Id, transcript.Fingerprint)]);
+            request.SourceOrder ? "Explainable source-order creator cut." : "Explainable montage-order creator cut.",
+            [new(asset.Id, transcript.Fingerprint)]);
         var diagnostics = ImmutableArray.CreateBuilder<string>();
         if (cursor < target - SequenceTime.TicksPerSecond) diagnostics.Add("Target duration is best effort: insufficient nonoverlapping material or a minimum-segment remainder.");
         if (profiles.Count - 1 < request.Shorts) diagnostics.Add("Fewer distinct retained candidates than requested Shorts.");

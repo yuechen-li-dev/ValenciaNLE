@@ -41,6 +41,10 @@ public static class AnalysisContracts
             case "silence": total = artifact.Silence.Length; records = artifact.Silence.Skip(offset).Take(limit).ToArray(); break;
             case "activity": total = artifact.Activity.Length; records = artifact.Activity.Skip(offset).Take(limit).ToArray(); break;
             case "scenes": total = artifact.Scenes.Length; records = artifact.Scenes.Skip(offset).Take(limit).ToArray(); break;
+            case "ocr": case "topics": case "visual": case "speakers": case "subjects": case "beats": case "annotations":
+                total = artifact.Observations?.Length ?? 0;
+                records = (artifact.Observations ?? []).Skip(offset).Take(limit).ToArray();
+                break;
             case "waveform":
                 if (level < 0 || level >= artifact.Waveform.Length) throw new ArgumentException("Invalid waveform level.");
                 total = artifact.Waveform[level].Bins.Length;

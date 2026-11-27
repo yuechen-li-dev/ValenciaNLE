@@ -533,9 +533,10 @@ internal sealed partial class EditorWindow : IDisposable
                 case "RetryRenderJob": RunJob(RetryDesktopRender); break;
                 case "CancelRenderJob": CancelRenderJob(); break;
                 case "RunScript":
-                    if (Pick(false, "Copeland TS or agent plan|*.ts;*.tsx;*.agent.json", "Run trusted script or review an agent plan") is { } scriptPath)
+                    if (Pick(false, "Copeland TS or editorial plan|*.ts;*.tsx;*.agent.json;*.editorial.json", "Run a trusted script or review a proposal") is { } scriptPath)
                     {
-                        if (scriptPath.EndsWith(".agent.json", StringComparison.OrdinalIgnoreCase))
+                        if (scriptPath.EndsWith(".agent.json", StringComparison.OrdinalIgnoreCase) ||
+                            scriptPath.EndsWith(".editorial.json", StringComparison.OrdinalIgnoreCase))
                         { RunJob(() => ReviewAgentProposal(scriptPath)); break; }
                         bool workflow = scriptPath.EndsWith(".workflow.ts", StringComparison.OrdinalIgnoreCase)
                             || scriptPath.EndsWith(".workflow.tsx", StringComparison.OrdinalIgnoreCase);

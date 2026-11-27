@@ -13,16 +13,32 @@ public sealed class ScriptApi
     private readonly CancellationToken cancellation;
     private readonly bool allowProjectReplacement;
     private readonly WorkflowContext? workflow;
+    private readonly EditorialInputs? editorial;
 
     public ScriptApi(EditingEngine engine, CancellationToken cancellation = default, bool allowProjectReplacement = true)
         : this(engine, cancellation, allowProjectReplacement, null) { }
 
-    internal ScriptApi(EditingEngine engine, CancellationToken cancellation, bool allowProjectReplacement, WorkflowContext? workflow)
+    internal ScriptApi(EditingEngine engine, CancellationToken cancellation, bool allowProjectReplacement, WorkflowContext? workflow,
+        EditorialInputs? editorial = null)
     {
         this.engine = engine;
         this.cancellation = cancellation;
         this.allowProjectReplacement = allowProjectReplacement;
         this.workflow = workflow;
+        this.editorial = editorial;
+    }
+
+    public EditorialInputs EditorialInput() => editorial ?? throw new InvalidOperationException("The entry requires registered editorial settings.");
+
+    public string BuildEditorialPlan(string workflowId, string settingsJson)
+    {
+        Check();
+        using var document = System.Text.Json.JsonDocument.Parse(settingsJson);
+        var snapshot = engine.Session.Snapshot;
+        var settings = EditorialWorkflows.ReadSettings(document.RootElement);
+        var result = EditorialWorkflows.BuildAsync(engine, snapshot, workflowId, settings, cancellation).GetAwaiter().GetResult();
+        if (result.Plan is null) throw new InvalidOperationException(string.Join(" | ", result.Diagnostics));
+        return EngineJson.Write(result.Plan);
     }
 
     public string Argument(string name, string fallback)

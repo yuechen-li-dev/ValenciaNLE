@@ -35,7 +35,8 @@ public sealed record AnalysisArtifact(int SchemaVersion, string Key, Guid AssetI
     string Kind, string Algorithm, string Parameters, string DecoderPolicy, MediaTimestamp ContainerStart,
     string Status, int SampleRate, int Channels, long ProcessedUnits, ImmutableArray<WaveLevel> Waveform,
     ImmutableArray<SourceRange> Silence, ImmutableArray<EnergyInterval> Activity, ImmutableArray<SceneChange> Scenes,
-    ImmutableArray<string> Diagnostics, TranscriptData? Transcript = null, LoudnessData? Loudness = null, ProxyData? Proxy = null, SourceIndexData? Index = null);
+    ImmutableArray<string> Diagnostics, TranscriptData? Transcript = null, LoudnessData? Loudness = null, ProxyData? Proxy = null,
+    SourceIndexData? Index = null, ImmutableArray<SourceObservation>? Observations = null);
 public sealed record AnalysisProgress(long ProcessedUnits, double Fraction);
 
 /// <summary>Coordinates remain source-absolute until explicitly normalized or mapped to a clip.</summary>

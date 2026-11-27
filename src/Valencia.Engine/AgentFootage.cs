@@ -80,12 +80,13 @@ public sealed partial class EditingEngine
 
         var scope = kind switch
         {
-            "words" or "segments" or "matches" => "transcript", "waveform" or "silence" or "activity" => "audio",
-            "scenes" => "scenes", "loudness" => "loudness", _ => null
+            "words" or "segments" or "matches" or "topics" => "transcript", "waveform" or "silence" or "activity" => "audio",
+            "scenes" => "scenes", "loudness" => "loudness", "ocr" or "visual" or "speakers" or "subjects" or "beats" or "annotations" => kind, _ => null
         };
+        bool KindMatches(string artifactKind) => artifactKind == scope || (kind == "topics" && artifactKind == "topics");
         bool activity = Text(request, "nearActivity") is not null, scene = Text(request, "nearScene") is not null;
-        var selected = metadata.Where(m => m.Kind == scope && Primary(m) || activity && m.Kind == "audio" || scene && m.Kind == "scenes").ToArray();
-        if (scope is not null && !selected.Any(m => m.Kind == scope && Primary(m)))
+        var selected = metadata.Where(m => KindMatches(m.Kind) && Primary(m) || activity && m.Kind == "audio" || scene && m.Kind == "scenes").ToArray();
+        if (scope is not null && !selected.Any(m => KindMatches(m.Kind) && Primary(m)))
             throw AgentError("ANALYSIS_MISSING", $"No {scope} artifact matches the asset/stream filter.", hint: $"Use start_analysis with kind:{scope}, then pass its artifact key.");
         if (selected.Length > 12) throw AgentError("ANALYSIS_LIMIT", "More than 12 relevant artifacts matched; pin the artifact keys or narrow the asset/stream.");
         var opened = new List<ObservationArtifact>();
@@ -95,7 +96,7 @@ public sealed partial class EditingEngine
             try { opened.Add(await OpenArtifact(meta, cancellation).ConfigureAwait(false)); }
             catch (AgentRequestException e) when (keys.Length == 0 && e.Issue.Code == "ANALYSIS_STALE") { }
         }
-        if (scope is not null && !opened.Any(a => a.Artifact.Kind == scope && Primary(a.Meta)))
+        if (scope is not null && !opened.Any(a => KindMatches(a.Artifact.Kind) && Primary(a.Meta)))
             throw AgentError("ANALYSIS_STALE", "No current analysis of that kind remained.", hint: "Analyze the current source again.");
         var rows = new List<(long Sort, Guid Asset, int Stream, Moment? Moment, ObservationArtifact? Artifact, object? Marker,
             long? At, long? End, Guid? Clip, Guid? Track)>();
@@ -109,8 +110,8 @@ public sealed partial class EditingEngine
         if (rms is not null && (!(rms is >= 0 and <= 1) || !double.IsFinite(rms.Value)))
             throw AgentError("INVALID_REQUEST", "minimumRms must be a unit amplitude in 0..1.");
         if (rms is not null && kind != "activity" && !activity) throw AgentError("INVALID_REQUEST", "minimumRms requires activity or nearActivity.");
-        if (phrase is not null && kind is not ("matches" or "segments" or "words"))
-            throw AgentError("INVALID_REQUEST", "transcriptContains is a transcript predicate.");
+        if (phrase is not null && kind is not ("matches" or "segments" or "words" or "topics" or "ocr" or "visual" or "annotations"))
+            throw AgentError("INVALID_REQUEST", "A text predicate requires transcript, topic, OCR, visual or annotation observations.");
         var activityIndices = opened.Where(a => a.Artifact.Kind == "audio").GroupBy(a => a.Artifact.AssetId)
             .ToDictionary(g => g.Key, g =>
             {
@@ -125,7 +126,7 @@ public sealed partial class EditingEngine
             .ToDictionary(g => g.Key, g => g.SelectMany(x => x.Artifact.Scenes.Select(r => (At: new SourcePosition(r.Timestamp), source: x.Meta.Key)))
                 .OrderBy(r => r.At, SourceOrder).ToArray());
 
-        foreach (var item in opened.Where(a => a.Artifact.Kind == scope && Primary(a.Meta)))
+        foreach (var item in opened.Where(a => KindMatches(a.Artifact.Kind) && Primary(a.Meta)))
         {
             var artifact = item.Artifact; var asset = assetMap[artifact.AssetId];
             FrameRate? clock = asset.Streams.FirstOrDefault(s => s.Index == artifact.StreamIndex)?.FrameRate;
@@ -133,7 +134,7 @@ public sealed partial class EditingEngine
             long start = timeline ? 0 : Boundary("start", clock, null, long.MinValue);
             long end = timeline ? long.MaxValue : Boundary("end", clock, null, long.MaxValue);
             if (end <= start) throw AgentError("TIME_RANGE", "Query end must follow start.");
-            foreach (var moment in Moments(artifact, kind, phrase))
+            foreach (var moment in Moments(artifact, kind, phrase, cancellation))
             {
                 cancellation.ThrowIfCancellationRequested();
                 if (rms is not null && kind == "activity" && moment.Value is { } value && value < rms) continue;
@@ -269,7 +270,7 @@ public sealed partial class EditingEngine
 
     private CreatorProposal[] HighlightInputs() { lock (creatorGate) return creatorPlans.Values.ToArray(); }
 
-    private static IEnumerable<Moment> Moments(AnalysisArtifact a, string kind, string? phrase)
+    private static IEnumerable<Moment> Moments(AnalysisArtifact a, string kind, string? phrase, CancellationToken cancellation = default)
     {
         bool TextMatches(string text) => phrase is null || text.Contains(phrase, StringComparison.OrdinalIgnoreCase);
         return kind switch
@@ -286,6 +287,11 @@ public sealed partial class EditingEngine
             "scenes" => a.Scenes.Select(s => new Moment(new(new(s.Timestamp), new(s.Timestamp), s.Epoch), kind, Value: s.Score)),
             "waveform" => a.Waveform.IsEmpty ? [] : a.Waveform[^1].Bins.Select(b => new Moment(new(b.Start, b.End, b.Epoch), kind,
                 Evidence: new { b.Samples, channels = b.Channels.Take(8).ToArray(), aggregation = "coarsest cached level" })),
+            "topics" or "ocr" or "visual" or "speakers" or "subjects" or "beats" or "annotations" =>
+                (a.Observations ?? (kind == "topics" && a.Transcript is { } transcript ? TranscriptTopics.Build(transcript, cancellation) : []))
+                .Where(o => TextMatches(o.Text) || (o.Keywords ?? []).Any(TextMatches))
+                .Select(o => new Moment(o.Range, kind, ClipText(o.Text), Evidence: new
+                { o.Provider, o.Version, o.Configuration, o.Evidence, o.Confidence, o.Box, o.Track, o.Keywords })),
             _ => []
         };
     }

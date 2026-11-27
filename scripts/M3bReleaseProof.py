@@ -92,6 +92,8 @@ class Session:
     def __init__(self, app, project, mcp=False):
         self.mcp = mcp
         self.id = 0
+        self.request_bytes = 0
+        self.response_bytes = 0
         args = ["mcp", "--root", str(app.work), "--project", project.name] if mcp else ["agent", "run", str(project)]
         self.log = (app.work / ("mcp.stderr" if mcp else f"agent-{uuid.uuid4().hex[:6]}.stderr")).open("wb")
         self.process = subprocess.Popen([str(app.cli), *args], cwd=app.work, env=app.env,
@@ -106,13 +108,16 @@ class Session:
         self.sequence = info["activeSequence"]
 
     def send(self, value):
-        self.process.stdin.write(json.dumps(value).encode() + b"\n")
+        line = json.dumps(value).encode() + b"\n"
+        self.request_bytes += len(line)
+        self.process.stdin.write(line)
         self.process.stdin.flush()
 
     def read(self):
         data = self.process.stdout.readline()
         if not data:
             raise RuntimeError("Valencia CLI ended before replying.")
+        self.response_bytes += len(data)
         return json.loads(data)
 
     def rpc(self, method, fields):

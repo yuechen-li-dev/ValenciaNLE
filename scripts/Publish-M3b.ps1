@@ -84,7 +84,7 @@ try {
     }
     $versionLog | Set-Content -LiteralPath (Join-Path $licenseRoot 'FFMPEG-BUILD.txt')
     $encoders | Set-Content -LiteralPath (Join-Path $licenseRoot 'FFMPEG-ENCODERS.txt')
-    foreach ($doc in 'DISTRIBUTION.md','THIRD_PARTY_COMPONENTS.md','EXPORT_PROFILES.md','M3B.md','M3A_AGENT_GUIDE.md') {
+    foreach ($doc in 'DISTRIBUTION.md','THIRD_PARTY_COMPONENTS.md','EXPORT_PROFILES.md','M3B.md','M3A_AGENT_GUIDE.md','M3C.md','EDITORIAL_WORKFLOWS.md') {
         Copy-Item -LiteralPath (Join-Path $repo "docs/$doc") -Destination (Join-Path $stage 'docs')
     }
     Copy-Item -LiteralPath (Join-Path $repo 'examples/agent-time.ts') -Destination $stage

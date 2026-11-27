@@ -96,7 +96,7 @@ internal static class CreatorRenderer
     public static unsafe void Captions(byte[] pixels, int width, int height, CaptionLine line, CaptionStyle style, double? y, SKTypeface typeface)
     {
         using var font = new SKFont(typeface, Math.Min(style.Size * height / 720f, width * .075f));
-        using var outline = new SKPaint { Color = SKColors.Black, Style = SKPaintStyle.Stroke, StrokeWidth = Math.Max(1, font.Size / 10), IsAntialias = true };
+        using var outline = new SKPaint { Color = SKColors.Black.WithAlpha(Alpha(255)), Style = SKPaintStyle.Stroke, StrokeWidth = Math.Max(1, font.Size / 10), IsAntialias = true };
         using var fill = new SKPaint { IsAntialias = true };
         string text = string.Join(" ", line.Words.Select(w => w.Text));
         if (font.GetGlyphs(text).Any(g => g == 0)) throw new NotSupportedException("Selected caption font cannot render the supplied text.");
@@ -109,18 +109,23 @@ internal static class CreatorRenderer
             using var surface = SKSurface.Create(new SKImageInfo(width, height, SKColorType.Rgba8888, SKAlphaType.Opaque), (nint)pointer, width * 4)
                 ?? throw new InvalidOperationException("Caption raster surface could not be created.");
             var canvas = surface.Canvas;
-            using var background = new SKPaint { Color = new SKColor(0, 0, 0, 150), IsAntialias = true };
-            canvas.DrawRoundRect(new SKRect(start - 6, baseline - font.Size - 4, width - start + 6, baseline + font.Size * .3f), 4, 4, background);
+            if (style.Backdrop is null or "plate")
+            {
+                using var background = new SKPaint { Color = new SKColor(0, 0, 0, Alpha(150)), IsAntialias = true };
+                canvas.DrawRoundRect(new SKRect(start - 6, baseline - font.Size - 4, width - start + 6, baseline + font.Size * .3f), 4, 4, background);
+            }
             float x = start;
             for (int i = 0; i < line.Words.Length; i++)
             {
                 uint color = i == line.ActiveWord ? style.Highlight : style.Color;
-                fill.Color = new SKColor((byte)(color >> 24), (byte)(color >> 16), (byte)(color >> 8), (byte)color);
-                canvas.DrawText(line.Words[i].Text, x, baseline, font, outline);
+                fill.Color = new SKColor((byte)(color >> 24), (byte)(color >> 16), (byte)(color >> 8), Alpha((byte)color));
+                float shadow = style.Backdrop == "shadow" ? Math.Max(1, font.Size * .09f) : 0;
+                canvas.DrawText(line.Words[i].Text, x + shadow, baseline + shadow, font, outline);
                 canvas.DrawText(line.Words[i].Text, x, baseline, font, fill);
                 x += font.MeasureText(line.Words[i].Text + " ");
             }
             canvas.Flush();
         }
+        byte Alpha(int alpha) => (byte)Math.Round(alpha * line.Opacity);
     }
 }

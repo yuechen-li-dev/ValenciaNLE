@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Valencia.Engine;
+using Valencia.Scripting;
 
 namespace Valencia.Cli;
 
@@ -21,7 +22,7 @@ internal static class AgentCli
         {
             string request = Option("--request") is { } file ? await File.ReadAllTextAsync(file, cancellation).ConfigureAwait(false) : "{}";
             using var json = JsonDocument.Parse(request);
-            var result = await engine.AgentAsync(arguments[2], json.RootElement, cancellation).ConfigureAwait(false);
+            var result = await Dispatch(engine, arguments[2], json.RootElement, cancellation).ConfigureAwait(false);
             Console.WriteLine(EngineJson.Write(result));
             return result.Ok ? 0 : 2;
         }
@@ -38,7 +39,7 @@ internal static class AgentCli
                 using var envelope = JsonDocument.Parse(line);
                 var json = envelope.RootElement;
                 string method = json.GetProperty("method").GetString()!;
-                result = await engine.AgentAsync(method, json.GetProperty("request"), cancellation).ConfigureAwait(false);
+                result = await Dispatch(engine, method, json.GetProperty("request"), cancellation).ConfigureAwait(false);
             }
             catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException)
             {
@@ -50,6 +51,11 @@ internal static class AgentCli
         }
         return failed ? 2 : 0;
     }
+
+    private static Task<AgentReply> Dispatch(EditingEngine engine, string method, JsonElement request, CancellationToken cancellation) =>
+        method == EditorialWorkflows.Method
+            ? EditorialWorkflows.InvokeAsync(engine, request, cancellation)
+            : engine.AgentAsync(method, request, cancellation);
 
     private static async Task<string?> ReadBoundedLine(TextReader reader, CancellationToken cancellation)
     {

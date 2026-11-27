@@ -4,6 +4,7 @@ using Copeland.TS.Tson;
 using Valencia.Core;
 using Valencia.Engine;
 using Valencia.Media;
+using Valencia.Scripting;
 
 namespace Valencia.Cli;
 
@@ -16,7 +17,8 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
     private static readonly string[] ToolNames = ["project_info", "timeline_query", "validate_edit_plan", "apply_edit_plan", "run_export", "export_status", "cancel_export",
         "start_analysis", "analysis_status", "analysis_result", "cancel_analysis", "create_roughcut", "transcript_query", "create_textedit",
         "start_creator", "creator_status", "cancel_creator", "apply_creator", "caption_plan", "correct_transcript",
-        "obs_connect", "obs_status", "obs_record", "obs_marker", "obs_import", "effects_list", "source_frame", "review_timeline", .. AgentContracts.Methods];
+        "obs_connect", "obs_status", "obs_record", "obs_marker", "obs_import", "effects_list", "source_frame", "review_timeline",
+        EditorialWorkflows.Method, .. AgentContracts.Methods];
 
     public async Task RunAsync(TextReader input, TextWriter output, CancellationToken cancellation)
     {
@@ -71,9 +73,11 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
         string name = parameters.GetProperty("name").GetString()!;
         if (!ToolNames.Contains(name)) throw new ArgumentException("Unknown tool.");
         var arguments = parameters.TryGetProperty("arguments", out var payload) ? payload : JsonSerializer.SerializeToElement(new { });
-        if (AgentContracts.RequestType(name) is not null)
+        if (AgentContracts.RequestType(name) is not null || name == EditorialWorkflows.Method)
         {
-            AgentReply reply = await engine.AgentAsync(name, arguments, cancellation).ConfigureAwait(false);
+            AgentReply reply = name == EditorialWorkflows.Method
+                ? await EditorialWorkflows.InvokeAsync(engine, arguments, cancellation).ConfigureAwait(false)
+                : await engine.AgentAsync(name, arguments, cancellation).ConfigureAwait(false);
             string json = EngineJson.Write(reply);
             if (System.Text.Encoding.UTF8.GetByteCount(json) > 131072)
             {
@@ -331,7 +335,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
     }
     private static JsonObject InputSchema(string tool)
     {
-        if (AgentContracts.RequestType(tool) is { } requestType)
+        if ((tool == EditorialWorkflows.Method ? "EditorialInvocation" : AgentContracts.RequestType(tool)) is { } requestType)
         {
             var catalog = EditPlanSchema.Catalog;
             var root = catalog.Definitions.OfType<TsonTypeAliasDefinition>().Single(definition => definition.Name == requestType);
@@ -457,6 +461,7 @@ public sealed class StdioMcpServer(EditingEngine engine, bool allowObsControl = 
 
     private static string DescribeTool(string name) => name switch
     {
+        EditorialWorkflows.Method => "Discover registered Copeland editorial workflows and creative templates, or prepare a revision-pinned proposal with typed settings. Review and commit via agent_plan. Runs only packaged workflows.",
         "session_info" => "Start here. No arguments required. Read the attached headless project ID, revision, default sequence, analysis kinds, jobs and codec/observation capabilities. Example: {}.",
         "edit_objects" => "Read paged sequence, asset, track, clip, marker or profile handles. Optional revision pins the read; use role for all matches and at or start/end in sequence time for clips. Example with projectId: kind:'clip', at:'1s', limit:8.",
         "footage_query" => "Read independent cached analyses as a bounded footage index. Start with kind:'summary'; then select asset/stream, artifact keys, source-container or sequence time, kind, and predicates. Requires projectId and revision. Example: kind:'matches', transcriptContains:'let’s go', minimumSeparation:'8s'. Continue with nextOffset and artifactSet.",

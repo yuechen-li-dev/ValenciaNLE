@@ -6,9 +6,11 @@ namespace Valencia.Core.Timeline;
 public sealed class CaptionIndex
 {
     private readonly Dictionary<Guid, ImmutableArray<CaptionWord>[]> groups = [];
+    private readonly long fade;
     public CaptionIndex(SequenceDocument sequence)
     {
         if (sequence.Creator is not { } creator) return;
+        fade = (creator.CaptionStyle.FadeMs ?? 0) * (SequenceTime.TicksPerSecond / 1000);
         int retained = 0;
         foreach (var clip in sequence.Tracks.SelectMany(t => t.Clips))
         {
@@ -16,7 +18,7 @@ public sealed class CaptionIndex
                 .OrderBy(w => w.Start, Comparer<SourcePosition>.Create((a, b) => a.CompareTo(b))).ToArray();
             retained = checked(retained + words.Length);
             if (retained > 500000) throw new NotSupportedException("Caption placement index exceeds its word budget.");
-            groups.Add(clip.Id, words.Chunk(6).Select(ImmutableArray.CreateRange).ToArray());
+            groups.Add(clip.Id, words.Chunk(creator.CaptionStyle.WordsPerLine ?? 6).Select(ImmutableArray.CreateRange).ToArray());
         }
     }
     public CaptionLine? At(IEnumerable<ActiveClip> active)
@@ -35,7 +37,15 @@ public sealed class CaptionIndex
             int highlighted = -1;
             for (int i = 0; i < lines[found].Length; i++)
                 if (lines[found][i].Start.CompareTo(clip.SourcePosition) <= 0 && lines[found][i].End.CompareTo(clip.SourcePosition) > 0) highlighted = i;
-            return new(lines[found], highlighted);
+            var line = lines[found];
+            double opacity = 1;
+            if (fade > 0)
+            {
+                long local = clip.SourcePosition.Since(line[0].Start, TimeRounding.NearestAwayFromZero).Ticks;
+                long duration = line[^1].End.Since(line[0].Start, TimeRounding.NearestAwayFromZero).Ticks;
+                opacity = CaptionEvaluation.Fade(local, duration, fade, fade);
+            }
+            return new(line, highlighted, opacity);
         }
         return null;
     }

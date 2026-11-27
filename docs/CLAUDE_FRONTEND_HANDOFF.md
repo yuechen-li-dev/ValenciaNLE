@@ -150,6 +150,13 @@ await engine.SaveAsync(saveAsPath, token);
 var opened = await engine.OpenIntoAsync(otherProjectPath, engine.Session.Snapshot.Revision, token);
 ```
 
+## M3c — editorial workflow review
+
+- `EditorialWorkflows.Catalog` exposes versioned entries, settings type, dependencies, examples and a template flag. `EditorialWorkflows.InvokeAsync` accepts the typed `EditorialInvocation` used by the CLI and MCP. `providers` reports the available provider paths. Optional OCR uses the existing analysis job states and cancellation.
+- The Script picker accepts `*.editorial.json` prepare and compose requests. `EditorWindow.Agent.cs` displays the standard proposal card and retains the candidate handle with its session and base revision. The current document stays visible until Apply. Editing the project rejects stale candidates. Discard and Undo retain their existing semantics.
+- Show returned evidence separately from the semantic diff. Use `observe` for paired images or profile-specific framing. `footage_query` pages topic and imported observations with a fixed artifact set. Keep external model provenance and anonymous speaker/subject labels in the UI.
+- Use the saved or currently committed revision and selected output-profile handles for `render_queue`. Render status and lint are provided by the M3b queue. The [editorial guide](EDITORIAL_WORKFLOWS.md) describes authoring and exact coordinates.
+
 Do not pass authoritative ticks through floating-point seconds or Copeland `number`. `SequenceTime.TicksPerSecond` is 254016000000. SourcePosition retains rational timestamp plus exact tick offset. `TimelineTime.FromFrames`, `FromSamples`, `SnapToFrame`, `Rebase` provide explicit rounding. Intervals are half-open. Viewport calculations subtract the exact local origin before using floating-point pixels. Canonical wire Int64 values remain strings. Every MCP tool, including project_info, requires projectId; obtain it from CLI project info/configured project metadata first.
 
 ```csharp

@@ -4,7 +4,8 @@ using Valencia.Media;
 
 namespace Valencia.Engine;
 
-public sealed record AnalysisRequest(Guid AssetId, int StreamIndex, string Kind, AudioSettings? Audio = null, SceneSettings? Scenes = null, TranscriptionSettings? Transcription = null);
+public sealed record AnalysisRequest(Guid AssetId, int StreamIndex, string Kind, AudioSettings? Audio = null, SceneSettings? Scenes = null,
+    TranscriptionSettings? Transcription = null, OcrSettings? Ocr = null);
 public sealed record AnalysisStatus(Guid JobId, Guid AssetId, string Key, string State, double Progress, long ProcessedUnits, bool CacheHit, string? Error,
     double CacheReadMs = 0, double AnalysisMs = 0, double CacheWriteMs = 0)
 {
@@ -24,7 +25,7 @@ public sealed class AnalysisJobs(EditingEngine engine, AnalysisCache cache) : IA
         engine.Policy?.Check(asset.SourcePath);
         var audio = request.Audio ?? new AudioSettings();
         var scenes = request.Scenes ?? new SceneSettings();
-        if (request.Kind is not ("audio" or "scenes" or "transcript" or "loudness" or "proxy" or "index")) throw new ArgumentException("Unknown analysis kind.");
+        if (request.Kind is not ("audio" or "scenes" or "transcript" or "loudness" or "proxy" or "index" or "ocr")) throw new ArgumentException("Unknown analysis kind.");
         var transcription = request.Transcription ?? new TranscriptionSettings();
         transcription.Validate();
         audio.Validate();
@@ -32,6 +33,15 @@ public sealed class AnalysisJobs(EditingEngine engine, AnalysisCache cache) : IA
         string fingerprint = AnalysisCache.Fingerprint(asset.SourcePath);
         string parameters = request.Kind == "transcript" ? AnalysisJson.Write(transcription) : request.Kind == "audio" ? AnalysisJson.Write(audio) : AnalysisJson.Write(scenes);
         string algorithm = request.Kind == "transcript" ? WhisperTranscriber.Algorithm : request.Kind == "audio" ? MediaAnalyzer.AudioAlgorithm : request.Kind == "loudness" ? "FFmpeg7.1/loudnorm/BS.1770-4/v1" : request.Kind is "proxy" or "index" ? "media-resource-v1/" + request.Kind : MediaAnalyzer.SceneAlgorithm;
+        var ocr = request.Ocr ?? new OcrSettings();
+        OcrProvider? provider = null;
+        if (request.Kind == "ocr")
+        {
+            ocr.Validate();
+            provider = OcrProvider.Open(ocr.Language);
+            algorithm = provider.Algorithm;
+            parameters = AnalysisJson.Write(new { ocr, provider.ExecutableSha256, provider.ModelSha256 });
+        }
         string key = AnalysisCache.Key(asset.Id, fingerprint, request.StreamIndex, algorithm, parameters);
         lock (gate)
         {
@@ -68,6 +78,7 @@ public sealed class AnalysisJobs(EditingEngine engine, AnalysisCache cache) : IA
                             "audio" => MediaAnalyzer.Audio(asset, request.StreamIndex, audio, key, fingerprint, progress, token),
                             "scenes" => MediaAnalyzer.Scenes(asset, request.StreamIndex, scenes, key, fingerprint, progress, token),
                             "loudness" => LoudnessAnalyzer.Source(asset, request.StreamIndex, key, fingerprint, token),
+                            "ocr" => await TesseractOcr.RunAsync(asset, request.StreamIndex, ocr, provider!, key, fingerprint, parameters, progress, token).ConfigureAwait(false),
                             "proxy" or "index" => MediaResourceAnalyzer.Run(asset, request.StreamIndex, request.Kind, key, fingerprint, token),
                             _ => WhisperTranscriber.Run(asset, request.StreamIndex, transcription, key, fingerprint, cache, progress, token)
                         };

@@ -106,6 +106,25 @@ internal sealed class EditorSmoke(string directory)
                 Require(!e.HasAgentProposal && e.Sequence.Tracks[0].Role == "game", "The editor did not observe the committed role.");
                 window.Action("Undo");
                 Require(DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document), "Native undo did not revert the agent proposal.");
+                var editorialBasis = e.Session.Snapshot;
+                string editorial = Path.Combine(directory, "native.editorial.json");
+                File.WriteAllText(editorial, Valencia.Engine.EngineJson.Write(new
+                {
+                    projectId = editorialBasis.Document.Id, revision = editorialBasis.Revision, action = "prepare", workflow = "lower-third",
+                    settings = new { start = "1s", end = "2s", text = "Editorial proof" }
+                }));
+                operation = window.ReviewAgentProposal(editorial);
+                phase = -9;
+                break;
+            case -9:
+                Require(e.HasAgentProposal && e.Sequence.Titles.IsEmpty, "Editorial template preview changed the document.");
+                operation = window.ApplyAgentProposal();
+                phase = -10;
+                break;
+            case -10:
+                Require(e.Sequence.Titles.Any(title => title.Text == "Editorial proof"), "Native editorial promotion missed the compiled template.");
+                window.Action("Undo");
+                Require(DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document), "One undo did not revert the editorial template.");
                 operation = window.ShowAgentCheckpoints(create: true);
                 phase = -7;
                 break;

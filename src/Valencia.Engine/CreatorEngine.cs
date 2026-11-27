@@ -13,7 +13,8 @@ public sealed partial class EditingEngine
     private readonly object creatorGate = new();
     private readonly Dictionary<string, CreatorProposal> creatorPlans = [];
 
-    public async Task<CreatorProposal> CreateCreatorAsync(CreatorRequest request, CancellationToken cancellation = default, long? expectedRevision = null)
+    public async Task<CreatorProposal> CreateCreatorAsync(CreatorRequest request, CancellationToken cancellation = default, long? expectedRevision = null,
+        CreatorSelection? selection = null)
     {
         var before = Session.Snapshot;
         if (expectedRevision is { } expected && before.Revision != expected) throw new ArgumentException("Stale creator revision.");
@@ -23,7 +24,37 @@ public sealed partial class EditingEngine
         var source = before.Document.Assets.First(a => a.Id == transcript.AssetId);
         var imported = await Task.Run(() => Valencia.Media.MediaAssetProbe.Import(source.Id, source.SourcePath), cancellation).ConfigureAwait(false);
         var candidates = await Task.Run(() => CreatorPlanning.Candidates(transcript, audio, scenes, request, imported.Duration), cancellation).ConfigureAwait(false);
-        var built = await Task.Run(() => CreatorPlanning.Plan(before, request, transcript, audio, candidates), cancellation).ConfigureAwait(false);
+        HashSet<Guid>? required = null;
+        if (selection is { } choices)
+        {
+            long minimum = EngineJson.Int64(request.MinimumTicks);
+            long maximum = EngineJson.Int64(request.MaximumTicks);
+            if (choices.Ranked.Concat(choices.Required).Any(range => range.Start.Ticks < 0
+                || range.End.Ticks > imported.Duration.Ticks || range.End.Ticks - range.Start.Ticks < minimum
+                || range.End.Ticks - range.Start.Ticks > maximum))
+                throw new ArgumentException("Ranked ranges must be within the source and satisfy the minimum and maximum segment lengths.");
+            var outputRate = new TimelineQueries(before).Sequence(request.SequenceId).Video.FrameRate;
+            bool Excluded(HighlightCandidate range)
+            {
+                var start = TimelineTime.SnapToFrame(range.Start, outputRate, TimeRounding.Floor);
+                var end = TimelineTime.SnapToFrame(range.End, outputRate, TimeRounding.Ceiling);
+                return choices.Excluded.Any(block => start.Ticks < block.End.Ticks && end.Ticks > block.Start.Ticks);
+            }
+            if (choices.Excluded.Any(range => range.End.Ticks > imported.Duration.Ticks))
+                throw new ArgumentException("Excluded ranges must lie within the source.");
+            if (choices.Required.Any(Excluded)) throw new ArgumentException("A required range intersects an excluded range.");
+            required = choices.Required.Select(range => range.Id).ToHashSet();
+            var other = (choices.Ranked.IsEmpty ? candidates : choices.Ranked).Where(c => !Excluded(c) && !required.Contains(c.Id)).ToArray();
+            if (choices.DiversifyTopics)
+            {
+                other = other.GroupBy(c => c.Topic ?? string.Empty, StringComparer.OrdinalIgnoreCase)
+                    .SelectMany(group => group.Select((item, position) => (item, position)))
+                    .OrderBy(entry => entry.position).ThenByDescending(entry => entry.item.Score).ThenBy(entry => entry.item.Start.Ticks)
+                    .Select(entry => entry.item).ToArray();
+            }
+            candidates = [.. choices.Required, .. other];
+        }
+        var built = await Task.Run(() => CreatorPlanning.Plan(before, request, transcript, audio, candidates, required), cancellation).ConfigureAwait(false);
         var plan = built.Plan;
         var preview = Plan(plan, false, cancellation);
         if (!preview.Valid) throw new ArgumentException(string.Join("; ", preview.Diagnostics));
