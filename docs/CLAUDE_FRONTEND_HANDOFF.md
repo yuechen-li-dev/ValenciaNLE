@@ -1,5 +1,13 @@
 # Claude native frontend handoff
 
+## Playback meters and track solo
+
+Read `EditorWindow.MonitorLevels` from the existing UI update loop. It reports linear stereo peak and RMS for the most recent buffer submitted to the audio device, after monitor volume and mute. Each reading includes the number of stereo frames measured. Paused or unopened playback returns a zero-frame reading. The frontend owns any dB conversion, smoothing and peak hold.
+
+Use `EditorWindow.SetAudioTrackSolo(trackId, soloed)` and `SoloedAudioTracks` for the program monitor. Multiple audio tracks can be soloed together. Clearing the final solo restores the normal mix. Existing track mutes still apply. Changing solo during playback reopens the monitor mix at the current device playhead and keeps the displayed picture while audio buffers refill. Solo carries through seeks and reverse playback. Selecting a different sequence or reopening the project clears it. The source monitor plays its normal mix.
+
+Engine callers can pass an immutable set of audio track IDs to the `SequencePlayback.OpenAsync` overload. Read `SequencePlayback.OutputLevels` for metering. Solo is transport state and creates no project revision, undo entry or export setting.
+
 ## M3d media diagnostics
 
 The transport still owns seek generations, and paused preview remains video-only. Inspect `SequenceFrame.PrimaryDecode` and `PrimaryUsesProxy` for the presented source path. Device initialization and source negotiation are separate checks. `VALENCIA_VIDEO_DECODER=d3d11va` selects forward hardware decoding. The software history remains active for reverse and paused scrubbing.

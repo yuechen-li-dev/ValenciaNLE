@@ -266,6 +266,10 @@ public sealed class SequenceEvaluator : IDisposable
     }
 
     public float[] Audio(SequenceTime origin, long firstSample, int count, CancellationToken cancellation)
+        => Audio(origin, firstSample, count, cancellation, soloAudioTracks: null);
+
+    internal float[] Audio(SequenceTime origin, long firstSample, int count, CancellationToken cancellation,
+        ImmutableHashSet<Guid>? soloAudioTracks)
     {
         if (count is < 0 or > 262144) throw new ArgumentOutOfRangeException(nameof(count), "Request audio in bounded blocks of at most 262144 stereo frames.");
         int rate = Sequence.AudioSampleRate;
@@ -290,7 +294,8 @@ public sealed class SequenceEvaluator : IDisposable
                 long next = TimelineTime.SampleIndex(new(checked(boundaries[boundaryIndex] - origin.Ticks)), rate, TimeRounding.Ceiling);
                 run = (int)Math.Min(run, Math.Max(1, next - sample));
             }
-            var active = queries.Evaluate(sequenceId, time).Where(c => c.Kind == TrackKind.Audio).ToArray();
+            var active = queries.Evaluate(sequenceId, time).Where(c => c.Kind == TrackKind.Audio
+                && (soloAudioTracks is not { Count: > 0 } || soloAudioTracks.Contains(c.TrackId))).ToArray();
             Limit(active.Length); Prune(audios, active.Select(a => a.Clip.Id));
             foreach (var a in active)
             {
@@ -324,10 +329,10 @@ public sealed class SequenceEvaluator : IDisposable
     }
 
     /// <summary>Render the forward sample range ending just before endSample, then reverse stereo frames.</summary>
-    internal float[] ReverseAudio(long endSample, int count, CancellationToken cancellation)
+    internal float[] ReverseAudio(long endSample, int count, CancellationToken cancellation, ImmutableHashSet<Guid>? soloAudioTracks = null)
     {
         if (count < 0 || endSample < count) throw new ArgumentOutOfRangeException(nameof(count));
-        var samples = Audio(default, endSample - count, count, cancellation);
+        var samples = Audio(default, endSample - count, count, cancellation, soloAudioTracks);
         for (int left = 0, right = samples.Length - 2; left < right; left += 2, right -= 2)
         {
             (samples[left], samples[right]) = (samples[right], samples[left]);

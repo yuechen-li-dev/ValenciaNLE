@@ -30,6 +30,20 @@ internal sealed class EditorDocument
     public bool Snapping { get; set; } = true;
     public bool LinkedSelection { get; set; } = true;
     public bool Magnetic { get; set; }
+    private ImmutableHashSet<Guid> soloedAudioTracks = ImmutableHashSet<Guid>.Empty;
+    public ImmutableHashSet<Guid> SoloedAudioTracks => soloedAudioTracks.Count == 0 ? soloedAudioTracks
+        : soloedAudioTracks.Intersect(Sequence.Tracks.Where(track => track.Kind == TrackKind.Audio).Select(track => track.Id));
+
+    public bool SetAudioTrackSolo(Guid trackId, bool soloed)
+    {
+        if (!Sequence.Tracks.Any(track => track.Id == trackId && track.Kind == TrackKind.Audio)) return false;
+        var current = SoloedAudioTracks;
+        var next = soloed ? current.Add(trackId) : current.Remove(trackId);
+        if (ReferenceEquals(current, next)) return false;
+        soloedAudioTracks = next;
+        return true;
+    }
+
     /// <summary>When set, the monitor shows this media instead of the sequence; Playhead is then source time.</summary>
     public SourceView? Source { get; set; }
     public SequenceTime ProgramPlayhead { get; set; }
@@ -90,6 +104,7 @@ internal sealed class EditorDocument
     public void SelectSequence(Guid id)
     {
         var sequence = new TimelineQueries(Session.Snapshot).Sequence(id);
+        if (id != SequenceId) soloedAudioTracks = ImmutableHashSet<Guid>.Empty;
         SequenceId = id;
         Source = null;
         ProgramPlayhead = Playhead = default;
@@ -115,6 +130,7 @@ internal sealed class EditorDocument
 
     public void New()
     {
+        soloedAudioTracks = ImmutableHashSet<Guid>.Empty;
         SelectedProfile = null;
         Waveforms.Clear(); ProposedCut = null; Transcript = null; ProposedTextCut = null; HasAgentProposal = false; TranscriptMode = ControlsMode = false;
         Session = new(ProjectDocument.Create(Guid.NewGuid(), "Untitled")); SequenceId = Guid.NewGuid();
@@ -127,6 +143,7 @@ internal sealed class EditorDocument
         SelectedProfile = null;
         Waveforms.Clear(); ProposedCut = null; Transcript = null; ProposedTextCut = null; HasAgentProposal = false; TranscriptMode = ControlsMode = false;
         if (snapshot.Document.Sequences.IsDefaultOrEmpty) throw new InvalidDataException("Project has no sequence. Create a sequence before editing it.");
+        soloedAudioTracks = ImmutableHashSet<Guid>.Empty;
         Session = new(snapshot); SequenceId = snapshot.Document.Sequences[0].Id; SavedDocument = snapshot.Document; ProjectPath = path;
         SelectedTitle = SelectedClip = null; SelectedAsset = snapshot.Document.Assets.FirstOrDefault()?.Id; TargetTrack = null; FirstAsset = 0; Viewport.Reset(); Playhead = default; MarkIn = null; MarkOut = null; Source = null; SourceMarks.Clear();
     }

@@ -16,6 +16,25 @@ namespace Valencia.Tests;
 public sealed class EditorInteractionTests
 {
     [Fact]
+    public void TrackSoloIsTransientAndOpeningTheSameProjectClearsIt()
+    {
+        var editor = new EditorDocument();
+        var snapshot = editor.Session.Snapshot;
+        var audio = editor.Sequence.Tracks.Where(track => track.Kind == TrackKind.Audio).ToArray();
+        Assert.False(editor.SetAudioTrackSolo(editor.Sequence.Tracks.First(track => track.Kind == TrackKind.Video).Id, true));
+        Assert.True(editor.SetAudioTrackSolo(audio[0].Id, true));
+        Assert.False(editor.SetAudioTrackSolo(audio[0].Id, true));
+        Assert.True(editor.SetAudioTrackSolo(audio[1].Id, true));
+        Assert.True(editor.SetAudioTrackSolo(audio[0].Id, false));
+        Assert.Equal(audio[1].Id, Assert.Single(editor.SoloedAudioTracks));
+        Assert.Same(snapshot, editor.Session.Snapshot);
+        Assert.False(editor.Dirty);
+        Assert.False(editor.Session.CanUndo);
+        editor.Open(snapshot, "test.valencia");
+        Assert.Empty(editor.SoloedAudioTracks);
+    }
+
+    [Fact]
     public void TimelineCursorTracksTrimMoveRazorLockAndRulerWithoutMutatingTheDocument()
     {
         var editor = Document();

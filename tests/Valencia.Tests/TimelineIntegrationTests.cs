@@ -58,6 +58,67 @@ public sealed class TimelineFixture : IAsyncLifetime
 public sealed class TimelineIntegrationTests(TimelineFixture fixture) : IClassFixture<TimelineFixture>
 {
     [Fact]
+    public void SoloMixMatchesTrackIsolationInBothDirectionsAndLeavesTheNormalMixAvailable()
+    {
+        var snapshot = fixture.Snapshot;
+        var sequence = snapshot.Document.Sequences[0];
+        var first = TimelineFixture.Id(7);
+        var second = TimelineFixture.Id(8);
+        var firstOnly = snapshot with { Document = snapshot.Document with { Sequences = [sequence with
+        {
+            Tracks = [.. sequence.Tracks.Select(track => track.Id == second
+                ? track with { State = track.State with { Muted = true } } : track)]
+        }] } };
+        using var reference = new SequenceEvaluator(firstOnly, sequence.Id);
+        using var normal = new SequenceEvaluator(snapshot, sequence.Id);
+        using var monitor = new SequenceEvaluator(snapshot, sequence.Id);
+        long start = TimelineTime.SampleIndex(TimelineFixture.F(60), sequence.AudioSampleRate, TimeRounding.Ceiling);
+        const int count = 2048;
+        var expected = reference.Audio(default, start, count, default);
+        var normalMix = normal.Audio(default, start, count, default);
+        Assert.False(expected.SequenceEqual(normalMix));
+        Assert.Equal(expected, monitor.Audio(default, start, count, default, [first]));
+        Assert.Equal(normalMix, monitor.Audio(default, start, count, default, [first, second]));
+        Assert.Equal(reference.ReverseAudio(start + count, count, default),
+            monitor.ReverseAudio(start + count, count, default, [first]));
+        Assert.All(reference.Audio(default, start, count, default, [second]), sample => Assert.Equal(0f, sample));
+        Assert.Equal(normalMix, monitor.Audio(default, start, count, default));
+    }
+
+    [Fact]
+    [Trait("Category", "AudioHardware")]
+    public async Task SequencePlaybackReportsTheSoloMixThatReachesTheDevice()
+    {
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        var snapshot = fixture.Snapshot;
+        var sequence = snapshot.Document.Sequences[0];
+        var second = TimelineFixture.Id(8);
+        // A2 is silent at the start. A1 is already audible in the normal mix.
+        await using (var isolated = await SequencePlayback.OpenAsync(snapshot, sequence.Id, default,
+            timeout.Token, profile: null, reverse: false, soloAudioTracks: [second, TimelineFixture.Id(5), Guid.Empty]))
+        {
+            Assert.Equal(second, Assert.Single(isolated.SoloAudioTracks));
+            isolated.Play();
+            var levels = await WaitForLevels(isolated);
+            Assert.Equal(new AudioOutputLevels(levels.Frames, 0, 0, 0, 0), levels);
+        }
+        await using var normal = await SequencePlayback.OpenAsync(snapshot, sequence.Id, default, timeout.Token);
+        normal.MonitorGain = .1f;
+        normal.Play();
+        var audible = await WaitForLevels(normal);
+        Assert.True(audible.LeftPeak > 0 && audible.RightRms > 0);
+        normal.Pause();
+        Assert.Equal(default, normal.OutputLevels);
+
+        async Task<AudioOutputLevels> WaitForLevels(SequencePlayback playback)
+        {
+            while (playback.OutputLevels is { Frames: 0 })
+                await Task.Delay(5, timeout.Token);
+            return playback.OutputLevels;
+        }
+    }
+
+    [Fact]
     [Trait("Category", "AudioHardware")]
     public async Task PausedPreviewShutdownDoesNotRequireUiContextPumping()
     {

@@ -4,6 +4,9 @@ using NAudio.Wave;
 
 namespace Valencia.Media;
 
+/// <summary>Linear stereo peak and RMS for the most recent buffer handed to the audio device.</summary>
+public readonly record struct AudioOutputLevels(int Frames, float LeftPeak, float RightPeak, float LeftRms, float RightRms);
+
 /// <summary>Bounded streaming PCM provider. The device callback never waits for the decoder.</summary>
 public sealed class AudioStreamBuffer : IWaveProvider
 {
@@ -20,6 +23,7 @@ public sealed class AudioStreamBuffer : IWaveProvider
     private long retiredSilence;
     private long queuedSamples;
     private long underrunFrames;
+    private AudioOutputLevels outputLevels;
     private volatile bool producerCompleted;
     private volatile float gain = 1;
 
@@ -33,6 +37,7 @@ public sealed class AudioStreamBuffer : IWaveProvider
     public WaveFormat WaveFormat { get; }
     public long BufferedFrames => Interlocked.Read(ref queuedSamples) / Channels;
     public long UnderrunFrames => Interlocked.Read(ref underrunFrames);
+    public AudioOutputLevels OutputLevels { get { lock (clockGate) return outputLevels; } }
     private volatile bool ended;
     public bool Ended => ended;
     public Task Completion => blocks.Reader.Completion;
@@ -95,28 +100,46 @@ public sealed class AudioStreamBuffer : IWaveProvider
             for (int i = 0; i < written; i++) output[i] *= level;
 
         // Return a short final block at EOF, rather than endless trailing silence.
-        if (current is null && blocks.Reader.Completion.IsCompleted)
-        {
-            ended = true;
-            lock (clockGate)
-            {
-                physicalFrames += written / Channels;
-            }
-            return written * sizeof(float);
-        }
-
-        output[written..].Clear();
+        bool final = current is null && blocks.Reader.Completion.IsCompleted;
+        int delivered = final ? written : output.Length;
+        output[written..delivered].Clear();
+        var levels = Measure(output[..delivered]);
         lock (clockGate)
         {
-            long missingFrames = (output.Length - written) / Channels;
+            long missingFrames = (delivered - written) / Channels;
             if (missingFrames > 0)
             {
-                silence.Enqueue((physicalFrames + written / Channels, physicalFrames + output.Length / Channels));
+                silence.Enqueue((physicalFrames + written / Channels, physicalFrames + delivered / Channels));
                 Interlocked.Add(ref underrunFrames, missingFrames);
             }
-            physicalFrames += output.Length / Channels;
+            physicalFrames += delivered / Channels;
+            outputLevels = levels;
+            if (final) ended = true;
         }
-        return buffer.Length;
+        return final ? written * sizeof(float) : buffer.Length;
+    }
+
+    private static AudioOutputLevels Measure(ReadOnlySpan<float> samples)
+    {
+        int frames = samples.Length / Channels;
+        if (frames == 0) return default;
+        float leftPeak = 0, rightPeak = 0;
+        double leftPower = 0, rightPower = 0;
+        for (int frame = 0; frame < frames; frame++)
+        {
+            float left = samples[frame * Channels], right = samples[frame * Channels + 1];
+            if (float.IsFinite(left))
+            {
+                leftPeak = Math.Max(leftPeak, Math.Abs(left));
+                leftPower += (double)left * left;
+            }
+            if (float.IsFinite(right))
+            {
+                rightPeak = Math.Max(rightPeak, Math.Abs(right));
+                rightPower += (double)right * right;
+            }
+        }
+        return new(frames, leftPeak, rightPeak, (float)Math.Sqrt(leftPower / frames), (float)Math.Sqrt(rightPower / frames));
     }
 
     public long MediaFramesAtDevicePosition(long playedFrames)

@@ -30,6 +30,7 @@ public sealed class PlaybackSession : IAsyncDisposable
     public bool IsPlaying { get; private set; }
     public VideoFrame? CurrentFrame { get; private set; }
     public long UnderrunFrames => decode.Audio.UnderrunFrames;
+    public AudioOutputLevels OutputLevels => IsPlaying ? decode.Audio.OutputLevels : default;
     public string AudioBackend => output is null ? "No audio stream" : "NAudio 3 / WaveOut / device clock";
     public Exception? Failure => deviceFailure ?? decode.Failure;
 

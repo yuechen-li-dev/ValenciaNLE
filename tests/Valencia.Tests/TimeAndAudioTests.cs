@@ -33,9 +33,11 @@ public sealed class TimeAndAudioTests
         byte[] stereo = new byte[2 * sizeof(float)];
         Assert.Equal(stereo.Length, buffer.Read(stereo));
         Assert.Equal(new[] { .25f, -.25f }, MemoryMarshal.Cast<byte, float>(stereo).ToArray());
+        Assert.Equal(new AudioOutputLevels(1, .25f, .25f, .25f, .25f), buffer.OutputLevels);
         buffer.Gain = 0;
         Assert.Equal(stereo.Length, buffer.Read(stereo));
         Assert.Equal(new float[] { 0, 0 }, MemoryMarshal.Cast<byte, float>(stereo).ToArray());
+        Assert.Equal(new AudioOutputLevels(1, 0, 0, 0, 0), buffer.OutputLevels);
         buffer.Gain = 1;
         Assert.Equal(stereo.Length, buffer.Read(stereo));
         Assert.Equal(new[] { .25f, -.25f }, MemoryMarshal.Cast<byte, float>(stereo).ToArray());
@@ -51,6 +53,12 @@ public sealed class TimeAndAudioTests
         byte[] output = new byte[4 * 2 * sizeof(float)];
         Assert.Equal(output.Length, buffer.Read(output));
         Assert.Equal(new[] { 0.25f, 0.5f, 0.75f, 1, 0, 0, 0, 0 }, MemoryMarshal.Cast<byte, float>(output).ToArray());
+        var levels = buffer.OutputLevels;
+        Assert.Equal(4, levels.Frames);
+        Assert.Equal(.75f, levels.LeftPeak);
+        Assert.Equal(1f, levels.RightPeak);
+        Assert.Equal(Math.Sqrt((.25 * .25 + .75 * .75) / 4), levels.LeftRms, 6);
+        Assert.Equal(Math.Sqrt((.5 * .5 + 1) / 4), levels.RightRms, 6);
         Assert.Equal(2, buffer.UnderrunFrames);
         Assert.Equal(1, buffer.MediaFramesAtDevicePosition(1));
         Assert.Equal(2, buffer.MediaFramesAtDevicePosition(3));
@@ -58,8 +66,10 @@ public sealed class TimeAndAudioTests
         await buffer.WriteAsync(new float[] { 0.2f, 0.2f }, CancellationToken.None);
         buffer.Complete();
         Assert.Equal(8, buffer.Read(output));
+        Assert.Equal(new AudioOutputLevels(1, .2f, .2f, .2f, .2f), buffer.OutputLevels);
         Assert.Equal(3, buffer.MediaFramesAtDevicePosition(5));
         Assert.Equal(0, buffer.Read(output));
+        Assert.Equal(default, buffer.OutputLevels);
         Assert.True(buffer.Ended);
     }
 }

@@ -330,7 +330,7 @@ internal sealed partial class EditorWindow : IDisposable
     }
     public void Seek(SequenceTime position, bool play = false,
         [System.Runtime.CompilerServices.CallerMemberName] string caller = "", [System.Runtime.CompilerServices.CallerLineNumber] int line = 0,
-        bool reverse = false)
+        bool reverse = false, bool keepPicture = false)
     {
         Editor.Playhead = new(Math.Clamp(position.Ticks, 0, Editor.MonitorDuration.Ticks));
         resume = play; reverseRequested = reverse; generation++; SeekRequests++; desired = true;
@@ -339,7 +339,7 @@ internal sealed partial class EditorWindow : IDisposable
         seekLatency.Restart();
         Playback?.Pause(); seekCancellation?.Cancel();
         // Keep the last confirmed picture during a drag instead of destroying/reallocating its texture per mouse event.
-        if (!scrubbing)
+        if (!scrubbing && !keepPicture)
         {
             Graphics.ClearVideo();
             lastUi = -1;
@@ -354,6 +354,7 @@ internal sealed partial class EditorWindow : IDisposable
         var profile = Editor.Source is null ? Editor.Sequence.Creator?.Profiles.FirstOrDefault(p => p.Id == Editor.SelectedProfile) : null;
         bool prepareAudio = resume;
         bool reverse = reverseRequested;
+        var soloAudioTracks = CurrentMonitorSoloTracks;
         bool resetProxy = refreshPausedProxy;
         refreshPausedProxy = false;
         opening = Task.Run(async () =>
@@ -361,7 +362,7 @@ internal sealed partial class EditorWindow : IDisposable
             if (old is not null) await old.DisposeAsync(); previousCancellation?.Dispose();
             if (new TimelineQueries(snapshot).Duration(id).Ticks == 0) return null;
             if (prepareAudio || resetProxy) pausedPreview.Dispose();
-            return prepareAudio ? await SequencePlayback.OpenAsync(snapshot, id, position, token, profile, reverse)
+            return prepareAudio ? await SequencePlayback.OpenAsync(snapshot, id, position, token, profile, reverse, soloAudioTracks)
                 : SequencePlayback.OpenPreview(pausedPreview, snapshot, id, position, token, profile);
         });
     }
@@ -391,7 +392,8 @@ internal sealed partial class EditorWindow : IDisposable
                 }
                 if (resume && opened is not null)
                 {
-                    if (opened.CanPlay) opened.Play(); else Seek(Editor.Playhead, true, reverse: reverseRequested);
+                    if (opened.CanPlay && opened.SoloAudioTracks.SetEquals(CurrentMonitorSoloTracks)) opened.Play();
+                    else Seek(Editor.Playhead, true, reverse: reverseRequested);
                 }
             }
         }
@@ -703,7 +705,8 @@ internal sealed partial class EditorWindow : IDisposable
         }
         if (!reverse && Editor.Playhead.Ticks >= Editor.MonitorDuration.Ticks)
             Seek(default, true);
-        else if (Playback is null || !Playback.CanPlay || Playback.IsReverse != reverse)
+        else if (Playback is null || !Playback.CanPlay || Playback.IsReverse != reverse
+            || !Playback.SoloAudioTracks.SetEquals(CurrentMonitorSoloTracks))
             Seek(Editor.Playhead, true, reverse: reverse);
         else
             Playback.Play();
