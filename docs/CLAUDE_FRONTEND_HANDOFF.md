@@ -8,6 +8,12 @@ Use `EditorWindow.SetAudioTrackSolo(trackId, soloed)` and `SoloedAudioTracks` fo
 
 Engine callers can pass an immutable set of audio track IDs to the `SequencePlayback.OpenAsync` overload. Read `SequencePlayback.OutputLevels` for metering. Solo is transport state and creates no project revision, undo entry or export setting.
 
+The Mix tab reads `SequencePlayback.MeterReading`. Per-track peak and RMS come from the actual stereo signal after clip processing, fades, transitions and track gain, before the master stage. Master levels and momentary LUFS come from the same device buffer after monitor gain. Momentary loudness uses the trailing 400 ms of K-weighted stereo energy. [ITU-R BS.1770](https://www.itu.int/rec/R-REC-BS.1770-5-202311-I/en) · [EBU Tech 3341](https://tech.ebu.ch/docs/tech/tech3341.pdf)
+
+The audio inspector's Lo, Mid and Hi controls apply a low shelf at 120 Hz, a bell at 1.5 kHz, and a high shelf at 4.5 kHz or below Nyquist for lower sample rates. They step in 1 dB increments up to ±12 dB. Click a band's value to reset it. The optional per-clip EQ settings save with the project and are used by offline rendering. In the Mix tab, Listen Before temporarily bypasses clip EQ and cleanup for monitoring. Listen After restores the processed signal. Normalize measures the edited signal before the master, then writes one undoable master change targeting −16 LUFS with a −1 dBTP peak target or the project's stricter ceiling.
+
+`scripts/EditorSmoke.ps1` uses a fresh run subdirectory for fixtures, output and the saved test project. It also accepts an explicit app executable and output root.
+
 ## M3d media diagnostics
 
 The transport still owns seek generations, and paused preview remains video-only. Inspect `SequenceFrame.PrimaryDecode` and `PrimaryUsesProxy` for the presented source path. Device initialization and source negotiation are separate checks. `VALENCIA_VIDEO_DECODER=d3d11va` selects forward hardware decoding. The software history remains active for reverse and paused scrubbing.

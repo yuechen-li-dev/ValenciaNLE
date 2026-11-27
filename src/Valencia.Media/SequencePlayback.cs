@@ -37,14 +37,18 @@ public sealed class SequencePlayback : IAsyncDisposable
     public long UnderrunFrames => audio.UnderrunFrames;
     public float MonitorGain { get => audio.Gain; set => audio.Gain = value; }
     public AudioOutputLevels OutputLevels => IsPlaying ? audio.OutputLevels : default;
+    public AudioMeterReading MeterReading => IsPlaying ? audio.MeterReading : AudioMeterReading.Empty;
+    public bool BypassClipProcessing { get; }
     /// <summary>Audio tracks isolated for this playback generation. An empty set monitors the normal mix.</summary>
     public ImmutableHashSet<Guid> SoloAudioTracks { get; }
     private SequencePlayback(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start, CancellationToken cancellation,
-        OutputProfile? profile, SequenceFrame? preview = null, bool reverse = false, ImmutableHashSet<Guid>? soloAudioTracks = null)
+        OutputProfile? profile, SequenceFrame? preview = null, bool reverse = false, ImmutableHashSet<Guid>? soloAudioTracks = null,
+        bool bypassClipProcessing = false)
     {
         Snapshot = snapshot; queries = new(snapshot); Sequence = queries.Sequence(sequenceId);
         Start = start; lastPosition = start;
         IsReverse = reverse;
+        BypassClipProcessing = bypassClipProcessing;
         SoloAudioTracks = soloAudioTracks is { Count: > 0 }
             ? soloAudioTracks.Intersect(Sequence.Tracks.Where(track => track.Kind == TrackKind.Audio).Select(track => track.Id))
             : ImmutableHashSet<Guid>.Empty;
@@ -82,11 +86,16 @@ public sealed class SequencePlayback : IAsyncDisposable
         CancellationToken cancellation = default, OutputProfile? profile = null, bool reverse = false)
         => OpenAsync(snapshot, sequenceId, start, cancellation, profile, reverse, soloAudioTracks: null);
 
-    public static async Task<SequencePlayback> OpenAsync(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start,
+    public static Task<SequencePlayback> OpenAsync(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start,
         CancellationToken cancellation, OutputProfile? profile, bool reverse, ImmutableHashSet<Guid>? soloAudioTracks)
+        => OpenAsync(snapshot, sequenceId, start, cancellation, profile, reverse, soloAudioTracks, bypassClipProcessing: false);
+
+    public static async Task<SequencePlayback> OpenAsync(ProjectSnapshot snapshot, Guid sequenceId, SequenceTime start,
+        CancellationToken cancellation, OutputProfile? profile, bool reverse, ImmutableHashSet<Guid>? soloAudioTracks,
+        bool bypassClipProcessing)
     {
         var session = new SequencePlayback(snapshot, sequenceId, start, cancellation, profile, reverse: reverse,
-            soloAudioTracks: soloAudioTracks);
+            soloAudioTracks: soloAudioTracks, bypassClipProcessing: bypassClipProcessing);
         try
         {
             await session.video.Reader.WaitToReadAsync(cancellation).ConfigureAwait(false);
@@ -207,8 +216,8 @@ public sealed class SequencePlayback : IAsyncDisposable
                     // Evaluate a bounded range forward so FFmpeg/resampling and
                     // the normal mixing rules still see contiguous source samples.
                     int count = (int)Math.Min(end, rate);
-                    var block = evaluator.ReverseAudio(end, count, stopping.Token, SoloAudioTracks);
-                    await audio.WriteAsync(block, stopping.Token).ConfigureAwait(false);
+                    var block = evaluator.MonitorAudio(default, end - count, count, stopping.Token, SoloAudioTracks, BypassClipProcessing, reverse: true);
+                    await audio.WriteMonitoredAsync(block, stopping.Token).ConfigureAwait(false);
                     end -= count;
                 }
             }
@@ -218,7 +227,8 @@ public sealed class SequencePlayback : IAsyncDisposable
                 for (long i = 0; i < samples; i += AudioStreamBuffer.BlockFrames)
                 {
                     int count = (int)Math.Min(AudioStreamBuffer.BlockFrames, samples - i);
-                    await audio.WriteAsync(evaluator.Audio(Start, i, count, stopping.Token, SoloAudioTracks), stopping.Token);
+                    var block = evaluator.MonitorAudio(Start, i, count, stopping.Token, SoloAudioTracks, BypassClipProcessing, reverse: false);
+                    await audio.WriteMonitoredAsync(block, stopping.Token).ConfigureAwait(false);
                 }
             }
             audio.Complete();

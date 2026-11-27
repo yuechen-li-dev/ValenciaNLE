@@ -1,6 +1,8 @@
+using Valencia.Analysis;
 using Valencia.Core;
 using Valencia.Core.Editing;
 using Valencia.Core.Timeline;
+using Valencia.Media;
 
 namespace Valencia.App.Editing;
 
@@ -15,41 +17,9 @@ internal sealed partial class EditorWindow
 
     private void UpdateMeters()
     {
-        bool playing = Playback?.IsPlaying == true;
-        Editor.Meter.Observe(MonitorLevels, Editor.Sequence.Creator?.PeakCeilingDb ?? 0, ChannelLevels(playing), clock.Elapsed.TotalSeconds);
-    }
-
-    /// <summary>
-    /// Channel meters: the cached waveform's peak and RMS around the playhead, times clip gain, fades and the strip's level.
-    /// An estimate (the engine meters only the master output), but it moves with the faders, mutes and solo.
-    /// </summary>
-    private Dictionary<Guid, (double Peak, double Rms)> ChannelLevels(bool playing)
-    {
-        var levels = new Dictionary<Guid, (double, double)>();
-        if (!playing || Editor.Source is not null) return levels;
-        var sequence = Editor.Sequence; var at = Editor.Playhead; var solos = SoloedAudioTracks;
-        long window = SequenceTime.TicksPerSecond / 40;
-        foreach (var track in sequence.Tracks.Where(t => t.Kind == TrackKind.Audio))
-        {
-            if (track.State.Muted || solos.Count > 0 && !solos.Contains(track.Id)) { levels[track.Id] = (0, 0); continue; }
-            var clip = track.Clips.FirstOrDefault(c => c.Properties.Enabled && c.Start.Ticks <= at.Ticks && at.Ticks < c.End.Ticks);
-            if (clip is null || !Editor.Waveforms.TryGetValue((clip.AssetId, clip.StreamIndex), out var waveform)) { levels[track.Id] = (0, 0); continue; }
-            long local = at.Ticks - clip.Start.Ticks;
-            var bins = waveform.Visible(clip.SourceIn.Shift(new(Math.Max(0, local - window))), clip.SourceIn.Shift(new(local + window)), 1);
-            double peak = 0, rms = 0;
-            foreach (var bin in bins)
-                foreach (var channel in bin.Channels)
-                {
-                    peak = Math.Max(peak, Math.Max(Math.Abs(channel.Minimum), Math.Abs(channel.Maximum)));
-                    rms = Math.Max(rms, channel.Rms);
-                }
-            var processing = sequence.Creator?.Audio.FirstOrDefault(a => a.TrackId == track.Id);
-            double db = (processing?.GainDb ?? 0) + (processing is { Envelope.Length: > 0 } p ? CaptionEvaluation.GainAt(p.Envelope, at) : 0);
-            double gain = (double)clip.Properties.Gain * Math.Pow(10, db / 20);
-            if (clip.Properties.Audio is { } effects) gain *= CaptionEvaluation.Fade(local, clip.Duration.Ticks, effects.FadeInTicks, effects.FadeOutTicks);
-            levels[track.Id] = (peak * gain, rms * gain);
-        }
-        return levels;
+        var meter = Playback?.MeterReading ?? AudioMeterReading.Empty;
+        double ceiling = Editor.Source is null ? Editor.Sequence.Creator?.PeakCeilingDb ?? 0 : 0;
+        Editor.Meter.Observe(meter, ceiling, clock.Elapsed.TotalSeconds);
     }
 
     private double StripLevel(string key) => key == MasterStrip
@@ -61,7 +31,14 @@ internal sealed partial class EditorWindow
     {
         int colon = name.IndexOf(':');
         if (name == "ClearOver") { Editor.Meter.ClearOver(); Editor.Status = "Over lamps cleared."; return true; }
-        if (name == "EqNotWired") { Editor.Status = "Voice EQ is not wired to the audio engine yet. Cleanup (noise reduction) works today."; return true; }
+        if (name == "NormalizeMix") { RunJob(NormalizeMix); return true; }
+        if (name == "ListenMix")
+        {
+            Editor.ListenBefore = !Editor.ListenBefore;
+            RefreshMonitorMix();
+            Editor.Status = Editor.ListenBefore ? "Listening before clip EQ and cleanup." : "Listening with clip EQ and cleanup.";
+            return true;
+        }
         if (colon < 0) return false;
         string verb = name[..colon], key = name[(colon + 1)..];
         switch (verb)
@@ -86,6 +63,29 @@ internal sealed partial class EditorWindow
                 return true;
             default: return false;
         }
+    }
+
+    private async Task NormalizeMix()
+    {
+        var snapshot = Editor.Session.Snapshot;
+        var sequence = Editor.Sequence;
+        if (sequence.Duration.Ticks == 0) { Editor.Status = "Add audio to the sequence before normalizing."; return; }
+        Editor.Status = "Measuring the program mix.";
+        var token = jobCancellation?.Token ?? default;
+        var measured = await Task.Run(() => LoudnessAnalyzer.MeasureForNormalizationAsync(snapshot, sequence.Id, token), token);
+        token.ThrowIfCancellationRequested();
+        if (!ReferenceEquals(snapshot, Editor.Session.Snapshot) || Editor.SequenceId != sequence.Id)
+        { Editor.Status = "The sequence changed during loudness measurement."; return; }
+        if (measured.SafeGainDb is not { } gain)
+        { Editor.Status = "The program mix has no measurable loudness."; return; }
+        var creator = sequence.Creator ?? new CreatorSettings(1, [], new(), [], [], PeakCeilingDb: 0);
+        var updated = creator with { MasterGainDb = gain, PeakCeilingDb = measured.PeakCeilingDb };
+        if (updated != creator)
+        {
+            if (!Editor.Commit(new SetCreatorSettings(sequence.Id, updated)).Success) return;
+            RefreshMonitorMix();
+        }
+        Editor.Status = FormattableString.Invariant($"Master {gain:+0.0;-0.0;0.0} dB · target {measured.TargetLufs:0} LUFS · peak ceiling {measured.PeakCeilingDb:0.#} dBTP.");
     }
 
     private void SetStripLevel(string key, double db)
@@ -113,7 +113,7 @@ internal sealed partial class EditorWindow
             if (resume) Seek(Editor.Playhead, play: true, reverse: reverseRequested, keepPicture: true);
         }
         else if (Playback is { IsPlaying: true } playing) Seek(playing.Position, play: true, reverse: playing.IsReverse, keepPicture: true);
-        else Seek(Editor.Playhead);
+        else Seek(Editor.Playhead, keepPicture: true);
     }
 
     private bool BeginFader(double x, double y)

@@ -356,6 +356,7 @@ internal sealed partial class EditorWindow : IDisposable
         bool prepareAudio = resume;
         bool reverse = reverseRequested;
         var soloAudioTracks = CurrentMonitorSoloTracks;
+        bool bypassClipProcessing = Editor.Source is null && Editor.ListenBefore;
         bool resetProxy = refreshPausedProxy;
         refreshPausedProxy = false;
         opening = Task.Run(async () =>
@@ -363,7 +364,7 @@ internal sealed partial class EditorWindow : IDisposable
             if (old is not null) await old.DisposeAsync(); previousCancellation?.Dispose();
             if (new TimelineQueries(snapshot).Duration(id).Ticks == 0) return null;
             if (prepareAudio || resetProxy) pausedPreview.Dispose();
-            return prepareAudio ? await SequencePlayback.OpenAsync(snapshot, id, position, token, profile, reverse, soloAudioTracks)
+            return prepareAudio ? await SequencePlayback.OpenAsync(snapshot, id, position, token, profile, reverse, soloAudioTracks, bypassClipProcessing)
                 : SequencePlayback.OpenPreview(pausedPreview, snapshot, id, position, token, profile);
         });
     }
@@ -393,7 +394,7 @@ internal sealed partial class EditorWindow : IDisposable
                 }
                 if (resume && opened is not null)
                 {
-                    if (opened.CanPlay && opened.SoloAudioTracks.SetEquals(CurrentMonitorSoloTracks)) opened.Play();
+                    if (opened.CanPlay && CurrentMonitorMix(opened)) opened.Play();
                     else Seek(Editor.Playhead, true, reverse: reverseRequested);
                 }
             }
@@ -708,8 +709,7 @@ internal sealed partial class EditorWindow : IDisposable
         }
         if (!reverse && Editor.Playhead.Ticks >= Editor.MonitorDuration.Ticks)
             Seek(default, true);
-        else if (Playback is null || !Playback.CanPlay || Playback.IsReverse != reverse
-            || !Playback.SoloAudioTracks.SetEquals(CurrentMonitorSoloTracks))
+        else if (Playback is null || !Playback.CanPlay || Playback.IsReverse != reverse || !CurrentMonitorMix(Playback))
             Seek(Editor.Playhead, true, reverse: reverse);
         else
             Playback.Play();

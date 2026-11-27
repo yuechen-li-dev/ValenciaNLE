@@ -68,8 +68,7 @@ internal sealed class MeterChannel
 /// <summary>
 /// Frontend meter state. The engine reports linear peak/RMS for the last device buffer
 /// (<see cref="AudioOutputLevels"/>); dB, smoothing, hold and the over latch live here.
-/// Channel meters are estimated from the cached waveform peaks at the playhead times the strip's gain,
-/// because the engine taps only the master output.
+/// Track readings come from the same PCM interval as the master output reading.
 /// </summary>
 internal sealed class AudioMeter
 {
@@ -77,17 +76,21 @@ internal sealed class AudioMeter
     public MeterChannel Left { get; } = new();
     public MeterChannel Right { get; } = new();
     public Dictionary<Guid, MeterChannel> Tracks { get; } = [];
+    public double? MomentaryLufs { get; private set; }
     public bool Over => Left.Over || Right.Over || Tracks.Values.Any(t => t.Over);
     public bool Live => Left.Live || Right.Live || Tracks.Values.Any(t => t.Live);
 
     /// <summary>Layout smoke: hold the current readings instead of following playback.</summary>
     internal bool Pinned { get; set; }
 
-    public void Observe(AudioOutputLevels master, double ceilingDb, IReadOnlyDictionary<Guid, (double Peak, double Rms)> tracks, double now)
+    public void Observe(AudioMeterReading reading, double ceilingDb, double now)
     {
         if (Pinned) return;
         double dt = last < 0 ? 0 : Math.Clamp(now - last, 0, .5);
         last = now;
+        var master = reading.Output;
+        var tracks = reading.Tracks;
+        MomentaryLufs = reading.MomentaryLufs;
         bool live = master.Frames > 0;
         Left.Observe(live ? master.LeftPeak : 0, live ? master.LeftRms : 0, ceilingDb, now, dt);
         Right.Observe(live ? master.RightPeak : 0, live ? master.RightRms : 0, ceilingDb, now, dt);
@@ -99,7 +102,7 @@ internal sealed class AudioMeter
         foreach (var (id, level) in tracks)
         {
             if (!Tracks.TryGetValue(id, out var channel)) Tracks[id] = channel = new();
-            channel.Observe(level.Peak, level.Rms, 0, now, dt);
+            channel.Observe(Math.Max(level.LeftPeak, level.RightPeak), Math.Max(level.LeftRms, level.RightRms), 0, now, dt);
         }
     }
 

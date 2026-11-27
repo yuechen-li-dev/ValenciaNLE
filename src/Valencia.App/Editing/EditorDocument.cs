@@ -31,6 +31,7 @@ internal sealed class EditorDocument
     public bool LinkedSelection { get; set; } = true;
     public bool Magnetic { get; set; }
     private ImmutableHashSet<Guid> soloedAudioTracks = ImmutableHashSet<Guid>.Empty;
+    public bool ListenBefore { get; set; }
     public ImmutableHashSet<Guid> SoloedAudioTracks => soloedAudioTracks.Count == 0 ? soloedAudioTracks
         : soloedAudioTracks.Intersect(Sequence.Tracks.Where(track => track.Kind == TrackKind.Audio).Select(track => track.Id));
 
@@ -112,7 +113,7 @@ internal sealed class EditorDocument
     public void SelectSequence(Guid id)
     {
         var sequence = new TimelineQueries(Session.Snapshot).Sequence(id);
-        if (id != SequenceId) soloedAudioTracks = ImmutableHashSet<Guid>.Empty;
+        if (id != SequenceId) { soloedAudioTracks = ImmutableHashSet<Guid>.Empty; ListenBefore = false; }
         SequenceId = id;
         Source = null;
         ProgramPlayhead = Playhead = default;
@@ -138,6 +139,7 @@ internal sealed class EditorDocument
 
     public void New()
     {
+        ListenBefore = false;
         soloedAudioTracks = ImmutableHashSet<Guid>.Empty;
         SelectedProfile = null;
         Waveforms.Clear(); ProposedCut = null; Transcript = null; ProposedTextCut = null; HasAgentProposal = false; TranscriptMode = ControlsMode = false;
@@ -151,6 +153,7 @@ internal sealed class EditorDocument
         SelectedProfile = null;
         Waveforms.Clear(); ProposedCut = null; Transcript = null; ProposedTextCut = null; HasAgentProposal = false; TranscriptMode = ControlsMode = false;
         if (snapshot.Document.Sequences.IsDefaultOrEmpty) throw new InvalidDataException("Project has no sequence. Create a sequence before editing it.");
+        ListenBefore = false;
         soloedAudioTracks = ImmutableHashSet<Guid>.Empty;
         Session = new(snapshot); SequenceId = snapshot.Document.Sequences[0].Id; SavedDocument = snapshot.Document; ProjectPath = path;
         SelectedTitle = SelectedClip = null; SelectedAsset = snapshot.Document.Assets.FirstOrDefault()?.Id; TargetTrack = null; FirstAsset = 0; Viewport.Reset(); Playhead = default; MarkIn = null; MarkOut = null; Source = null; SourceMarks.Clear();

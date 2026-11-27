@@ -9,6 +9,10 @@ internal sealed partial class EditorWindow
     internal ImmutableHashSet<Guid> SoloedAudioTracks => Editor.SoloedAudioTracks;
     private ImmutableHashSet<Guid> CurrentMonitorSoloTracks =>
         Editor.Source is null ? SoloedAudioTracks : ImmutableHashSet<Guid>.Empty;
+    private bool CurrentMonitorMix(SequencePlayback playback) =>
+        ReferenceEquals(playback.Snapshot, Editor.Source?.Snapshot ?? Editor.Session.Snapshot)
+        && playback.SoloAudioTracks.SetEquals(CurrentMonitorSoloTracks)
+        && playback.BypassClipProcessing == (Editor.Source is null && Editor.ListenBefore);
 
     internal bool SetAudioTrackSolo(Guid trackId, bool soloed)
     {

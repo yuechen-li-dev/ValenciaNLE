@@ -23,7 +23,12 @@ public sealed record ColorPatch(
     };
 }
 public sealed record AudioEffects(long FadeInTicks = 0, long FadeOutTicks = 0, double NoiseReductionDb = 0,
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool AlignStartToSample = false);
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] bool AlignStartToSample = false,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] VoiceEq? Eq = null);
+public sealed record VoiceEq(double LowDb = 0, double MidDb = 0, double HighDb = 0)
+{
+    public const double MaximumGainDb = 12;
+}
 public sealed record GainPoint(SequenceTime Time, double GainDb);
 public sealed record TrackAudio(Guid TrackId, double GainDb, ImmutableArray<GainPoint> Envelope);
 public sealed record FramingPoint(SequenceTime Time, double X, double Y, double Scale = 1);
@@ -98,6 +103,7 @@ public static class CreatorSemantics
         }
     }
     internal static bool Unit(double value) => double.IsFinite(value) && value is >= 0 and <= 1;
+    private static bool ValidEq(double value) => double.IsFinite(value) && Math.Abs(value) <= VoiceEq.MaximumGainDb;
     internal static void ValidateEffects(ClipProperties properties)
     {
         if (properties.Video is { } v)
@@ -114,6 +120,10 @@ public static class CreatorSemantics
                 && motion.DurationTicks > 0 && motion.DurationTicks <= 10 * SequenceTime.TicksPerSecond
                 && Unit(motion.Strength), "Invalid clip motion. Use punchIn or shake, strength in [0, 1], and a duration up to ten seconds.");
         if (properties.Audio is { } a)
+        {
             DocumentValidator.Require(a.FadeInTicks >= 0 && a.FadeOutTicks >= 0 && double.IsFinite(a.NoiseReductionDb) && a.NoiseReductionDb is >= 0 and <= 40, "Invalid audio effects.");
+            if (a.Eq is { } eq)
+                DocumentValidator.Require(ValidEq(eq.LowDb) && ValidEq(eq.MidDb) && ValidEq(eq.HighDb), "Voice EQ gains must be within ±12 dB.");
+        }
     }
 }

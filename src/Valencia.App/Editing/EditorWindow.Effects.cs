@@ -229,7 +229,7 @@ internal sealed partial class EditorWindow
             {
                 double db = clip.Properties.Gain == 0 ? -120 : 20 * Math.Log10((double)clip.Properties.Gain);
                 double next = Math.Clamp(db + (action.EndsWith('+') ? 1 : -1), -120, 30);
-                CommitEffect(new SetClipGain(Editor.SequenceId, clip.Id, next));
+                CommitAudioEffect(new SetClipGain(Editor.SequenceId, clip.Id, next));
             }
             return true;
         }
@@ -246,7 +246,30 @@ internal sealed partial class EditorWindow
                     "fadeOut" => audio with { FadeOutTicks = Math.Clamp(audio.FadeOutTicks + step * quarter, 0, Math.Max(0, longest - audio.FadeInTicks)) },
                     _ => audio with { NoiseReductionDb = Math.Clamp(audio.NoiseReductionDb + step * 3, 0, 24) },
                 };
-                if (audio != (clip.Properties.Audio ?? new())) CommitEffect(new SetClipProperties(Editor.SequenceId, clip.Id, clip.Properties with { Audio = audio }));
+                if (audio != (clip.Properties.Audio ?? new())) CommitAudioEffect(new SetClipProperties(Editor.SequenceId, clip.Id, clip.Properties with { Audio = audio }));
+            }
+            return true;
+        }
+        if (action is "eqLow+" or "eqLow-" or "eqLow0" or "eqMid+" or "eqMid-" or "eqMid0" or "eqHigh+" or "eqHigh-" or "eqHigh0")
+        {
+            if (Editor.Selection is { } clip && Editor.Sequence.Tracks.Any(track => track.Kind == TrackKind.Audio
+                && track.Clips.Any(item => item.Id == clip.Id)))
+            {
+                var audio = clip.Properties.Audio ?? new();
+                var eq = audio.Eq ?? new();
+                double Adjust(double value) => action[^1] == '0' ? 0
+                    : Math.Clamp(value + (action[^1] == '+' ? 1 : -1), -VoiceEq.MaximumGainDb, VoiceEq.MaximumGainDb);
+                var next = action[..^1] switch
+                {
+                    "eqLow" => eq with { LowDb = Adjust(eq.LowDb) },
+                    "eqMid" => eq with { MidDb = Adjust(eq.MidDb) },
+                    _ => eq with { HighDb = Adjust(eq.HighDb) }
+                };
+                if (next != eq)
+                    CommitAudioEffect(new SetClipProperties(Editor.SequenceId, clip.Id, clip.Properties with
+                    {
+                        Audio = audio with { Eq = next == new VoiceEq() ? null : next }
+                    }));
             }
             return true;
         }
@@ -276,5 +299,10 @@ internal sealed partial class EditorWindow
         PauseTransport();
         ExitSource();
         if (Editor.Commit(operation).Success) Seek(Editor.Playhead);
+    }
+
+    private void CommitAudioEffect(EditOperation operation)
+    {
+        if (Editor.Commit(operation).Success) RefreshMonitorMix();
     }
 }

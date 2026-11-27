@@ -268,8 +268,13 @@ public sealed class SequenceEvaluator : IDisposable
     public float[] Audio(SequenceTime origin, long firstSample, int count, CancellationToken cancellation)
         => Audio(origin, firstSample, count, cancellation, soloAudioTracks: null);
 
+    /// <summary>Edited program signal before master gain and limiting, for loudness measurement.</summary>
+    public float[] AudioBeforeMaster(SequenceTime origin, long firstSample, int count, CancellationToken cancellation)
+        => Audio(origin, firstSample, count, cancellation, soloAudioTracks: null, beforeMaster: true);
+
     internal float[] Audio(SequenceTime origin, long firstSample, int count, CancellationToken cancellation,
-        ImmutableHashSet<Guid>? soloAudioTracks)
+        ImmutableHashSet<Guid>? soloAudioTracks, Dictionary<Guid, float[]>? trackSignals = null,
+        bool bypassClipProcessing = false, bool beforeMaster = false)
     {
         if (count is < 0 or > 262144) throw new ArgumentOutOfRangeException(nameof(count), "Request audio in bounded blocks of at most 262144 stereo frames.");
         int rate = Sequence.AudioSampleRate;
@@ -299,8 +304,11 @@ public sealed class SequenceEvaluator : IDisposable
             Limit(active.Length); Prune(audios, active.Select(a => a.Clip.Id));
             foreach (var a in active)
             {
-                if (!audios.TryGetValue(a.Clip.Id, out var cursor)) audios.Add(a.Clip.Id, cursor = new(a, rate, cancellation));
+                if (!audios.TryGetValue(a.Clip.Id, out var cursor)) audios.Add(a.Clip.Id, cursor = new(a, rate, cancellation, bypassClipProcessing));
                 float[] clipSamples = new float[run * 2];
+                float[]? trackSignal = null;
+                if (trackSignals is not null && !trackSignals.TryGetValue(a.TrackId, out trackSignal))
+                    trackSignals.Add(a.TrackId, trackSignal = new float[output.Length]);
                 long sourceSample = a.SourcePosition.SampleIndex(rate, TimeRounding.NearestAwayFromZero);
                 if (a.Clip.Properties.Audio?.AlignStartToSample == true)
                 {
@@ -317,11 +325,18 @@ public sealed class SequenceEvaluator : IDisposable
                     double gain = baseGain * (processing is null || processing.Envelope.IsEmpty ? 1 : Math.Pow(10, CaptionEvaluation.GainAt(processing.Envelope, at) / 20));
                     if (a.Clip.Properties.Audio is { } effects) gain *= CaptionEvaluation.Fade(at.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks, effects.FadeInTicks, effects.FadeOutTicks);
                     if (a.Transition is { } transition) gain *= transition.EqualPower(at);
-                    for (int channel = 0; channel < 2; channel++) output[(written + frame) * 2 + channel] += clipSamples[frame * 2 + channel] * (float)gain;
+                    for (int channel = 0; channel < 2; channel++)
+                    {
+                        int index = (written + frame) * 2 + channel;
+                        float value = clipSamples[frame * 2 + channel] * (float)gain;
+                        output[index] += value;
+                        if (trackSignal is not null) trackSignal[index] += value;
+                    }
                 }
             }
             written += run;
         }
+        if (beforeMaster) return output;
         float master = (float)Math.Pow(10, (Sequence.Creator?.MasterGainDb ?? 0) / 20);
         float ceiling = (float)Math.Pow(10, (Sequence.Creator?.PeakCeilingDb ?? 0) / 20);
         for (int i = 0; i < output.Length; i++) output[i] = Math.Clamp(output[i] * master, -ceiling, ceiling);
@@ -333,12 +348,30 @@ public sealed class SequenceEvaluator : IDisposable
     {
         if (count < 0 || endSample < count) throw new ArgumentOutOfRangeException(nameof(count));
         var samples = Audio(default, endSample - count, count, cancellation, soloAudioTracks);
+        ReverseStereo(samples);
+        return samples;
+    }
+
+    internal MonitoredAudio MonitorAudio(SequenceTime origin, long firstSample, int count, CancellationToken cancellation,
+        ImmutableHashSet<Guid> soloAudioTracks, bool bypassClipProcessing, bool reverse)
+    {
+        var tracks = new Dictionary<Guid, float[]>();
+        var output = Audio(origin, firstSample, count, cancellation, soloAudioTracks, tracks, bypassClipProcessing);
+        if (reverse)
+        {
+            ReverseStereo(output);
+            foreach (var signal in tracks.Values) ReverseStereo(signal);
+        }
+        return new(output, tracks);
+    }
+
+    private static void ReverseStereo(float[] samples)
+    {
         for (int left = 0, right = samples.Length - 2; left < right; left += 2, right -= 2)
         {
             (samples[left], samples[right]) = (samples[right], samples[left]);
             (samples[left + 1], samples[right + 1]) = (samples[right + 1], samples[left + 1]);
         }
-        return samples;
     }
 
     private static void Composite(byte[] output, int width, int height, VideoFrame source, float opacity)
@@ -563,17 +596,24 @@ public sealed class SequenceEvaluator : IDisposable
         private readonly MediaAsset asset;
         private readonly int rate;
         private readonly AudioFilter? filter;
+        private readonly VoiceEqualizer? equalizer;
         private float[] block = [];
         private long blockStart;
         private bool initialized, ended;
-        public AudioCursor(ActiveClip clip, int rate, CancellationToken cancellation)
+        public AudioCursor(ActiveClip clip, int rate, CancellationToken cancellation, bool bypassClipProcessing)
         {
             this.rate = rate;
             asset = clip.Asset;
             anchor = AudioSeekIndex.Resolve(clip.Asset, clip.Stream, clip.SourcePosition, cancellation);
             var preroll = AudioSeekIndex.DecoderStart(clip.Asset, clip.Stream, anchor.Pts);
             decoder = new(clip.Asset, clip.Stream, preroll, rate);
-            if (clip.Clip.Properties.Audio?.NoiseReductionDb is > 0 and var reduction) filter = new(rate, reduction);
+            if (bypassClipProcessing) return;
+            try
+            {
+                if (clip.Clip.Properties.Audio?.NoiseReductionDb is > 0 and var reduction) filter = new(rate, reduction);
+                if (clip.Clip.Properties.Audio?.Eq is { } eq and not { LowDb: 0, MidDb: 0, HighDb: 0 }) equalizer = new(rate, eq);
+            }
+            catch { decoder.Dispose(); filter?.Dispose(); throw; }
         }
         public void Mix(long target, Span<float> destination, float gain, CancellationToken cancellation)
         {
@@ -593,9 +633,9 @@ public sealed class SequenceEvaluator : IDisposable
                             if (ended) return;
                             if (!ReadFiltered(cancellation)) { filter.Finish(); ended = true; }
                         }
-                        continue;
                     }
-                    if (ended || !ReadPcm(out block, out blockStart, cancellation)) { ended = true; return; }
+                    else if (ended || !ReadPcm(out block, out blockStart, cancellation)) { ended = true; return; }
+                    equalizer?.Process(block, blockStart);
                     continue;
                 }
                 if (target < blockStart)

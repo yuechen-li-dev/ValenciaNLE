@@ -11,10 +11,11 @@ namespace Valencia.App.Editing;
 internal sealed class EditorSmoke(string directory)
 {
     private readonly Stopwatch deadline = Stopwatch.StartNew();
-    private int phase = -2;
+    private int phase = -12;
     private Task? operation;
     private ProjectDocument? saved;
     private bool capturedPlayback;
+    private bool audioMetersVerified;
     private double largeInputMs;
     private double[] contextMenuPreparationMs = [];
     private bool benchStarted;
@@ -31,6 +32,29 @@ internal sealed class EditorSmoke(string directory)
         var e = window.Editor;
         switch (phase)
         {
+            case -12:
+                saved = e.Session.Snapshot.Document;
+                e.SelectedClip = e.Sequence.Tracks.First(t => t.Kind == TrackKind.Audio && !t.Clips.IsEmpty).Clips[0].Id;
+                window.Action("fx:eqMid+");
+                Require(e.Selection?.Properties.Audio?.Eq?.MidDb == 1, "The EQ control did not edit the selected audio clip.");
+                long audioRevision = e.Session.Snapshot.Revision;
+                window.Action("ListenMix");
+                Require(e.ListenBefore && e.Session.Snapshot.Revision == audioRevision, "Listen Before changed the project.");
+                window.Action("ListenMix");
+                Require(!e.ListenBefore && e.Session.Snapshot.Revision == audioRevision, "Listen After changed the project.");
+                Require(e.History(false).Success && DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document),
+                    "One undo did not restore the original clip EQ.");
+                e.SelectedClip = null;
+                window.Action("NormalizeMix");
+                phase = -11;
+                break;
+            case -11:
+                Require(e.Sequence.Creator is { PeakCeilingDb: -1 } && e.Status.Contains("LUFS", StringComparison.Ordinal),
+                    "Normalize did not apply the measured master gain. " + e.Status);
+                Require(e.History(false).Success && DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document),
+                    "One undo did not restore the original master mix.");
+                phase = -2;
+                break;
             case -2:
                 window.VerifyPointerFeedback(directory);
                 contextMenuPreparationMs = window.VerifyContextMenu(directory);
@@ -185,8 +209,11 @@ internal sealed class EditorSmoke(string directory)
                 Require(DocumentSemantics.Equal(saved!, e.Session.Snapshot.Document), "Reopened state differs.");
                 window.Seek(T(5)); phase = 50; break;
             case 6:
+                if (window.Playback?.MeterReading is { MomentaryLufs: not null } meter && meter.Tracks.Values.Any(t => t.LeftPeak > 0))
+                    audioMetersVerified = true;
                 if (!capturedPlayback && e.Playhead.Ticks >= T(5).Ticks) { window.Capture(Path.Combine(directory, "playing.png")); capturedPlayback = true; }
                 if (window.Playback?.IsPlaying == true || e.Playhead.Ticks < e.Sequence.Duration.Ticks) return;
+                Require(audioMetersVerified, "No live track signal and momentary loudness reached the playback meter.");
                 playbackElapsed.Stop(); window.Capture(Path.Combine(directory, "editor.png")); exportDuration = e.Sequence.Duration;
                 operation = SequenceExport.RunAsync(e.Session.Snapshot, e.SequenceId, Path.Combine(directory, "edited.mp4")); phase = 7; break;
             case 7:
@@ -214,6 +241,7 @@ internal sealed class EditorSmoke(string directory)
                     elapsedSeconds = deadline.Elapsed.TotalSeconds, maximumAvSkewSeconds = window.MaximumAvSkew,
                     pointerFeedbackMilliseconds = window.PointerFeedbackMilliseconds,
                     contextMenuPreparationMs,
+                    audioMetersVerified,
                     realPlaybackSeconds = exportDuration.TotalSeconds, exportDurationSeconds = exportDuration.TotalSeconds,
                     playbackElapsedSeconds = playbackElapsed.Elapsed.TotalSeconds,
                     exportDurationTicks = exportDuration.Ticks.ToString(System.Globalization.CultureInfo.InvariantCulture), seekRequests = window.SeekRequests,

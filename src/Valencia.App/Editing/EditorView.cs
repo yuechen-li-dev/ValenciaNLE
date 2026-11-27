@@ -931,20 +931,25 @@ internal sealed partial class EditorView
             items.Add(TextIn(NativeUiText.Ellipsize(left, width - rightWidth - 12, TextSize.Xs), x, footerY + 1, width - rightWidth - 12, 21, TextSize.Xs, Ui.Edge));
             items.Add(TextIn(NativeUiText.Ellipsize(right, rightWidth, TextSize.Xs), x + width - rightWidth, footerY + 1, rightWidth, 21, TextSize.Xs, Ui.Edge, TextAlignX.Right));
         }
-        // Voice EQ: the three bands are drawn so the strip reads like the finished console, but the engine has no EQ yet.
-        void VoiceEq()
+        void VoiceEqControls(VoiceEq eq)
         {
             double rowHeight = compact ? 22 : 28;
             if (y + rowHeight > footerY) return;
             var size = compact ? TextSize.Xs : TextSize.Sm;
-            items.Add(TextIn("VOICE EQ", x, y, labelWidth, rowHeight, size, Ui.Edge));
-            double tag = NativeUiText.Width("NOT WIRED", TextSize.Xs) + 10, room = width - labelWidth - tag - 4;
-            double band = (room - 4) / 3;
-            string[] bands = ["Lo", "Mid", "Hi"];
+            double label = width >= 320 ? labelWidth : 0;
+            if (label > 0) items.Add(TextIn("VOICE EQ", x, y, label, rowHeight, size, Ui.Edge));
+            double band = (width - label - 6) / 3, side = compact ? 15 : 18;
+            if (band <= 2 * side + 2) return;
+            (string Name, string Key, double Db)[] bands = [("Lo", "eqLow", eq.LowDb), ("Mid", "eqMid", eq.MidDb), ("Hi", "eqHigh", eq.HighDb)];
             for (int i = 0; i < bands.Length; i++)
-                items.Add(Button(bands[i] + " 0", "EqNotWired", x + labelWidth + i * (band + 2), y + 1, band, rowHeight - 3, Ui.Dim, key: "eq" + i));
-            items.Add(Box(x + width - tag, y + 5, tag, rowHeight - 10, Ui.Rule));
-            items.Add(TextIn("NOT WIRED", x + width - tag, y, tag, rowHeight, TextSize.Xs, Ui.Mute, TextAlignX.Center));
+            {
+                var (name, key, db) = bands[i];
+                double left = x + label + i * (band + 2);
+                items.Add(Button("-", "fx:" + key + "-", left, y + 1, side, rowHeight - 3));
+                items.Add(Button($"{name} {db:+0;-0;0}", "fx:" + key + "0", left + side + 1, y + 1,
+                    band - 2 * side - 2, rowHeight - 3, db == 0 ? Ui.Dim : Ui.Value(Ui.Bone), key: key, caps: false));
+                items.Add(Button("+", "fx:" + key + "+", left + band - side, y + 1, side, rowHeight - 3));
+            }
             y += rowHeight;
         }
         void SpeedControls(TimelineClip video)
@@ -1043,7 +1048,7 @@ internal sealed partial class EditorView
                 Control("Fade in", FadeText(audio.FadeInTicks), "fadeIn", x, width, labelWidth);
                 Control("Fade out", FadeText(audio.FadeOutTicks), "fadeOut", x, width, labelWidth);
                 Control("Cleanup", audio.NoiseReductionDb <= 0 ? "off" : $"-{audio.NoiseReductionDb:0} dB noise", "cleanup", x, width, labelWidth);
-                VoiceEq();
+                VoiceEqControls(audio.Eq ?? new());
             }
             Row("Start", Timecode.Format(clip.Start, rate)); Row("End", Timecode.Format(clip.End, rate)); Row("Duration", Timecode.Format(clip.Duration, rate), Ui.Orange);
             Row("Source in", $"{SourceTime(clip.SourceIn).TotalSeconds:0.000} s");

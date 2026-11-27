@@ -26,7 +26,18 @@ public static class LoudnessAnalyzer
         return new(1, key, asset.Id, fingerprint, stream, "loudness", loudness.Algorithm, "target=-16;peak=-1;LRA=11", MediaAnalyzer.DecoderPolicy,
             imported.ContainerStart, "complete", 0, 0, 0, [], [], [], [], [], Loudness: loudness);
     }
-    public static async Task<LoudnessData> SequenceAsync(ProjectSnapshot snapshot, Guid sequenceId, CancellationToken cancellation)
+    public static Task<LoudnessData> SequenceAsync(ProjectSnapshot snapshot, Guid sequenceId, CancellationToken cancellation)
+        => MeasureSequenceAsync(snapshot, sequenceId, beforeMaster: false, cancellation);
+
+    public static async Task<LoudnessData> MeasureForNormalizationAsync(ProjectSnapshot snapshot, Guid sequenceId, CancellationToken cancellation)
+    {
+        var sequence = new TimelineQueries(snapshot).Sequence(sequenceId);
+        var measured = await MeasureSequenceAsync(snapshot, sequenceId, beforeMaster: true, cancellation).ConfigureAwait(false);
+        return measured with { PeakCeilingDb = Math.Min(sequence.Creator?.PeakCeilingDb ?? 0, -1) };
+    }
+
+    private static async Task<LoudnessData> MeasureSequenceAsync(ProjectSnapshot snapshot, Guid sequenceId,
+        bool beforeMaster, CancellationToken cancellation)
     {
         var sequence = new TimelineQueries(snapshot).Sequence(sequenceId);
         long samples = TimelineTime.SampleIndex(sequence.Duration, sequence.AudioSampleRate, TimeRounding.Ceiling);
@@ -37,11 +48,15 @@ public static class LoudnessAnalyzer
             for (long first = 0; first < samples; first += 4096)
             {
                 cancellation.ThrowIfCancellationRequested();
-                float[] pcm = evaluator.Audio(default, first, (int)Math.Min(4096, samples - first), cancellation);
+                int count = (int)Math.Min(4096, samples - first);
+                float[] pcm = beforeMaster ? evaluator.AudioBeforeMaster(default, first, count, cancellation)
+                    : evaluator.Audio(default, first, count, cancellation);
                 await output.WriteAsync(MemoryMarshal.AsBytes(pcm.AsSpan()).ToArray(), cancellation).ConfigureAwait(false);
             }
         }, cancellation).ConfigureAwait(false);
-        return Parse(log) with { Measurement = "Edited sequence through the shared audio evaluator; integrated gating and oversampled true-peak estimation" };
+        return Parse(log) with { Measurement = beforeMaster
+            ? "Edited sequence before master gain and limiting; integrated gating and oversampled true-peak estimation"
+            : "Edited sequence through the shared audio evaluator; integrated gating and oversampled true-peak estimation" };
     }
     private static LoudnessData Parse(string log)
     {
