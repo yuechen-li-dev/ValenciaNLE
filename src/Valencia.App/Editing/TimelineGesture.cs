@@ -99,7 +99,8 @@ internal sealed class TimelineGesture
         var ids = group.Select(g => g.Clip.Id).ToHashSet();
         if (tracks.SelectMany(t => t.Clips).Any(x => !ids.Contains(x.Id) && x.Start.Ticks < ge && x.End.Ticks > gs))
         { Reject("Magnetic move blocked: other media overlaps this clip's range. Lock that track or turn Magnet off."); return; }
-        var removal = EditorEdits.RippleRange(editor.SequenceId, tracks, new(gs), new(ge));
+        // A magnetic move reorders material; its titles and markers stay where they are rather than being cut by the lift.
+        var removal = EditorEdits.RippleRange(editor.SequenceId, tracks, new(gs), new(ge), carryAnnotations: false);
         var lifted = editor.Session.Preview(new EditTransaction(Guid.NewGuid(), 1, revision, [new EditCommand(Guid.NewGuid(), 1, removal)]));
         if (!lifted.Success) { Reject(lifted.Message ?? "Cannot lift the clip."); return; }
         var after = new TimelineQueries(lifted.Snapshot).Sequence(editor.SequenceId);

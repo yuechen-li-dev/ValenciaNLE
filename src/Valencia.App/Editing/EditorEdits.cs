@@ -48,10 +48,11 @@ internal static class EditorEdits
     }
 
     /// <summary>Removes [start, end) on the given tracks and closes the gap; clips spanning the whole range get a right-fragment ID.</summary>
-    public static RippleDelete RippleRange(Guid sequenceId, IReadOnlyCollection<TimelineTrack> tracks, SequenceTime start, SequenceTime end) =>
+    public static RippleDelete RippleRange(Guid sequenceId, IReadOnlyCollection<TimelineTrack> tracks, SequenceTime start, SequenceTime end,
+        bool carryAnnotations = true) =>
         new(sequenceId, [.. tracks.Select(t => t.Id)], start, end,
             [.. tracks.SelectMany(t => t.Clips).Where(c => c.Start.Ticks < start.Ticks && c.End.Ticks > end.Ticks)
-                .Select(c => new RippleSplitId(c.Id, Guid.NewGuid()))]);
+                .Select(c => new RippleSplitId(c.Id, Guid.NewGuid()))], carryAnnotations);
 
     /// <summary>Removes [start, end) on the given tracks and leaves the gap (Premiere "lift").</summary>
     public static IEnumerable<EditOperation> LiftRange(Guid sequenceId, IEnumerable<TimelineTrack> tracks, SequenceTime start, SequenceTime end)
@@ -146,7 +147,13 @@ internal static class EditorEdits
             var receiving = inserts.Select(i => i.TrackId).ToHashSet();
             operations.AddRange(LiftRange(editor.SequenceId, sequence.Tracks.Where(t => receiving.Contains(t.Id)), at, end));
         }
-        else operations.AddRange(ShiftFrom(editor.SequenceId, Unlocked(sequence), at, end.Ticks - at.Ticks));
+        else
+        {
+            var shifted = Unlocked(sequence);
+            operations.AddRange(ShiftFrom(editor.SequenceId, shifted, at, end.Ticks - at.Ticks));
+            // Titles and markers follow the picture, as a ripple delete does in the reducer.
+            if (shifted.Any(t => t.Kind == TrackKind.Video)) operations.Add(new ShiftSequenceAnnotations(editor.SequenceId, at, new(end.Ticks - at.Ticks)));
+        }
         operations.AddRange(inserts);
         var result = editor.Commit(operations);
         if (result.Success)

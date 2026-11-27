@@ -124,6 +124,35 @@ public sealed class PremiereEditTests
     }
 
     [Fact]
+    public void TitlesAndMarkersFollowInsertAndExtract()
+    {
+        var (editor, asset) = Fixture((0, 10));
+        Assert.True(editor.Commit([
+            new Valencia.Core.Editing.SetSequenceMarker(editor.SequenceId, new(Guid.NewGuid(), T(6), "beat")),
+            new Valencia.Core.Editing.SetTitle(editor.SequenceId, new(Guid.NewGuid(), "HELLO", T(6), T(8)))]).Success);
+        TitleCue Title() => editor.Sequence.Titles.Single();
+        double Marker() => editor.Sequence.Markers.Single().At.TotalSeconds;
+
+        var imported = new ImportedAsset(asset with { Streams = [.. asset.Streams.Select(s => s with { End = new(90000 * 3L, 1, 90000) })] }, T(3), Zero);
+        editor.Playhead = T(4);
+        Assert.True(EditorEdits.InsertAt(editor, imported, overwrite: false).Success);
+        Assert.Equal((T(9), T(11)), (Title().Start, Title().End));
+        Assert.Equal(9, Marker());
+        // Overwrite does not ripple, so nothing moves.
+        editor.Playhead = T(0);
+        Assert.True(EditorEdits.InsertAt(editor, imported, overwrite: true).Success);
+        Assert.Equal(T(9), Title().Start);
+
+        editor.MarkIn = T(1); editor.MarkOut = T(3);
+        Assert.True(EditorEdits.RemoveMarked(editor, extract: true)!.Success);
+        Assert.Equal((T(7), T(9)), (Title().Start, Title().End));
+        Assert.Equal(7, Marker());
+        editor.MarkIn = null; editor.MarkOut = null;
+        Assert.True(editor.History(false).Success);
+        Assert.Equal(T(9), Title().Start);
+    }
+
+    [Fact]
     public void InsertSplitsAndShiftsWhileOverwriteReplaces()
     {
         var (editor, asset) = Fixture((0, 10));

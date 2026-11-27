@@ -23,8 +23,14 @@ public sealed record SplitClip(Guid SequenceId, Guid ClipId, SequenceTime At, Gu
 public sealed record DeleteClip(Guid SequenceId, Guid ClipId) : EditOperation;
 public sealed record RippleSplitId(Guid ClipId, Guid RightClipId);
 /// <summary>Remove [Start, End) on exactly TrackIds; all later clips on those tracks shift by the full range length.</summary>
+/// <summary>
+/// Closes [Start, End) on the target tracks. When a video track ripples, sequence titles and markers follow the picture
+/// unless <paramref name="CarryAnnotations"/> is false (a magnetic move lifts and re-inserts the same material).
+/// </summary>
 public sealed record RippleDelete(Guid SequenceId, ImmutableArray<Guid> TrackIds, SequenceTime Start, SequenceTime End,
-    ImmutableArray<RippleSplitId> SplitIds) : EditOperation;
+    ImmutableArray<RippleSplitId> SplitIds, bool CarryAnnotations = true) : EditOperation;
+/// <summary>The title and marker half of an insert edit: opens a gap of Shift at At (clip moves are separate commands).</summary>
+public sealed record ShiftSequenceAnnotations(Guid SequenceId, SequenceTime At, SequenceTime Shift) : EditOperation;
 /// <summary>Permitted on a locked track, so it can be unlocked; other edits cannot bypass the lock.</summary>
 public sealed record SetTrackState(Guid SequenceId, Guid TrackId, TrackState State) : EditOperation;
 public sealed record SetCreatorSettings(Guid SequenceId, CreatorSettings Settings) : EditOperation;

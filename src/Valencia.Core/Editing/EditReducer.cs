@@ -25,7 +25,7 @@ internal static class EditReducer
             SetCreatorSettings x => x.SequenceId, SetClipProperties x => x.SequenceId,
             SetOutputFraming x => x.SequenceId,
             PatchClipColor x => x.SequenceId, SetClipRegion x => x.SequenceId, SetClipMotion x => x.SequenceId,
-            SetSequenceMarker x => x.SequenceId, RemoveSequenceMarker x => x.SequenceId,
+            SetSequenceMarker x => x.SequenceId, RemoveSequenceMarker x => x.SequenceId, ShiftSequenceAnnotations x => x.SequenceId,
             SetTitle x => x.SequenceId, RemoveTitle x => x.SequenceId,
             SetTitleTransform x => x.SequenceId, SetClipTransform x => x.SequenceId,
             SetClipSpeed x => x.SequenceId, FreezeClip x => x.SequenceId,
@@ -42,6 +42,11 @@ internal static class EditReducer
             var markers = sequence.Markers.Where(marker => marker.Id != set.Marker.Id).Append(set.Marker)
                 .OrderBy(marker => marker.At.Ticks).ThenBy(marker => marker.Id);
             return document with { Sequences = document.Sequences.SetItem(si, sequence with { Markers = [.. markers] }) };
+        }
+        if (operation is ShiftSequenceAnnotations shift)
+        {
+            DocumentValidator.Require(shift.At.Ticks >= 0 && shift.Shift.Ticks > 0, "An annotation shift requires a non-negative point and a positive length.");
+            return document with { Sequences = document.Sequences.SetItem(si, SequenceAnnotations.Insert(sequence, shift.At, shift.Shift)) };
         }
         if (operation is RemoveSequenceMarker remove)
         {
@@ -161,6 +166,9 @@ internal static class EditReducer
             }
             case RippleDelete x:
                 tracks = Ripple(sequence, x, document.Assets);
+                // Titles and markers sit over the picture: they ripple with any video track, never with audio alone.
+                if (x.CarryAnnotations && sequence.Tracks.Any(t => t.Kind == TrackKind.Video && x.TrackIds.Contains(t.Id)))
+                    sequence = SequenceAnnotations.Remove(sequence, x.Start, x.End);
                 break;
             default:
             {
