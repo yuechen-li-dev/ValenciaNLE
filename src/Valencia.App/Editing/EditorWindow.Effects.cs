@@ -79,9 +79,9 @@ internal sealed partial class EditorWindow
         var picture = EditorEffects.Picture(Editor, view.Layout.Monitor);
         if (!Contains(picture, x, y)) return null;
         var at = EditorEffects.Frame(Editor, Editor.Playhead);
-        var titles = Editor.Sequence.Titles.Reverse().Where(t => TitleMotion.At(t, at) is { Opacity: > 0 });
-        var targets = titles.Select(t => new TransformControl(null, t, at));
-        if (EditorEffects.SelectedTransform(Editor) is { Clip: not null } clip) targets = targets.Append(clip);
+        // Topmost title first, as it draws over the others.
+        var targets = EditorEffects.TitlesAt(Editor, at).Reverse().Select(t => new TransformControl(t, at));
+        if (EditorEffects.SelectedTransform(Editor) is { Title: null } clip) targets = targets.Append(clip);
         return targets.FirstOrDefault(target =>
         {
             var anchor = EditorEffects.Anchor(target, picture);
@@ -92,11 +92,7 @@ internal sealed partial class EditorWindow
     private bool BeginMonitorEffect(double x, double y)
     {
         if (MonitorTarget(x, y) is not { } target) return false;
-        if (target.Title is { } title)
-        {
-            Editor.SelectedTitle = title.Id;
-            Editor.SelectedClip = null;
-        }
+        if (target.Clip.IsTitle()) Editor.SelectedClip = target.Clip.Id;
         var picture = EditorEffects.Picture(Editor, view.Layout.Monitor);
         var pose = target.Pose;
         var sequence = Editor.SequenceId;

@@ -85,7 +85,7 @@ public sealed class TimelineQueries(ProjectSnapshot snapshot)
 
         void Add(TimelineTrack track, TimelineClip clip, SourcePosition position, ActiveTransition? transition = null)
         {
-            var asset = assets[clip.AssetId];
+            var asset = clip.Title is null ? assets[clip.AssetId] : TitleClips.Asset;
             active.Add(new(sequenceId, track.Id, track.Order, track.Kind, clip, asset,
                 asset.Streams.First(stream => stream.Index == clip.StreamIndex), position, transition));
         }

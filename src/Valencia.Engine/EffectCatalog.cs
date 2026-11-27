@@ -19,7 +19,7 @@ public static class EffectCatalog
         [new("left", "sourceFraction", 0, 0, 1), new("top", "sourceFraction", 0, 0, 1),
             new("right", "sourceFraction", 1, 0, 1), new("bottom", "sourceFraction", 1, 0, 1), new("size", "sourcePixels", 8, 1, 64)],
         ["blur", "pixelate", "cover"]),
-        new("animated-title", "title", "sequence", "Layer one line of outlined text above video and captions for an exact sequence range.",
+        new("animated-title", "title", "sequence", "A title clip on a video track (card, lower third or outlined text) for an exact sequence range; it layers, trims and ripples like any clip",
         [new("x", "outputFraction", .5, 0, 1), new("y", "outputFraction", .5, 0, 1),
             new("size", "outputHeightFraction", .11, .03, .34)],
         ["static", "fade", "slideUp", "pop", "impact"]),

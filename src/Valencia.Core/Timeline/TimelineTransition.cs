@@ -27,10 +27,11 @@ internal static class TransitionRules
         if (transition.BeforeTicks < 0 || transition.AfterTicks < 0 || (transition.BeforeTicks == 0 && transition.AfterTicks == 0)
             || transition.BeforeTicks > outgoing.Duration.Ticks || transition.AfterTicks > incoming.Duration.Ticks)
             return "Transition sides must fit inside both clips around the cut.";
-        if (transition.BeforeTicks > 0 && (!TryStream(incoming, assets, out var incomingStream) || incomingStream!.Start is not { } first
+        // Title clips have unbounded handles: their source is generated, so any dissolve length fits.
+        if (transition.BeforeTicks > 0 && !incoming.IsTitle() && (!TryStream(incoming, assets, out var incomingStream) || incomingStream!.Start is not { } first
             || incoming.SourceIn.Shift(new(-transition.BeforeTicks)).CompareTo(new(first)) < 0))
             return "The incoming clip lacks a known source handle before its in-point.";
-        if (transition.AfterTicks > 0 && (!TryStream(outgoing, assets, out var outgoingStream) || outgoingStream!.End is not { } last
+        if (transition.AfterTicks > 0 && !outgoing.IsTitle() && (!TryStream(outgoing, assets, out var outgoingStream) || outgoingStream!.End is not { } last
             || outgoing.SourceOut.Shift(new(transition.AfterTicks)).CompareTo(new(last)) > 0))
             return "The outgoing clip lacks a known source handle after its out-point.";
         window = new(transition, outgoing, incoming);

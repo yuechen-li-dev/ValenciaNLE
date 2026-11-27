@@ -95,8 +95,6 @@ public sealed class SequenceEvaluator : IDisposable
         if (Sequence.Creator is { } creator && captionIndex.At(evaluated.Where(clip =>
             clip.Transition is null || (clip.Clip.Start.Ticks <= time.Ticks && time.Ticks < clip.Clip.End.Ticks))) is { } line)
             CreatorRenderer.Captions(pixels, width, height, line, creator.CaptionStyle, profile?.CaptionY, captionFont!);
-        if (Sequence.Titles.Any(title => title.Start.Ticks <= time.Ticks && time.Ticks < title.End.Ticks))
-            (titleRenderer ??= new TitleRenderer()).Draw(pixels, width, height, time, Sequence.Titles, cancellation);
         return new(time, width, height, pixels, [.. active.Select(a => a.Clip.Id)], timestamps.ToImmutable())
         {
             ReadyHostTicks = System.Diagnostics.Stopwatch.GetTimestamp(),
@@ -106,6 +104,15 @@ public sealed class SequenceEvaluator : IDisposable
         void Draw(ActiveClip a, byte[] target)
         {
             cancellation.ThrowIfCancellationRequested();
+            if (a.Clip.Title is { } title)
+            {
+                // Titles have no decoder: they draw at their track's position, over lower tracks and under higher ones.
+                float fade = a.Clip.Properties.Video is { } titleEffects
+                    ? (float)CaptionEvaluation.Fade(time.Ticks - a.Clip.Start.Ticks, a.Clip.Duration.Ticks, titleEffects.FadeInTicks, titleEffects.FadeOutTicks) : 1;
+                (titleRenderer ??= new TitleRenderer()).Draw(target, width, height, a.Clip, title, time, a.SourcePosition,
+                    (float)a.Clip.Properties.Opacity * fade, cancellation);
+                return;
+            }
             if (!videos.TryGetValue(a.Clip.Id, out var cursor))
             {
                 if (warmVideo is { } warmed && warmed.Clip == a.Clip.Id)
@@ -160,7 +167,7 @@ public sealed class SequenceEvaluator : IDisposable
             long distance = reverse ? time.Ticks - window.End.Ticks : window.Start.Ticks - time.Ticks;
             if (distance < 0 || distance > lead) continue;
             var clip = reverse ? window.Outgoing : window.Incoming;
-            if (videos.ContainsKey(clip.Id)) continue;
+            if (clip.IsTitle() || videos.ContainsKey(clip.Id)) continue;
             var source = reverse ? clip.SourceOut.Shift(new(window.Transition.AfterTicks - 1))
                 : clip.SourceIn.Shift(new(-window.Transition.BeforeTicks));
             var asset = queries.Assets.First(item => item.Id == clip.AssetId);

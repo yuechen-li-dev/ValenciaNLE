@@ -100,7 +100,7 @@ public sealed class EditorEffectsTests(TimelineFixture fixture) : IClassFixture<
         var sequence = snapshot.Document.Sequences[0];
         var first = sequence.Tracks[0].Clips[0];
         var session = new EditingSession(snapshot);
-        var target = new TransformControl(first, null, F(11));
+        var target = new TransformControl(first, F(11));
         var drag = new EffectDrag(0, (x, _) => target.Write(sequence.Id, target.Pose with { X = x }));
         drag.Move(session, .65, 0);
         Assert.True(drag.Preview!.Success);
@@ -109,7 +109,7 @@ public sealed class EditorEffectsTests(TimelineFixture fixture) : IClassFixture<
         Assert.Equal(EditError.StaleRevision, drag.Commit(session)!.Error);
         var clip = session.Snapshot.Document.Sequences[0].Tracks[0].Clips[0];
         var trimmed = clip with { Start = F(10), SourceIn = clip.SourceIn.Shift(F(10)) };
-        var edit = new TransformControl(trimmed, null, F(13));
+        var edit = new TransformControl(trimmed, F(13));
         var update = Assert.IsType<SetClipTransform>(edit.Write(sequence.Id, edit.Pose with { Y = .3 }));
         Assert.True(update.PreserveOrigin);
         Assert.Equal(new[] { F(11).Ticks, F(13).Ticks }, update.Curve!.Keys.Select(k => k.At));

@@ -393,6 +393,7 @@ internal sealed partial class EditorView
         {
             (K("Select", "V"), "SelectTool", razor ? Ui.Plain : Ui.Primary, false, null), (K("Razor", "C"), "RazorTool", razor ? Ui.Primary : Ui.Plain, false, null),
             ("Split", "Split", Ui.Plain, true, null), (phone ? "Del" : "Delete", "Delete", Ui.Plain, false, null), ("Ripple", "RippleDelete", Ui.Plain, false, null),
+            (phone ? "T" : "Title", "NewTitle", Ui.Plain, true, null),
         };
         if (!phone) tools.AddRange([(K("Insert", ","), "InsertEdit", Ui.Plain, true, null), (K("Overwrite", "."), "OverwriteEdit", Ui.Plain, false, null),
             (K("Lift", ";"), "Lift", Ui.Plain, false, null), (K("Extract", "'"), "Extract", Ui.Plain, false, null)]);
@@ -484,10 +485,19 @@ internal sealed partial class EditorView
             {
                 VisibleClips++;
                 bool isSelected = clip.Id == editor.SelectedClip, linked = !isSelected && selected.Contains(clip.Id);
-                uint color = isSelected ? Ui.Orange : video ? Ui.Ultramarine : Ui.Paper;
+                bool title = clip.IsTitle();
+                // Title clips read as title cards: an ink slab with an orange tab, not footage blue.
+                uint color = isSelected ? Ui.Orange : title ? Ui.Ink : video ? Ui.Ultramarine : Ui.Paper;
                 uint ink = isSelected || !video ? Ui.Ink : Ui.Bone;
                 if (dim) color = (color & 0xFFFFFF00) | 0x66;
                 ClipRect(clip, y, color, linked);
+                if (title)
+                {
+                    double tabX = viewport.X(clip.Start);
+                    if (tabX >= viewport.ClipLeft && tabX + 4 <= viewport.ClipRight) quads.Add(new((float)tabX, y + 1, 4, (float)row - 4, isSelected ? Ui.Ink : Ui.Orange));
+                    if (!isSelected) quads.Add(new((float)Math.Max(viewport.ClipLeft, viewport.X(clip.Start)), y + (float)row - 4,
+                        (float)(Math.Min(viewport.ClipRight, viewport.X(clip.End)) - Math.Max(viewport.ClipLeft, viewport.X(clip.Start))), 1, Ui.Rule));
+                }
                 Waveform(editor, viewport, quads, track, clip, y, row, isSelected ? Ui.Ink : Ui.Wave);
                 double left = Math.Max(viewport.ClipLeft, viewport.X(clip.Start)) + 7, right = Math.Min(viewport.ClipRight, viewport.X(clip.End)) - 7;
                 if (right - left >= 40 && clipLabels++ < 64)
@@ -948,8 +958,19 @@ internal sealed partial class EditorView
         {
             var pose = target.Pose;
             Title(target.Title is null ? "CLIP" : "TITLE", "TRANSFORM");
-            if (!compact) Row("Name", target.Title?.Text ?? ClipName(editor, target.Clip!));
-            if (target.Clip is { } video) SpeedControls(video);
+            if (!compact) Row("Name", target.Title?.Text ?? ClipName(editor, target.Clip));
+            if (target.Clip.Title is { } content)
+            {
+                // Titles: edit the words and cycle the look (card, lower third, outline) in place.
+                double rowHeight = compact ? 22 : 26, half = (width - 2) / 2;
+                if (y + rowHeight <= footerY)
+                {
+                    items.Add(Button("Edit text", "TitleEdit", x, y + 1, half, rowHeight - 2));
+                    items.Add(Button("Style " + TitleStyleName(content.Style), "TitleStyle", x + half + 2, y + 1, half, rowHeight - 2));
+                    y += rowHeight;
+                }
+            }
+            else SpeedControls(target.Clip);
             var controls = new (string Name, string Value, string Action)[]
             {
                 (compact ? "X" : "Position X", $"{pose.X:P0}", "x"),
@@ -1013,8 +1034,12 @@ internal sealed partial class EditorView
 
     // ---------------------------------------------------------------- helpers
 
+    internal static string TitleStyleName(string style) => style switch
+    {
+        TitleStyles.Card => "Card", TitleStyles.LowerThird => "Lower third", _ => "Outline"
+    };
     private static string ClipName(EditorDocument editor, TimelineClip clip) =>
-        string.IsNullOrWhiteSpace(clip.Properties.Name) ? editor.Session.Snapshot.Document.Assets.FirstOrDefault(a => a.Id == clip.AssetId)?.Name ?? "" : clip.Properties.Name;
+        clip.Title is { } title ? "T  " + title.Text : string.IsNullOrWhiteSpace(clip.Properties.Name) ? editor.Session.Snapshot.Document.Assets.FirstOrDefault(a => a.Id == clip.AssetId)?.Name ?? "" : clip.Properties.Name;
     private static string? ProfileName(EditorDocument editor) => editor.Sequence.Creator?.Profiles.FirstOrDefault(p => p.Id == editor.SelectedProfile)?.Name;
     private static SequenceTime SourceTime(SourcePosition position) => new(position.Timestamp.ToSequenceTime().Ticks + position.Offset.Ticks);
     /// <summary>Short edge-code form of an id: first seven hex digits, split 4-3.</summary>

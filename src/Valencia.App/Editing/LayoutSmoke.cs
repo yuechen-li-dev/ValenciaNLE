@@ -57,6 +57,13 @@ internal sealed class LayoutSmoke(string directory)
             e.ProposedCut = new(1, true, "layout-smoke", null, null, [], removed, estimated, null, []);
             w.ShowProposal("Rough cut", removed, estimated.TotalSeconds);
         }),
+        // Title clips in the Valencia look: a full-frame card, then the same clip as a lower third over footage.
+        ("title-card", w =>
+        {
+            w.Editor.Card = null; w.Editor.ProposedCut = null; w.Editor.Playhead = T(1);
+            w.NewTitle("EPISODE 01", "The beginning");
+        }),
+        ("title-lower-third", w => { w.SetTitleStyle(TitleStyles.LowerThird); w.EditTitleText("YUECHEN LI", "Host"); }),
         // Settings: the shortcut list mid-capture, then About.
         ("settings-shortcuts", w =>
         {

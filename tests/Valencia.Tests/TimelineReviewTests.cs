@@ -38,7 +38,8 @@ public sealed class TimelineReviewTests(TimelineFixture fixture) : IClassFixture
         Assert.Equal(new[] { Frame(31), Frame(35), Frame(42) }, reviewed.Samples!.Value.Select(sample => sample.Time.Ticks));
         using var sheet = SKBitmap.Decode(proposed);
         Assert.Equal((270, 184), (sheet.Width, sheet.Height));
-        Assert.All(reviewed.Samples!.Value, sample => Assert.Empty(sample.VideoClips));
+        // The gap has no footage: the only video clip in any sample is the title clip itself.
+        Assert.All(reviewed.Samples!.Value, sample => Assert.All(sample.VideoClips, id => Assert.Equal(title, id)));
         Assert.True(sheet.Pixels.Skip(90).Take(90).All(pixel => pixel.Red == 0));
         Assert.Contains(Enumerable.Range(90, 90).SelectMany(x => Enumerable.Range(0, 160).Select(y => sheet.GetPixel(x, y))), pixel => pixel.Red > 210);
 

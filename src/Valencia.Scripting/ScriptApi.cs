@@ -418,6 +418,12 @@ public sealed class PlanBuilder(Guid projectId, string revision, Guid sequence)
         double x, double y, double size, long color, long outline) =>
         operations.Add(new TitlePlan(Guid.Parse(titleId), text, start, end, motion, entrance, exit, x, y, size,
             checked((uint)color), checked((uint)outline)));
+    /// <summary>A full-frame Valencia title card: heavy display head, orange rule, subtitle in expanded caps.</summary>
+    public void CardTitle(string titleId, string text, string subtitle, long start, long end) =>
+        operations.Add(new TitlePlan(Guid.Parse(titleId), text, start, end, Style: TitleStyles.Card, Subtitle: subtitle));
+    /// <summary>A lower-third slab with an orange tab over the picture.</summary>
+    public void LowerThird(string titleId, string text, string subtitle, long start, long end) =>
+        operations.Add(new TitlePlan(Guid.Parse(titleId), text, start, end, Style: TitleStyles.LowerThird, Subtitle: subtitle));
     public void RemoveTitle(string titleId) => operations.Add(new RemoveTitlePlan(Guid.Parse(titleId)));
     public void ClipMotion(string clipId, string preset, long duration, double strength) =>
         operations.Add(new ClipMotionPlan(Guid.Parse(clipId), new(preset, duration, strength)));

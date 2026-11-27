@@ -74,6 +74,33 @@ public sealed class AnimatedTitleTests(TimelineFixture fixture) : IClassFixture<
     }
 
     [Fact]
+    public async Task CardAndLowerThirdDrawTheValenciaLookAtTheirTrackPosition()
+    {
+        await using var engine = new EditingEngine(new EditingSession(fixture.Snapshot));
+        var card = new TitlePlan(Guid.NewGuid(), "EPISODE", TimelineFixture.F(32).Ticks, TimelineFixture.F(36).Ticks,
+            Style: TitleStyles.Card, Subtitle: "Pilot");
+        var lower = new TitlePlan(Guid.NewGuid(), "GUEST", TimelineFixture.F(2).Ticks, TimelineFixture.F(6).Ticks,
+            Style: TitleStyles.LowerThird, Subtitle: "Host");
+        Assert.True(engine.Plan(new(1, fixture.Snapshot.Document.Id, "0", SequenceId, [card, lower]), true).Committed);
+        using var plain = new SequenceEvaluator(fixture.Snapshot, SequenceId);
+        using var titled = new SequenceEvaluator(engine.Session.Snapshot, SequenceId);
+
+        var frame = titled.Video(TimelineFixture.F(33), default);
+        (byte R, byte G, byte B) Pixel(SequenceFrame f, int x, int y) { int i = (y * f.Width + x) * 4; return (f.Rgba[i], f.Rgba[i + 1], f.Rgba[i + 2]); }
+        Assert.Equal(((byte)0x0B, (byte)0x0C, (byte)0x0E), Pixel(frame, 0, 0));          // ink field, not the gap's black
+        Assert.Contains(Enumerable.Range(0, frame.Width * frame.Height).Select(i => Pixel(frame, i % frame.Width, i / frame.Width)),
+            p => p.R > 200 && p.G > 190 && p.B > 170);                                    // bone head
+
+        var over = titled.Video(TimelineFixture.F(3), default);
+        var under = plain.Video(TimelineFixture.F(3), default);
+        int half = over.Width * over.Height / 2 * 4;
+        Assert.Equal(under.Rgba.AsSpan(0, half).ToArray(), over.Rgba.AsSpan(0, half).ToArray()); // top half untouched
+        Assert.Contains(Enumerable.Range(over.Height / 2, over.Height / 2).SelectMany(y => Enumerable.Range(0, over.Width / 3).Select(x => Pixel(over, x, y))),
+            p => p.R > 230 && p.G is > 60 and < 120 && p.B < 60);                         // orange tab
+        Assert.Contains(lower.TitleId, over.VideoClips);
+    }
+
+    [Fact]
     public async Task FractionalFrameExportMatchesSharedTitleEvaluationOverBlackGap()
     {
         await using var engine = new EditingEngine(new EditingSession(fixture.Snapshot));

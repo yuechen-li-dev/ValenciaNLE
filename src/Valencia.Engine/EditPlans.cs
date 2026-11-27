@@ -108,12 +108,19 @@ public sealed record OutputFramingPlan(Guid ProfileId, string? Name = null, int?
 {
     public override EditOperation ToCore(Guid sequenceId) => new SetOutputFraming(sequenceId, ProfileId, Name, Width, Height, Fit, FocalX, FocalY);
 }
+/// <summary>
+/// Creates or updates a title clip. Without <paramref name="TrackId"/> a new title goes on the highest free video track
+/// (or a new one). Style defaults to "outline" so existing scripts render as before; "card" and "lowerThird" are the
+/// Valencia title-card looks.
+/// </summary>
 public sealed record TitlePlan(Guid TitleId, string Text, long Start, long End, string Motion = "static",
     long EntranceTicks = 0, long ExitTicks = 0, double X = .5, double Y = .5, double Size = .11,
-    uint Color = 0xFFFFFFFF, uint Outline = 0x101015FF) : PlanOperation
+    uint Color = 0xFFFFFFFF, uint Outline = 0x101015FF, string Style = TitleStyles.Outline, string Subtitle = "",
+    Guid? TrackId = null) : PlanOperation
 {
     public override EditOperation ToCore(Guid sequenceId) =>
-        new SetTitle(sequenceId, new(TitleId, Text, new(Start), new(End), Motion, EntranceTicks, ExitTicks, X, Y, Size, Color, Outline));
+        new SetTitle(sequenceId, new(TitleId, Text, new(Start), new(End), Motion, EntranceTicks, ExitTicks, X, Y, Size, Color, Outline,
+            Style: Style, Subtitle: Subtitle, TrackId: TrackId));
 }
 public sealed record RemoveTitlePlan(Guid TitleId) : PlanOperation
 {

@@ -11,7 +11,12 @@ internal sealed class EditorDocument
     public EditingSession Session { get; private set; } = null!;
     public Guid SequenceId { get; private set; }
     public Guid? SelectedClip { get; set; }
-    public Guid? SelectedTitle { get; set; }
+    /// <summary>Titles are clips: the selected title is the selected clip when that clip is a title.</summary>
+    public Guid? SelectedTitle
+    {
+        get => Selection?.Title is not null ? SelectedClip : null;
+        set { if (value is not null) SelectedClip = value; else if (Selection?.Title is not null) SelectedClip = null; }
+    }
     public EffectDrag? EffectDrag { get; set; }
     public Guid? SelectedAsset { get; set; }
     public Guid? SelectedProfile { get; set; }

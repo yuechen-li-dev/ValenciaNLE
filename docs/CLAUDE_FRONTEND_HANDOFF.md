@@ -284,3 +284,11 @@ The [GPU text rendering correction](UI_TEXT_RENDERING_FIX.md) supersedes the ear
 - Settings (`SettingsPage.cs`, header **Settings** or Ctrl+Alt+K) is a full-window Machina.Standard widget page on the editor's own Silk context (`AurelianWidgetInput` shared constructor, one cursor owner). While it is open the editor draws nothing, hides video and drops commands, but the keymap keeps ticking because it feeds InputMan's rebind capture (`EditorKeymap.StartRebind`). Captures are exact chords, Esc cancels, conflicts are rejected and named, and every change is saved immediately; Reset deletes the user file.
 - New settings sections are a `SettingsSection` member plus a view method. Keep them bound widgets (no routing switch).
 - Known Premiere gaps that need features rather than keys: J reverse shuttle, M sequence markers (Ctrl+Shift+M is Valencia's OBS highlight marker), Ctrl+D/Ctrl+Shift+D transitions, Ctrl+R speed, T titles, B/N/R/Y/U trim tools, A track select.
+
+
+## Titles
+
+- Titles are clips on video tracks (`TimelineClip.Title`), reading from the reserved, unbounded `TitleClips.Asset`: no file, no decoder. They trim, split, ripple, lock, hide, dissolve and undo like any clip, and composite at their track's position (under higher tracks, under captions).
+- Styles: `card` (full-frame title card: Noto Serif Display ExtraCondensed Black head in bone, orange rule, Archivo Expanded caps subtitle), `lowerThird` (ink slab with an orange tab, above the caption band) and `outline` (the original script look). The editor creates cards (Title button / Ctrl+T); scripts keep `outline` unless they ask for `CardTitle`/`LowerThird`.
+- Entrance/exit run from the clip's edges; transform keys live on the title's own clock, so trimming the head keeps keys on the text. Footage-only effects (speed, freeze, colour, region, motion, gain) are refused on titles.
+- `SequenceDocument.Titles` is a read model of title clips. Old projects stored a sequence title layer under the JSON name `Titles`; `TitleMigration` turns it into clips on new tracks when the project opens, and it is never written back.

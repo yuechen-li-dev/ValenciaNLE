@@ -55,6 +55,57 @@ public sealed class ProjectFileTests : IDisposable
     }
 
     [Fact]
+    public async Task TitleClipsSurviveSaveAndOldTitleLayersOpenAsClips()
+    {
+        var session = Session();
+        Assert.True(Apply(session, new SetTitle(SequenceId, new(Id(50), "EPISODE ONE", T(1), T(4), Style: TitleStyles.Card, Subtitle: "Pilot"))).Success);
+        await files.SaveAsync(ProjectPath, session);
+        var loaded = await files.LoadAsync(ProjectPath);
+        Assert.True(DocumentSemantics.Equal(session.Snapshot.Document, loaded.Snapshot.Document));
+        Assert.Equal("Pilot", Assert.Single(loaded.Snapshot.Document.Sequences[0].Titles).Subtitle);
+
+        // A project saved while titles were a sequence layer: the payload carries "Titles" and opens as clips.
+        var document = Create(path: Path.Combine(root, "media", "source.fixture")).Snapshot.Document;
+        var legacy = document with { Sequences = [document.Sequences[0] with { LegacyTitles = [new TitleCue(Id(60), "OLD", T(2), T(3), "fade", T(1).Ticks)] }] };
+        var serializer = new ProjectJsonSerializer();
+        byte[] payload = serializer.Serialize(new ProjectSnapshot(legacy, 3));
+        Assert.Contains("\"Titles\"", System.Text.Encoding.UTF8.GetString(payload));
+        var read = serializer.Deserialize<ProjectSnapshot>(payload).Document;
+        var upgraded = TitleMigration.Upgrade(read);
+        DocumentValidator.Validate(upgraded);
+        var title = Assert.Single(upgraded.Sequences[0].Titles);
+        Assert.Equal(("OLD", TitleStyles.Outline, T(2), T(3)), (title.Text, title.Style, title.Start, title.End));
+        Assert.DoesNotContain("\"Titles\"", System.Text.Encoding.UTF8.GetString(serializer.Serialize(new ProjectSnapshot(upgraded, 3))));
+    }
+
+    [Fact]
+    public async Task OldTitleLayerProjectFilesOpenThroughProjectFileAsClips()
+    {
+        // Write a real .valencia container in the old format (titles as a sequence layer, relative media path).
+        var session = Session();
+        var document = session.Snapshot.Document;
+        var stored = document with
+        {
+            Assets = [document.Assets[0] with { SourcePath = "media/source.fixture" }],
+            Sequences = [document.Sequences[0] with { LegacyTitles = [new TitleCue(Id(60), "OLD", T(2), T(3), "fade", T(1).Ticks)] }]
+        };
+        byte[] payload = new ProjectJsonSerializer().Serialize(new ProjectSnapshot(stored, 7));
+        await Service().SaveAsync("edit", new(new(ApplicationId: ProjectFile.ApplicationId, ApplicationSaveVersion: 1),
+            [new(ProjectFile.ModuleId, 1, Deliverance.Core.Modules.ModuleCriticality.Required, (byte)42, 0, payload)]));
+
+        var loaded = await files.LoadAsync(ProjectPath);
+        Assert.Empty(loaded.MissingMedia);
+        var title = Assert.Single(loaded.Snapshot.Document.Sequences[0].Titles);
+        Assert.Equal(("OLD", T(2), T(3)), (title.Text, title.Start, title.End));
+        Assert.True(loaded.Snapshot.Document.Sequences[0].LegacyTitles.IsEmpty);
+        // Saving writes clips only; the old layer is gone from the file.
+        await files.SaveAsync(ProjectPath, new EditingSession(loaded.Snapshot));
+        var module = await Service().ExportChunkAsync("edit", ProjectFile.ModuleId);
+        Assert.DoesNotContain("\"Titles\"", System.Text.Encoding.UTF8.GetString(module.Span));
+        Assert.Contains("\"Title\"", System.Text.Encoding.UTF8.GetString(module.Span));
+    }
+
+    [Fact]
     public async Task ExactLargeEpochAndOneTickOffsetsSurvivePersistence()
     {
         var session = Session();

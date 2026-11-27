@@ -13,9 +13,9 @@ internal sealed partial class EditorView
         if (editor.Source is not null || editor.ScrubTarget is not null) return;
         var picture = EditorEffects.Picture(editor, monitor);
         var time = EditorEffects.Frame(editor, editor.Playhead);
-        foreach (var title in editor.Sequence.Titles.Where(t => TitleMotion.At(t, time) is { Opacity: > 0 }))
-            Draw(new(null, title, time), title.Id == editor.SelectedTitle);
-        if (EditorEffects.SelectedTransform(editor) is { Clip: not null } clip) Draw(clip, true);
+        foreach (var title in EditorEffects.TitlesAt(editor, time))
+            Draw(new(title, time), title.Id == editor.SelectedClip);
+        if (EditorEffects.SelectedTransform(editor) is { Title: null } clip) Draw(clip, true);
 
         void Draw(TransformControl target, bool selected)
         {
@@ -25,12 +25,12 @@ internal sealed partial class EditorView
             var curve = operation switch
             {
                 SetTitleTransform title when title.TitleId == target.Title?.Id => title.Curve,
-                SetClipTransform clipTransform when clipTransform.ClipId == target.Clip?.Id => clipTransform.Curve,
+                SetClipTransform clipTransform when clipTransform.ClipId == target.Clip.Id => clipTransform.Curve,
                 _ => null
             };
             if (curve is null) return;
-            var candidate = target.Title is { } titleCue ? target with { Title = titleCue with { Transform = curve } }
-                : target with { Clip = target.Clip! with { Properties = target.Clip.Properties with
+            var candidate = target.Clip.Title is { } content ? target with { Clip = target.Clip with { Title = content with { Transform = curve } } }
+                : target with { Clip = target.Clip with { Properties = target.Clip.Properties with
                     { Video = (target.Clip.Properties.Video ?? new()) with { Transform = new(ClipTransform.KeyOrigin(target.Clip), curve) } } } };
             (x, y) = EditorEffects.Anchor(candidate, picture);
             Cross(x, y, editor.EffectDrag?.Preview?.Success == true ? Ui.Orange : Ui.Alert);

@@ -20,8 +20,9 @@ public sealed class ProjectJsonSerializer : ISaveSerializer
     private static void OmitEmptyTimelineFields(JsonTypeInfo typeInfo)
     {
         if (typeInfo.Type == typeof(SequenceDocument))
-            typeInfo.Properties.Single(property => property.Name == nameof(SequenceDocument.Titles)).ShouldSerialize =
-                (sequence, _) => !((SequenceDocument)sequence).Titles.IsEmpty;
+            // Old files carry a "Titles" layer; it is read for migration and never written back.
+            typeInfo.Properties.Single(property => property.Name == "Titles").ShouldSerialize =
+                (sequence, _) => !((SequenceDocument)sequence).LegacyTitles.IsDefaultOrEmpty;
         if (typeInfo.Type == typeof(TimelineTrack))
             typeInfo.Properties.Single(property => property.Name == nameof(TimelineTrack.Transitions)).ShouldSerialize =
                 (track, _) => !((TimelineTrack)track).Transitions.IsEmpty;

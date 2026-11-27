@@ -26,7 +26,7 @@ internal static class EditReducer
             SetOutputFraming x => x.SequenceId,
             PatchClipColor x => x.SequenceId, SetClipRegion x => x.SequenceId, SetClipMotion x => x.SequenceId,
             SetSequenceMarker x => x.SequenceId, RemoveSequenceMarker x => x.SequenceId, ShiftSequenceAnnotations x => x.SequenceId,
-            SetTitle x => x.SequenceId, RemoveTitle x => x.SequenceId,
+            SetTitle x => x.SequenceId, RemoveTitle x => x.SequenceId, SetTitleContent x => x.SequenceId,
             SetTitleTransform x => x.SequenceId, SetClipTransform x => x.SequenceId,
             SetClipSpeed x => x.SequenceId, FreezeClip x => x.SequenceId,
             SetClipGain x => x.SequenceId,
@@ -55,27 +55,8 @@ internal static class EditReducer
         }
         if (operation is SetCreatorSettings settings)
             return document with { Sequences = document.Sequences.SetItem(si, sequence with { Creator = settings.Settings }) };
-        if (operation is SetTitle title)
-        {
-            ArgumentNullException.ThrowIfNull(title.Cue);
-            DocumentValidator.Require(title.Cue.End.Ticks <= sequence.Duration.Ticks, "Place titles within the current sequence duration.");
-            var existing = sequence.Titles.FirstOrDefault(cue => cue.Id == title.Cue.Id);
-            var updated = title.Cue with { Transform = title.Cue.Transform ?? existing?.Transform };
-            var titles = sequence.Titles.Where(cue => cue.Id != updated.Id).Append(updated)
-                .OrderBy(cue => cue.Start.Ticks).ThenBy(cue => cue.Id);
-            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Titles = [.. titles] }) };
-        }
-        if (operation is RemoveTitle removeTitle)
-        {
-            int index = Index(sequence.Titles, cue => cue.Id == removeTitle.TitleId, "title");
-            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Titles = sequence.Titles.RemoveAt(index) }) };
-        }
-        if (operation is SetTitleTransform titleTransform)
-        {
-            int index = Index(sequence.Titles, cue => cue.Id == titleTransform.TitleId, "title");
-            var updated = sequence.Titles[index] with { Transform = titleTransform.Curve };
-            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Titles = sequence.Titles.SetItem(index, updated) }) };
-        }
+        if (operation is SetTitle or RemoveTitle or SetTitleTransform or SetTitleContent)
+            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Tracks = Titles(sequence, operation, document.Assets) }) };
         if (operation is PatchTrackGain gain)
         {
             var track = sequence.Tracks[Index(sequence.Tracks, t => t.Id == gain.TrackId, "audio track")];
@@ -166,6 +147,8 @@ internal static class EditReducer
             }
             case RippleDelete x:
                 tracks = Ripple(sequence, x, document.Assets);
+                // A ripple can shorten a title clip: keep its entrance and exit inside what is left.
+                tracks = [.. tracks.Select(t => t.Clips.Any(c => c.IsTitle()) ? t with { Clips = [.. t.Clips.Select(FitTitle)] } : t)];
                 // Titles and markers sit over the picture: they ripple with any video track, never with audio alone.
                 if (x.CarryAnnotations && sequence.Tracks.Any(t => t.Kind == TrackKind.Video && x.TrackIds.Contains(t.Id)))
                     sequence = SequenceAnnotations.Remove(sequence, x.Start, x.End);
@@ -186,6 +169,8 @@ internal static class EditReducer
                 Unlocked(track);
                 int ci = Index(track.Clips, c => c.Id == clipId, "clip");
                 var clip = track.Clips[ci];
+                DocumentValidator.Require(!clip.IsTitle() || operation is MoveClip or TrimClip or SplitClip or DeleteClip or SetClipProperties,
+                    "Titles have their own style, motion and keyframes; picture effects, speed and audio gain apply to footage.");
                 var clips = track.Clips;
                 switch (operation)
                 {
@@ -211,7 +196,7 @@ internal static class EditReducer
                             retime = retime with { HoldTicks = x.HoldTicks!.Value };
                         }
                         else DocumentValidator.Require(x.HoldTicks is null, "Only a freeze frame can set a trim duration.");
-                        clips = clips.SetItem(ci, clip with { Start = x.Start, SourceIn = x.SourceIn, SourceOut = x.SourceOut, Retime = retime });
+                        clips = clips.SetItem(ci, FitTitle(clip with { Start = x.Start, SourceIn = x.SourceIn, SourceOut = x.SourceOut, Retime = retime }));
                         break;
                     }
                     case SetClipSpeed x:
@@ -227,8 +212,15 @@ internal static class EditReducer
                     case SplitClip x:
                     {
                         DocumentValidator.Require(x.At.Ticks > clip.Start.Ticks && x.At.Ticks < clip.End.Ticks, "Split must be strictly inside the clip.");
-                        clips = clips.SetItem(ci, clip.Slice(clip.Start, x.At))
-                            .Add(clip.Slice(x.At, clip.End) with { Id = x.RightClipId });
+                        var left = clip.Slice(clip.Start, x.At);
+                        var right = clip.Slice(x.At, clip.End) with { Id = x.RightClipId };
+                        // A split title plays continuously: the entrance stays on the left half, the exit on the right.
+                        if (clip.Title is { } split)
+                        {
+                            left = FitTitle(left with { Title = split with { ExitTicks = 0 } });
+                            right = FitTitle(right with { Title = split with { EntranceTicks = 0 } });
+                        }
+                        clips = clips.SetItem(ci, left).Add(right);
                         break;
                     }
                     case DeleteClip:
@@ -294,6 +286,72 @@ internal static class EditReducer
         return document with { Sequences = document.Sequences.SetItem(si, sequence with { Tracks = tracks }) };
     }
 
+    /// <summary>
+    /// Title clips. <see cref="SetTitle"/> upserts by clip ID: an existing title keeps its track and its title clock
+    /// (so keyframes stay put); a new one goes on the cue's track, else the highest unlocked video track that is free
+    /// over its range, else a new video track above the rest whose ID is derived from the clip ID (never invented).
+    /// </summary>
+    private static ImmutableArray<TimelineTrack> Titles(SequenceDocument sequence, EditOperation operation, ImmutableArray<MediaAsset> assets)
+    {
+        var tracks = sequence.Tracks;
+        Guid id = operation switch
+        {
+            SetTitle x => x.Cue?.Id ?? throw new ArgumentNullException(nameof(operation)),
+            RemoveTitle x => x.TitleId, SetTitleTransform x => x.TitleId, SetTitleContent x => x.ClipId,
+            _ => throw new ArgumentException("Unsupported title operation.")
+        };
+        int ti = tracks.IndexOf(tracks.FirstOrDefault(t => t.Clips.Any(c => c.Id == id))!);
+        TimelineClip? existing = ti >= 0 ? tracks[ti].Clips.First(c => c.Id == id) : null;
+        DocumentValidator.Require(existing is null || existing.IsTitle(), "That clip is not a title.");
+        if (operation is not SetTitle set)
+        {
+            DocumentValidator.Require(existing is not null, "Unknown title.");
+            var track = tracks[ti]; Unlocked(track);
+            var clips = track.Clips.Remove(existing!);
+            if (operation is SetTitleTransform transform)
+                clips = clips.Add(existing! with { Title = existing.Title! with { Transform = transform.Curve } });
+            else if (operation is SetTitleContent content)
+            {
+                ArgumentNullException.ThrowIfNull(content.Content);
+                clips = clips.Add(existing! with { Title = content.Content });
+            }
+            return tracks.SetItem(ti, WithClips(track, clips, assets));
+        }
+
+        var cue = set.Cue;
+        long duration = cue.End.Ticks - cue.Start.Ticks;
+        DocumentValidator.Require(cue.Start.Ticks >= 0 && duration > 0, "A title needs a positive range on the sequence.");
+        TimelineClip placed;
+        if (existing is not null)
+        {
+            var track = tracks[ti]; Unlocked(track);
+            tracks = tracks.SetItem(ti, WithClips(track, track.Clips.Remove(existing), assets));
+            placed = existing with
+            {
+                Start = cue.Start, SourceOut = existing.SourceIn.Shift(new(duration)),
+                Title = cue.Content with { Transform = cue.Transform ?? existing.Title!.Transform },
+            };
+        }
+        else placed = TitleClips.Create(cue.Id, cue.Start, new(duration), cue.Content);
+
+        int target = cue.TrackId is { } wanted ? Index(tracks, t => t.Id == wanted, "title track")
+            : existing is not null && cue.TrackId is null ? ti
+            : tracks.Select((t, i) => (t, i)).Where(p => p.t.Kind == TrackKind.Video && !p.t.State.Locked
+                && !p.t.Clips.Any(c => c.Start.Ticks < cue.End.Ticks && c.End.Ticks > cue.Start.Ticks))
+                .Select(p => p.i).DefaultIfEmpty(-1).Last();
+        if (target < 0)
+        {
+            int above = tracks.Select((t, i) => (t, i)).Where(p => p.t.Kind == TrackKind.Video).Select(p => p.i).DefaultIfEmpty(-1).Last() + 1;
+            var bytes = cue.Id.ToByteArray(); bytes[0] ^= 0x7A; bytes[1] ^= 0x1E; bytes[2] ^= 0xC1;
+            tracks = tracks.Insert(above, new(new Guid(bytes), TrackKind.Video, above, $"V{tracks.Count(t => t.Kind == TrackKind.Video) + 1}", new(), []));
+            tracks = [.. tracks.Select((t, order) => t with { Order = order })];
+            target = above;
+        }
+        DocumentValidator.Require(tracks[target].Kind == TrackKind.Video, "Titles go on video tracks.");
+        Unlocked(tracks[target]);
+        return tracks.SetItem(target, WithClips(tracks[target], tracks[target].Clips.Add(placed), assets));
+    }
+
     private static ImmutableArray<TimelineTrack> Ripple(SequenceDocument sequence, RippleDelete x, ImmutableArray<MediaAsset> assets)
     {
         DocumentValidator.Require(x.Start.Ticks >= 0 && x.End.Ticks > x.Start.Ticks && x.End.Ticks <= sequence.Duration.Ticks,
@@ -344,6 +402,13 @@ internal static class EditReducer
         if (track.Transitions.IsEmpty) return track;
         return track with { Transitions = [.. TransitionRules.Windows(track, assets.ToDictionary(asset => asset.Id), prune: true)
             .Select(window => window.Transition)] };
+    }
+    /// <summary>Shortening a title keeps its entrance and exit inside it.</summary>
+    private static TimelineClip FitTitle(TimelineClip clip)
+    {
+        if (clip.Title is not { } title) return clip;
+        long duration = clip.Duration.Ticks, entrance = Math.Clamp(title.EntranceTicks, 0, Math.Max(0, duration));
+        return clip with { Title = title with { EntranceTicks = entrance, ExitTicks = Math.Clamp(title.ExitTicks, 0, Math.Max(0, duration - entrance)) } };
     }
     private static void Unlocked(TimelineTrack track) => DocumentValidator.Require(!track.State.Locked, "Track is locked.");
     private static int Index<T>(ImmutableArray<T> items, Func<T, bool> predicate, string kind)

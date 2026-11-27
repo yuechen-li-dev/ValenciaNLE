@@ -13,6 +13,7 @@ public static class DocumentValidator
         {
             Require(asset is not null, "Null asset.");
             AddId(asset!.Id);
+            Require(asset.Id != TitleClips.AssetId, "That asset ID is reserved for title clips.");
             Require(asset.Name is not null && asset.Container is not null && !string.IsNullOrWhiteSpace(asset.SourcePath)
                 && Path.IsPathFullyQualified(asset.SourcePath) && asset.SourcePath == Path.GetFullPath(asset.SourcePath),
                 "Assets require a normalized absolute local source path.");
@@ -38,6 +39,7 @@ public static class DocumentValidator
             }
         }
         var assets = project.Assets.ToDictionary(a => a.Id);
+        assets[TitleClips.AssetId] = TitleClips.Asset; // title clips resolve to the reserved, unbounded title source
         foreach (var sequence in project.Sequences)
         {
             Require(sequence is not null, "Null sequence.");
@@ -55,23 +57,7 @@ public static class DocumentValidator
                 Require(marker.At.Ticks >= 0 && marker.Label is { Length: > 0 and <= 256 }
                     && !string.IsNullOrWhiteSpace(marker.Label) && !marker.Label.Any(char.IsControl), "Invalid sequence marker.");
             }
-            Require(!sequence.Titles.IsDefault && sequence.Titles.Length <= 2000, "A sequence supports up to 2,000 titles.");
-            foreach (var title in sequence.Titles)
-            {
-                Require(title is not null, "Null title.");
-                AddId(title!.Id);
-                Require(title.Start.Ticks >= 0 && title.End.Ticks > title.Start.Ticks
-                    && title.EntranceTicks >= 0 && title.ExitTicks >= 0
-                    && title.EntranceTicks <= title.End.Ticks - title.Start.Ticks
-                    && title.ExitTicks <= title.End.Ticks - title.Start.Ticks - title.EntranceTicks,
-                    "Title timing requires a positive range and entrance/exit durations within it.");
-                Require(title.Text is { Length: > 0 and <= 120 } && !string.IsNullOrWhiteSpace(title.Text)
-                    && !title.Text.Any(char.IsControl) && !title.Text.Contains('\u2028') && !title.Text.Contains('\u2029'),
-                    "Title text requires one line of 1..120 characters.");
-                Require(TitleMotion.IsSupported(title.Motion) && CreatorSemantics.Unit(title.X) && CreatorSemantics.Unit(title.Y)
-                    && title.Size is >= .03 and <= .34, "Invalid title motion, placement or size.");
-                title.Transform?.Validate(title.End.Ticks - title.Start.Ticks);
-            }
+            Require(sequence.LegacyTitles.IsDefaultOrEmpty, "Sequence-layer titles must be migrated to title clips before validation.");
             for (int order = 0; order < sequence.Tracks.Length; order++)
             {
                 var track = sequence.Tracks[order];
@@ -97,6 +83,13 @@ public static class DocumentValidator
                     CreatorSemantics.ValidateEffects(clip.Properties!);
                     Require(clip.Properties!.Video?.Region is null || track.Kind == TrackKind.Video, "Region Effects require a video clip.");
                     Require(clip.Properties.Video?.Motion is null || track.Kind == TrackKind.Video, "Clip motion requires a video clip.");
+                    Require(clip.Title is null == (clip.AssetId != TitleClips.AssetId), "Only title clips use the title source, and they always carry title content.");
+                    if (clip.Title is { } title)
+                    {
+                        Require(track.Kind == TrackKind.Video && clip.StreamIndex == 0 && clip.Retime is null,
+                            "Titles are video clips at their own speed.");
+                        TitleMotion.Validate(title, clip.Duration.Ticks);
+                    }
                     Require(assets.TryGetValue(clip.AssetId, out var asset), "Clip references an unknown asset.");
                     var stream = asset!.Streams.FirstOrDefault(s => s.Index == clip.StreamIndex);
                     Require(stream is not null && stream.Kind == track.Kind, "Clip references an unknown or incompatible stream.");

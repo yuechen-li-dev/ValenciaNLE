@@ -23,6 +23,9 @@ public sealed record TimelineClip(Guid Id, Guid AssetId, int StreamIndex, Sequen
 {
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public VideoRetime? Retime { get; init; }
+    /// <summary>Set on title clips, which read from <see cref="TitleClips.Asset"/> instead of a media file.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public TitleContent? Title { get; init; }
     [JsonIgnore] public SequenceTime Duration => Retime switch
     {
         { Hold: not null } hold => new(hold.HoldTicks),
@@ -83,7 +86,10 @@ public sealed record SequenceDocument(Guid Id, string Name, VideoFormat Video, i
     ImmutableArray<TimelineTrack> Tracks, CreatorSettings? Creator = null)
 {
     public ImmutableArray<SequenceMarker> Markers { get; init; } = [];
-    public ImmutableArray<TitleCue> Titles { get; init; } = [];
+    /// <summary>The old title layer, read from older project files only; <see cref="TitleMigration"/> turns it into clips.</summary>
+    [JsonPropertyName("Titles")] public ImmutableArray<TitleCue> LegacyTitles { get; init; } = [];
+    /// <summary>Title clips on this sequence's video tracks, as cues (read model for scripts and plan diffs).</summary>
+    [JsonIgnore] public ImmutableArray<TitleCue> Titles => TitleClips.Views(this);
     [JsonIgnore] public SequenceTime Duration => new(Tracks.SelectMany(t => t.Clips).Select(c => c.End.Ticks).DefaultIfEmpty(0).Max());
 }
 public sealed record ProjectDocument(Guid Id, int SchemaVersion, string Name,
@@ -103,8 +109,8 @@ public static class DocumentSemantics
         a.Assets.Length == b.Assets.Length && a.Assets.Zip(b.Assets).All(p =>
             p.First with { Streams = p.Second.Streams } == p.Second && p.First.Streams.SequenceEqual(p.Second.Streams)) &&
         a.Sequences.Length == b.Sequences.Length && a.Sequences.Zip(b.Sequences).All(p =>
-            p.First with { Tracks = p.Second.Tracks, Creator = p.Second.Creator, Markers = p.Second.Markers, Titles = p.Second.Titles } == p.Second &&
-            p.First.Titles.SequenceEqual(p.Second.Titles) &&
+            p.First with { Tracks = p.Second.Tracks, Creator = p.Second.Creator, Markers = p.Second.Markers, LegacyTitles = p.Second.LegacyTitles } == p.Second &&
+            p.First.LegacyTitles.SequenceEqual(p.Second.LegacyTitles) &&
             p.First.Markers.SequenceEqual(p.Second.Markers) && CreatorSemantics.Equal(p.First.Creator, p.Second.Creator) && p.First.Tracks.Length == p.Second.Tracks.Length &&
             p.First.Tracks.Zip(p.Second.Tracks).All(t => t.First with { Clips = t.Second.Clips, Transitions = t.Second.Transitions } == t.Second &&
                 t.First.Clips.SequenceEqual(t.Second.Clips) && t.First.Transitions.SequenceEqual(t.Second.Transitions)));

@@ -66,6 +66,8 @@ public sealed class ProjectFile
             })]
         }};
         ArgumentOutOfRangeException.ThrowIfNegative(snapshot.Revision);
+        // Projects saved while titles were a sequence layer open with those titles as clips on new tracks.
+        snapshot = snapshot with { Document = TitleMigration.Upgrade(snapshot.Document) };
         DocumentValidator.Validate(snapshot.Document);
         var missing = ImmutableArray.CreateBuilder<MissingMedia>();
         foreach (var asset in snapshot.Document.Assets)

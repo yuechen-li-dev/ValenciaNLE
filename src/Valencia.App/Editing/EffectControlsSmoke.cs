@@ -41,7 +41,8 @@ internal sealed partial class EditorWindow
                     var title = sequence.Titles.Single();
                     window.Capture(Path.Combine(directory, "before.png"));
                     var picture = EditorEffects.Picture(editor, window.view.Layout.Monitor);
-                    var anchor = EditorEffects.Anchor(new(null, title, Frame(115)), picture);
+                    var titleClip = sequence.Tracks.SelectMany(t => t.Clips).Single(c => c.Id == title.Id);
+                    var anchor = EditorEffects.Anchor(new(titleClip, Frame(115)), picture);
                     var drop = (anchor.X + picture.Width * .12, anchor.Y + picture.Height * .155);
                     window.PointerDown(anchor);
                     window.PointerMove(drop);

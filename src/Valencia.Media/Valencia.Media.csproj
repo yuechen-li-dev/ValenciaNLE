@@ -6,6 +6,7 @@
     <ProjectReference Include="$(CopelandRoot)/src/Aurelian/Aurelian.Shaders/Aurelian.Shaders.csproj" />
     <EmbeddedResource Include="Assets/ClipEffects.v.ts" />
     <EmbeddedResource Include="../Valencia.Rendering/Assets/Fonts/Archivo-ExpandedBold.ttf" LogicalName="Valencia.Media.TitleFont.ttf" />
+    <EmbeddedResource Include="../Valencia.Rendering/Assets/Fonts/NotoSerifDisplay-ExtraCondensedBlack.ttf" LogicalName="Valencia.Media.TitleDisplay.ttf" />
     <EmbeddedResource Include="Assets/ClipEffects.json" Condition="Exists('Assets/ClipEffects.json')" />
     <PackageReference Include="FFmpeg.AutoGen" Version="7.1.1" />
     <PackageReference Include="NAudio.WinMM" Version="3.3.0" />

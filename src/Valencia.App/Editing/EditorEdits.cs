@@ -151,7 +151,7 @@ internal static class EditorEdits
         {
             var shifted = Unlocked(sequence);
             operations.AddRange(ShiftFrom(editor.SequenceId, shifted, at, end.Ticks - at.Ticks));
-            // Titles and markers follow the picture, as a ripple delete does in the reducer.
+            // Markers follow the picture, as a ripple delete does in the reducer (titles are clips and shift above).
             if (shifted.Any(t => t.Kind == TrackKind.Video)) operations.Add(new ShiftSequenceAnnotations(editor.SequenceId, at, new(end.Ticks - at.Ticks)));
         }
         operations.AddRange(inserts);

@@ -26,39 +26,39 @@ internal sealed class EffectDrag(long revision, Func<double, double, EditOperati
         new(Guid.NewGuid(), 1, revision, [new(Guid.NewGuid(), 1, operation)]);
 }
 
-internal sealed record TransformControl(TimelineClip? Clip, TitleCue? Title, SequenceTime Time)
+/// <summary>Monitor keyframing target: a footage clip, or a title clip (whose keys live on the title's own clock).</summary>
+internal sealed record TransformControl(TimelineClip Clip, SequenceTime Time)
 {
-    public TransformCurve? Curve => Title?.Transform ?? Clip?.Properties.Video?.Transform?.Curve;
-    private long Offset => Title is not null ? Time.Ticks - Title.Start.Ticks
-        : Clip!.MapToSource(Time).Since(Clip.Properties.Video?.Transform?.Origin ?? Clip.SourceIn).Ticks;
+    public TitleCue? Title => Clip.IsTitle() ? TitleClips.View(Clip) : null;
+    public TransformCurve? Curve => Clip.Title is { } title ? title.Transform : Clip.Properties.Video?.Transform?.Curve;
+    private long Offset => Clip.IsTitle() ? TitleClips.LocalTicks(Clip, Time)
+        : Clip.MapToSource(Time).Since(Clip.Properties.Video?.Transform?.Origin ?? Clip.SourceIn).Ticks;
 
-    public TransformPose Pose => Curve?.At(Offset) ?? (Title is { } title
+    public TransformPose Pose => Curve?.At(Offset) ?? (Clip.Title is { } title
         ? new(title.X, title.Y, 1, 0, 1)
-        : new(Clip!.Properties.Video?.X ?? .5, Clip.Properties.Video?.Y ?? .5, Clip.Properties.Video?.Scale ?? 1, 0, 1));
+        : new(Clip.Properties.Video?.X ?? .5, Clip.Properties.Video?.Y ?? .5, Clip.Properties.Video?.Scale ?? 1, 0, 1));
 
     public EditOperation Write(Guid sequence, TransformPose pose)
     {
-        long rebase = Clip is { Properties.Video.Transform: { } existing } clip
-            ? existing.Origin.Since(ClipTransform.KeyOrigin(clip)).Ticks : 0;
+        long rebase = !Clip.IsTitle() && Clip.Properties.Video?.Transform is { } existing
+            ? existing.Origin.Since(ClipTransform.KeyOrigin(Clip)).Ticks : 0;
         var keys = Curve?.Keys ?? [];
         var key = new TransformKey(checked(Offset + rebase), pose.X, pose.Y, pose.Scale, pose.Rotation, pose.Opacity,
             keys.FirstOrDefault(k => k.At == Offset)?.Interpolation ?? "linear");
         var curve = new TransformCurve([.. keys.Where(k => k.At != Offset)
             .Select(k => rebase == 0 ? k : k with { At = checked(k.At + rebase) }).Append(key).OrderBy(k => k.At)]);
-        return Title is { } title ? new SetTitleTransform(sequence, title.Id, curve)
-            : new SetClipTransform(sequence, Clip!.Id, curve, PreserveOrigin: true);
+        return Clip.IsTitle() ? new SetTitleTransform(sequence, Clip.Id, curve)
+            : new SetClipTransform(sequence, Clip.Id, curve, PreserveOrigin: true);
     }
 
     public SequenceTime? Adjacent(bool next)
     {
-        var origin = Clip?.Properties.Video?.Transform?.Origin;
-        if (Clip?.Retime?.Hold is not null) return null;
+        if (Clip.Retime?.Hold is not null) return null;
+        var origin = Clip.IsTitle() ? TitleClips.Origin : Clip.Properties.Video?.Transform?.Origin;
         var keys = Curve?.Keys ?? [];
-        var candidates = Title is { } title
-            ? keys.Select(k => new SequenceTime(checked(title.Start.Ticks + k.At)))
-            : keys.Select(k => origin!.Value.Shift(new(k.At)))
-                .Where(p => p.CompareTo(Clip!.SourceIn) >= 0 && p.CompareTo(Clip.SourceOut) < 0)
-                .Select(p => Clip!.MapToTimeline(p));
+        var candidates = keys.Select(k => origin!.Value.Shift(new(k.At)))
+            .Where(p => p.CompareTo(Clip.SourceIn) >= 0 && p.CompareTo(Clip.SourceOut) < 0)
+            .Select(p => Clip.MapToTimeline(p));
         long? ticks = next ? candidates.Where(t => t.Ticks > Time.Ticks).Min(t => (long?)t.Ticks)
             : candidates.Where(t => t.Ticks < Time.Ticks).Max(t => (long?)t.Ticks);
         return ticks is { } value ? new(value) : null;
@@ -72,14 +72,16 @@ internal static class EditorEffects
         if (editor.Source is not null || editor.ScrubTarget is not null) return null;
         var at = Frame(editor, editor.Playhead);
         var sequence = editor.Sequence;
-        if (editor.SelectedTitle is { } id && sequence.Titles.FirstOrDefault(t => t.Id == id) is { } title
-            && TitleMotion.At(title, at) is not null)
-            return new(null, title, at);
         if (editor.Selection is { } clip && clip.Start.Ticks <= at.Ticks && at.Ticks < clip.End.Ticks
             && sequence.Tracks.Any(track => track.Kind == TrackKind.Video && track.Clips.Any(c => c.Id == clip.Id)))
-            return new(clip, null, at);
+            return new(clip, at);
         return null;
     }
+
+    /// <summary>Visible title clips showing at a time, bottom track first (draw order).</summary>
+    public static IEnumerable<TimelineClip> TitlesAt(EditorDocument editor, SequenceTime time) =>
+        editor.Sequence.Tracks.Where(t => t.Kind == TrackKind.Video && t.State.Visible).OrderBy(t => t.Order)
+            .SelectMany(t => t.Clips).Where(c => c.IsTitle() && c.Properties.Enabled && TitleMotion.At(c, time) is { Opacity: > 0 });
 
     public static SequenceTime Frame(EditorDocument editor, SequenceTime time) =>
         TimelineTime.SnapToFrame(time, editor.Sequence.Video.FrameRate, TimeRounding.NearestAwayFromZero);
@@ -97,9 +99,9 @@ internal static class EditorEffects
     public static (double X, double Y) Anchor(TransformControl control, Rect picture)
     {
         var pose = control.Pose;
-        if (control.Title is { } title && TitleMotion.At(title, control.Time) is { } motion)
+        if (TitleMotion.At(control.Clip, control.Time) is { } motion)
             pose = pose with { X = pose.X + motion.OffsetX, Y = pose.Y + motion.OffsetY };
-        if (control.Clip?.Properties.Video?.Motion is { } clipMotion)
+        if (control.Clip.Properties.Video?.Motion is { } clipMotion)
         {
             var placement = clipMotion.Apply(new(X: pose.X, Y: pose.Y, Scale: pose.Scale),
                 control.Time.Ticks - control.Clip.Start.Ticks, control.Clip.Duration.Ticks);

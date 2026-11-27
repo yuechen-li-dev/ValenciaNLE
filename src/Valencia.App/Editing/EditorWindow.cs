@@ -641,6 +641,9 @@ internal sealed partial class EditorWindow : IDisposable
                     var frameRate = Editor.MonitorFrameRate;
                     long index = TimelineTime.FrameIndex(Editor.Playhead, frameRate, TimeRounding.NearestAwayFromZero);
                     Seek(TimelineTime.FromFrames(Math.Max(0, index + (name == "NextFrame" ? 1 : -1)), frameRate)); break;
+                case "NewTitle": PauseTransport(); ExitSource(); NewTitle(); break;
+                case "TitleEdit": EditTitleText(); break;
+                case "TitleStyle": SetTitleStyle(); break;
                 case "AddVideo": case "AddAudio":
                     Editor.Commit(new AddTrack(Editor.SequenceId, Guid.NewGuid(), name == "AddVideo" ? TrackKind.Video : TrackKind.Audio, Editor.Sequence.Tracks.Length, name == "AddVideo" ? "Video" : "Audio")); break;
                 default:

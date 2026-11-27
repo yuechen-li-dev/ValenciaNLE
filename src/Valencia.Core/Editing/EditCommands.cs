@@ -24,17 +24,20 @@ public sealed record DeleteClip(Guid SequenceId, Guid ClipId) : EditOperation;
 public sealed record RippleSplitId(Guid ClipId, Guid RightClipId);
 /// <summary>Remove [Start, End) on exactly TrackIds; all later clips on those tracks shift by the full range length.</summary>
 /// <summary>
-/// Closes [Start, End) on the target tracks. When a video track ripples, sequence titles and markers follow the picture
-/// unless <paramref name="CarryAnnotations"/> is false (a magnetic move lifts and re-inserts the same material).
+/// Closes [Start, End) on the target tracks. When a video track ripples, sequence markers follow the picture unless
+/// <paramref name="CarryAnnotations"/> is false (a magnetic move lifts and re-inserts the same material).
 /// </summary>
 public sealed record RippleDelete(Guid SequenceId, ImmutableArray<Guid> TrackIds, SequenceTime Start, SequenceTime End,
     ImmutableArray<RippleSplitId> SplitIds, bool CarryAnnotations = true) : EditOperation;
-/// <summary>The title and marker half of an insert edit: opens a gap of Shift at At (clip moves are separate commands).</summary>
+/// <summary>The marker half of an insert edit: opens a gap of Shift at At (clip moves are separate commands).</summary>
 public sealed record ShiftSequenceAnnotations(Guid SequenceId, SequenceTime At, SequenceTime Shift) : EditOperation;
 /// <summary>Permitted on a locked track, so it can be unlocked; other edits cannot bypass the lock.</summary>
 public sealed record SetTrackState(Guid SequenceId, Guid TrackId, TrackState State) : EditOperation;
 public sealed record SetCreatorSettings(Guid SequenceId, CreatorSettings Settings) : EditOperation;
+/// <summary>Creates or updates a title clip from a cue (ID, range, content, optional track). See the reducer for placement.</summary>
 public sealed record SetTitle(Guid SequenceId, TitleCue Cue) : EditOperation;
+/// <summary>Replaces a title clip's text and style, keeping its timing.</summary>
+public sealed record SetTitleContent(Guid SequenceId, Guid ClipId, TitleContent Content) : EditOperation;
 public sealed record RemoveTitle(Guid SequenceId, Guid TitleId) : EditOperation;
 public sealed record SetTitleTransform(Guid SequenceId, Guid TitleId, TransformCurve? Curve) : EditOperation;
 public sealed record SetClipTransform(Guid SequenceId, Guid ClipId, TransformCurve? Curve, bool PreserveOrigin = false) : EditOperation;

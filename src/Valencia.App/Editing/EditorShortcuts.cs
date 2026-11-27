@@ -89,6 +89,7 @@ internal static class EditorShortcuts
         (EditorAction.SelectTool, new(KeyboardKey.V)),
         (EditorAction.RazorTool, new(KeyboardKey.C)),
         (EditorAction.Split, new(KeyboardKey.K, Ctrl)),
+        (EditorAction.NewTitle, new(KeyboardKey.T, Ctrl)),
         (EditorAction.Delete, new(KeyboardKey.Delete)),
         (EditorAction.Delete, new(KeyboardKey.Backspace)),
         (EditorAction.RippleDelete, new(KeyboardKey.Delete, Shift)),
@@ -145,6 +146,7 @@ internal static class EditorShortcuts
         EditorAction.SelectTool => ("Editing", "Selection tool"),
         EditorAction.RazorTool => ("Editing", "Razor tool"),
         EditorAction.Split => ("Editing", "Add edit"),
+        EditorAction.NewTitle => ("Editing", "New title"),
         EditorAction.Delete => ("Editing", "Clear"),
         EditorAction.RippleDelete => ("Editing", "Ripple delete"),
         EditorAction.RippleTrimPrevious => ("Editing", "Ripple trim previous edit to playhead"),
@@ -268,7 +270,7 @@ internal static class EditorShortcuts
         }
     }
 
-    private static bool CanYieldDefault(EditorAction action) => action is EditorAction.NewSequence or EditorAction.NextSequence
+    private static bool CanYieldDefault(EditorAction action) => action is EditorAction.NewTitle or EditorAction.NewSequence or EditorAction.NextSequence
         or EditorAction.AddSequenceMarker or EditorAction.NextSequenceMarker or EditorAction.PreviousSequenceMarker or EditorAction.Fullscreen;
 
     public static void Save(InputProfile profile, string path)
