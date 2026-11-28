@@ -133,12 +133,28 @@ internal static class EditorEdits
     /// at the timeline playhead. An optional source range (times on the asset's own placement) inserts only that part.
     /// Magnetic mode turns overwrite into insert. The timeline playhead moves to the end of the edit, as in Premiere.
     /// </summary>
-    public static EditResult InsertAt(EditorDocument editor, ImportedAsset imported, bool overwrite, (SequenceTime In, SequenceTime Out)? range = null)
+    /// <param name="at">Edit point; defaults to the timeline playhead (a drag from the bin passes the drop time).</param>
+    /// <param name="target">Receiving track; defaults to the targeted track (a drag passes the track under the pointer).</param>
+    public static EditResult InsertAt(EditorDocument editor, ImportedAsset imported, bool overwrite, (SequenceTime In, SequenceTime Out)? range = null,
+        SequenceTime? at = null, Guid? target = null)
+    {
+        var built = Plan(editor, imported, at ?? editor.TimelinePlayhead, target ?? editor.TargetTrack, range);
+        return Apply(editor, built, overwrite, at ?? editor.TimelinePlayhead);
+    }
+
+    /// <summary>The insertion operations for a placement, trimmed to an optional source range. Pure: also drives drag previews.</summary>
+    public static IReadOnlyList<EditOperation> Plan(EditorDocument editor, ImportedAsset imported, SequenceTime at, Guid? target,
+        (SequenceTime In, SequenceTime Out)? range = null)
+    {
+        var built = Valencia.Engine.InsertionCommands.Build(editor.Session.Snapshot, editor.SequenceId, imported, at, target);
+        return range is { } r ? [.. built.Select(o => o is InsertClip i ? Trim(i, at, r) : o).OfType<EditOperation>()] : built;
+    }
+
+    private static EditResult Apply(EditorDocument editor, IReadOnlyList<EditOperation> built, bool overwrite, SequenceTime at)
     {
         overwrite &= !editor.Magnetic;
-        var sequence = editor.Sequence; var at = editor.TimelinePlayhead;
-        var built = Valencia.Engine.InsertionCommands.Build(editor.Session.Snapshot, editor.SequenceId, imported, at, editor.TargetTrack);
-        var inserts = built.OfType<InsertClip>().Select(i => range is { } r ? Trim(i, at, r) : i).OfType<InsertClip>().ToArray();
+        var sequence = editor.Sequence;
+        var inserts = built.OfType<InsertClip>().ToArray();
         if (inserts.Length == 0) return editor.Commit(built.Where(o => o is not InsertClip));
         var end = new SequenceTime(inserts.Max(i => i.Clip.End.Ticks));
         var operations = new List<EditOperation>(built.OfType<AddTrack>());

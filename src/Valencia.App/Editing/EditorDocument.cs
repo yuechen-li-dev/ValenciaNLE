@@ -75,6 +75,10 @@ internal sealed class EditorDocument
     public IReadOnlyList<(string Action, string Label)> TabOverflow { get; set; } = [];
     public IReadOnlyList<(string Action, string Label)> ToolOverflow { get; set; } = [];
     public IReadOnlyList<(string Action, string Label)> HeaderOverflow { get; set; } = [];
+    /// <summary>Window-space track scrollbar groove and thumb, written by the view when tracks overflow; null otherwise.</summary>
+    public (Machina.Layout.Geometry.Rect Groove, Machina.Layout.Geometry.Rect Thumb)? TrackScrollbar { get; set; }
+    /// <summary>Clips a drag from the bin would place, previewed on the timeline while the pointer is over it.</summary>
+    public IReadOnlyList<(Guid TrackId, SequenceTime Start, SequenceTime End)> DropGhosts { get; set; } = [];
     /// <summary>Meter ballistics, fed from the playback output tap every UI frame.</summary>
     public AudioMeter Meter { get; } = new();
     /// <summary>Window-space fader travel for each mix strip ("master" or a track id), written by the view.</summary>

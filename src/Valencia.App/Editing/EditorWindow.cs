@@ -111,7 +111,7 @@ internal sealed partial class EditorWindow : IDisposable
                     else Editor.FirstAsset = Math.Clamp(Editor.FirstAsset - (int)wheel.Y, 0, Math.Max(0, Editor.Session.Snapshot.Document.Assets.Length - Editor.MediaPageSize));
                 }
                 else if (keys.Control) Editor.Viewport.Zoom(Math.Pow(1.2, wheel.Y), Point(m).X);
-                else if (keys.Shift) Editor.Viewport.FirstTrack = Math.Clamp(Editor.Viewport.FirstTrack - (int)wheel.Y, 0, Math.Max(0, Editor.Sequence.Tracks.Length - Editor.Viewport.VisibleTracks));
+                else if (keys.Shift || point.X < Editor.Viewport.ClipLeft && point.Y >= Editor.Viewport.TrackTop) Editor.Viewport.FirstTrack = Math.Clamp(Editor.Viewport.FirstTrack - (int)wheel.Y, 0, Math.Max(0, Editor.Sequence.Tracks.Length - Editor.Viewport.VisibleTracks));
                 else Editor.Viewport.Scroll(-wheel.Y * 90 - wheel.X * 90);
                 lastUi = -1;
             });
@@ -686,10 +686,9 @@ internal sealed partial class EditorWindow : IDisposable
                 case "NewTitle": PauseTransport(); ExitSource(); NewTitle(); break;
                 case "TitleEdit": EditTitleText(); break;
                 case "TitleStyle": SetTitleStyle(); break;
-                case "AddVideo": case "AddAudio":
-                    Editor.Commit(new AddTrack(Editor.SequenceId, Guid.NewGuid(), name == "AddVideo" ? TrackKind.Video : TrackKind.Audio, Editor.Sequence.Tracks.Length, name == "AddVideo" ? "Video" : "Audio")); break;
+                case "AddVideo": case "AddAudio": AddTrackGrouped(name == "AddVideo" ? TrackKind.Video : TrackKind.Audio); break;
                 default:
-                    if (MixAction(name)) break;
+                    if (MixAction(name) || TrackAction(name)) break;
                     if (name.StartsWith("TranscriptWord:", StringComparison.Ordinal)) { SelectTranscriptWord(int.Parse(name[15..])); break; }
                     if (name.StartsWith("Asset:", StringComparison.Ordinal)) { Editor.SelectedAsset = Guid.Parse(name[6..]); if (Editor.Source is not null) OpenSelectedSource(); }
                     else if (name.StartsWith("Target:", StringComparison.Ordinal)) Editor.TargetTrack = Guid.Parse(name[7..]);
@@ -749,7 +748,7 @@ internal sealed partial class EditorWindow : IDisposable
         diagnostics.Record("pointer-down", generation, Editor.Playhead.Ticks, $"x={p.X};y={p.Y}");
         diagnostics.Save(); // persist the last gesture even if a native fault prevents managed unwinding
         var viewport = Editor.Viewport;
-        if (BeginFader(p.X, p.Y) || BeginMonitorEffect(p.X, p.Y) || BeginTimelineEffect(p.X, p.Y)) return;
+        if (BeginFader(p.X, p.Y) || BeginTrackScroll(p.X, p.Y) || BeginMonitorEffect(p.X, p.Y) || BeginTimelineEffect(p.X, p.Y)) return;
         if (p.X >= viewport.ClipLeft && p.X <= viewport.ClipRight && p.Y >= view.Layout.RulerY && p.Y < viewport.TrackTop + viewport.VisibleTracks * viewport.Row)
         {
             PauseTransport(); ExitSource();
@@ -770,7 +769,9 @@ internal sealed partial class EditorWindow : IDisposable
             }
             lastUi = -1; return;
         }
-        pointer.Press(view.Prepared?.HitTest.HitTest(new PointerPoint(p.X, p.Y)));
+        var pressed = view.Prepared?.HitTest.HitTest(new PointerPoint(p.X, p.Y));
+        pointer.Press(pressed);
+        ArmMediaDrag(pressed?.Action.Name, p);
     }
     private SequenceTime Snap(double x)
     {
@@ -864,7 +865,7 @@ internal sealed partial class EditorWindow : IDisposable
             if (scrubbing) UpdateFullscreenScrub(p.X);
             return;
         }
-        if (MoveFader(p.X)) return;
+        if (MoveFader(p.X) || MoveTrackScroll(p.Y) || MoveMediaDrag(p)) return;
         if (Editor.EffectDrag is { } effect) { effect.Move(Editor.Session, p.X, p.Y); lastUi = -1; }
         else if (Gesture.Active) { Gesture.Move(p.X, p.Y); lastUi = -1; }
         else if (scrubbing) UpdateScrubTarget(p.X);
@@ -881,7 +882,7 @@ internal sealed partial class EditorWindow : IDisposable
         feedbackDirty |= feedback.Release(new(p.X, p.Y));
         if (IsFullscreen) { FullscreenPointerUp(p); return; }
         diagnostics.Record("pointer-up", generation, Editor.Playhead.Ticks);
-        if (ReleaseFader(p.X)) { }
+        if (ReleaseFader(p.X) || ReleaseTrackScroll() || ReleaseMediaDrag(p)) { }
         else if (Editor.EffectDrag is not null) ReleaseEffect(p.X, p.Y);
         else if (Gesture.Active) { Gesture.Move(p.X, p.Y); if (Gesture.Release()) Seek(Editor.Playhead); ReleasePointer(); }
         else if (scrubbing)
@@ -902,7 +903,7 @@ internal sealed partial class EditorWindow : IDisposable
         Editor.ScrubTarget = pendingScrub = null;
         scrubSnapPoints = null;
     }
-    private void CancelGesture() { CloseContextMenu(); faderDragging = false; Editor.FaderPreview = null; Gesture.Cancel(); Editor.EffectDrag = null; ClearScrub(); fullscreenVideoPressed = false; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
+    private void CancelGesture() { CloseContextMenu(); faderDragging = false; Editor.FaderPreview = null; CancelTrackGestures(); Gesture.Cancel(); Editor.EffectDrag = null; ClearScrub(); fullscreenVideoPressed = false; pointer.Reset(); feedbackDirty |= feedback.Clear(); pointerPosition = null; ReleasePointer(); lastUi = -1; }
     private nint WindowHandle => Graphics.Window.Native?.Win32?.Hwnd ?? 0;
     private void CapturePointer()
     {

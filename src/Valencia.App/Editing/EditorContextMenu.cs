@@ -36,6 +36,12 @@ internal sealed partial class EditorWindow
         if (palette is not null || Settings.IsOpen || IsFullscreen || view.IsCompact || view.Prepared is null || job is not null
             || Gesture.Active || Editor.EffectDrag is not null || scrubbing) return;
         var viewport = Editor.Viewport;
+        if (point.X < viewport.ClipLeft && point.Y >= viewport.TrackTop && point.Y < viewport.TrackBottom)
+        {
+            // Track header: Premiere's track menu (add, delete, delete empty tracks).
+            if (TrackMenu(point.Y) is { } items) ShowMenu(point, "Track", items);
+            return;
+        }
         if (point.X < viewport.ClipLeft || point.X >= viewport.ClipRight
             || point.Y < view.Layout.RulerY || point.Y >= viewport.TrackBottom) return;
 

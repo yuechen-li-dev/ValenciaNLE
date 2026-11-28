@@ -24,7 +24,7 @@ internal static class EditReducer
         };
         Guid sequenceId = operation switch
         {
-            AddTrack x => x.SequenceId, InsertClip x => x.SequenceId, MoveClip x => x.SequenceId,
+            AddTrack x => x.SequenceId, RemoveTrack x => x.SequenceId, InsertClip x => x.SequenceId, MoveClip x => x.SequenceId,
             TrimClip x => x.SequenceId, SplitClip x => x.SequenceId, DeleteClip x => x.SequenceId,
             RippleDelete x => x.SequenceId, SetTrackState x => x.SequenceId, SetTrackRole x => x.SequenceId,
             SetCreatorSettings x => x.SequenceId, SetClipProperties x => x.SequenceId,
@@ -62,6 +62,17 @@ internal static class EditReducer
             return document with { Sequences = document.Sequences.SetItem(si, sequence with { Creator = settings.Settings }) };
         if (operation is SetTitle or RemoveTitle or SetTitleTransform or SetTitleContent)
             return document with { Sequences = document.Sequences.SetItem(si, sequence with { Tracks = Titles(sequence, operation, document.Assets) }) };
+        if (operation is RemoveTrack removal)
+        {
+            int index = Index(sequence.Tracks, t => t.Id == removal.TrackId, "track");
+            Unlocked(sequence.Tracks[index]);
+            DocumentValidator.Require(sequence.Tracks.Length > 1, "A sequence keeps at least one track.");
+            var remaining = sequence.Tracks.RemoveAt(index);
+            remaining = [.. remaining.Select((t, order) => t with { Order = order })];
+            var creator = sequence.Creator is { } mix
+                ? mix with { Audio = mix.Audio.RemoveAll(a => a.TrackId == removal.TrackId) } : null;
+            return document with { Sequences = document.Sequences.SetItem(si, sequence with { Tracks = remaining, Creator = creator }) };
+        }
         if (operation is PatchTrackGain gain)
         {
             var track = sequence.Tracks[Index(sequence.Tracks, t => t.Id == gain.TrackId, "audio track")];

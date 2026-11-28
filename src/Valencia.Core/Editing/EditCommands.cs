@@ -11,6 +11,9 @@ public sealed record CreateSequence(Guid SequenceId, string Name, VideoFormat Vi
 public sealed record SetSequenceMarker(Guid SequenceId, SequenceMarker Marker) : EditOperation;
 public sealed record RemoveSequenceMarker(Guid SequenceId, Guid MarkerId) : EditOperation;
 public sealed record AddTrack(Guid SequenceId, Guid TrackId, TrackKind Kind, int Order, string Name) : EditOperation;
+/// <summary>Deletes an unlocked track with its clips and transitions, as Premiere's Delete Track does (undoable).
+/// The track's mix settings go with it. A sequence always keeps at least one track.</summary>
+public sealed record RemoveTrack(Guid SequenceId, Guid TrackId) : EditOperation;
 public sealed record InsertClip(Guid SequenceId, Guid TrackId, TimelineClip Clip) : EditOperation;
 /// <summary>Move within a sequence; both original and destination tracks must be unlocked.</summary>
 public sealed record MoveClip(Guid SequenceId, Guid ClipId, Guid DestinationTrackId, SequenceTime Start) : EditOperation;

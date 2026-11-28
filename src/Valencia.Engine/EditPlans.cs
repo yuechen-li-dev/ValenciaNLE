@@ -29,6 +29,7 @@ public sealed record ClipDto(Guid Id, Guid AssetId, int StreamIndex, string Star
 [JsonDerivedType(typeof(TrackRolePlan), "trackRole")]
 [JsonDerivedType(typeof(AssetRolePlan), "assetRole")]
 [JsonDerivedType(typeof(AddTrackPlan), "addTrack")]
+[JsonDerivedType(typeof(RemoveTrackPlan), "removeTrack")]
 [JsonDerivedType(typeof(CreatorPlan), "creator")]
 [JsonDerivedType(typeof(PropertiesPlan), "properties")]
 [JsonDerivedType(typeof(ColorPlan), "color")]
@@ -88,6 +89,11 @@ public sealed record TrackStatePlan(Guid TrackId, TrackState State) : PlanOperat
 public sealed record AddTrackPlan(Guid TrackId, TrackKind Kind, int Order, string Name) : PlanOperation
 {
     public override EditOperation ToCore(Guid sequenceId) => new AddTrack(sequenceId, TrackId, Kind, Order, Name);
+}
+/// <summary>Deletes an unlocked track with its clips (Premiere's Delete Track). The sequence keeps at least one track.</summary>
+public sealed record RemoveTrackPlan(Guid TrackId) : PlanOperation
+{
+    public override EditOperation ToCore(Guid sequenceId) => new RemoveTrack(sequenceId, TrackId);
 }
 public sealed record CreatorPlan(CreatorSettings Settings) : PlanOperation
 {

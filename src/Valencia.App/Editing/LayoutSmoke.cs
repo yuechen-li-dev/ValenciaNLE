@@ -96,8 +96,23 @@ internal sealed class LayoutSmoke(string directory)
             w.OpenSettings(); w.Settings.BeginCapture("TogglePlay");
         }),
         ("settings-about", w => w.OpenSettings(SettingsSection.About)),
+        // Many tracks: the track scrollbar appears, and a bin drag shows its cyan drop preview on V2 and A2.
+        ("tracks-overflow-drop", w =>
+        {
+            w.Settings.Close();
+            var e = w.Editor;
+            for (int i = 0; i < 12; i++)
+            {
+                var kind = i % 3 == 0 ? TrackKind.Audio : TrackKind.Video;
+                e.Commit(new Valencia.Core.Editing.AddTrack(e.SequenceId, Guid.NewGuid(), kind, TrackLayout.NewTrackOrder(e.Sequence.Tracks, kind), kind.ToString()));
+            }
+            e.Viewport.FirstTrack = 0;
+            var v2 = e.Sequence.Tracks.Where(t => t.Kind == TrackKind.Video).ElementAt(1);
+            var a2 = e.Sequence.Tracks.Where(t => t.Kind == TrackKind.Audio).ElementAt(1);
+            e.DropGhosts = [(v2.Id, T(5), T(9)), (a2.Id, T(5), T(9))];
+        }),
         // Last: an empty project shows the monitor's resting state. The benchmark below reopens the original document.
-        ("no-signal", w => { w.Settings.Close(); w.Editor.New(); }),
+        ("no-signal", w => { w.Editor.DropGhosts = []; w.Settings.Close(); w.Editor.New(); }),
     ];
     private ProjectSnapshot? original;
     public bool Finished { get; private set; }

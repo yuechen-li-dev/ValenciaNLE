@@ -13,7 +13,7 @@ public sealed class EditingTests
     [Theory]
     [InlineData("asset")][InlineData("sequence")][InlineData("track")][InlineData("insert")]
     [InlineData("move")][InlineData("cross-track")][InlineData("trim")][InlineData("split")]
-    [InlineData("delete")][InlineData("ripple")][InlineData("state")]
+    [InlineData("delete")][InlineData("ripple")][InlineData("state")][InlineData("remove-track")]
     public void EveryOperationUndoesAndRedoesExactSemanticState(string kind)
     {
         var session = Create();
@@ -31,6 +31,7 @@ public sealed class EditingTests
             "delete" => new DeleteClip(SequenceId, ClipId),
             "ripple" => new RippleDelete(SequenceId, [Video1], T(3), T(5), [new(ClipId, Id(8))]),
             "state" => new SetTrackState(SequenceId, Video1, new(Locked: true, Visible: false)),
+            "remove-track" => new RemoveTrack(SequenceId, Video1),
             _ => throw new ArgumentException(kind)
         };
         var edit = Apply(session, operation);
@@ -44,6 +45,42 @@ public sealed class EditingTests
         Assert.True(DocumentSemantics.Equal(after.Document, session.Snapshot.Document));
         Assert.Equal(before.Revision + 3, session.Snapshot.Revision);
         DocumentValidator.Validate(session.Snapshot.Document);
+    }
+
+    [Fact]
+    public void RemoveTrackTakesItsClipsAndMixButNeverALockedOrTheLastTrack()
+    {
+        var session = Create();
+        Assert.True(Apply(session, new AddTrack(SequenceId, Id(8), TrackKind.Audio, 2, "A1")).Success);
+        Assert.True(Apply(session, new PatchTrackGain(SequenceId, Id(8), -6, null)).Success);
+        var removed = Apply(session, new RemoveTrack(SequenceId, Id(8)));
+        Assert.True(removed.Success, removed.Message);
+        var sequence = session.Snapshot.Document.Sequences.Single(s => s.Id == SequenceId);
+        Assert.DoesNotContain(sequence.Tracks, t => t.Id == Id(8));
+        Assert.Equal(Enumerable.Range(0, sequence.Tracks.Length), sequence.Tracks.Select(t => t.Order));
+        Assert.DoesNotContain(sequence.Creator!.Audio, a => a.TrackId == Id(8)); // the strip's mix goes with it
+        DocumentValidator.Validate(session.Snapshot.Document);
+
+        Assert.True(Apply(session, new SetTrackState(SequenceId, Video2, new(Locked: true))).Success);
+        Assert.False(Apply(session, new RemoveTrack(SequenceId, Video2)).Success);
+        Assert.True(Apply(session, new RemoveTrack(SequenceId, Video1)).Success);
+        Assert.True(Apply(session, new RemoveTrack(SequenceId, Audio)).Success);
+        Assert.True(Apply(session, new SetTrackState(SequenceId, Video2, new())).Success);
+        var last = Apply(session, new RemoveTrack(SequenceId, Video2));
+        Assert.False(last.Success);
+        Assert.Contains("at least one track", last.Message);
+    }
+
+    [Fact]
+    public void NewTracksKeepVideoGroupedAboveAudioAndMediaStacksFromItsTarget()
+    {
+        TimelineTrack Track(TrackKind kind, string name) => new(Guid.NewGuid(), kind, 0, name, new(), []);
+        TimelineTrack[] tracks = [Track(TrackKind.Video, "V1"), Track(TrackKind.Video, "V2"), Track(TrackKind.Audio, "A1"), Track(TrackKind.Audio, "A2"), Track(TrackKind.Audio, "A3")];
+        Assert.Equal(2, TrackLayout.NewTrackOrder(tracks, TrackKind.Video));
+        Assert.Equal(5, TrackLayout.NewTrackOrder(tracks, TrackKind.Audio));
+        Assert.Equal(0, TrackLayout.NewTrackOrder([tracks[2]], TrackKind.Video));
+        Assert.Equal(["A2", "A3", "A1"], TrackLayout.FromTarget(tracks, TrackKind.Audio, tracks[3].Id).Select(t => t.Name));
+        Assert.Equal(["V1", "V2"], TrackLayout.FromTarget(tracks, TrackKind.Video, tracks[3].Id).Select(t => t.Name)); // other-kind target
     }
 
     [Fact]

@@ -273,6 +273,7 @@ internal sealed partial class EditorWindow
         (string Category, string Key, string Label, string Keywords)[] extra =
         [
             ("Track", "AddVideo", "Add video track", "timeline"), ("Track", "AddAudio", "Add audio track", "timeline"),
+            ("Track", "TrackDeleteTarget", "Delete targeted track", "remove"), ("Track", "TrackDeleteEmpty", "Delete all empty tracks", "remove clean up"),
             ("Timeline", "ToggleLink", $"Turn linked selection {On(Editor.LinkedSelection)}", "link audio video"),
             ("Timeline", "ToggleMagnet", $"Turn magnetic timeline {On(Editor.Magnetic)}", "ripple magnet"),
             ("App", "Settings", "Settings", "preferences about"),

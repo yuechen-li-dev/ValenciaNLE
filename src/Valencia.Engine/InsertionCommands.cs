@@ -15,13 +15,16 @@ public static class InsertionCommands
         var tracks = new TimelineQueries(snapshot).Sequence(sequenceId).Tracks;
         foreach (var stream in imported.Asset.Streams)
         {
-            var track = tracks.FirstOrDefault(t => t.Kind == stream.Kind && t.Id == targetTrack)
-                ?? tracks.FirstOrDefault(t => t.Kind == stream.Kind && !operations.OfType<InsertClip>().Any(i => i.TrackId == t.Id));
+            // Target first, then the following tracks of the same kind: linked streams stack downward from the target.
+            var used = operations.OfType<InsertClip>().Select(i => i.TrackId).ToHashSet();
+            var track = TrackLayout.FromTarget(tracks, stream.Kind, targetTrack).FirstOrDefault(t => !used.Contains(t.Id));
             if (track is null)
             {
-                track = new(Guid.NewGuid(), stream.Kind, tracks.Length, stream.Kind.ToString(), new(), []);
-                tracks = tracks.Add(track);
-                operations.Add(new AddTrack(sequenceId, track.Id, track.Kind, track.Order, track.Name));
+                // New tracks keep video grouped above audio.
+                int order = TrackLayout.NewTrackOrder(tracks, stream.Kind);
+                track = new(Guid.NewGuid(), stream.Kind, order, stream.Kind.ToString(), new(), []);
+                tracks = [.. tracks.Insert(order, track).Select((t, i) => t with { Order = i })];
+                operations.Add(new AddTrack(sequenceId, track.Id, track.Kind, order, track.Name));
             }
             var start = stream.Start ?? new MediaTimestamp(0, stream.TimeBaseNumerator, stream.TimeBaseDenominator);
             long offset = Math.Max(0, TimelineTime.Convert(start, TimeRounding.Floor).Ticks - TimelineTime.Convert(imported.ContainerStart, TimeRounding.Floor).Ticks);

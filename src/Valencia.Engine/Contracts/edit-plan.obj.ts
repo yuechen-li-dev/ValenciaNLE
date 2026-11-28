@@ -24,6 +24,8 @@ type Ripple = { operation: "rippleDelete"; trackIds: string[]; start: Time; end:
 type TrackState = { locked: boolean; muted: boolean; visible: boolean; };
 type SetState = { operation: "trackState"; trackId: string; state: TrackState; };
 type AddTrack = { operation: "addTrack"; trackId: string; kind: "video" | "audio"; order: number; name: string; };
+/** Deletes an unlocked track with its clips. The sequence keeps at least one track. */
+type RemoveTrack = { operation: "removeTrack"; trackId: string; };
 type Clock = { value: string; numerator: number; denominator: number; totalSeconds?: number; };
 type Ticks = { ticks: string; totalSeconds?: number; };
 type CaptionPosition = { timestamp: Clock; offset: Ticks; };
@@ -53,7 +55,7 @@ type TransitionSpec = { outgoingClipId: string; incomingClipId: string; beforeTi
 type Transition = { operation: "transition"; trackId: string; transitionId: string; transition?: TransitionSpec; };
 type TrackRole = { operation: "trackRole"; trackId: string; role?: string; };
 type AssetRole = { operation: "assetRole"; assetId: string; role?: string; };
-type EditOperation = Insert | Move | Trim | Speed | Freeze | Split | Delete | Ripple | SetState | AddTrack | Creator | Properties | Color | Region | OutputFraming | Title | RemoveTitle | ClipMotion | Transform | SoundHit | ClipGain | TrackGain | Transition | TrackRole | AssetRole;
+type EditOperation = Insert | Move | Trim | Speed | Freeze | Split | Delete | Ripple | SetState | AddTrack | RemoveTrack | Creator | Properties | Color | Region | OutputFraming | Title | RemoveTitle | ClipMotion | Transform | SoundHit | ClipGain | TrackGain | Transition | TrackRole | AssetRole;
 type SourcePrecondition = { assetId: string; fingerprint: string; };
 type EditPlan = { schemaVersion: number; projectId: string; projectRevision: string; sequenceId: string; operations: EditOperation[]; note?: string; sourcePreconditions?: SourcePrecondition[]; };
 type ReviewSelection = { kind: "frame" | "contactSheet" | "video"; atTicks?: Time[]; startTicks?: Time; endTicks?: Time; profileId?: string; maxEdge?: number; };

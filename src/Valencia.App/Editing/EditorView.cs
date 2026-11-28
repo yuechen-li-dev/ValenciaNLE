@@ -544,7 +544,7 @@ internal sealed partial class EditorView
                     if (trackId == track.Id) ClipRect(ghost, y, gesture.Valid ? Ui.Ghost : Ui.GhostInvalid, false);
         }
         if (sequence.Tracks.Length > viewport.VisibleTracks)
-            children.Add(Text($"Tracks {viewport.FirstTrack + 1}-{Math.Min(sequence.Tracks.Length, viewport.FirstTrack + viewport.VisibleTracks)} of {sequence.Tracks.Length} (Shift+wheel)",
+            children.Add(Text($"Tracks {viewport.FirstTrack + 1}-{Math.Min(sequence.Tracks.Length, viewport.FirstTrack + viewport.VisibleTracks)} of {sequence.Tracks.Length} (scrollbar, or wheel over track headers)",
                 Gap, viewport.TrackTop + viewport.VisibleTracks * row + 2, layout.Width - 2 * Gap, 14, TextSize.Xs, Ui.Mute));
         if (sequence.Tracks.All(t => t.Clips.IsEmpty))
             children.Add(Text("Empty sequence. Import media (Ctrl+I), select it, then Insert (,) at the playhead.",
@@ -568,6 +568,8 @@ internal sealed partial class EditorView
             float snapX = (float)viewport.X(snap);
             if (snapX >= viewport.ClipLeft && snapX <= viewport.ClipRight) quads.Add(new(snapX - 1, (float)rulerY, 2, (float)(viewport.TrackBottom - rulerY), Ui.Cyan));
         }
+        DropGhosts(quads, editor, viewport, row, clipHeight);
+        TrackScrollbar(quads, editor, viewport, row);
         EdgeMeter(children, quads, editor, layout);
         void ClipRect(TimelineClip c, float y, uint color, bool ring)
         {
@@ -634,6 +636,49 @@ internal sealed partial class EditorView
                 quads.Add(new(x, center - binHeight / 2, binWidth, binHeight, color));
             }
         }
+    }
+
+    /// <summary>Cyan ghosts of the clips a bin drag would place, on the tracks that would receive them.</summary>
+    private static void DropGhosts(List<CanvasRectangle> quads, EditorDocument editor, TimelineViewport viewport, double row, double clipHeight)
+    {
+        if (editor.DropGhosts.Count == 0) return;
+        var tracks = editor.Sequence.Tracks;
+        foreach (var (trackId, start, end) in editor.DropGhosts)
+        {
+            int index = tracks.IndexOf(tracks.FirstOrDefault(t => t.Id == trackId)!);
+            if (index < viewport.FirstTrack || index >= viewport.FirstTrack + viewport.VisibleTracks) continue;
+            float y = (float)(viewport.TrackTop + (index - viewport.FirstTrack) * row) + 3;
+            float left = (float)Math.Clamp(viewport.X(start), viewport.ClipLeft, viewport.ClipRight);
+            float right = (float)Math.Clamp(viewport.X(end), viewport.ClipLeft, viewport.ClipRight);
+            if (right - left < 1) continue;
+            float h = (float)clipHeight;
+            quads.Add(new(left, y, right - left, h, Ui.Ghost));
+            quads.Add(new(left, y, right - left, 2, Ui.Cyan)); quads.Add(new(left, y + h - 2, right - left, 2, Ui.Cyan));
+            quads.Add(new(left, y, 2, h, Ui.Cyan));
+        }
+    }
+
+    /// <summary>
+    /// Vertical track scrollbar along the clip area's right edge, shown only when tracks overflow the rows. The window
+    /// drags the thumb and pages on the groove; Shift+wheel, or the wheel over track headers, scrolls too.
+    /// </summary>
+    private static void TrackScrollbar(List<CanvasRectangle> quads, EditorDocument editor, TimelineViewport viewport, double row)
+    {
+        int total = editor.Sequence.Tracks.Length, visible = viewport.VisibleTracks;
+        if (total <= visible || visible <= 0) { editor.TrackScrollbar = null; return; }
+        const double width = 10;
+        double top = viewport.TrackTop, height = visible * row - 2, x = viewport.ClipRight - width;
+        double thumbHeight = Math.Max(24, height * visible / total);
+        double thumbY = top + (height - thumbHeight) * viewport.FirstTrack / Math.Max(1, total - visible);
+        var groove = new Rect(x, top, width, height);
+        var thumb = new Rect(x + 2, thumbY, width - 4, thumbHeight);
+        editor.TrackScrollbar = (groove, thumb);
+        quads.Add(new((float)x, (float)top, (float)width, (float)height, Ui.Ink));
+        quads.Add(new((float)x, (float)top, 1, (float)height, Ui.Rule));
+        quads.Add(new((float)thumb.X, (float)thumb.Y, (float)thumb.Width, (float)thumb.Height, Ui.Mute));
+        // Grip ticks mark the thumb as draggable without an icon.
+        for (int i = -1; i <= 1; i++)
+            quads.Add(new((float)thumb.X + 1, (float)(thumb.Y + thumb.Height / 2 + i * 4), (float)thumb.Width - 2, 1, Ui.Ink));
     }
 
     // ---------------------------------------------------------------- status
